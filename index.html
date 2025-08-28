@@ -1501,15 +1501,46 @@
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         };
                     } else {
-                        // Outros usuários - gerar dados consistentes baseados no ID
-                        const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                        const nameIndex = post.user_id.charCodeAt(0) % names.length;
-                        const userName = names[nameIndex];
+                        // Outros usuários - buscar dados reais da tabela profiles
+                        console.log(`🔍 Buscando dados reais do usuário: ${post.user_id}`);
                         
-                        post.user_data = {
-                            name: userName,
-                            avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`
-                        };
+                        try {
+                            const userQuery = supabase
+                                .from('profiles')
+                                .select('name, email, avatar_url')
+                                .eq('id', post.user_id)
+                                .single();
+                            
+                            const { data: userData, error: userError } = await withTimeout(userQuery, 1500);
+                            
+                            if (userData && !userError) {
+                                // Dados reais encontrados
+                                const realName = userData.name || userData.email || 'Usuário';
+                                const realAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(realName)}&background=667eea&color=fff`;
+                                
+                                post.user_data = {
+                                    name: realName,
+                                    avatar_url: realAvatar
+                                };
+                                
+                                console.log(`✅ Dados reais encontrados: ${realName}`);
+                            } else {
+                                throw new Error('Usuário não encontrado na tabela profiles');
+                            }
+                            
+                        } catch (profileError) {
+                            console.warn(`⚠️ Erro ao buscar perfil, usando fallback para ${post.user_id}:`, profileError.message);
+                            
+                            // Fallback com nomes fictícios baseados no ID
+                            const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                            const nameIndex = post.user_id.charCodeAt(0) % names.length;
+                            const userName = names[nameIndex];
+                            
+                            post.user_data = {
+                                name: userName,
+                                avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`
+                            };
+                        }
                     }
                     
                     // Inicializar array de reações se não existir
