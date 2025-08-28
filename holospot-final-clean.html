@@ -1882,82 +1882,28 @@
             console.log('✅ Dados de usuários processados');
         }
 
-        // FUNÇÃO GLOBAL PARA FEEDBACK - ULTRA SIMPLIFICADA
+        // FUNÇÃO GLOBAL PARA FEEDBACK - USANDO mentioned_user_id
         window.getFeedbackButton = function(post) {
             console.log('🔍 getFeedbackButton GLOBAL chamada para post:', post.id);
+            console.log('🆔 mentioned_user_id:', post.mentioned_user_id);
+            console.log('👤 Usuário atual ID:', currentUser?.id);
             
-            const mentionedPersonName = post.celebrated_person_name || post.person_name;
-            console.log('👤 Pessoa mencionada:', mentionedPersonName);
-            console.log('👤 Usuário atual:', currentUser?.email);
-            
-            if (!mentionedPersonName) {
-                console.log('❌ Nenhuma pessoa mencionada');
-                return '';
-            }
-            
-            // Verificação ULTRA SIMPLES para @holospot.adm
-            if (mentionedPersonName === '@holospot.adm' && currentUser?.email === 'holospot.adm@gmail.com') {
-                console.log('✅ MATCH! Usuário @holospot.adm detectado! Retornando botão');
+            // Verificar se o usuário logado é a pessoa mencionada (comparação por ID)
+            if (post.mentioned_user_id && currentUser?.id === post.mentioned_user_id) {
+                console.log('✅ MATCH! Usuário mencionado detectado por ID! Retornando botão');
+                
                 return `
-                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
-                        <button class="feedback-btn" style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;" onclick="alert('Botão de feedback funcionando!')">
+                    <div style="background: #e8f4fd; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                        <button class="feedback-btn" onclick="openFeedbackModal('${post.id}', '${post.user_id}')">
                             💬 Dar Feedback
                         </button>
                     </div>
                 `;
             }
             
-            console.log('❌ Usuário não é @holospot.adm ou não está logado como holospot.adm@gmail.com');
+            console.log('❌ Usuário não é a pessoa mencionada');
             return '';
         };
-
-        function getFeedbackButton(post) {
-            // Versão simplificada para debug - sem queries assíncronas
-            console.log('🔍 getFeedbackButton chamada para post:', post.id);
-            
-            const mentionedPersonName = post.celebrated_person_name || post.person_name;
-            console.log('👤 Pessoa mencionada:', mentionedPersonName);
-            console.log('👤 Usuário atual:', currentUser?.email);
-            
-            if (!mentionedPersonName) {
-                console.log('❌ Nenhuma pessoa mencionada');
-                return '';
-            }
-            
-            // Verificação simples para @holospot.adm
-            if (mentionedPersonName === '@holospot.adm' && currentUser?.email === 'holospot.adm@gmail.com') {
-                console.log('✅ Usuário mencionado detectado! Retornando botão');
-                return `
-                    <div class="feedback-section">
-                        <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')">
-                            💬 Dar Feedback
-                        </button>
-                    </div>
-                `;
-            }
-            
-            // Verificação para outros usuários (simplificada)
-            if (mentionedPersonName.startsWith('@')) {
-                const mentionedUsername = mentionedPersonName.substring(1);
-                const currentUsername = currentUser?.email?.split('@')[0];
-                
-                console.log('🔍 Comparando:', mentionedUsername, 'vs', currentUsername);
-                
-                if (mentionedUsername === currentUsername) {
-                    console.log('✅ Usuário mencionado por username! Retornando botão');
-                    return `
-                        <div class="feedback-section">
-                            <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')">
-                                💬 Dar Feedback
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-            
-            console.log('❌ Usuário não mencionado');
-            return '';
-        }
 
         async function renderPosts() {
             const container = document.getElementById('postsContainer');
@@ -2422,6 +2368,58 @@
             }
         }
 
+        async function findMentionedUserId(personName) {
+            try {
+                console.log('🔍 Buscando ID do usuário mencionado:', personName);
+                
+                // Extrair username se for uma menção (@username)
+                let searchTerm = personName;
+                if (personName.startsWith('@')) {
+                    searchTerm = personName.substring(1); // Remove @
+                }
+                
+                // Buscar por email exato (username@gmail.com, username@hotmail.com, etc.)
+                const emailPatterns = [
+                    `${searchTerm}@gmail.com`,
+                    `${searchTerm}@hotmail.com`,
+                    `${searchTerm}@outlook.com`,
+                    `${searchTerm}@yahoo.com`
+                ];
+                
+                for (const email of emailPatterns) {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('email', email)
+                        .single();
+                    
+                    if (data && !error) {
+                        console.log('✅ Usuário encontrado por email:', email, 'ID:', data.id);
+                        return data.id;
+                    }
+                }
+                
+                // Buscar por nome (fallback)
+                const { data: nameData, error: nameError } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .ilike('name', `%${searchTerm}%`)
+                    .single();
+                
+                if (nameData && !nameError) {
+                    console.log('✅ Usuário encontrado por nome:', searchTerm, 'ID:', nameData.id);
+                    return nameData.id;
+                }
+                
+                console.log('⚠️ Usuário não encontrado:', personName);
+                return null;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar ID do usuário:', error);
+                return null;
+            }
+        }
+
         async function createPost() {
             const personName = document.getElementById('personName').value.trim();
             const storyText = document.getElementById('storyText').value.trim();
@@ -2486,6 +2484,15 @@
                 createBtn.textContent = 'Criando post...';
                 console.log('📝 Criando post no banco de dados...');
                 
+                // Buscar ID do usuário mencionado
+                let mentionedUserId = null;
+                try {
+                    mentionedUserId = await findMentionedUserId(personName);
+                    console.log('🔍 ID do usuário mencionado:', mentionedUserId);
+                } catch (error) {
+                    console.warn('⚠️ Erro ao buscar ID do usuário mencionado:', error);
+                }
+                
                 try {
                     const { data, error } = await supabase
                         .from('posts')
@@ -2494,7 +2501,8 @@
                             celebrated_person_name: personName,
                             content: storyText,
                             photo_url: photoUrl,
-                            type: mappedType
+                            type: mappedType,
+                            mentioned_user_id: mentionedUserId
                         })
                         .select()
                         .single();
