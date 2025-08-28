@@ -1882,6 +1882,35 @@
             console.log('✅ Dados de usuários processados');
         }
 
+        // FUNÇÃO GLOBAL PARA FEEDBACK - ULTRA SIMPLIFICADA
+        window.getFeedbackButton = function(post) {
+            console.log('🔍 getFeedbackButton GLOBAL chamada para post:', post.id);
+            
+            const mentionedPersonName = post.celebrated_person_name || post.person_name;
+            console.log('👤 Pessoa mencionada:', mentionedPersonName);
+            console.log('👤 Usuário atual:', currentUser?.email);
+            
+            if (!mentionedPersonName) {
+                console.log('❌ Nenhuma pessoa mencionada');
+                return '';
+            }
+            
+            // Verificação ULTRA SIMPLES para @holospot.adm
+            if (mentionedPersonName === '@holospot.adm' && currentUser?.email === 'holospot.adm@gmail.com') {
+                console.log('✅ MATCH! Usuário @holospot.adm detectado! Retornando botão');
+                return `
+                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                        <button class="feedback-btn" style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;" onclick="alert('Botão de feedback funcionando!')">
+                            💬 Dar Feedback
+                        </button>
+                    </div>
+                `;
+            }
+            
+            console.log('❌ Usuário não é @holospot.adm ou não está logado como holospot.adm@gmail.com');
+            return '';
+        };
+
         function getFeedbackButton(post) {
             // Versão simplificada para debug - sem queries assíncronas
             console.log('🔍 getFeedbackButton chamada para post:', post.id);
