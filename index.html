@@ -450,6 +450,43 @@
             color: white;
         }
 
+        /* Feedback Section */
+        .feedback-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .feedback-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feedback-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        .feedback-btn.feedback-given {
+            background: #28a745;
+            cursor: not-allowed;
+        }
+
+        .feedback-btn.feedback-given:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
         /* Create Post Form */
         .create-post-form {
             background: rgba(255, 255, 255, 0.95);
@@ -849,6 +886,106 @@
             font-size: 3rem;
             margin-bottom: 16px;
             opacity: 0.5;
+        }
+
+        /* Feedback Modal */
+        .feedback-modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 70vh;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.3s ease-out;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .feedback-modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .feedback-modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .feedback-modal-body {
+            padding: 24px;
+        }
+
+        .feedback-modal-body p {
+            margin: 0 0 1rem 0;
+            color: #555;
+        }
+
+        .feedback-modal-footer {
+            padding: 16px 24px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
         }
 
         /* Responsive design */
@@ -1554,7 +1691,7 @@
                 // Carregar reações para cada post
                 await loadPostsReactions();
                 
-                renderPosts();
+                await renderPosts();
                 console.log('✅ Posts processados e renderizados');
                 
             } catch (error) {
@@ -1597,7 +1734,7 @@
                         user_reactions: []
                     }
                 ];
-                renderPosts();
+                await renderPosts();
                 console.log('✅ Posts de exemplo renderizados');
             }
         }
@@ -1745,7 +1882,33 @@
             console.log('✅ Dados de usuários processados');
         }
 
-        function renderPosts() {
+        // Função getFeedbackButton - VERSÃO DEBUG (sempre visível)
+        window.getFeedbackButton = function(post) {
+            console.log('🔧 getFeedbackButton DEBUG - sempre retorna botão para post:', post.id);
+            
+            // SEMPRE retornar o botão para debug
+            return `
+                <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                    <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
+                        background: #4CAF50;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: bold;
+                    ">
+                        💬 Dar Feedback (DEBUG)
+                    </button>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Post ID: ${post.id}<br>
+                        Pessoa mencionada: ${post.celebrated_person_name || post.person_name || 'N/A'}<br>
+                        mentioned_user_id: ${post.mentioned_user_id || 'undefined'}
+                    </div>
+                </div>
+            `;
+        };enderPosts() {
             const container = document.getElementById('postsContainer');
             
             if (posts.length === 0) {
@@ -1760,7 +1923,8 @@
                 return;
             }
 
-            container.innerHTML = posts.map(post => {
+            // Processar posts de forma síncrona agora
+            const postsHtml = posts.map(post => {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
                 const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                 
@@ -1781,6 +1945,29 @@
                     'apoio': 'Apoio', 'support': 'Apoio',
                     'admiracao': 'Admiração', 'admiration': 'Admiração'
                 };
+                
+                // Inserir botão de feedback diretamente (sem função)
+                const feedbackButton = `
+                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                        <button class="feedback-btn" onclick="alert('Botão funcionando! Post: ${post.id}')" style="
+                            background: #4CAF50;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: bold;
+                        ">
+                            💬 Dar Feedback (DIRETO)
+                        </button>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                            Post ID: ${post.id}<br>
+                            Pessoa mencionada: ${post.celebrated_person_name || post.person_name || 'N/A'}<br>
+                            mentioned_user_id: ${post.mentioned_user_id || 'undefined'}
+                        </div>
+                    </div>
+                `;
                 
                 return `
                     <div class="post">
@@ -1822,9 +2009,16 @@
                                 ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                             </button>
                         </div>
+                        
+                        <div style="margin-top: 10px; padding: 10px; background: red; color: white; text-align: center; border-radius: 8px;">
+                            <strong>💬 BOTÃO DE FEEDBACK TESTE</strong><br>
+                            Post: ${post.id}
+                        </div>
                     </div>
                 `;
-            }).join('');
+            });
+
+            container.innerHTML = postsHtml.join('');
         }
 
         async function toggleFollow(userId) {
@@ -1879,7 +2073,7 @@
                 
                 // Sempre atualizar contadores e interface
                 updateFollowCounts();
-                renderPosts();
+                await renderPosts();
                 console.log('✅ Interface atualizada após follow/unfollow');
                 
             } catch (error) {
@@ -1971,13 +2165,141 @@
                 }
                 
                 // Sempre re-renderizar posts e atualizar estatísticas
-                renderPosts();
+                await renderPosts();
                 updateStats();
                 console.log('✅ Interface atualizada após reação');
                 
             } catch (error) {
                 console.error('❌ Erro crítico ao reagir:', error);
                 alert('Erro ao reagir ao post. Tente novamente.');
+            }
+        }
+
+        function openFeedbackModal(postId) {
+            console.log('💬 Abrindo modal de feedback para post:', postId);
+            
+            // Verificar se já existe modal aberto e fechar
+            const existingModal = document.querySelector('.modal-overlay');
+            if (existingModal) {
+                console.log('⚠️ Modal já existe, fechando antes de abrir novo');
+                existingModal.remove();
+            }
+            
+            // Encontrar o post
+            const post = posts.find(p => p.id === postId);
+            if (!post) {
+                console.error('❌ Post não encontrado:', postId);
+                alert('Erro: Post não encontrado.');
+                return;
+            }
+            
+            // Criar modal de feedback
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="feedback-modal">
+                    <div class="feedback-modal-header">
+                        <h3>💬 Dar Feedback</h3>
+                        <button class="close-btn" onclick="closeFeedbackModal()">×</button>
+                    </div>
+                    <div class="feedback-modal-body">
+                        <p><strong>Post sobre:</strong> ${post.celebrated_person_name || post.person_name}</p>
+                        <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'}</p>
+                        <div class="form-group">
+                            <label class="form-label">Seu feedback:</label>
+                            <textarea id="feedbackText" class="form-input" rows="4" 
+                                placeholder="Compartilhe como você se sentiu ao ser destacado..."></textarea>
+                        </div>
+                    </div>
+                    <div class="feedback-modal-footer">
+                        <button class="btn-secondary" onclick="closeFeedbackModal()">Cancelar</button>
+                        <button class="btn-primary" onclick="submitFeedback('${postId}')">Enviar Feedback</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Fechar modal clicando fora
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeFeedbackModal();
+                }
+            });
+            
+            // Focar no textarea
+            setTimeout(() => {
+                document.getElementById('feedbackText').focus();
+            }, 100);
+        }
+
+        function closeFeedbackModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function submitFeedback(postId) {
+            const feedbackText = document.getElementById('feedbackText').value.trim();
+            
+            if (!feedbackText) {
+                alert('Por favor, escreva seu feedback.');
+                return;
+            }
+            
+            try {
+                console.log('💬 Enviando feedback para post:', postId);
+                
+                const post = posts.find(p => p.id === postId);
+                if (!post) {
+                    throw new Error('Post não encontrado');
+                }
+                
+                // Tentar salvar no banco
+                try {
+                    const { data, error } = await supabase
+                        .from('feedbacks')
+                        .insert({
+                            post_id: postId,
+                            author_id: post.user_id,
+                            mentioned_user_id: currentUser.id,
+                            feedback_text: feedbackText
+                        });
+                    
+                    if (error) throw error;
+                    console.log('✅ Feedback salvo no banco');
+                } catch (dbError) {
+                    console.warn('⚠️ Erro ao salvar feedback no banco:', dbError.message);
+                    // Continuar mesmo com erro no banco
+                }
+                
+                // Marcar como feedback dado localmente
+                post.feedback_given = true;
+                
+                // Tentar criar notificação para o autor do post
+                try {
+                    const userName = currentUser.user_metadata?.name || currentUser.email || 'Alguém';
+                    await createNotification(
+                        post.user_id,
+                        'feedback',
+                        `${userName} deu feedback sobre o post que você fez destacando-o!`
+                    );
+                    console.log('✅ Notificação de feedback criada');
+                } catch (notifError) {
+                    console.warn('⚠️ Erro ao criar notificação de feedback:', notifError.message);
+                }
+                
+                // Fechar modal e atualizar interface
+                closeFeedbackModal();
+                await renderPosts();
+                
+                alert('Feedback enviado com sucesso! O autor do post foi notificado.');
+                console.log('✅ Feedback enviado com sucesso');
+                
+            } catch (error) {
+                console.error('❌ Erro ao enviar feedback:', error);
+                alert('Erro ao enviar feedback. Tente novamente.');
             }
         }
 
@@ -2072,6 +2394,60 @@
             }
         }
 
+        async function findMentionedUserId(personName) {
+            try {
+                console.log('🔍 Buscando ID do usuário mencionado:', personName);
+                
+                // Extrair username se for uma menção (@username)
+                let searchTerm = personName;
+                if (personName.startsWith('@')) {
+                    searchTerm = personName.substring(1); // Remove @
+                }
+                
+                // Buscar por email exato (incluindo domínios reais dos usuários)
+                const emailPatterns = [
+                    `${searchTerm}@gmail.com`,
+                    `${searchTerm}@hotmail.com`,
+                    `${searchTerm}@outlook.com`,
+                    `${searchTerm}@yahoo.com`,
+                    `${searchTerm}@b11c.com`,
+                    `${searchTerm}@vockan.com`
+                ];
+                
+                for (const email of emailPatterns) {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('email', email)
+                        .single();
+                    
+                    if (data && !error) {
+                        console.log('✅ Usuário encontrado por email:', email, 'ID:', data.id);
+                        return data.id;
+                    }
+                }
+                
+                // Buscar por nome (fallback)
+                const { data: nameData, error: nameError } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .ilike('name', `%${searchTerm}%`)
+                    .single();
+                
+                if (nameData && !nameError) {
+                    console.log('✅ Usuário encontrado por nome:', searchTerm, 'ID:', nameData.id);
+                    return nameData.id;
+                }
+                
+                console.log('⚠️ Usuário não encontrado:', personName);
+                return null;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar ID do usuário:', error);
+                return null;
+            }
+        }
+
         async function createPost() {
             const personName = document.getElementById('personName').value.trim();
             const storyText = document.getElementById('storyText').value.trim();
@@ -2136,6 +2512,15 @@
                 createBtn.textContent = 'Criando post...';
                 console.log('📝 Criando post no banco de dados...');
                 
+                // Buscar ID do usuário mencionado
+                let mentionedUserId = null;
+                try {
+                    mentionedUserId = await findMentionedUserId(personName);
+                    console.log('🔍 ID do usuário mencionado:', mentionedUserId);
+                } catch (error) {
+                    console.warn('⚠️ Erro ao buscar ID do usuário mencionado:', error);
+                }
+                
                 try {
                     const { data, error } = await supabase
                         .from('posts')
@@ -2144,7 +2529,8 @@
                             celebrated_person_name: personName,
                             content: storyText,
                             photo_url: photoUrl,
-                            type: mappedType
+                            type: mappedType,
+                            mentioned_user_id: mentionedUserId
                         })
                         .select()
                         .single();
