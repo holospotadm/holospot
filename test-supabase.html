@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Teste de Conexão Supabase</h1>
+    <button onclick="testConnection()">Testar Conexão</button>
+    <div id="result"></div>
+
+    <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3Y21yYnJoeXVmbGh0eW1iaGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNDU0NDgsImV4cCI6MjA3MTkyMTQ0OH0.55BtZc5dcwTlF7TXNMuoD0Sa6bUO2WkB-r1itj5t2tw';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>🔍 Testando conexão...</p>';
+            
+            try {
+                console.log('🚀 Iniciando teste de conexão...');
+                
+                // Teste 1: Query simples
+                console.log('📝 Teste 1: Query simples na tabela posts');
+                const { data: posts, error: postsError } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .limit(3);
+                
+                if (postsError) {
+                    throw new Error(`Erro na query de posts: ${postsError.message}`);
+                }
+                
+                console.log('✅ Posts carregados:', posts);
+                
+                resultDiv.innerHTML = `
+                    <h2>✅ SUCESSO!</h2>
+                    <p><strong>Posts encontrados:</strong> ${posts.length}</p>
+                    <pre>${JSON.stringify(posts, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Erro no teste:', error);
+                resultDiv.innerHTML = `
+                    <h2>❌ ERRO!</h2>
+                    <p><strong>Mensagem:</strong> ${error.message}</p>
+                    <p><strong>Stack:</strong></p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+        
+        // Teste automático ao carregar
+        window.addEventListener('load', () => {
+            console.log('🔧 Página carregada, testando conexão automaticamente...');
+            testConnection();
+        });
+    </script>
+</body>
+</html>
+
