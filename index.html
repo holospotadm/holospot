@@ -1262,51 +1262,21 @@
             try {
                 console.log('📊 Carregando dados do usuário...');
                 
-                // Tentar carregar dados reais de seguir/seguidores do Supabase
-                try {
-                    console.log('🔍 Fazendo query de seguir/seguidores no Supabase...');
-                    
-                    // Carregar quem o usuário está seguindo
-                    const { data: followingData, error: followingError } = await supabase
-                        .from('follows')
-                        .select('following_id')
-                        .eq('follower_id', currentUser.id);
-                    
-                    if (followingError) {
-                        console.error('❌ Erro na query de following:', followingError);
-                        throw followingError;
-                    }
-                    
-                    // Carregar quem segue o usuário
-                    const { data: followersData, error: followersError } = await supabase
-                        .from('follows')
-                        .select('follower_id')
-                        .eq('following_id', currentUser.id);
-                    
-                    if (followersError) {
-                        console.error('❌ Erro na query de followers:', followersError);
-                        throw followersError;
-                    }
-                    
-                    following = followingData || [];
-                    followers = followersData || [];
-                    
-                    console.log(`✅ Seguindo: ${following.length}, Seguidores: ${followers.length}`);
-                    
-                } catch (queryError) {
-                    console.warn('⚠️ Falha na query de seguir/seguidores, usando dados de exemplo:', queryError.message);
-                    
-                    // Fallback: Dados de exemplo se query falhar
-                    following = [
-                        { following_id: 'user-1' },
-                        { following_id: 'user-2' }
-                    ];
-                    followers = [
-                        { follower_id: 'user-3' },
-                        { follower_id: 'user-4' },
-                        { follower_id: 'user-5' }
-                    ];
-                }
+                // Modo offline temporário - sem queries do Supabase
+                console.warn('⚠️ Usando modo offline para seguir/seguidores');
+                
+                // Dados de exemplo para demonstração
+                following = [
+                    { following_id: 'user-1' },
+                    { following_id: 'user-2' }
+                ];
+                followers = [
+                    { follower_id: 'user-3' },
+                    { follower_id: 'user-4' },
+                    { follower_id: 'user-5' }
+                ];
+                
+                console.log(`✅ Dados carregados (modo offline): ${following.length} seguindo, ${followers.length} seguidores`);
                 
                 // Atualizar contadores na interface
                 updateFollowCounts();
