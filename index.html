@@ -1798,7 +1798,7 @@
                         </div>
                         
                         <div class="post-content">
-                            <div class="post-person">${post.celebrated_person_name || post.person_name}</div>
+                            <div class="post-person">Holofotes para: ${post.celebrated_person_name || post.person_name}</div>
                             ${post.type || post.highlight_type ? `
                                 <div class="post-type">
                                     ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
