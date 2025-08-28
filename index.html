@@ -2705,18 +2705,24 @@
         function showMentionsAutocomplete(query) {
             const autocomplete = document.getElementById('mentionsAutocomplete');
             
-            // Filtrar usuários baseado na query
-            const filteredUsers = mentionUsers.filter(user => 
-                user.name.toLowerCase().includes(query) || 
-                user.username.toLowerCase().includes(query)
-            ).slice(0, 5); // Máximo 5 resultados
+            // Filtrar usuários baseado na query E excluir o usuário atual
+            const filteredUsers = mentionUsers.filter(user => {
+                // Excluir o próprio usuário logado
+                if (currentUser && (user.id === currentUser.id || user.username === (currentUser.email ? currentUser.email.split('@')[0] : ''))) {
+                    return false;
+                }
+                
+                // Filtrar por query
+                return user.name.toLowerCase().includes(query) || 
+                       user.username.toLowerCase().includes(query);
+            }).slice(0, 5); // Máximo 5 resultados
             
             if (filteredUsers.length === 0) {
                 hideMentionsAutocomplete();
                 return;
             }
             
-            console.log(`📋 Mostrando ${filteredUsers.length} usuários para menção`);
+            console.log(`📋 Mostrando ${filteredUsers.length} usuários para menção (excluindo usuário atual)`);
             
             const html = filteredUsers.map((user, index) => `
                 <div class="mention-item" data-index="${index}" onclick="selectMention(${index})">
@@ -2793,11 +2799,17 @@
         function selectMention(index) {
             const input = document.getElementById('personName');
             
-            // Filtrar usuários novamente para pegar o correto
-            const filteredUsers = mentionUsers.filter(user => 
-                user.name.toLowerCase().includes(currentMentionQuery) || 
-                user.username.toLowerCase().includes(currentMentionQuery)
-            ).slice(0, 5);
+            // Filtrar usuários novamente para pegar o correto (excluindo usuário atual)
+            const filteredUsers = mentionUsers.filter(user => {
+                // Excluir o próprio usuário logado
+                if (currentUser && (user.id === currentUser.id || user.username === (currentUser.email ? currentUser.email.split('@')[0] : ''))) {
+                    return false;
+                }
+                
+                // Filtrar por query
+                return user.name.toLowerCase().includes(currentMentionQuery) || 
+                       user.username.toLowerCase().includes(currentMentionQuery);
+            }).slice(0, 5);
             
             if (index >= filteredUsers.length) return;
             
