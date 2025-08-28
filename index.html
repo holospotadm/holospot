@@ -1295,6 +1295,15 @@
                     <div class="progress-text" id="inspirerText">0/50</div>
                 </div>
             </div>
+
+            <div class="feedbacks-section">
+                <h3 class="chart-title">💬 Feedbacks Recebidos</h3>
+                <div id="feedbacksContainer">
+                    <div style="text-align: center; color: #666; padding: 2rem;">
+                        Carregando feedbacks...
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="impactoTab" class="tab-content">
@@ -2836,6 +2845,9 @@
             document.getElementById('userPeopleHighlighted').textContent = uniquePeople;
             document.getElementById('userFollowersCount').textContent = followers.length;
             
+            // Carregar feedbacks do usuário
+            loadUserFeedbacks();
+            
             // Impact tab stats
             const totalReactions = posts.reduce((sum, post) => sum + post.reactions.length, 0);
             const estimatedReach = totalReactions * 3 + userPosts.length * 5; // More realistic calculation
@@ -2895,6 +2907,125 @@
             }
             
             document.getElementById('personalizedTip').textContent = tip;
+        }
+
+        async function loadUserFeedbacks() {
+            console.log('💬 Carregando feedbacks recebidos...');
+            const container = document.getElementById('feedbacksContainer');
+            
+            try {
+                // Buscar feedbacks onde o usuário atual é o autor do post
+                const { data: feedbacks, error } = await supabase
+                    .from('feedbacks')
+                    .select(`
+                        feedback_text,
+                        created_at,
+                        post_id,
+                        mentioned_user_id
+                    `)
+                    .eq('author_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Erro ao carregar feedbacks:', error);
+                    container.innerHTML = `
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            Erro ao carregar feedbacks
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (!feedbacks || feedbacks.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            <div style="font-size: 48px; margin-bottom: 1rem;">💭</div>
+                            <div style="font-size: 18px; margin-bottom: 0.5rem;">Nenhum feedback recebido ainda</div>
+                            <div style="font-size: 14px;">Continue criando posts destacando pessoas para receber feedbacks!</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Buscar dados dos posts e usuários que enviaram feedback
+                const feedbacksWithData = await Promise.all(feedbacks.map(async feedback => {
+                    // Buscar dados do post
+                    const post = posts.find(p => p.id === feedback.post_id);
+                    
+                    // Buscar dados do usuário que enviou o feedback
+                    let senderName = 'Usuário';
+                    let senderEmail = '';
+                    try {
+                        const { data: senderData } = await supabase
+                            .from('profiles')
+                            .select('name, email')
+                            .eq('id', feedback.mentioned_user_id)
+                            .single();
+                        
+                        if (senderData) {
+                            senderName = senderData.name || senderData.email || 'Usuário';
+                            senderEmail = senderData.email || '';
+                        }
+                    } catch (e) {
+                        console.log('⚠️ Erro ao buscar dados do remetente:', e);
+                    }
+                    
+                    return {
+                        ...feedback,
+                        post: post,
+                        senderName: senderName,
+                        senderEmail: senderEmail,
+                        senderUsername: senderEmail.split('@')[0] || 'usuario'
+                    };
+                }));
+
+                // Renderizar feedbacks
+                const feedbacksHtml = feedbacksWithData.map(feedback => `
+                    <div class="feedback-item" style="background: #f8f9fa; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid #4CAF50;">
+                        <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: #2e7d32; margin-bottom: 0.5rem;">
+                                    💬 Feedback de @${feedback.senderUsername}
+                                </div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 1rem;">
+                                    ${formatDate(feedback.created_at)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e0e0e0;">
+                            <div style="font-size: 14px; color: #333; line-height: 1.5; font-style: italic;">
+                                "${feedback.feedback_text}"
+                            </div>
+                        </div>
+                        
+                        ${feedback.post ? `
+                            <div style="background: #f0f8ff; padding: 1rem; border-radius: 8px; border: 1px solid #e3f2fd;">
+                                <div style="font-size: 12px; color: #1976d2; font-weight: bold; margin-bottom: 0.5rem;">
+                                    📝 Post original:
+                                </div>
+                                <div style="font-size: 14px; color: #333; margin-bottom: 0.5rem;">
+                                    <strong>Holofotes para:</strong> ${feedback.post.celebrated_person_name || feedback.post.person_name}
+                                </div>
+                                <div style="font-size: 13px; color: #666; line-height: 1.4;">
+                                    ${(feedback.post.content || feedback.post.story || '').substring(0, 150)}${(feedback.post.content || feedback.post.story || '').length > 150 ? '...' : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+
+                container.innerHTML = feedbacksHtml;
+                console.log(`✅ ${feedbacks.length} feedbacks carregados`);
+
+            } catch (error) {
+                console.error('❌ Erro ao carregar feedbacks:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 2rem;">
+                        Erro ao carregar feedbacks
+                    </div>
+                `;
+            }
         }
 
         function formatDate(dateString) {
