@@ -1301,26 +1301,36 @@
             console.log(`📊 Contadores atualizados: ${following.length} seguindo, ${followers.length} seguidores`);
         }
 
+        // Detectar se é um refresh da página
+        const isPageRefresh = performance.navigation.type === 1 || 
+                             performance.getEntriesByType('navigation')[0]?.type === 'reload';
+
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
                 
-                // Tentar carregar posts reais do Supabase com timeout
+                // Se for refresh, usar modo offline direto
+                if (isPageRefresh) {
+                    console.warn('🔄 Refresh detectado - usando modo offline para evitar travamento');
+                    throw new Error('Modo offline forçado após refresh');
+                }
+                
+                // Tentar carregar posts reais do Supabase com timeout mais agressivo
                 try {
                     console.log('🔍 Tentando carregar posts reais do Supabase...');
                     
-                    // Promise com timeout de 10 segundos
-                    const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Timeout na query')), 10000)
-                    );
+                    // Timeout mais agressivo de 3 segundos
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
                     
-                    const queryPromise = supabase
+                    const { data, error } = await supabase
                         .from('posts')
                         .select('*')
                         .order('created_at', { ascending: false })
-                        .limit(20);
+                        .limit(20)
+                        .abortSignal(controller.signal);
                     
-                    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+                    clearTimeout(timeoutId);
                     
                     if (error) {
                         console.error('❌ Erro na query:', error);
