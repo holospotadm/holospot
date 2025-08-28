@@ -1920,18 +1920,14 @@
                 try {
                     const { data: existingFeedback, error } = await supabase
                         .from('feedbacks')
-                        .select(`
-                            feedback_text,
-                            profiles!feedbacks_mentioned_user_id_fkey(email, name)
-                        `)
+                        .select('feedback_text, mentioned_user_id')
                         .eq('post_id', post.id)
                         .eq('mentioned_user_id', currentUser.id)
                         .single();
 
                     if (existingFeedback && !error) {
                         // Já existe feedback - mostrar o feedback
-                        const userEmail = existingFeedback.profiles?.email || 'usuário';
-                        const username = userEmail.split('@')[0];
+                        const username = currentUser.email?.split('@')[0] || 'usuário';
                         
                         return `
                             <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
