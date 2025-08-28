@@ -704,54 +704,141 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(4px);
+            }
         }
 
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 400px;
+            border-radius: 16px;
+            max-width: 450px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 70vh;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.3s ease-out;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: calc(70vh - 80px);
             overflow-y: auto;
         }
 
-        .modal-content h3 {
-            margin: 0 0 15px 0;
-            color: #6366f1;
-        }
-
         .follow-list {
-            margin: 15px 0;
+            margin: 0;
         }
 
         .follow-item {
-            padding: 10px;
-            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
             color: #374151;
+            transition: all 0.2s ease;
         }
 
         .follow-item:last-child {
             border-bottom: none;
         }
 
-        .modal-content button {
-            background: #6366f1;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+        .follow-item:hover {
+            background: #f9fafb;
+            margin: 0 -24px;
+            padding: 12px 24px;
             border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
         }
 
-        .modal-content button:hover {
-            background: #5856eb;
+        .follow-item img {
+            margin-right: 12px;
+            border: 2px solid #e5e7eb;
+            transition: border-color 0.2s ease;
+        }
+
+        .follow-item:hover img {
+            border-color: #667eea;
+        }
+
+        .follow-item span {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
 
         /* Responsive design */
@@ -2346,11 +2433,15 @@
             const modal = `
                 <div class="modal-overlay" onclick="closeModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
-                        <h3>Seguindo (${following.length})</h3>
-                        <div class="follow-list">
-                            ${followingList.join('') || '<p>Você ainda não segue ninguém.</p>'}
+                        <div class="modal-header">
+                            <h3>Seguindo (${following.length})</h3>
+                            <button class="modal-close" onclick="closeModal()">×</button>
                         </div>
-                        <button onclick="closeModal()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Fechar</button>
+                        <div class="modal-body">
+                            <div class="follow-list">
+                                ${followingList.length > 0 ? followingList.join('') : '<div class="empty-state"><div class="empty-state-icon">👥</div><p>Você ainda não segue ninguém.</p></div>'}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -2410,11 +2501,15 @@
             const modal = `
                 <div class="modal-overlay" onclick="closeModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
-                        <h3>Seguidores (${followers.length})</h3>
-                        <div class="follow-list">
-                            ${followersList.join('') || '<p>Você ainda não tem seguidores.</p>'}
+                        <div class="modal-header">
+                            <h3>Seguidores (${followers.length})</h3>
+                            <button class="modal-close" onclick="closeModal()">×</button>
                         </div>
-                        <button onclick="closeModal()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Fechar</button>
+                        <div class="modal-body">
+                            <div class="follow-list">
+                                ${followersList.length > 0 ? followersList.join('') : '<div class="empty-state"><div class="empty-state-icon">👤</div><p>Você ainda não tem seguidores.</p></div>'}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
