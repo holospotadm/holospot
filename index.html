@@ -1981,7 +1981,9 @@
 
         async function createNotification(userId, type, message) {
             try {
-                await supabase
+                console.log('🔔 Criando notificação:', { userId, type, message });
+                
+                const insertQuery = supabase
                     .from('notifications')
                     .insert({
                         user_id: userId,
@@ -1989,6 +1991,10 @@
                         message: message,
                         from_user_id: currentUser.id
                     });
+                
+                await withTimeout(insertQuery, 2000);
+                console.log('✅ Notificação criada no banco');
+                
             } catch (error) {
                 console.error('❌ Erro ao criar notificação:', error);
             }
@@ -1997,11 +2003,33 @@
         async function loadNotifications() {
             try {
                 console.log('🔔 Carregando notificações...');
+                console.log('🔍 Carregando notificações reais do Supabase com timeout...');
                 
-                // Modo offline total - sem queries do Supabase
-                console.warn('⚠️ Usando modo offline para notificações');
+                const notificationsQuery = supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
                 
-                // Notificações de exemplo para demonstração
+                const { data, error } = await withTimeout(notificationsQuery, 2000);
+                
+                if (error) {
+                    console.error('❌ Erro ao carregar notificações:', error);
+                    throw error;
+                }
+                
+                console.log(`✅ ${data?.length || 0} notificações reais carregadas do banco`);
+                notifications = data || [];
+                
+                updateNotificationBadge();
+                renderNotifications();
+                console.log('✅ Notificações processadas e renderizadas');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar notificações, usando fallback:', error);
+                
+                // Fallback com notificações de exemplo
                 notifications = [
                     {
                         id: 'notif-1',
@@ -2032,18 +2060,11 @@
                     }
                 ];
                 
-                console.log(`✅ ${notifications.length} notificações carregadas (modo offline)`);
+                console.log(`✅ ${notifications.length} notificações carregadas (fallback)`);
                 
                 updateNotificationBadge();
                 renderNotifications();
                 console.log('✅ Notificações processadas e renderizadas');
-                
-            } catch (error) {
-                console.error('❌ Erro crítico ao carregar notificações:', error);
-                // Fallback final
-                notifications = [];
-                updateNotificationBadge();
-                renderNotifications();
             }
         }
 
@@ -2083,12 +2104,16 @@
 
         async function markNotificationAsRead(notificationId) {
             try {
-                // Tentar atualizar no banco
+                console.log('📝 Marcando notificação como lida:', notificationId);
+                
+                // Tentar atualizar no banco com timeout
                 try {
-                    await supabase
+                    const updateQuery = supabase
                         .from('notifications')
                         .update({ read: true })
                         .eq('id', notificationId);
+                    
+                    await withTimeout(updateQuery, 2000);
                     console.log('✅ Notificação marcada como lida no banco');
                 } catch (updateError) {
                     console.warn('⚠️ Erro ao atualizar no banco, marcando apenas localmente:', updateError.message);
