@@ -1431,6 +1431,11 @@
                 document.getElementById('userAvatar').src = currentUser.user_metadata.avatar_url || '';
                 console.log('✅ Usuário logado:', currentUser.email);
             }
+            
+            // Inicializar sistema de menções
+            loadMentionUsers().then(() => {
+                setupMentionsSystem();
+            });
         }
 
         function switchTab(tabName) {
@@ -2651,6 +2656,168 @@
                     { id: 'user3', name: 'Maria Oliveira', username: 'maria.oliveira', avatar: 'https://ui-avatars.com/api/?name=Maria+Oliveira&background=667eea&color=fff' }
                 ];
             }
+        }
+
+        // Sistema de Menções - Configurar event listeners
+        function setupMentionsSystem() {
+            const textarea = document.getElementById('storyText');
+            const autocomplete = document.getElementById('mentionsAutocomplete');
+            
+            if (!textarea || !autocomplete) {
+                console.warn('⚠️ Elementos de menção não encontrados');
+                return;
+            }
+            
+            console.log('✅ Configurando sistema de menções...');
+            
+            textarea.addEventListener('input', handleMentionInput);
+            textarea.addEventListener('keydown', handleMentionKeydown);
+            
+            // Fechar autocomplete ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!textarea.contains(e.target) && !autocomplete.contains(e.target)) {
+                    hideMentionsAutocomplete();
+                }
+            });
+        }
+
+        // Sistema de Menções - Detectar @ no input
+        function handleMentionInput(event) {
+            const textarea = event.target;
+            const text = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            
+            // Procurar por @ antes do cursor
+            const beforeCursor = text.substring(0, cursorPos);
+            const atMatch = beforeCursor.match(/@(\w*)$/);
+            
+            if (atMatch) {
+                console.log('🎯 @ detectado, query:', atMatch[1]);
+                mentionStartPos = cursorPos - atMatch[0].length;
+                currentMentionQuery = atMatch[1].toLowerCase();
+                showMentionsAutocomplete(currentMentionQuery);
+            } else {
+                hideMentionsAutocomplete();
+            }
+        }
+
+        // Sistema de Menções - Mostrar lista de usuários
+        function showMentionsAutocomplete(query) {
+            const autocomplete = document.getElementById('mentionsAutocomplete');
+            
+            // Filtrar usuários baseado na query
+            const filteredUsers = mentionUsers.filter(user => 
+                user.name.toLowerCase().includes(query) || 
+                user.username.toLowerCase().includes(query)
+            ).slice(0, 5); // Máximo 5 resultados
+            
+            if (filteredUsers.length === 0) {
+                hideMentionsAutocomplete();
+                return;
+            }
+            
+            console.log(`📋 Mostrando ${filteredUsers.length} usuários para menção`);
+            
+            const html = filteredUsers.map((user, index) => `
+                <div class="mention-item" data-index="${index}" onclick="selectMention(${index})">
+                    <img src="${user.avatar}" alt="${user.name}">
+                    <div class="mention-info">
+                        <div class="mention-name">${user.name}</div>
+                        <div class="mention-username">@${user.username}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            autocomplete.innerHTML = html;
+            autocomplete.style.display = 'block';
+            selectedMentionIndex = 0;
+            updateMentionSelection();
+        }
+
+        // Sistema de Menções - Esconder autocomplete
+        function hideMentionsAutocomplete() {
+            const autocomplete = document.getElementById('mentionsAutocomplete');
+            autocomplete.style.display = 'none';
+            selectedMentionIndex = -1;
+            mentionStartPos = -1;
+            currentMentionQuery = '';
+        }
+
+        // Sistema de Menções - Atualizar seleção visual
+        function updateMentionSelection() {
+            const items = document.querySelectorAll('.mention-item');
+            items.forEach((item, index) => {
+                if (index === selectedMentionIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        // Sistema de Menções - Navegação por teclado
+        function handleMentionKeydown(event) {
+            const autocomplete = document.getElementById('mentionsAutocomplete');
+            if (autocomplete.style.display === 'none') return;
+            
+            const items = autocomplete.querySelectorAll('.mention-item');
+            
+            switch (event.key) {
+                case 'ArrowDown':
+                    event.preventDefault();
+                    selectedMentionIndex = Math.min(selectedMentionIndex + 1, items.length - 1);
+                    updateMentionSelection();
+                    break;
+                    
+                case 'ArrowUp':
+                    event.preventDefault();
+                    selectedMentionIndex = Math.max(selectedMentionIndex - 1, -1);
+                    updateMentionSelection();
+                    break;
+                    
+                case 'Enter':
+                case 'Tab':
+                    if (selectedMentionIndex >= 0) {
+                        event.preventDefault();
+                        selectMention(selectedMentionIndex);
+                    }
+                    break;
+                    
+                case 'Escape':
+                    hideMentionsAutocomplete();
+                    break;
+            }
+        }
+
+        // Sistema de Menções - Selecionar usuário
+        function selectMention(index) {
+            const textarea = document.getElementById('storyText');
+            
+            // Filtrar usuários novamente para pegar o correto
+            const filteredUsers = mentionUsers.filter(user => 
+                user.name.toLowerCase().includes(currentMentionQuery) || 
+                user.username.toLowerCase().includes(currentMentionQuery)
+            ).slice(0, 5);
+            
+            if (index >= filteredUsers.length) return;
+            
+            const selectedUser = filteredUsers[index];
+            const text = textarea.value;
+            const beforeMention = text.substring(0, mentionStartPos);
+            const afterCursor = text.substring(textarea.selectionStart);
+            
+            // Substituir @query por @username
+            const newText = beforeMention + `@${selectedUser.username} ` + afterCursor;
+            textarea.value = newText;
+            
+            // Posicionar cursor após a menção
+            const newCursorPos = mentionStartPos + selectedUser.username.length + 2;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            
+            console.log(`✅ Usuário @${selectedUser.username} mencionado`);
+            
+            hideMentionsAutocomplete();
+            textarea.focus();
         }
 
         // Listen for auth state changes
