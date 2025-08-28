@@ -1923,10 +1923,11 @@
                         .select('feedback_text, mentioned_user_id')
                         .eq('post_id', post.id)
                         .eq('mentioned_user_id', currentUser.id)
-                        .single();
+                        .limit(1);
 
-                    if (existingFeedback && !error) {
+                    if (existingFeedback && existingFeedback.length > 0 && !error) {
                         // Já existe feedback - mostrar o feedback
+                        const feedback = existingFeedback[0];
                         const username = currentUser.email?.split('@')[0] || 'usuário';
                         
                         return `
@@ -1935,7 +1936,7 @@
                                     💬 Feedback (@${username}):
                                 </div>
                                 <div style="font-size: 14px; color: #333; line-height: 1.4;">
-                                    "${existingFeedback.feedback_text}"
+                                    "${feedback.feedback_text}"
                                 </div>
                             </div>
                         `;
