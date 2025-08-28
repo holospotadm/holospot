@@ -2296,6 +2296,13 @@
         async function showFollowingModal() {
             console.log('👥 Abrindo modal de seguindo...');
             
+            // Verificar se já existe modal aberto e fechar
+            const existingModal = document.querySelector('.modal-overlay');
+            if (existingModal) {
+                console.log('⚠️ Modal já existe, fechando antes de abrir novo');
+                existingModal.remove();
+            }
+            
             const followingList = await Promise.all(following.map(async f => {
                 // Tentar buscar dados reais do usuário incluindo avatar
                 let userName = 'Usuário';
@@ -2352,6 +2359,13 @@
 
         async function showFollowersModal() {
             console.log('👥 Abrindo modal de seguidores...');
+            
+            // Verificar se já existe modal aberto e fechar
+            const existingModal = document.querySelector('.modal-overlay');
+            if (existingModal) {
+                console.log('⚠️ Modal já existe, fechando antes de abrir novo');
+                existingModal.remove();
+            }
             
             const followersList = await Promise.all(followers.map(async f => {
                 // Tentar buscar dados reais do usuário incluindo avatar
