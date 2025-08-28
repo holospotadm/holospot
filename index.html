@@ -2002,7 +2002,9 @@
             }
 
             // Processar posts de forma assíncrona para aguardar getFeedbackButtonForPost
-            const postsHtml = await Promise.all(posts.map(async post => {
+            const postsHtml = [];
+            
+            for (const post of posts) {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
                 const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                 
@@ -2027,7 +2029,7 @@
                 // Aguardar resultado da função getFeedbackButtonForPost
                 const feedbackButton = await getFeedbackButtonForPost(post);
                 
-                return `
+                const postHtml = `
                     <div class="post">
                         <div class="post-header">
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
@@ -2071,7 +2073,9 @@
                         ${feedbackButton}
                     </div>
                 `;
-            });
+                
+                postsHtml.push(postHtml);
+            }
 
             container.innerHTML = postsHtml.join('');
         }
