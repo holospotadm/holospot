@@ -2378,12 +2378,14 @@
                     searchTerm = personName.substring(1); // Remove @
                 }
                 
-                // Buscar por email exato (username@gmail.com, username@hotmail.com, etc.)
+                // Buscar por email exato (incluindo domínios reais dos usuários)
                 const emailPatterns = [
                     `${searchTerm}@gmail.com`,
                     `${searchTerm}@hotmail.com`,
                     `${searchTerm}@outlook.com`,
-                    `${searchTerm}@yahoo.com`
+                    `${searchTerm}@yahoo.com`,
+                    `${searchTerm}@btc.com`,
+                    `${searchTerm}@vockan.com`
                 ];
                 
                 for (const email of emailPatterns) {
