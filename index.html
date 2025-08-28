@@ -1781,9 +1781,30 @@
 
         async function uploadPhoto(file) {
             try {
+                console.log('📸 Iniciando upload da foto:', file.name);
+                
+                // Verificar se o bucket existe e está configurado
+                try {
+                    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+                    if (bucketsError) throw bucketsError;
+                    
+                    const photoBucket = buckets.find(b => b.name === 'photos');
+                    if (!photoBucket) {
+                        console.warn('⚠️ Bucket "photos" não encontrado');
+                        throw new Error('Bucket de fotos não configurado');
+                    }
+                    console.log('✅ Bucket "photos" encontrado');
+                } catch (bucketError) {
+                    console.warn('⚠️ Erro ao verificar bucket:', bucketError.message);
+                    throw new Error('Erro na configuração do storage');
+                }
+                
+                // Gerar nome único para o arquivo
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${currentUser.id}_${Date.now()}.${fileExt}`;
+                console.log('📝 Nome do arquivo:', fileName);
                 
+                // Fazer upload do arquivo
                 const { data, error } = await supabase.storage
                     .from('photos')
                     .upload(fileName, file, {
@@ -1796,16 +1817,21 @@
                     throw error;
                 }
                 
-                // Get public URL
+                console.log('✅ Upload realizado com sucesso:', data.path);
+                
+                // Obter URL pública
                 const { data: urlData } = supabase.storage
                     .from('photos')
                     .getPublicUrl(fileName);
                 
-                return urlData.publicUrl;
+                const publicUrl = urlData.publicUrl;
+                console.log('✅ URL pública gerada:', publicUrl);
+                
+                return publicUrl;
                 
             } catch (error) {
-                console.error('❌ Erro no upload:', error);
-                throw error;
+                console.error('❌ Erro crítico no upload:', error);
+                throw new Error(`Falha no upload: ${error.message}`);
             }
         }
 
@@ -1845,42 +1871,90 @@
                 // Upload photo if selected
                 if (selectedPhotoFile) {
                     try {
+                        console.log('📸 Tentando upload da foto...');
+                        createBtn.textContent = 'Fazendo upload da foto...';
                         photoUrl = await uploadPhoto(selectedPhotoFile);
+                        console.log('✅ Upload da foto concluído:', photoUrl);
                     } catch (uploadError) {
                         console.error('❌ Erro no upload da foto:', uploadError);
-                        alert('Erro ao fazer upload da foto. Continuando sem foto...');
-                        // Continue without photo instead of failing
+                        
+                        // Perguntar ao usuário se quer continuar sem foto
+                        const continueWithoutPhoto = confirm(
+                            `Erro ao fazer upload da foto: ${uploadError.message}\n\n` +
+                            'Deseja continuar criando o post sem a foto?'
+                        );
+                        
+                        if (!continueWithoutPhoto) {
+                            createBtn.disabled = false;
+                            createBtn.textContent = '✨ Destacar Pessoa';
+                            return;
+                        }
+                        
+                        console.log('⚠️ Continuando sem foto por escolha do usuário');
+                        photoUrl = null;
                     }
                 }
                 
                 // Create post
-                const { data, error } = await supabase
-                    .from('posts')
-                    .insert({
+                createBtn.textContent = 'Criando post...';
+                console.log('📝 Criando post no banco de dados...');
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('posts')
+                        .insert({
+                            user_id: currentUser.id,
+                            celebrated_person_name: personName,
+                            content: storyText,
+                            photo_url: photoUrl,
+                            type: mappedType
+                        })
+                        .select()
+                        .single();
+                    
+                    if (error) {
+                        console.error('❌ Erro ao criar post no banco:', error);
+                        throw error;
+                    }
+                    
+                    console.log('✅ Post criado no banco com sucesso');
+                    
+                    // Add user data and reactions array to the new post
+                    data.user_data = {
+                        name: currentUser.user_metadata?.name || currentUser.email || 'Usuário',
+                        avatar_url: currentUser.user_metadata?.avatar_url || ''
+                    };
+                    data.reactions = [];
+                    
+                    // Add to posts array at the beginning
+                    posts.unshift(data);
+                    console.log('✅ Post adicionado à lista local');
+                    
+                } catch (postError) {
+                    console.error('❌ Erro ao criar post:', postError);
+                    
+                    // Fallback: criar post apenas localmente
+                    console.warn('⚠️ Criando post apenas localmente como fallback');
+                    const localPost = {
+                        id: `local-${Date.now()}`,
                         user_id: currentUser.id,
                         celebrated_person_name: personName,
                         content: storyText,
                         photo_url: photoUrl,
-                        type: mappedType
-                    })
-                    .select()
-                    .single();
-                
-                if (error) {
-                    console.error('❌ Erro ao criar post:', error);
-                    alert('Erro ao criar post: ' + error.message);
-                    return;
+                        type: mappedType,
+                        created_at: new Date().toISOString(),
+                        user_data: {
+                            name: currentUser.user_metadata?.name || currentUser.email || 'Usuário',
+                            avatar_url: currentUser.user_metadata?.avatar_url || ''
+                        },
+                        reactions: []
+                    };
+                    
+                    posts.unshift(localPost);
+                    console.log('✅ Post local criado como fallback');
+                    
+                    alert('Post criado localmente. Pode haver problemas de sincronização com o servidor.');
                 }
-                
-                // Add user data and reactions array to the new post
-                data.user_data = {
-                    name: currentUser.user_metadata?.name || currentUser.email || 'Usuário',
-                    avatar_url: currentUser.user_metadata?.avatar_url || ''
-                };
-                data.reactions = [];
-                
-                // Add to posts array
-                posts.unshift(data);
                 
                 // Clear form
                 document.getElementById('personName').value = '';
