@@ -1691,7 +1691,7 @@
                 // Carregar reações para cada post
                 await loadPostsReactions();
                 
-                renderPosts();
+                await renderPosts();
                 console.log('✅ Posts processados e renderizados');
                 
             } catch (error) {
@@ -1734,7 +1734,7 @@
                         user_reactions: []
                     }
                 ];
-                renderPosts();
+                await renderPosts();
                 console.log('✅ Posts de exemplo renderizados');
             }
         }
@@ -1882,34 +1882,110 @@
             console.log('✅ Dados de usuários processados');
         }
 
-        function getFeedbackButton(post) {
+        async function getFeedbackButton(post) {
             // Verificar se o usuário atual é a pessoa mencionada no post
             const mentionedPersonName = post.celebrated_person_name || post.person_name;
-            const currentUserName = currentUser.user_metadata?.name || currentUser.email;
             
-            // Verificar se é uma menção (@username) ou nome direto
-            let isMentioned = false;
-            
-            if (mentionedPersonName) {
-                if (mentionedPersonName.startsWith('@')) {
-                    // É uma menção, verificar se corresponde ao username atual
-                    const mentionedUsername = mentionedPersonName.substring(1);
-                    const currentUsername = currentUser.email.split('@')[0];
-                    isMentioned = mentionedUsername === currentUsername;
-                } else {
-                    // É um nome direto, verificar se corresponde ao nome atual
-                    isMentioned = mentionedPersonName.toLowerCase().includes(currentUserName.toLowerCase()) ||
-                                 currentUserName.toLowerCase().includes(mentionedPersonName.toLowerCase());
-                }
+            if (!mentionedPersonName) {
+                return '';
             }
+            
+            let mentionedUserId = null;
+            
+            try {
+                // Se é uma menção (@username), buscar pelo email
+                if (mentionedPersonName.startsWith('@')) {
+                    const mentionedUsername = mentionedPersonName.substring(1);
+                    
+                    // Tentar buscar usuário pelo email (username@gmail.com ou username@domain)
+                    const possibleEmails = [
+                        `${mentionedUsername}@gmail.com`,
+                        `${mentionedUsername}@hotmail.com`,
+                        `${mentionedUsername}@outlook.com`
+                    ];
+                    
+                    for (const email of possibleEmails) {
+                        try {
+                            const { data: userData, error } = await supabase
+                                .from('profiles')
+                                .select('id')
+                                .eq('email', email)
+                                .single();
+                            
+                            if (userData && !error) {
+                                mentionedUserId = userData.id;
+                                break;
+                            }
+                        } catch (e) {
+                            // Continuar tentando outros emails
+                        }
+                    }
+                    
+                    // Se não encontrou por email, tentar buscar por nome de usuário
+                    if (!mentionedUserId) {
+                        try {
+                            const { data: userData, error } = await supabase
+                                .from('profiles')
+                                .select('id')
+                                .ilike('email', `${mentionedUsername}%`)
+                                .single();
+                            
+                            if (userData && !error) {
+                                mentionedUserId = userData.id;
+                            }
+                        } catch (e) {
+                            // Não encontrou
+                        }
+                    }
+                } else {
+                    // É um nome direto, buscar pelo nome
+                    try {
+                        const { data: userData, error } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .ilike('name', `%${mentionedPersonName}%`)
+                            .single();
+                        
+                        if (userData && !error) {
+                            mentionedUserId = userData.id;
+                        }
+                    } catch (e) {
+                        // Não encontrou
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Erro ao buscar usuário mencionado:', error);
+            }
+            
+            // Se não encontrou o ID do usuário mencionado, não mostrar botão
+            if (!mentionedUserId) {
+                return '';
+            }
+            
+            // Comparar ID do usuário mencionado com ID do usuário logado
+            const isMentioned = mentionedUserId === currentUser.id;
             
             // Se não é a pessoa mencionada, não mostrar botão
             if (!isMentioned) {
                 return '';
             }
             
-            // Verificar se já deu feedback (simulado por enquanto)
-            const hasGivenFeedback = post.feedback_given || false;
+            // Verificar se já deu feedback (buscar na tabela feedbacks)
+            let hasGivenFeedback = false;
+            
+            try {
+                const { data: feedbackData, error } = await supabase
+                    .from('feedbacks')
+                    .select('id')
+                    .eq('post_id', post.id)
+                    .eq('mentioned_user_id', currentUser.id)
+                    .single();
+                
+                hasGivenFeedback = feedbackData && !error;
+            } catch (e) {
+                // Não deu feedback ainda
+                hasGivenFeedback = false;
+            }
             
             if (hasGivenFeedback) {
                 return `
@@ -1930,7 +2006,7 @@
             }
         }
 
-        function renderPosts() {
+        async function renderPosts() {
             const container = document.getElementById('postsContainer');
             
             if (posts.length === 0) {
@@ -1945,7 +2021,8 @@
                 return;
             }
 
-            container.innerHTML = posts.map(post => {
+            // Processar posts de forma assíncrona para aguardar getFeedbackButton
+            const postsHtml = await Promise.all(posts.map(async post => {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
                 const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                 
@@ -1966,6 +2043,9 @@
                     'apoio': 'Apoio', 'support': 'Apoio',
                     'admiracao': 'Admiração', 'admiration': 'Admiração'
                 };
+                
+                // Aguardar o resultado do botão de feedback
+                const feedbackButton = await getFeedbackButton(post);
                 
                 return `
                     <div class="post">
@@ -2008,10 +2088,12 @@
                             </button>
                         </div>
                         
-                        ${getFeedbackButton(post)}
+                        ${feedbackButton}
                     </div>
                 `;
-            }).join('');
+            }));
+
+            container.innerHTML = postsHtml.join('');
         }
 
         async function toggleFollow(userId) {
@@ -2066,7 +2148,7 @@
                 
                 // Sempre atualizar contadores e interface
                 updateFollowCounts();
-                renderPosts();
+                await renderPosts();
                 console.log('✅ Interface atualizada após follow/unfollow');
                 
             } catch (error) {
@@ -2158,7 +2240,7 @@
                 }
                 
                 // Sempre re-renderizar posts e atualizar estatísticas
-                renderPosts();
+                await renderPosts();
                 updateStats();
                 console.log('✅ Interface atualizada após reação');
                 
@@ -2285,7 +2367,7 @@
                 
                 // Fechar modal e atualizar interface
                 closeFeedbackModal();
-                renderPosts();
+                await renderPosts();
                 
                 alert('Feedback enviado com sucesso! O autor do post foi notificado.');
                 console.log('✅ Feedback enviado com sucesso');
