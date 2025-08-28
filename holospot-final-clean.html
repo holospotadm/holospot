@@ -1879,33 +1879,33 @@
                 }
             }
             
-            console.log('✅ Dados de usuários processados');
-        }
-
-        // FUNÇÃO GLOBAL PARA FEEDBACK - USANDO mentioned_user_id
+            console.log('✅ Dados de usuários processado        // Função getFeedbackButton - VERSÃO DEBUG (sempre visível)
         window.getFeedbackButton = function(post) {
-            console.log('🔍 getFeedbackButton GLOBAL chamada para post:', post.id);
-            console.log('🆔 mentioned_user_id:', post.mentioned_user_id);
-            console.log('👤 Usuário atual ID:', currentUser?.id);
+            console.log('🔧 getFeedbackButton DEBUG - sempre retorna botão para post:', post.id);
             
-            // Verificar se o usuário logado é a pessoa mencionada (comparação por ID)
-            if (post.mentioned_user_id && currentUser?.id === post.mentioned_user_id) {
-                console.log('✅ MATCH! Usuário mencionado detectado por ID! Retornando botão');
-                
-                return `
-                    <div style="background: #e8f4fd; padding: 12px; border-radius: 8px; margin-top: 12px;">
-                        <button class="feedback-btn" onclick="openFeedbackModal('${post.id}', '${post.user_id}')">
-                            💬 Dar Feedback
-                        </button>
+            // SEMPRE retornar o botão para debug
+            return `
+                <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                    <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
+                        background: #4CAF50;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: bold;
+                    ">
+                        💬 Dar Feedback (DEBUG)
+                    </button>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Post ID: ${post.id}<br>
+                        Pessoa mencionada: ${post.celebrated_person_name || post.person_name || 'N/A'}<br>
+                        mentioned_user_id: ${post.mentioned_user_id || 'undefined'}
                     </div>
-                `;
-            }
-            
-            console.log('❌ Usuário não é a pessoa mencionada');
-            return '';
-        };
-
-        async function renderPosts() {
+                </div>
+            `;
+        };enderPosts() {
             const container = document.getElementById('postsContainer');
             
             if (posts.length === 0) {
