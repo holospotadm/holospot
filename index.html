@@ -1353,8 +1353,8 @@
         // Usar service role key para bypass RLS
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
         
-        // Função para timeout agressivo
-        function withTimeout(promise, timeoutMs = 2000) {
+        // Função para timeout mais generoso
+        function withTimeout(promise, timeoutMs = 10000) {
             return Promise.race([
                 promise,
                 new Promise((_, reject) => 
@@ -2428,42 +2428,38 @@
                     searchTerm = personName.substring(1); // Remove @
                 }
                 
-                // Buscar por email exato (incluindo domínios reais dos usuários)
+                // Buscar por email exato com timeout
                 const emailPatterns = [
                     `${searchTerm}@gmail.com`,
-                    `${searchTerm}@hotmail.com`,
-                    `${searchTerm}@outlook.com`,
-                    `${searchTerm}@yahoo.com`,
                     `${searchTerm}@b11c.com`,
-                    `${searchTerm}@vockan.com`
+                    `${searchTerm}@vockan.com`,
+                    `${searchTerm}@hotmail.com`
                 ];
                 
-                for (const email of emailPatterns) {
-                    const { data, error } = await supabase
-                        .from('profiles')
-                        .select('id')
-                        .eq('email', email)
-                        .single();
-                    
-                    if (data && !error) {
-                        console.log('✅ Usuário encontrado por email:', email, 'ID:', data.id);
-                        return data.id;
+                // Buscar apenas os primeiros 2 padrões para evitar timeout
+                for (let i = 0; i < Math.min(2, emailPatterns.length); i++) {
+                    const email = emailPatterns[i];
+                    try {
+                        const { data, error } = await withTimeout(
+                            supabase
+                                .from('profiles')
+                                .select('id')
+                                .eq('email', email)
+                                .single(),
+                            3000 // 3 segundos por busca
+                        );
+                        
+                        if (data && !error) {
+                            console.log('✅ Usuário encontrado por email:', email, 'ID:', data.id);
+                            return data.id;
+                        }
+                    } catch (timeoutError) {
+                        console.log('⏰ Timeout na busca por:', email);
+                        continue;
                     }
                 }
                 
-                // Buscar por nome (fallback)
-                const { data: nameData, error: nameError } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .ilike('name', `%${searchTerm}%`)
-                    .single();
-                
-                if (nameData && !nameError) {
-                    console.log('✅ Usuário encontrado por nome:', searchTerm, 'ID:', nameData.id);
-                    return nameData.id;
-                }
-                
-                console.log('⚠️ Usuário não encontrado:', personName);
+                console.log('⚠️ Usuário não encontrado rapidamente:', personName);
                 return null;
                 
             } catch (error) {
