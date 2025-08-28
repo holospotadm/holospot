@@ -1296,8 +1296,8 @@
                 </div>
             </div>
 
-            <div class="feedbacks-section">
-                <h3 class="chart-title">🔄 Feedbacks Recebidos</h3>
+            <div class="feedbacks-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid #90caf9; box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);">
+                <h3 class="chart-title" style="color: #1565c0; font-weight: 600; margin-bottom: 15px;">🔄 Feedbacks Recebidos</h3>
                 <div id="feedbacksContainer">
                     <div style="text-align: center; color: #666; padding: 2rem;">
                         Carregando feedbacks...
@@ -1952,18 +1952,19 @@
                     } else {
                         // Não existe feedback - mostrar botão
                         return `
-                            <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
-                                <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
-                                    background: #4CAF50;
-                                    color: white;
-                                    border: none;
-                                    padding: 8px 16px;
-                                    border-radius: 6px;
-                                    cursor: pointer;
-                                    font-size: 14px;
-                                    font-weight: bold;
-                                ">
-                                    🔄 Feedback
+                        <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%); border-radius: 8px; border: 1px solid #90caf9;">
+                            <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
+                                background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+                                color: white;
+                                border: none;
+                                padding: 8px 16px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: bold;
+                                box-shadow: 0 2px 4px rgba(25, 118, 210, 0.3);
+                            ">
+                                🔄 Dar Feedback
                                 </button>
                             </div>
                         `;
@@ -2984,7 +2985,7 @@
                         <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
                             <div style="flex: 1;">
                                 <div style="font-weight: bold; color: #1b5e20; margin-bottom: 0.5rem;">
-                                    🔄 Feedback de @${feedback.senderUsername}
+                                    🔄 Dar Feedback de @${feedback.senderUsername}
                                 </div>
                                 <div style="font-size: 14px; color: #666; margin-bottom: 1rem;">
                                     ${formatDate(feedback.created_at)}
