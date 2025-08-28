@@ -1882,120 +1882,22 @@
             console.log('✅ Dados de usuários processados');
         }
 
-        async function getFeedbackButton(post) {
-            // Verificar se o usuário atual é a pessoa mencionada no post
+        function getFeedbackButton(post) {
+            // Versão simplificada para debug - sem queries assíncronas
+            console.log('🔍 getFeedbackButton chamada para post:', post.id);
+            
             const mentionedPersonName = post.celebrated_person_name || post.person_name;
+            console.log('👤 Pessoa mencionada:', mentionedPersonName);
+            console.log('👤 Usuário atual:', currentUser?.email);
             
             if (!mentionedPersonName) {
+                console.log('❌ Nenhuma pessoa mencionada');
                 return '';
             }
             
-            let mentionedUserId = null;
-            
-            try {
-                // Se é uma menção (@username), buscar pelo email
-                if (mentionedPersonName.startsWith('@')) {
-                    const mentionedUsername = mentionedPersonName.substring(1);
-                    
-                    // Tentar buscar usuário pelo email (username@gmail.com ou username@domain)
-                    const possibleEmails = [
-                        `${mentionedUsername}@gmail.com`,
-                        `${mentionedUsername}@hotmail.com`,
-                        `${mentionedUsername}@outlook.com`
-                    ];
-                    
-                    for (const email of possibleEmails) {
-                        try {
-                            const { data: userData, error } = await supabase
-                                .from('profiles')
-                                .select('id')
-                                .eq('email', email)
-                                .single();
-                            
-                            if (userData && !error) {
-                                mentionedUserId = userData.id;
-                                break;
-                            }
-                        } catch (e) {
-                            // Continuar tentando outros emails
-                        }
-                    }
-                    
-                    // Se não encontrou por email, tentar buscar por nome de usuário
-                    if (!mentionedUserId) {
-                        try {
-                            const { data: userData, error } = await supabase
-                                .from('profiles')
-                                .select('id')
-                                .ilike('email', `${mentionedUsername}%`)
-                                .single();
-                            
-                            if (userData && !error) {
-                                mentionedUserId = userData.id;
-                            }
-                        } catch (e) {
-                            // Não encontrou
-                        }
-                    }
-                } else {
-                    // É um nome direto, buscar pelo nome
-                    try {
-                        const { data: userData, error } = await supabase
-                            .from('profiles')
-                            .select('id')
-                            .ilike('name', `%${mentionedPersonName}%`)
-                            .single();
-                        
-                        if (userData && !error) {
-                            mentionedUserId = userData.id;
-                        }
-                    } catch (e) {
-                        // Não encontrou
-                    }
-                }
-            } catch (error) {
-                console.warn('⚠️ Erro ao buscar usuário mencionado:', error);
-            }
-            
-            // Se não encontrou o ID do usuário mencionado, não mostrar botão
-            if (!mentionedUserId) {
-                return '';
-            }
-            
-            // Comparar ID do usuário mencionado com ID do usuário logado
-            const isMentioned = mentionedUserId === currentUser.id;
-            
-            // Se não é a pessoa mencionada, não mostrar botão
-            if (!isMentioned) {
-                return '';
-            }
-            
-            // Verificar se já deu feedback (buscar na tabela feedbacks)
-            let hasGivenFeedback = false;
-            
-            try {
-                const { data: feedbackData, error } = await supabase
-                    .from('feedbacks')
-                    .select('id')
-                    .eq('post_id', post.id)
-                    .eq('mentioned_user_id', currentUser.id)
-                    .single();
-                
-                hasGivenFeedback = feedbackData && !error;
-            } catch (e) {
-                // Não deu feedback ainda
-                hasGivenFeedback = false;
-            }
-            
-            if (hasGivenFeedback) {
-                return `
-                    <div class="feedback-section">
-                        <button class="feedback-btn feedback-given" disabled>
-                            ✅ Feedback Enviado
-                        </button>
-                    </div>
-                `;
-            } else {
+            // Verificação simples para @holospot.adm
+            if (mentionedPersonName === '@holospot.adm' && currentUser?.email === 'holospot.adm@gmail.com') {
+                console.log('✅ Usuário mencionado detectado! Retornando botão');
                 return `
                     <div class="feedback-section">
                         <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')">
@@ -2004,6 +1906,28 @@
                     </div>
                 `;
             }
+            
+            // Verificação para outros usuários (simplificada)
+            if (mentionedPersonName.startsWith('@')) {
+                const mentionedUsername = mentionedPersonName.substring(1);
+                const currentUsername = currentUser?.email?.split('@')[0];
+                
+                console.log('🔍 Comparando:', mentionedUsername, 'vs', currentUsername);
+                
+                if (mentionedUsername === currentUsername) {
+                    console.log('✅ Usuário mencionado por username! Retornando botão');
+                    return `
+                        <div class="feedback-section">
+                            <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')">
+                                💬 Dar Feedback
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            console.log('❌ Usuário não mencionado');
+            return '';
         }
 
         async function renderPosts() {
@@ -2021,8 +1945,8 @@
                 return;
             }
 
-            // Processar posts de forma assíncrona para aguardar getFeedbackButton
-            const postsHtml = await Promise.all(posts.map(async post => {
+            // Processar posts de forma síncrona agora
+            const postsHtml = posts.map(post => {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
                 const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                 
@@ -2044,8 +1968,8 @@
                     'admiracao': 'Admiração', 'admiration': 'Admiração'
                 };
                 
-                // Aguardar o resultado do botão de feedback
-                const feedbackButton = await getFeedbackButton(post);
+                // Chamar função síncrona agora
+                const feedbackButton = getFeedbackButton(post);
                 
                 return `
                     <div class="post">
@@ -2091,7 +2015,7 @@
                         ${feedbackButton}
                     </div>
                 `;
-            }));
+            });
 
             container.innerHTML = postsHtml.join('');
         }
