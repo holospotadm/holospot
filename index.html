@@ -889,6 +889,79 @@
         #photoUpload {
             display: none;
         }
+
+        /* Sistema de Menções */
+        .textarea-container {
+            position: relative;
+        }
+
+        .mentions-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+
+        .mention-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .mention-item:last-child {
+            border-bottom: none;
+        }
+
+        .mention-item:hover,
+        .mention-item.selected {
+            background-color: #f3f4f6;
+        }
+
+        .mention-item img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .mention-info {
+            flex: 1;
+        }
+
+        .mention-name {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .mention-username {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        /* Destaque das menções nos posts */
+        .mention-highlight {
+            color: #667eea;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .mention-highlight:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -1004,7 +1077,10 @@
 
                 <div class="form-group">
                     <label class="form-label">Conte sua história</label>
-                    <textarea id="storyText" class="form-input" rows="4" placeholder="Por que essa pessoa merece destaque? O que ela fez de especial?"></textarea>
+                    <div class="textarea-container">
+                        <textarea id="storyText" class="form-input" rows="4" placeholder="Por que essa pessoa merece destaque? O que ela fez de especial? (Use @ para mencionar alguém)"></textarea>
+                        <div id="mentionsAutocomplete" class="mentions-autocomplete" style="display: none;"></div>
+                    </div>
                 </div>
 
                 <div class="photo-upload-section">
@@ -1156,6 +1232,12 @@
         let followers = [];
         let selectedPhotoFile = null;
         let selectedHighlightType = null;
+
+        // Sistema de Menções
+        let mentionUsers = [];
+        let currentMentionQuery = '';
+        let selectedMentionIndex = -1;
+        let mentionStartPos = -1;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
@@ -2530,6 +2612,44 @@
             const modal = document.querySelector('.modal-overlay');
             if (modal) {
                 modal.remove();
+            }
+        }
+
+        // Sistema de Menções - Função para carregar usuários
+        async function loadMentionUsers() {
+            try {
+                console.log('👥 Carregando usuários para menções...');
+                
+                const userQuery = supabase
+                    .from('profiles')
+                    .select('id, name, email, avatar_url')
+                    .limit(50);
+                
+                const { data: users, error } = await withTimeout(userQuery, 3000);
+                
+                if (users && !error) {
+                    mentionUsers = users.map(user => ({
+                        id: user.id,
+                        name: user.name || user.email || 'Usuário',
+                        username: user.email ? user.email.split('@')[0] : 'usuario',
+                        avatar: user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || 'Usuario')}&background=667eea&color=fff`
+                    }));
+                    console.log(`✅ ${mentionUsers.length} usuários carregados para menções`);
+                } else {
+                    console.warn('⚠️ Erro ao carregar usuários, usando dados de exemplo');
+                    mentionUsers = [
+                        { id: 'user1', name: 'Ana Silva', username: 'ana.silva', avatar: 'https://ui-avatars.com/api/?name=Ana+Silva&background=667eea&color=fff' },
+                        { id: 'user2', name: 'João Santos', username: 'joao.santos', avatar: 'https://ui-avatars.com/api/?name=Joao+Santos&background=667eea&color=fff' },
+                        { id: 'user3', name: 'Maria Oliveira', username: 'maria.oliveira', avatar: 'https://ui-avatars.com/api/?name=Maria+Oliveira&background=667eea&color=fff' }
+                    ];
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar usuários para menções:', error);
+                mentionUsers = [
+                    { id: 'user1', name: 'Ana Silva', username: 'ana.silva', avatar: 'https://ui-avatars.com/api/?name=Ana+Silva&background=667eea&color=fff' },
+                    { id: 'user2', name: 'João Santos', username: 'joao.santos', avatar: 'https://ui-avatars.com/api/?name=Joao+Santos&background=667eea&color=fff' },
+                    { id: 'user3', name: 'Maria Oliveira', username: 'maria.oliveira', avatar: 'https://ui-avatars.com/api/?name=Maria+Oliveira&background=667eea&color=fff' }
+                ];
             }
         }
 
