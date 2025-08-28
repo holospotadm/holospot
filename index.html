@@ -1911,31 +1911,82 @@
             `;
         }
 
-        // Função para verificar se deve mostrar botão de feedback
-        function getFeedbackButtonForPost(post) {
+        // Função para verificar se deve mostrar botão de feedback ou feedback existente
+        async function getFeedbackButtonForPost(post) {
             // Verificar se há usuário mencionado e se é o usuário atual
             if (post.mentioned_user_id && post.mentioned_user_id === currentUser?.id) {
-                return `
-                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
-                        <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
-                            background: #4CAF50;
-                            color: white;
-                            border: none;
-                            padding: 8px 16px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-size: 14px;
-                            font-weight: bold;
-                        ">
-                            💬 Dar Feedback
-                        </button>
-                    </div>
-                `;
+                
+                // Verificar se já existe feedback para este post do usuário atual
+                try {
+                    const { data: existingFeedback, error } = await supabase
+                        .from('feedbacks')
+                        .select(`
+                            feedback_text,
+                            profiles!feedbacks_mentioned_user_id_fkey(email, name)
+                        `)
+                        .eq('post_id', post.id)
+                        .eq('mentioned_user_id', currentUser.id)
+                        .single();
+
+                    if (existingFeedback && !error) {
+                        // Já existe feedback - mostrar o feedback
+                        const userEmail = existingFeedback.profiles?.email || 'usuário';
+                        const username = userEmail.split('@')[0];
+                        
+                        return `
+                            <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                                <div style="font-size: 14px; color: #2e7d32; font-weight: bold; margin-bottom: 5px;">
+                                    💬 Feedback (@${username}):
+                                </div>
+                                <div style="font-size: 14px; color: #333; line-height: 1.4;">
+                                    "${existingFeedback.feedback_text}"
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Não existe feedback - mostrar botão
+                        return `
+                            <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                                <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
+                                    background: #4CAF50;
+                                    color: white;
+                                    border: none;
+                                    padding: 8px 16px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                    font-weight: bold;
+                                ">
+                                    💬 Dar Feedback
+                                </button>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar feedback existente:', error);
+                    // Em caso de erro, mostrar botão
+                    return `
+                        <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                            <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
+                                background: #4CAF50;
+                                color: white;
+                                border: none;
+                                padding: 8px 16px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: bold;
+                            ">
+                                💬 Dar Feedback
+                            </button>
+                        </div>
+                    `;
+                }
             }
             return '';
         }
 
-        function renderPosts() {
+        async function renderPosts() {
             const container = document.getElementById('postsContainer');
             
             if (posts.length === 0) {
@@ -1950,8 +2001,8 @@
                 return;
             }
 
-            // Processar posts de forma síncrona agora
-            const postsHtml = posts.map(post => {
+            // Processar posts de forma assíncrona para aguardar getFeedbackButtonForPost
+            const postsHtml = await Promise.all(posts.map(async post => {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
                 const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                 
@@ -1973,28 +2024,8 @@
                     'admiracao': 'Admiração', 'admiration': 'Admiração'
                 };
                 
-                // Inserir botão de feedback diretamente (sem função)
-                const feedbackButton = `
-                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
-                        <button class="feedback-btn" onclick="alert('Botão funcionando! Post: ${post.id}')" style="
-                            background: #4CAF50;
-                            color: white;
-                            border: none;
-                            padding: 8px 16px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-size: 14px;
-                            font-weight: bold;
-                        ">
-                            💬 Dar Feedback (DIRETO)
-                        </button>
-                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                            Post ID: ${post.id}<br>
-                            Pessoa mencionada: ${post.celebrated_person_name || post.person_name || 'N/A'}<br>
-                            mentioned_user_id: ${post.mentioned_user_id || 'undefined'}
-                        </div>
-                    </div>
-                `;
+                // Aguardar resultado da função getFeedbackButtonForPost
+                const feedbackButton = await getFeedbackButtonForPost(post);
                 
                 return `
                     <div class="post">
@@ -2037,7 +2068,7 @@
                             </button>
                         </div>
                         
-                        ${getFeedbackButtonForPost(post)}
+                        ${feedbackButton}
                     </div>
                 `;
             });
