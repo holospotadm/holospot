@@ -1297,7 +1297,7 @@
             </div>
 
             <div class="feedbacks-section">
-                <h3 class="chart-title">💬 Feedbacks Recebidos</h3>
+                <h3 class="chart-title">🔄 Feedbacks Recebidos</h3>
                 <div id="feedbacksContainer">
                     <div style="text-align: center; color: #666; padding: 2rem;">
                         Carregando feedbacks...
@@ -1963,7 +1963,7 @@
                                     font-size: 14px;
                                     font-weight: bold;
                                 ">
-                                    💬 Dar Feedback
+                                    🔄 Feedback
                                 </button>
                             </div>
                         `;
@@ -2264,7 +2264,7 @@
             modal.innerHTML = `
                 <div class="feedback-modal">
                     <div class="feedback-modal-header">
-                        <h3>💬 Dar Feedback</h3>
+                        <h3>🔄 Feedback</h3>
                         <button class="close-btn" onclick="closeFeedbackModal()">×</button>
                     </div>
                     <div class="feedback-modal-body">
@@ -2277,7 +2277,6 @@
                         </div>
                     </div>
                     <div class="feedback-modal-footer">
-                        <button class="btn-secondary" onclick="closeFeedbackModal()">Cancelar</button>
                         <button class="btn-primary" onclick="submitFeedback('${postId}')">Enviar Feedback</button>
                     </div>
                 </div>
@@ -2981,11 +2980,11 @@
 
                 // Renderizar feedbacks
                 const feedbacksHtml = feedbacksWithData.map(feedback => `
-                    <div class="feedback-item" style="background: #f8f9fa; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid #4CAF50;">
+                    <div class="feedback-item" style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid #4CAF50; border: 1px solid #81c784;">
                         <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
                             <div style="flex: 1;">
-                                <div style="font-weight: bold; color: #2e7d32; margin-bottom: 0.5rem;">
-                                    💬 Feedback de @${feedback.senderUsername}
+                                <div style="font-weight: bold; color: #1b5e20; margin-bottom: 0.5rem;">
+                                    🔄 Feedback de @${feedback.senderUsername}
                                 </div>
                                 <div style="font-size: 14px; color: #666; margin-bottom: 1rem;">
                                     ${formatDate(feedback.created_at)}
@@ -3195,7 +3194,7 @@
                 <div class="modal-overlay" onclick="closeFeedbackModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
-                            <h3>💬 Dar Feedback</h3>
+                            <h3>🔄 Feedback</h3>
                             <button class="modal-close" onclick="closeFeedbackModal()">×</button>
                         </div>
                         <div class="modal-body">
@@ -3203,9 +3202,6 @@
                                 style="width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; font-family: inherit;"></textarea>
                         </div>
                         <div class="modal-footer">
-                            <button onclick="closeFeedbackModal()" style="background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 6px; margin-right: 10px; cursor: pointer;">
-                                Cancelar
-                            </button>
                             <button onclick="submitFeedback('${postId}')" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
                                 Enviar Feedback
                             </button>
