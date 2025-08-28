@@ -1035,8 +1035,11 @@
                 <h2 style="margin-bottom: 1.5rem; color: #764ba2;">✨ Destacar Alguém</h2>
                 
                 <div class="form-group">
-                    <label class="form-label">Sobre quem você quer falar?</label>
-                    <input type="text" id="personName" class="form-input" placeholder="Nome da pessoa...">
+                    <label class="form-label">Nome da pessoa</label>
+                    <div class="textarea-container">
+                        <input type="text" id="personName" class="form-input" placeholder="Digite o nome ou use @ para mencionar alguém...">
+                        <div id="mentionsAutocomplete" class="mentions-autocomplete" style="display: none;"></div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -1077,10 +1080,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Conte sua história</label>
-                    <div class="textarea-container">
-                        <textarea id="storyText" class="form-input" rows="4" placeholder="Por que essa pessoa merece destaque? O que ela fez de especial? (Use @ para mencionar alguém)"></textarea>
-                        <div id="mentionsAutocomplete" class="mentions-autocomplete" style="display: none;"></div>
-                    </div>
+                    <textarea id="storyText" class="form-input" rows="4" placeholder="Por que essa pessoa merece destaque? O que ela fez de especial?"></textarea>
                 </div>
 
                 <div class="photo-upload-section">
@@ -2660,22 +2660,22 @@
 
         // Sistema de Menções - Configurar event listeners
         function setupMentionsSystem() {
-            const textarea = document.getElementById('storyText');
+            const input = document.getElementById('personName');
             const autocomplete = document.getElementById('mentionsAutocomplete');
             
-            if (!textarea || !autocomplete) {
+            if (!input || !autocomplete) {
                 console.warn('⚠️ Elementos de menção não encontrados');
                 return;
             }
             
-            console.log('✅ Configurando sistema de menções...');
+            console.log('✅ Configurando sistema de menções no campo Nome da pessoa...');
             
-            textarea.addEventListener('input', handleMentionInput);
-            textarea.addEventListener('keydown', handleMentionKeydown);
+            input.addEventListener('input', handleMentionInput);
+            input.addEventListener('keydown', handleMentionKeydown);
             
             // Fechar autocomplete ao clicar fora
             document.addEventListener('click', function(e) {
-                if (!textarea.contains(e.target) && !autocomplete.contains(e.target)) {
+                if (!input.contains(e.target) && !autocomplete.contains(e.target)) {
                     hideMentionsAutocomplete();
                 }
             });
@@ -2791,7 +2791,7 @@
 
         // Sistema de Menções - Selecionar usuário
         function selectMention(index) {
-            const textarea = document.getElementById('storyText');
+            const input = document.getElementById('personName');
             
             // Filtrar usuários novamente para pegar o correto
             const filteredUsers = mentionUsers.filter(user => 
@@ -2802,22 +2802,22 @@
             if (index >= filteredUsers.length) return;
             
             const selectedUser = filteredUsers[index];
-            const text = textarea.value;
+            const text = input.value;
             const beforeMention = text.substring(0, mentionStartPos);
-            const afterCursor = text.substring(textarea.selectionStart);
+            const afterCursor = text.substring(input.selectionStart);
             
             // Substituir @query por @username
             const newText = beforeMention + `@${selectedUser.username} ` + afterCursor;
-            textarea.value = newText;
+            input.value = newText;
             
             // Posicionar cursor após a menção
             const newCursorPos = mentionStartPos + selectedUser.username.length + 2;
-            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            input.setSelectionRange(newCursorPos, newCursorPos);
             
-            console.log(`✅ Usuário @${selectedUser.username} mencionado`);
+            console.log(`✅ Usuário @${selectedUser.username} mencionado no campo Nome`);
             
             hideMentionsAutocomplete();
-            textarea.focus();
+            input.focus();
         }
 
         // Listen for auth state changes
