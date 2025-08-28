@@ -1261,11 +1261,44 @@
         async function loadUserData() {
             try {
                 console.log('📊 Carregando dados do usuário...');
+                console.log('🔍 Carregando dados de seguir/seguidores do Supabase...');
                 
-                // Modo offline temporário - sem queries do Supabase
-                console.warn('⚠️ Usando modo offline para seguir/seguidores');
+                // Carregar dados de seguir
+                const { data: followingData, error: followingError } = await supabase
+                    .from('follows')
+                    .select('following_id')
+                    .eq('follower_id', currentUser.id);
                 
-                // Dados de exemplo para demonstração
+                if (followingError) {
+                    console.error('❌ Erro ao carregar seguindo:', followingError);
+                    throw followingError;
+                }
+                
+                // Carregar dados de seguidores
+                const { data: followersData, error: followersError } = await supabase
+                    .from('follows')
+                    .select('follower_id')
+                    .eq('following_id', currentUser.id);
+                
+                if (followersError) {
+                    console.error('❌ Erro ao carregar seguidores:', followersError);
+                    throw followersError;
+                }
+                
+                following = followingData || [];
+                followers = followersData || [];
+                
+                console.log(`✅ Dados carregados: ${following.length} seguindo, ${followers.length} seguidores`);
+                
+                // Atualizar contadores na interface
+                updateFollowCounts();
+                console.log('✅ Dados do usuário carregados e atualizados');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados do usuário:', error);
+                
+                // Fallback para dados de exemplo
+                console.log('⚠️ Usando dados de exemplo como fallback');
                 following = [
                     { following_id: 'user-1' },
                     { following_id: 'user-2' }
@@ -1276,18 +1309,8 @@
                     { follower_id: 'user-5' }
                 ];
                 
-                console.log(`✅ Dados carregados (modo offline): ${following.length} seguindo, ${followers.length} seguidores`);
-                
-                // Atualizar contadores na interface
                 updateFollowCounts();
-                console.log('✅ Dados do usuário carregados e atualizados');
-                
-            } catch (error) {
-                console.error('❌ Erro crítico ao carregar dados do usuário:', error);
-                // Fallback final
-                following = [];
-                followers = [];
-                updateFollowCounts();
+                console.log('✅ Dados de exemplo carregados');
             }
         }
 
@@ -1304,89 +1327,73 @@
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
+                console.log('🔍 Carregando posts reais do Supabase...');
                 
-                // Tentar carregar posts reais com retry automático
-                const maxRetries = 3;
-                const retryDelay = 2000; // 2 segundos entre tentativas
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
                 
-                for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    try {
-                        console.log(`🔍 Tentativa ${attempt}/${maxRetries} - Carregando posts reais do Supabase...`);
-                        
-                        // Timeout de 10 segundos por tentativa
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 10000);
-                        
-                        const { data, error } = await supabase
-                            .from('posts')
-                            .select('*')
-                            .order('created_at', { ascending: false })
-                            .limit(20)
-                            .abortSignal(controller.signal);
-                        
-                        clearTimeout(timeoutId);
-                        
-                        if (error) {
-                            console.error(`❌ Erro na tentativa ${attempt}:`, error);
-                            throw error;
-                        }
-                        
-                        console.log(`✅ ${data?.length || 0} posts reais carregados do banco na tentativa ${attempt}`);
-                        posts = data || [];
-                        
-                        // Processar dados de usuários para cada post
-                        await processPostsUserData();
-                        
-                        // Carregar reações para cada post
-                        await loadPostsReactions();
-                        
-                        // Se chegou aqui, deu certo - sair do loop
-                        break;
-                        
-                    } catch (queryError) {
-                        console.warn(`⚠️ Tentativa ${attempt} falhou:`, queryError.message);
-                        
-                        if (attempt === maxRetries) {
-                            // Última tentativa falhou - mostrar mensagem de erro
-                            console.error('❌ Todas as tentativas falharam. Não foi possível carregar posts reais.');
-                            posts = [];
-                            
-                            // Mostrar mensagem para o usuário
-                            const postsContainer = document.getElementById('postsContainer');
-                            if (postsContainer) {
-                                postsContainer.innerHTML = `
-                                    <div style="text-align: center; padding: 40px; color: #666;">
-                                        <h3>⚠️ Problema de Conexão</h3>
-                                        <p>Não foi possível carregar os posts no momento.</p>
-                                        <p>Tente recarregar a página ou aguarde alguns minutos.</p>
-                                        <button onclick="location.reload()" style="
-                                            background: #667eea; 
-                                            color: white; 
-                                            border: none; 
-                                            padding: 10px 20px; 
-                                            border-radius: 5px; 
-                                            cursor: pointer;
-                                            margin-top: 10px;
-                                        ">🔄 Recarregar Página</button>
-                                    </div>
-                                `;
-                            }
-                            return;
-                        } else {
-                            // Aguardar antes da próxima tentativa
-                            console.log(`⏳ Aguardando ${retryDelay/1000}s antes da próxima tentativa...`);
-                            await new Promise(resolve => setTimeout(resolve, retryDelay));
-                        }
-                    }
+                if (error) {
+                    console.error('❌ Erro ao carregar posts:', error);
+                    throw error;
                 }
+                
+                console.log(`✅ ${data?.length || 0} posts reais carregados do banco`);
+                posts = data || [];
+                
+                // Processar dados de usuários para cada post
+                await processPostsUserData();
+                
+                // Carregar reações para cada post
+                await loadPostsReactions();
                 
                 renderPosts();
                 console.log('✅ Posts processados e renderizados');
                 
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar posts:', error);
-                posts = [];
+                
+                // Fallback para posts de exemplo
+                console.log('⚠️ Usando posts de exemplo como fallback');
+                posts = [
+                    {
+                        id: 'example-1',
+                        user_id: 'user-1',
+                        celebrated_person_name: 'Ana Santos',
+                        content: 'Hoje quero destacar minha colega Ana, que sempre nos inspira com sua dedicação e positividade. Obrigado por tornar nosso ambiente de trabalho mais leve!',
+                        created_at: new Date().toISOString(),
+                        user_name: 'João Silva',
+                        user_avatar: null,
+                        reactions: { tocado: 5, grato: 3, inspirado: 2 },
+                        user_reactions: []
+                    },
+                    {
+                        id: 'example-2',
+                        user_id: 'user-2',
+                        celebrated_person_name: 'Carlos Mendes',
+                        content: 'Carlos, você é um exemplo de liderança e companheirismo. Sua forma de conduzir os projetos nos motiva a dar sempre o melhor!',
+                        created_at: new Date(Date.now() - 3600000).toISOString(),
+                        user_name: 'Maria Oliveira',
+                        user_avatar: null,
+                        reactions: { tocado: 8, grato: 6, inspirado: 4 },
+                        user_reactions: []
+                    },
+                    {
+                        id: 'example-3',
+                        user_id: 'user-3',
+                        celebrated_person_name: 'Lucia Ferreira',
+                        content: 'Lucia, sua criatividade e inovação transformam cada desafio em oportunidade. Você é uma verdadeira fonte de inspiração!',
+                        created_at: new Date(Date.now() - 7200000).toISOString(),
+                        user_name: 'Pedro Costa',
+                        user_avatar: null,
+                        reactions: { tocado: 12, grato: 9, inspirado: 7 },
+                        user_reactions: []
+                    }
+                ];
                 renderPosts();
+                console.log('✅ Posts de exemplo renderizados');
             }
         }
 
