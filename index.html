@@ -2297,34 +2297,39 @@
             console.log('👥 Abrindo modal de seguindo...');
             
             const followingList = await Promise.all(following.map(async f => {
-                // Tentar buscar dados reais do usuário
+                // Tentar buscar dados reais do usuário incluindo avatar
                 let userName = 'Usuário';
+                let userAvatar = '';
+                
                 try {
                     const userQuery = supabase
                         .from('profiles')
-                        .select('name, email')
+                        .select('name, email, avatar_url')
                         .eq('id', f.following_id)
                         .single();
                     
                     const { data: userData } = await withTimeout(userQuery, 1000);
                     if (userData) {
                         userName = userData.name || userData.email || 'Usuário';
+                        userAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                     } else {
                         // Fallback com nome baseado no ID
                         const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
                         const nameIndex = f.following_id.charCodeAt(0) % names.length;
                         userName = names[nameIndex];
+                        userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                     }
                 } catch (error) {
                     // Fallback com nome baseado no ID
                     const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
                     const nameIndex = f.following_id.charCodeAt(0) % names.length;
                     userName = names[nameIndex];
+                    userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                 }
                 
                 return `
                     <div class="follow-item">
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff" 
+                        <img src="${userAvatar}" 
                              alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
                         <span>${userName}</span>
                     </div>
@@ -2349,34 +2354,39 @@
             console.log('👥 Abrindo modal de seguidores...');
             
             const followersList = await Promise.all(followers.map(async f => {
-                // Tentar buscar dados reais do usuário
+                // Tentar buscar dados reais do usuário incluindo avatar
                 let userName = 'Usuário';
+                let userAvatar = '';
+                
                 try {
                     const userQuery = supabase
                         .from('profiles')
-                        .select('name, email')
+                        .select('name, email, avatar_url')
                         .eq('id', f.follower_id)
                         .single();
                     
                     const { data: userData } = await withTimeout(userQuery, 1000);
                     if (userData) {
                         userName = userData.name || userData.email || 'Usuário';
+                        userAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                     } else {
                         // Fallback com nome baseado no ID
                         const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
                         const nameIndex = f.follower_id.charCodeAt(0) % names.length;
                         userName = names[nameIndex];
+                        userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                     }
                 } catch (error) {
                     // Fallback com nome baseado no ID
                     const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
                     const nameIndex = f.follower_id.charCodeAt(0) % names.length;
                     userName = names[nameIndex];
+                    userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                 }
                 
                 return `
                     <div class="follow-item">
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff" 
+                        <img src="${userAvatar}" 
                              alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
                         <span>${userName}</span>
                     </div>
