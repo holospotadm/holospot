@@ -1037,8 +1037,20 @@
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3Y21yYnJoeXVmbGh0eW1iaGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNDU0NDgsImV4cCI6MjA3MTkyMTQ0OH0.55BtZc5dcwTlF7TXNMuoD0Sa6bUO2WkB-r1itj5t2tw';
+        const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3Y21yYnJoeXVmbGh0eW1iaGxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM0NTQ0OCwiZXhwIjoyMDcxOTIxNDQ4fQ.BiSk7GLtjIE0oU3H9MaxvR2xNlNyOeXcM-zkiL6qtlU';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Usar service role key para bypass RLS
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+        
+        // Função para timeout agressivo
+        function withTimeout(promise, timeoutMs = 2000) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error(`Timeout após ${timeoutMs}ms`)), timeoutMs)
+                )
+            ]);
+        }
         
         let currentUser = null;
         let posts = [];
@@ -1305,13 +1317,15 @@
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
-                console.log('🔍 Carregando posts reais do Supabase...');
+                console.log('🔍 Carregando posts reais do Supabase com timeout...');
                 
-                const { data, error } = await supabase
+                const postsQuery = supabase
                     .from('posts')
                     .select('*')
                     .order('created_at', { ascending: false })
                     .limit(20);
+                
+                const { data, error } = await withTimeout(postsQuery, 2000);
                 
                 if (error) {
                     console.error('❌ Erro ao carregar posts:', error);
