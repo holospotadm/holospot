@@ -902,7 +902,7 @@
         }
 
         .feedback-modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
             color: white;
             padding: 20px 24px;
             display: flex;
@@ -973,7 +973,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -981,11 +981,13 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s ease;
+            box-shadow: none;
+            outline: none;
         }
 
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
         }
 
         /* Responsive design */
@@ -1295,7 +1297,7 @@
                 </div>
             </div>
 
-            <div class="evolution-chart" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: 2px solid #5a67d8;">
+            <div class="evolution-chart" style="background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border: 2px solid #e65100;">
                 <h3 class="chart-title" style="color: white;">🔄 Feedbacks Recebidos</h3>
                 <div id="feedbacksRecebidos" style="color: white;">
                     <!-- Feedbacks serão carregados aqui -->
@@ -1916,11 +1918,11 @@
                     const username = currentUser.email?.split('@')[0] || 'Usuário';
                     
                     return `
-                        <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #e8f5e8, #d4f1d4); border: 1px solid #4CAF50; border-radius: 8px;">
-                            <div style="color: #2e7d32; font-weight: bold; margin-bottom: 8px;">
+                        <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
+                            <div style="color: #e65100; font-weight: bold; margin-bottom: 8px;">
                                 🔄 Feedback (@${username}):
                             </div>
-                            <div style="color: #1b5e20; line-height: 1.4; font-style: italic;">
+                            <div style="color: #bf360c; line-height: 1.4; font-style: italic;">
                                 "${feedback.feedback_text}"
                             </div>
                         </div>
@@ -1928,9 +1930,9 @@
                 } else {
                     // Não existe feedback - mostrar botão para dar feedback
                     return `
-                        <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196F3; border-radius: 8px;">
+                        <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: linear-gradient(135deg, #fff8e1, #ffecb3); border: 1px solid #ff9800; border-radius: 8px;">
                             <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
-                                background: linear-gradient(135deg, #667eea, #764ba2);
+                                background: linear-gradient(135deg, #ff9800, #f57c00);
                                 color: white;
                                 border: none;
                                 padding: 10px 16px;
@@ -1939,6 +1941,8 @@
                                 font-size: 14px;
                                 font-weight: bold;
                                 transition: transform 0.2s ease;
+                                box-shadow: none;
+                                outline: none;
                             " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 🔄 Dar Feedback
                             </button>
@@ -2926,15 +2930,15 @@
                     }
                     
                     return `
-                        <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #ffab40;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <strong style="color: #4CAF50;">💬 @${senderName}</strong>
+                                <strong style="color: #ffab40;">💬 @${senderName}</strong>
                                 <small style="color: rgba(255,255,255,0.7);">${formatDate(feedback.created_at)}</small>
                             </div>
                             <div style="background: rgba(255,255,255,0.9); color: #333; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-style: italic;">
                                 "${feedback.feedback_text}"
                             </div>
-                            <div style="background: rgba(135, 206, 250, 0.2); color: rgba(255,255,255,0.9); padding: 8px; border-radius: 6px; font-size: 12px;">
+                            <div style="background: rgba(255, 193, 7, 0.2); color: rgba(255,255,255,0.9); padding: 8px; border-radius: 6px; font-size: 12px;">
                                 <strong>📝 Post original:</strong> ${postTitle}<br>
                                 <span style="opacity: 0.8;">${postContent.substring(0, 100)}${postContent.length > 100 ? '...' : ''}</span>
                             </div>
