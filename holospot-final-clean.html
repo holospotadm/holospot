@@ -1946,8 +1946,28 @@
                     'admiracao': 'Admiração', 'admiration': 'Admiração'
                 };
                 
-                // Chamar função síncrona agora
-                const feedbackButton = getFeedbackButton(post);
+                // Inserir botão de feedback diretamente (sem função)
+                const feedbackButton = `
+                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                        <button class="feedback-btn" onclick="alert('Botão funcionando! Post: ${post.id}')" style="
+                            background: #4CAF50;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: bold;
+                        ">
+                            💬 Dar Feedback (DIRETO)
+                        </button>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                            Post ID: ${post.id}<br>
+                            Pessoa mencionada: ${post.celebrated_person_name || post.person_name || 'N/A'}<br>
+                            mentioned_user_id: ${post.mentioned_user_id || 'undefined'}
+                        </div>
+                    </div>
+                `;
                 
                 return `
                     <div class="post">
