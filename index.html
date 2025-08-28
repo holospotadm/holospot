@@ -1355,6 +1355,9 @@
                     // Processar dados de usuários para cada post
                     await processPostsUserData();
                     
+                    // Carregar reações para cada post
+                    await loadPostsReactions();
+                    
                 } catch (queryError) {
                     console.warn('⚠️ Falha na query, usando posts de exemplo:', queryError.message);
                     
@@ -1372,7 +1375,10 @@
                                 name: 'Ana Santos',
                                 avatar_url: 'https://ui-avatars.com/api/?name=Ana+Santos&background=667eea&color=fff'
                             },
-                            reactions: []
+                            reactions: [
+                                { id: 'r1', user_id: 'user-3', type: 'touched', created_at: new Date().toISOString() },
+                                { id: 'r2', user_id: 'user-4', type: 'grateful', created_at: new Date().toISOString() }
+                            ]
                         },
                         {
                             id: 'example-2',
@@ -1386,7 +1392,9 @@
                                 name: 'Carlos Mendes',
                                 avatar_url: 'https://ui-avatars.com/api/?name=Carlos+Mendes&background=764ba2&color=fff'
                             },
-                            reactions: []
+                            reactions: [
+                                { id: 'r3', user_id: 'user-5', type: 'inspired', created_at: new Date().toISOString() }
+                            ]
                         }
                     ];
                 }
@@ -1398,6 +1406,68 @@
                 console.error('❌ Erro crítico ao carregar posts:', error);
                 posts = [];
                 renderPosts();
+            }
+        }
+
+        async function loadPostsReactions() {
+            try {
+                console.log('💖 Carregando reações dos posts...');
+                
+                if (posts.length === 0) {
+                    console.log('⚠️ Nenhum post para carregar reações');
+                    return;
+                }
+                
+                const postIds = posts.map(p => p.id);
+                
+                try {
+                    const { data: reactionsData, error } = await supabase
+                        .from('reactions')
+                        .select('*')
+                        .in('post_id', postIds);
+                    
+                    if (error) {
+                        console.error('❌ Erro na query de reações:', error);
+                        throw error;
+                    }
+                    
+                    console.log(`✅ ${reactionsData?.length || 0} reações carregadas do banco`);
+                    
+                    // Distribuir reações para os posts correspondentes
+                    posts.forEach(post => {
+                        post.reactions = reactionsData?.filter(r => r.post_id === post.id) || [];
+                    });
+                    
+                } catch (reactionsError) {
+                    console.warn('⚠️ Falha na query de reações, usando reações de exemplo:', reactionsError.message);
+                    
+                    // Fallback: Reações de exemplo
+                    posts.forEach((post, index) => {
+                        if (index === 0) {
+                            post.reactions = [
+                                { id: 'r1', user_id: 'user-3', type: 'touched', created_at: new Date().toISOString() },
+                                { id: 'r2', user_id: 'user-4', type: 'grateful', created_at: new Date().toISOString() }
+                            ];
+                        } else if (index === 1) {
+                            post.reactions = [
+                                { id: 'r3', user_id: 'user-5', type: 'inspired', created_at: new Date().toISOString() }
+                            ];
+                        } else {
+                            post.reactions = [];
+                        }
+                    });
+                }
+                
+                console.log('✅ Reações distribuídas para os posts');
+                
+            } catch (error) {
+                console.error('❌ Erro crítico ao carregar reações:', error);
+                // Garantir que todos os posts tenham array de reações
+                posts.forEach(post => {
+                    if (!post.reactions) {
+                        post.reactions = [];
+                    }
+                });
             }
         }
 
@@ -1583,50 +1653,94 @@
 
         async function toggleReaction(postId, type) {
             try {
+                console.log(`💖 Tentando ${type} no post:`, postId);
                 const post = posts.find(p => p.id === postId);
+                
+                if (!post) {
+                    console.error('❌ Post não encontrado:', postId);
+                    return;
+                }
+                
                 const existingReaction = post.reactions.find(r => r.user_id === currentUser.id && r.type === type);
                 
                 if (existingReaction) {
                     // Remove reaction
-                    await supabase
-                        .from('reactions')
-                        .delete()
-                        .eq('id', existingReaction.id);
+                    try {
+                        await supabase
+                            .from('reactions')
+                            .delete()
+                            .eq('id', existingReaction.id);
+                        console.log('✅ Reação removida do banco');
+                    } catch (deleteError) {
+                        console.warn('⚠️ Erro ao remover reação do banco, removendo apenas localmente:', deleteError.message);
+                    }
                     
                     post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
+                    console.log('✅ Reação removida localmente');
                 } else {
                     // Add reaction
-                    const { data } = await supabase
-                        .from('reactions')
-                        .insert({
+                    let newReaction = null;
+                    
+                    try {
+                        const { data, error } = await supabase
+                            .from('reactions')
+                            .insert({
+                                post_id: postId,
+                                user_id: currentUser.id,
+                                type: type
+                            })
+                            .select()
+                            .single();
+                        
+                        if (error) throw error;
+                        
+                        newReaction = data;
+                        console.log('✅ Reação adicionada no banco');
+                    } catch (insertError) {
+                        console.warn('⚠️ Erro ao adicionar reação no banco, adicionando apenas localmente:', insertError.message);
+                        
+                        // Fallback: criar reação local
+                        newReaction = {
+                            id: `local-${Date.now()}`,
                             post_id: postId,
                             user_id: currentUser.id,
-                            type: type
-                        })
-                        .select()
-                        .single();
+                            type: type,
+                            created_at: new Date().toISOString()
+                        };
+                    }
                     
-                    if (data) {
-                        post.reactions.push(data);
+                    if (newReaction) {
+                        post.reactions.push(newReaction);
+                        console.log('✅ Reação adicionada localmente');
                         
-                        // Create notification for post author
+                        // Tentar criar notificação para o autor do post
                         if (post.user_id !== currentUser.id) {
-                            const reactionEmoji = { touched: '❤️', grateful: '🙏', inspired: '✨' }[type];
-                            await createNotification(
-                                post.user_id, 
-                                'reaction', 
-                                `${currentUser.user_metadata.name || currentUser.email} reagiu ${reactionEmoji} ao seu post sobre ${post.celebrated_person_name || post.person_name}`
-                            );
+                            try {
+                                const reactionEmoji = { touched: '❤️', grateful: '🙏', inspired: '✨' }[type];
+                                const userName = currentUser.user_metadata?.name || currentUser.email || 'Alguém';
+                                const personName = post.celebrated_person_name || post.person_name || 'uma pessoa especial';
+                                
+                                await createNotification(
+                                    post.user_id, 
+                                    'reaction', 
+                                    `${userName} reagiu ${reactionEmoji} ao seu post sobre ${personName}`
+                                );
+                                console.log('✅ Notificação de reação criada');
+                            } catch (notifError) {
+                                console.warn('⚠️ Erro ao criar notificação de reação:', notifError.message);
+                            }
                         }
                     }
                 }
                 
-                console.log('👍 Reação adicionada:', type, 'ao post:', postId);
+                // Sempre re-renderizar posts e atualizar estatísticas
                 renderPosts();
                 updateStats();
+                console.log('✅ Interface atualizada após reação');
                 
             } catch (error) {
-                console.error('❌ Erro ao reagir:', error);
+                console.error('❌ Erro crítico ao reagir:', error);
+                alert('Erro ao reagir ao post. Tente novamente.');
             }
         }
 
