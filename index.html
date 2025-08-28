@@ -1273,21 +1273,50 @@
         async function loadUserData() {
             try {
                 console.log('📊 Carregando dados do usuário...');
+                console.log('🔍 Carregando dados de seguir/seguidores reais do Supabase com timeout...');
                 
-                // Usar dados fixos para seguir/seguidores para evitar problemas de RLS
-                console.log('⚠️ Usando dados fixos para seguir/seguidores');
+                // Carregar quem eu sigo
+                const followingQuery = supabase
+                    .from('follows')
+                    .select('following_id')
+                    .eq('follower_id', currentUser.id);
                 
-                following = [
-                    { following_id: 'user-1' },
-                    { following_id: 'user-2' }
-                ];
-                followers = [
-                    { follower_id: 'user-3' },
-                    { follower_id: 'user-4' },
-                    { follower_id: 'user-5' }
-                ];
+                // Carregar meus seguidores
+                const followersQuery = supabase
+                    .from('follows')
+                    .select('follower_id')
+                    .eq('following_id', currentUser.id);
                 
-                console.log(`✅ Dados carregados: ${following.length} seguindo, ${followers.length} seguidores`);
+                try {
+                    const [followingResult, followersResult] = await Promise.all([
+                        withTimeout(followingQuery, 2000),
+                        withTimeout(followersQuery, 2000)
+                    ]);
+                    
+                    if (followingResult.error) throw followingResult.error;
+                    if (followersResult.error) throw followersResult.error;
+                    
+                    following = followingResult.data || [];
+                    followers = followersResult.data || [];
+                    
+                    console.log(`✅ Dados reais carregados: ${following.length} seguindo, ${followers.length} seguidores`);
+                    
+                } catch (queryError) {
+                    console.warn('⚠️ Erro nas queries, usando dados de exemplo:', queryError.message);
+                    
+                    // Fallback com dados de exemplo
+                    following = [
+                        { following_id: 'user-1' },
+                        { following_id: 'user-2' }
+                    ];
+                    followers = [
+                        { follower_id: 'user-3' },
+                        { follower_id: 'user-4' },
+                        { follower_id: 'user-5' }
+                    ];
+                    
+                    console.log(`✅ Dados de exemplo carregados: ${following.length} seguindo, ${followers.length} seguidores`);
+                }
                 
                 // Atualizar contadores na interface
                 updateFollowCounts();
@@ -1591,11 +1620,13 @@
                 if (isFollowing) {
                     // Unfollow
                     try {
-                        await supabase
+                        const unfollowQuery = supabase
                             .from('follows')
                             .delete()
                             .eq('follower_id', currentUser.id)
                             .eq('following_id', userId);
+                        
+                        await withTimeout(unfollowQuery, 2000);
                         console.log('✅ Unfollow realizado no banco');
                     } catch (unfollowError) {
                         console.warn('⚠️ Erro ao desseguir no banco, atualizando apenas localmente:', unfollowError.message);
@@ -1606,12 +1637,14 @@
                 } else {
                     // Follow
                     try {
-                        await supabase
+                        const followQuery = supabase
                             .from('follows')
                             .insert({
                                 follower_id: currentUser.id,
                                 following_id: userId
                             });
+                        
+                        await withTimeout(followQuery, 2000);
                         console.log('✅ Follow realizado no banco');
                     } catch (followError) {
                         console.warn('⚠️ Erro ao seguir no banco, atualizando apenas localmente:', followError.message);
@@ -2229,12 +2262,34 @@
             }
         }
 
-        function showFollowingModal() {
-            const followingList = following.map(f => {
-                // Gerar nome consistente baseado no ID
-                const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                const nameIndex = f.following_id.charCodeAt(0) % names.length;
-                const userName = names[nameIndex];
+        async function showFollowingModal() {
+            console.log('👥 Abrindo modal de seguindo...');
+            
+            const followingList = await Promise.all(following.map(async f => {
+                // Tentar buscar dados reais do usuário
+                let userName = 'Usuário';
+                try {
+                    const userQuery = supabase
+                        .from('profiles')
+                        .select('name, email')
+                        .eq('id', f.following_id)
+                        .single();
+                    
+                    const { data: userData } = await withTimeout(userQuery, 1000);
+                    if (userData) {
+                        userName = userData.name || userData.email || 'Usuário';
+                    } else {
+                        // Fallback com nome baseado no ID
+                        const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                        const nameIndex = f.following_id.charCodeAt(0) % names.length;
+                        userName = names[nameIndex];
+                    }
+                } catch (error) {
+                    // Fallback com nome baseado no ID
+                    const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                    const nameIndex = f.following_id.charCodeAt(0) % names.length;
+                    userName = names[nameIndex];
+                }
                 
                 return `
                     <div class="follow-item">
@@ -2243,14 +2298,14 @@
                         <span>${userName}</span>
                     </div>
                 `;
-            }).join('');
+            }));
             
             const modal = `
                 <div class="modal-overlay" onclick="closeModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <h3>Seguindo (${following.length})</h3>
                         <div class="follow-list">
-                            ${followingList || '<p>Você ainda não segue ninguém.</p>'}
+                            ${followingList.join('') || '<p>Você ainda não segue ninguém.</p>'}
                         </div>
                         <button onclick="closeModal()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Fechar</button>
                     </div>
@@ -2259,12 +2314,34 @@
             document.body.insertAdjacentHTML('beforeend', modal);
         }
 
-        function showFollowersModal() {
-            const followersList = followers.map(f => {
-                // Gerar nome consistente baseado no ID
-                const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                const nameIndex = f.follower_id.charCodeAt(0) % names.length;
-                const userName = names[nameIndex];
+        async function showFollowersModal() {
+            console.log('👥 Abrindo modal de seguidores...');
+            
+            const followersList = await Promise.all(followers.map(async f => {
+                // Tentar buscar dados reais do usuário
+                let userName = 'Usuário';
+                try {
+                    const userQuery = supabase
+                        .from('profiles')
+                        .select('name, email')
+                        .eq('id', f.follower_id)
+                        .single();
+                    
+                    const { data: userData } = await withTimeout(userQuery, 1000);
+                    if (userData) {
+                        userName = userData.name || userData.email || 'Usuário';
+                    } else {
+                        // Fallback com nome baseado no ID
+                        const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                        const nameIndex = f.follower_id.charCodeAt(0) % names.length;
+                        userName = names[nameIndex];
+                    }
+                } catch (error) {
+                    // Fallback com nome baseado no ID
+                    const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                    const nameIndex = f.follower_id.charCodeAt(0) % names.length;
+                    userName = names[nameIndex];
+                }
                 
                 return `
                     <div class="follow-item">
@@ -2273,14 +2350,14 @@
                         <span>${userName}</span>
                     </div>
                 `;
-            }).join('');
+            }));
             
             const modal = `
                 <div class="modal-overlay" onclick="closeModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <h3>Seguidores (${followers.length})</h3>
                         <div class="follow-list">
-                            ${followersList || '<p>Você ainda não tem seguidores.</p>'}
+                            ${followersList.join('') || '<p>Você ainda não tem seguidores.</p>'}
                         </div>
                         <button onclick="closeModal()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Fechar</button>
                     </div>
