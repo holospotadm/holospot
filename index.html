@@ -1910,6 +1910,30 @@
             `;
         }
 
+        // Função para verificar se deve mostrar botão de feedback
+        function getFeedbackButtonForPost(post) {
+            // Verificar se há usuário mencionado e se é o usuário atual
+            if (post.mentioned_user_id && post.mentioned_user_id === currentUser?.id) {
+                return `
+                    <div class="feedback-section" style="margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 8px;">
+                        <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
+                            background: #4CAF50;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: bold;
+                        ">
+                            💬 Dar Feedback
+                        </button>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
         function renderPosts() {
             const container = document.getElementById('postsContainer');
             
@@ -2012,10 +2036,7 @@
                             </button>
                         </div>
                         
-                        <div style="margin-top: 10px; padding: 10px; background: red; color: white; text-align: center; border-radius: 8px;">
-                            <strong>💬 BOTÃO DE FEEDBACK TESTE</strong><br>
-                            Post: ${post.id}
-                        </div>
+                        ${getFeedbackButtonForPost(post)}
                     </div>
                 `;
             });
@@ -3005,6 +3026,91 @@
             const modal = document.querySelector('.modal-overlay');
             if (modal) {
                 modal.remove();
+            }
+        }
+
+        // Sistema de Feedbacks
+        function openFeedbackModal(postId) {
+            const modal = `
+                <div class="modal-overlay" onclick="closeFeedbackModal()">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h3>💬 Dar Feedback</h3>
+                            <button class="modal-close" onclick="closeFeedbackModal()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea id="feedbackText" placeholder="Escreva seu feedback..." 
+                                style="width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; font-family: inherit;"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button onclick="closeFeedbackModal()" style="background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 6px; margin-right: 10px; cursor: pointer;">
+                                Cancelar
+                            </button>
+                            <button onclick="submitFeedback('${postId}')" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                                Enviar Feedback
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modal);
+            
+            // Focar no textarea
+            setTimeout(() => {
+                const textarea = document.getElementById('feedbackText');
+                if (textarea) textarea.focus();
+            }, 100);
+        }
+
+        function closeFeedbackModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function submitFeedback(postId) {
+            const feedbackText = document.getElementById('feedbackText').value.trim();
+            
+            if (!feedbackText) {
+                alert('Por favor, escreva seu feedback.');
+                return;
+            }
+            
+            try {
+                // Buscar dados do post
+                const post = posts.find(p => p.id === postId);
+                if (!post) {
+                    alert('Post não encontrado.');
+                    return;
+                }
+                
+                // Salvar feedback no Supabase
+                const { data, error } = await supabase
+                    .from('feedbacks')
+                    .insert({
+                        post_id: postId,
+                        author_id: post.user_id,
+                        feedback_text: feedbackText,
+                        mentioned_user_id: currentUser.id
+                    });
+                
+                if (error) {
+                    console.error('❌ Erro ao salvar feedback:', error);
+                    alert('Erro ao enviar feedback. Tente novamente.');
+                    return;
+                }
+                
+                console.log('✅ Feedback enviado com sucesso');
+                alert('Feedback enviado com sucesso!');
+                closeFeedbackModal();
+                
+                // Re-renderizar posts para atualizar estado do botão
+                renderPosts();
+                
+            } catch (error) {
+                console.error('❌ Erro ao enviar feedback:', error);
+                alert('Erro ao enviar feedback. Tente novamente.');
             }
         }
 
