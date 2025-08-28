@@ -1305,65 +1305,95 @@
             try {
                 console.log('📝 Carregando posts...');
                 
-                // Modo offline temporário - sem queries do Supabase
-                console.warn('⚠️ Usando modo offline para posts');
-                
-                // Posts de exemplo para demonstração
-                posts = [
-                    {
-                        id: 'example-1',
-                        user_id: 'user-1',
-                        celebrated_person_name: 'Maria Silva',
-                        content: 'Uma professora incrível que sempre acredita no potencial de cada aluno. Sua dedicação transforma vidas todos os dias.',
-                        type: 'gratitude',
-                        photo_url: null,
-                        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 horas atrás
-                        user_data: {
-                            name: 'Ana Santos',
-                            avatar_url: 'https://ui-avatars.com/api/?name=Ana+Santos&background=667eea&color=fff'
-                        },
-                        reactions: [
-                            { id: 'r1', user_id: 'user-3', type: 'touched', created_at: new Date().toISOString() },
-                            { id: 'r2', user_id: 'user-4', type: 'grateful', created_at: new Date().toISOString() }
-                        ]
-                    },
-                    {
-                        id: 'example-2',
-                        user_id: 'user-2',
-                        celebrated_person_name: 'João Oliveira',
-                        content: 'Meu colega de trabalho que sempre está disposto a ajudar. Sua generosidade e conhecimento fazem toda a diferença na equipe.',
-                        type: 'admiration',
-                        photo_url: null,
-                        created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 horas atrás
-                        user_data: {
-                            name: 'Carlos Mendes',
-                            avatar_url: 'https://ui-avatars.com/api/?name=Carlos+Mendes&background=764ba2&color=fff'
-                        },
-                        reactions: [
-                            { id: 'r3', user_id: 'user-5', type: 'inspired', created_at: new Date().toISOString() }
-                        ]
-                    },
-                    {
-                        id: 'example-3',
-                        user_id: 'user-3',
-                        celebrated_person_name: 'Dr. Pedro Costa',
-                        content: 'Um médico dedicado que salvou a vida da minha mãe. Sua competência e humanidade são inspiradoras.',
-                        type: 'gratitude',
-                        photo_url: null,
-                        created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 horas atrás
-                        user_data: {
-                            name: 'Lucia Ferreira',
-                            avatar_url: 'https://ui-avatars.com/api/?name=Lucia+Ferreira&background=f093fb&color=fff'
-                        },
-                        reactions: [
-                            { id: 'r4', user_id: 'user-1', type: 'touched', created_at: new Date().toISOString() },
-                            { id: 'r5', user_id: 'user-2', type: 'grateful', created_at: new Date().toISOString() },
-                            { id: 'r6', user_id: 'user-4', type: 'inspired', created_at: new Date().toISOString() }
-                        ]
+                // Tentar carregar posts reais do Supabase com timeout
+                try {
+                    console.log('🔍 Tentando carregar posts reais do Supabase...');
+                    
+                    // Promise com timeout de 10 segundos
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout na query')), 10000)
+                    );
+                    
+                    const queryPromise = supabase
+                        .from('posts')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(20);
+                    
+                    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+                    
+                    if (error) {
+                        console.error('❌ Erro na query:', error);
+                        throw error;
                     }
-                ];
-                
-                console.log(`✅ ${posts.length} posts carregados (modo offline)`);
+                    
+                    console.log(`✅ ${data?.length || 0} posts reais carregados do banco`);
+                    posts = data || [];
+                    
+                    // Processar dados de usuários para cada post
+                    await processPostsUserData();
+                    
+                    // Carregar reações para cada post
+                    await loadPostsReactions();
+                    
+                } catch (queryError) {
+                    console.warn('⚠️ Falha na query de posts, usando posts de exemplo:', queryError.message);
+                    
+                    // Fallback: Posts de exemplo se query falhar
+                    posts = [
+                        {
+                            id: 'example-1',
+                            user_id: 'user-1',
+                            celebrated_person_name: 'Maria Silva',
+                            content: 'Uma professora incrível que sempre acredita no potencial de cada aluno. Sua dedicação transforma vidas todos os dias.',
+                            type: 'gratitude',
+                            photo_url: null,
+                            created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                            user_data: {
+                                name: 'Ana Santos',
+                                avatar_url: 'https://ui-avatars.com/api/?name=Ana+Santos&background=667eea&color=fff'
+                            },
+                            reactions: [
+                                { id: 'r1', user_id: 'user-3', type: 'touched', created_at: new Date().toISOString() },
+                                { id: 'r2', user_id: 'user-4', type: 'grateful', created_at: new Date().toISOString() }
+                            ]
+                        },
+                        {
+                            id: 'example-2',
+                            user_id: 'user-2',
+                            celebrated_person_name: 'João Oliveira',
+                            content: 'Meu colega de trabalho que sempre está disposto a ajudar. Sua generosidade e conhecimento fazem toda a diferença na equipe.',
+                            type: 'admiration',
+                            photo_url: null,
+                            created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+                            user_data: {
+                                name: 'Carlos Mendes',
+                                avatar_url: 'https://ui-avatars.com/api/?name=Carlos+Mendes&background=764ba2&color=fff'
+                            },
+                            reactions: [
+                                { id: 'r3', user_id: 'user-5', type: 'inspired', created_at: new Date().toISOString() }
+                            ]
+                        },
+                        {
+                            id: 'example-3',
+                            user_id: 'user-3',
+                            celebrated_person_name: 'Dr. Pedro Costa',
+                            content: 'Um médico dedicado que salvou a vida da minha mãe. Sua competência e humanidade são inspiradoras.',
+                            type: 'gratitude',
+                            photo_url: null,
+                            created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+                            user_data: {
+                                name: 'Lucia Ferreira',
+                                avatar_url: 'https://ui-avatars.com/api/?name=Lucia+Ferreira&background=f093fb&color=fff'
+                            },
+                            reactions: [
+                                { id: 'r4', user_id: 'user-1', type: 'touched', created_at: new Date().toISOString() },
+                                { id: 'r5', user_id: 'user-2', type: 'grateful', created_at: new Date().toISOString() },
+                                { id: 'r6', user_id: 'user-4', type: 'inspired', created_at: new Date().toISOString() }
+                            ]
+                        }
+                    ];
+                }
                 
                 renderPosts();
                 console.log('✅ Posts processados e renderizados');
@@ -1387,17 +1417,26 @@
                 const postIds = posts.map(p => p.id);
                 
                 try {
-                    const { data: reactionsData, error } = await supabase
+                    console.log('🔍 Tentando carregar reações reais do Supabase...');
+                    
+                    // Promise com timeout de 5 segundos
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout na query de reações')), 5000)
+                    );
+                    
+                    const queryPromise = supabase
                         .from('reactions')
                         .select('*')
                         .in('post_id', postIds);
+                    
+                    const { data: reactionsData, error } = await Promise.race([queryPromise, timeoutPromise]);
                     
                     if (error) {
                         console.error('❌ Erro na query de reações:', error);
                         throw error;
                     }
                     
-                    console.log(`✅ ${reactionsData?.length || 0} reações carregadas do banco`);
+                    console.log(`✅ ${reactionsData?.length || 0} reações reais carregadas do banco`);
                     
                     // Distribuir reações para os posts correspondentes
                     posts.forEach(post => {
