@@ -3123,7 +3123,7 @@
             console.log('💬 Abrindo modal de feedback para post:', postId);
             
             // Verificar se já existe modal de feedback e fechar apenas ele
-            const existingFeedbackModal = document.querySelector('[id*="feedbackModal"]');
+            const existingFeedbackModal = document.getElementById('feedbackModal');
             if (existingFeedbackModal) {
                 console.log('⚠️ Modal de feedback já existe, fechando antes de abrir novo');
                 existingFeedbackModal.remove();
@@ -3139,6 +3139,7 @@
             
             // Criar modal de feedback
             const modal = document.createElement('div');
+            modal.id = 'feedbackModal';
             modal.className = 'modal-overlay';
             modal.innerHTML = `
                 <div class="feedback-modal">
@@ -3177,7 +3178,7 @@
         }
 
         function closeFeedbackModal() {
-            const modal = document.querySelector('.modal-overlay');
+            const modal = document.getElementById('feedbackModal');
             if (modal) {
                 modal.remove();
             }
