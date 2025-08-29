@@ -2893,6 +2893,12 @@
             const postsHtml = [];
             for (const post of posts) {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
+                
+                // Garantir que reactions seja sempre um array
+                if (!Array.isArray(post.reactions)) {
+                    post.reactions = [];
+                }
+                
                 const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                 
                 const typeEmojis = {
@@ -3768,14 +3774,25 @@
 
         function updateStats() {
             const userPosts = posts.filter(p => p.user_id === currentUser.id);
-            const userTotalReactions = userPosts.reduce((sum, post) => sum + post.reactions.length, 0);
+            const userTotalReactions = userPosts.reduce((sum, post) => {
+                // Garantir que reactions seja um array
+                const reactions = Array.isArray(post.reactions) ? post.reactions : [];
+                return sum + reactions.length;
+            }, 0);
             const uniquePeople = new Set(userPosts.map(p => p.celebrated_person_name || p.person_name)).size;
             
-            // Profile tab stats
-            document.getElementById('userPostsCount').textContent = userPosts.length;
-            document.getElementById('userReactionsReceived').textContent = userTotalReactions;
-            document.getElementById('userPeopleHighlighted').textContent = uniquePeople;
-            document.getElementById('userFollowersCount').textContent = followers.length;
+            // Profile tab stats - verificar se elementos existem
+            const postsCountEl = document.getElementById('userPostsCount');
+            if (postsCountEl) postsCountEl.textContent = userPosts.length;
+            
+            const reactionsEl = document.getElementById('userReactionsReceived');
+            if (reactionsEl) reactionsEl.textContent = userTotalReactions;
+            
+            const peopleEl = document.getElementById('userPeopleHighlighted');
+            if (peopleEl) peopleEl.textContent = uniquePeople;
+            
+            const followersEl = document.getElementById('userFollowersCount');
+            if (followersEl) followersEl.textContent = followers.length;
             
             // Impact tab stats
             const totalReactions = posts.reduce((sum, post) => sum + post.reactions.length, 0);
