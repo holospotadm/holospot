@@ -136,21 +136,21 @@
                 height: auto;
             }
 
-            /* Logo no centro */
-            .logo {
-                grid-column: 2;
-                grid-area: unset !important;
-                justify-self: center;
-                align-self: center;
-            }
-
             /* User info na esquerda */
             .user-section {
                 grid-column: 1;
                 grid-area: unset !important;
-                justify-self: start;
+                justify-self: start !important;
                 align-self: center;
                 order: 1;
+            }
+
+            /* Logo no centro */
+            .logo {
+                grid-column: 2;
+                grid-area: unset !important;
+                justify-self: center !important;
+                align-self: center;
             }
 
             /* Notificações e botão sair na direita */
