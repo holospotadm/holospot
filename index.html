@@ -1592,6 +1592,13 @@
                     </div>
                     <div class="progress-text" id="monthlyGoalText">0/20</div>
                 </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Multiplicador de Holofotes</strong>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="multiplierProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="multiplierText">1.0x</div>
+                </div>
             </div>
 
             <!-- Botão para abrir modal de Feedbacks -->
@@ -2017,16 +2024,66 @@
             try {
                 console.log('🔄 Carregando feedbacks no modal...');
                 
-                const { data: feedbacks, error } = await supabase
-                    .from('feedbacks')
-                    .select(`
-                        *,
-                        from_user:from_user_id(name, username, avatar_url)
-                    `)
-                    .eq('to_user_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
+                // Primeiro, vamos tentar buscar feedbacks com diferentes estruturas possíveis
+                let feedbacks = [];
+                let error = null;
+                
+                // Tentar primeira estrutura (to_user_id)
+                try {
+                    const { data: feedbacksData, error: feedbacksError } = await supabase
+                        .from('feedbacks')
+                        .select(`
+                            *,
+                            from_user:from_user_id(name, username, avatar_url),
+                            post:post_id(content, highlight_type)
+                        `)
+                        .eq('to_user_id', currentUser.id)
+                        .order('created_at', { ascending: false });
+                    
+                    if (!feedbacksError && feedbacksData) {
+                        feedbacks = feedbacksData;
+                    } else {
+                        throw feedbacksError;
+                    }
+                } catch (firstError) {
+                    console.log('Tentando estrutura alternativa...');
+                    
+                    // Tentar segunda estrutura (mentioned_user_id)
+                    try {
+                        const { data: feedbacksData2, error: feedbacksError2 } = await supabase
+                            .from('feedbacks')
+                            .select(`
+                                *,
+                                author:author_id(name, username, avatar_url),
+                                post:post_id(content, highlight_type)
+                            `)
+                            .eq('mentioned_user_id', currentUser.id)
+                            .order('created_at', { ascending: false });
+                        
+                        if (!feedbacksError2 && feedbacksData2) {
+                            feedbacks = feedbacksData2;
+                        } else {
+                            throw feedbacksError2;
+                        }
+                    } catch (secondError) {
+                        console.log('Tentando buscar todos os feedbacks...');
+                        
+                        // Tentar buscar todos e filtrar
+                        const { data: allFeedbacks, error: allError } = await supabase
+                            .from('feedbacks')
+                            .select('*')
+                            .order('created_at', { ascending: false });
+                        
+                        if (allError) throw allError;
+                        
+                        // Filtrar feedbacks relacionados ao usuário atual
+                        feedbacks = allFeedbacks.filter(feedback => 
+                            feedback.to_user_id === currentUser.id || 
+                            feedback.mentioned_user_id === currentUser.id ||
+                            feedback.user_id === currentUser.id
+                        );
+                    }
+                }
 
                 const feedbacksContainer = document.getElementById('modalFeedbacksContent');
                 
@@ -2035,37 +2092,54 @@
                         <div style="text-align: center; padding: 40px; color: #666;">
                             <p>📭 Nenhum feedback recebido ainda</p>
                             <p style="font-size: 14px; margin-top: 10px;">Continue destacando pessoas para receber feedbacks!</p>
+                            <p style="font-size: 12px; color: #999; margin-top: 10px;">Debug: Estrutura da tabela pode estar diferente</p>
                         </div>
                     `;
                     return;
                 }
 
-                const feedbacksHtml = feedbacks.map(feedback => `
-                    <div style="background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #667eea;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <img src="${feedback.from_user?.avatar_url || '/default-avatar.png'}" 
-                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <div style="font-weight: 600; color: #333;">${feedback.from_user?.name || 'Usuário'}</div>
-                                <div style="font-size: 12px; color: #666;">@${feedback.from_user?.username || 'usuario'}</div>
+                console.log('Feedbacks encontrados:', feedbacks);
+
+                const feedbacksHtml = feedbacks.map(feedback => {
+                    // Tentar diferentes campos para o remetente
+                    const sender = feedback.from_user || feedback.author || {};
+                    const senderName = sender.name || feedback.sender_name || 'Usuário';
+                    const senderUsername = sender.username || feedback.sender_username || 'usuario';
+                    const senderAvatar = sender.avatar_url || '/default-avatar.png';
+                    
+                    // Tentar diferentes campos para a mensagem
+                    const message = feedback.message || feedback.feedback_text || feedback.content || 'Feedback sem conteúdo';
+                    
+                    return `
+                        <div style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <img src="${senderAvatar}" 
+                                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <div style="font-weight: 600; color: #333;">${senderName}</div>
+                                    <div style="font-size: 12px; color: #666;">@${senderUsername}</div>
+                                </div>
+                                <div style="margin-left: auto; font-size: 12px; color: #999;">
+                                    ${new Date(feedback.created_at).toLocaleDateString('pt-BR')}
+                                </div>
                             </div>
-                            <div style="margin-left: auto; font-size: 12px; color: #999;">
-                                ${new Date(feedback.created_at).toLocaleDateString('pt-BR')}
+                            <div style="color: #555; line-height: 1.5; background: #f8f9fa; padding: 12px; border-radius: 8px;">
+                                "${message}"
                             </div>
                         </div>
-                        <div style="color: #555; line-height: 1.5;">${feedback.message}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 feedbacksContainer.innerHTML = feedbacksHtml;
-                console.log('✅ Feedbacks carregados no modal');
+                console.log('✅ Feedbacks carregados no modal:', feedbacks.length);
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar feedbacks:', error);
                 document.getElementById('modalFeedbacksContent').innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #666;">
                         <p>❌ Erro ao carregar feedbacks</p>
-                        <p style="font-size: 14px;">Tente recarregar a página</p>
+                        <p style="font-size: 14px;">Erro: ${error.message}</p>
+                        <p style="font-size: 12px; color: #999;">Verifique a estrutura da tabela feedbacks</p>
                     </div>
                 `;
             }
@@ -2093,7 +2167,11 @@
                 
                 const { data: userPosts, error } = await supabase
                     .from('posts')
-                    .select('*')
+                    .select(`
+                        *,
+                        reactions(*),
+                        feedbacks(*)
+                    `)
                     .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false });
 
@@ -2111,23 +2189,69 @@
                     return;
                 }
 
-                const postsHtml = userPosts.map(post => `
-                    <div style="background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #764ba2;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                ${post.highlight_type || 'Destaque'}
+                const postsHtml = userPosts.map(post => {
+                    // Contar reações por tipo
+                    const reactions = post.reactions || [];
+                    const heartCount = reactions.filter(r => r.type === 'heart').length;
+                    const fireCount = reactions.filter(r => r.type === 'fire').length;
+                    const clapCount = reactions.filter(r => r.type === 'clap').length;
+                    const totalReactions = reactions.length;
+                    
+                    // Contar feedbacks
+                    const feedbacksCount = post.feedbacks ? post.feedbacks.length : 0;
+                    
+                    // Mapear tipos de destaque
+                    const highlightTypeMap = {
+                        'professional': '💼 Profissional',
+                        'personal': '❤️ Pessoal',
+                        'creative': '🎨 Criativo'
+                    };
+                    const highlightLabel = highlightTypeMap[post.highlight_type] || '✨ Destaque';
+                    
+                    return `
+                        <div style="background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #764ba2;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                <img src="${currentUser.avatar_url || '/default-avatar.png'}" 
+                                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #333;">${currentUser.name || 'Você'}</div>
+                                    <div style="font-size: 12px; color: #666;">@${currentUser.username || 'usuario'}</div>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    ${highlightLabel}
+                                </div>
+                                <div style="font-size: 12px; color: #999;">
+                                    ${new Date(post.created_at).toLocaleDateString('pt-BR')}
+                                </div>
                             </div>
-                            <div style="margin-left: auto; font-size: 12px; color: #999;">
-                                ${new Date(post.created_at).toLocaleDateString('pt-BR')}
+                            
+                            <div style="color: #333; line-height: 1.6; margin-bottom: 15px; font-size: 15px;">
+                                ${post.content || post.story || ''}
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 15px; border-top: 1px solid #eee;">
+                                <div style="display: flex; align-items: center; gap: 20px;">
+                                    <div style="display: flex; align-items: center; gap: 5px; color: #666; font-size: 14px;">
+                                        <span style="color: #e74c3c;">❤️</span>
+                                        <span>${heartCount}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px; color: #666; font-size: 14px;">
+                                        <span style="color: #f39c12;">🔥</span>
+                                        <span>${fireCount}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px; color: #666; font-size: 14px;">
+                                        <span style="color: #3498db;">👏</span>
+                                        <span>${clapCount}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #666;">
+                                    <span>${totalReactions} reações</span>
+                                    <span>${feedbacksCount} feedbacks</span>
+                                </div>
                             </div>
                         </div>
-                        <div style="color: #555; line-height: 1.5; margin-bottom: 10px;">${post.content}</div>
-                        <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #666;">
-                            <span>❤️ ${post.reactions_count || 0} reações</span>
-                            <span>💬 ${post.comments_count || 0} comentários</span>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 postsContainer.innerHTML = postsHtml;
                 console.log('✅ Posts carregados no modal');
@@ -3385,9 +3509,10 @@
             document.getElementById('firstHighlightText').textContent = `${Math.min(postsCount, 1)}/1`;
             
             // Multiplier achievement
+            const multiplierValue = 1.0 + (Math.min(postsCount, 10) * 0.1);
             const multiplierProgress = Math.min(postsCount / 10 * 100, 100);
             document.getElementById('multiplierProgress').style.width = multiplierProgress + '%';
-            document.getElementById('multiplierText').textContent = `${Math.min(postsCount, 10)}/10`;
+            document.getElementById('multiplierText').textContent = `${multiplierValue.toFixed(1)}x`;
             
             // Inspirer achievement
             const inspirerProgress = Math.min(reactionsCount / 50 * 100, 100);
