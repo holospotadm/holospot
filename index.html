@@ -170,9 +170,22 @@
             object-fit: cover;
         }
 
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         .user-name {
             font-weight: 600;
             color: #333;
+            line-height: 1.2;
+        }
+
+        .user-username {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 2px;
         }
 
         .logout-btn {
@@ -357,11 +370,18 @@
             font-weight: 600;
             color: #333;
             margin-bottom: 0.2rem;
+            line-height: 1.2;
+        }
+
+        .post-author-username {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.3rem;
         }
 
         .post-time {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .follow-btn {
@@ -1148,7 +1168,10 @@
                         </div>
                     </div>
                     <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
-                    <span id="userName" class="user-name"></span>
+                    <div class="user-info">
+                        <span id="userName" class="user-name"></span>
+                        <span id="userUsername" class="user-username"></span>
+                    </div>
                     <button id="logoutBtn" class="logout-btn">Sair</button>
                 </div>
             </div>
@@ -1574,6 +1597,7 @@
             // Update user info in header
             if (currentUser) {
                 document.getElementById('userName').textContent = currentUser.user_metadata.name || currentUser.email || 'Usuário';
+                document.getElementById('userUsername').textContent = '@' + (currentUser.email?.split('@')[0] || 'usuario');
                 document.getElementById('userAvatar').src = currentUser.user_metadata.avatar_url || '';
                 console.log('✅ Usuário logado:', currentUser.email);
             }
@@ -2004,6 +2028,7 @@
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
                                 <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
+                                <div class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</div>
                                 <div class="post-time">${formatDate(post.created_at)}</div>
                             </div>
                             ${post.user_id !== currentUser.id ? `
