@@ -3146,12 +3146,25 @@
                 }
                 
                 // Sempre re-renderizar posts e atualizar estatísticas
-                await renderPosts();
-                updateStats();
+                try {
+                    await renderPosts();
+                    console.log('✅ Posts re-renderizados');
+                } catch (renderError) {
+                    console.error('❌ Erro ao re-renderizar posts:', renderError);
+                }
+                
+                try {
+                    updateStats();
+                    console.log('✅ Estatísticas atualizadas');
+                } catch (statsError) {
+                    console.error('❌ Erro ao atualizar estatísticas:', statsError);
+                }
+                
                 console.log('✅ Interface atualizada após reação');
                 
             } catch (error) {
                 console.error('❌ Erro crítico ao reagir:', error);
+                console.error('❌ Stack trace:', error.stack);
                 alert('Erro ao reagir ao post. Tente novamente.');
             }
         }
