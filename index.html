@@ -1695,7 +1695,7 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
         
         // Função para timeout agressivo
-        function withTimeout(promise, timeoutMs = 2000) {
+        function withTimeout(promise, timeoutMs = 10000) {
             return Promise.race([
                 promise,
                 new Promise((_, reject) => 
@@ -2533,20 +2533,13 @@
                     console.log(`✅ Dados reais carregados: ${following.length} seguindo, ${followers.length} seguidores`);
                     
                 } catch (queryError) {
-                    console.warn('⚠️ Erro nas queries, usando dados de exemplo:', queryError.message);
+                    console.warn('⚠️ Erro nas queries, mantendo arrays vazios:', queryError.message);
                     
-                    // Fallback com dados de exemplo
-                    following = [
-                        { following_id: 'user-1' },
-                        { following_id: 'user-2' }
-                    ];
-                    followers = [
-                        { follower_id: 'user-3' },
-                        { follower_id: 'user-4' },
-                        { follower_id: 'user-5' }
-                    ];
+                    // Manter arrays vazios em caso de erro
+                    following = [];
+                    followers = [];
                     
-                    console.log(`✅ Dados de exemplo carregados: ${following.length} seguindo, ${followers.length} seguidores`);
+                    console.log('✅ Arrays vazios configurados devido ao erro');
                 }
                 
                 // Atualizar contadores na interface
@@ -3611,44 +3604,16 @@
                 console.log('✅ Notificações processadas e renderizadas');
                 
             } catch (error) {
-                console.error('❌ Erro ao carregar notificações, usando fallback:', error);
+                console.error('❌ Erro ao carregar notificações, mantendo array vazio:', error);
                 
-                // Fallback com notificações de exemplo
-                notifications = [
-                    {
-                        id: 'notif-1',
-                        user_id: currentUser.id,
-                        type: 'reaction',
-                        message: 'Ana Silva reagiu ❤️ ao seu post sobre Maria Silva',
-                        from_user_id: 'user-1',
-                        read: false,
-                        created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString() // 30 min atrás
-                    },
-                    {
-                        id: 'notif-2',
-                        user_id: currentUser.id,
-                        type: 'follow',
-                        message: 'João Santos começou a te seguir!',
-                        from_user_id: 'user-2',
-                        read: false,
-                        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2 horas atrás
-                    },
-                    {
-                        id: 'notif-3',
-                        user_id: currentUser.id,
-                        type: 'reaction',
-                        message: 'Carlos Mendes reagiu 🙏 ao seu post sobre João Oliveira',
-                        from_user_id: 'user-3',
-                        read: true,
-                        created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // 1 dia atrás
-                    }
-                ];
+                // Manter array vazio em caso de erro
+                notifications = [];
                 
-                console.log(`✅ ${notifications.length} notificações carregadas (fallback)`);
+                console.log('✅ Array de notificações vazio configurado devido ao erro');
                 
                 updateNotificationBadge();
                 renderNotifications();
-                console.log('✅ Notificações processadas e renderizadas');
+                console.log('✅ Interface de notificações renderizada sem dados');
             }
         }
 
@@ -4028,12 +3993,8 @@
                     }));
                     console.log(`✅ ${mentionUsers.length} usuários carregados para menções`);
                 } else {
-                    console.warn('⚠️ Erro ao carregar usuários, usando dados de exemplo');
-                    mentionUsers = [
-                        { id: 'user1', name: 'Ana Silva', username: 'ana.silva', avatar: 'https://ui-avatars.com/api/?name=Ana+Silva&background=667eea&color=fff' },
-                        { id: 'user2', name: 'João Santos', username: 'joao.santos', avatar: 'https://ui-avatars.com/api/?name=Joao+Santos&background=667eea&color=fff' },
-                        { id: 'user3', name: 'Maria Oliveira', username: 'maria.oliveira', avatar: 'https://ui-avatars.com/api/?name=Maria+Oliveira&background=667eea&color=fff' }
-                    ];
+                    console.warn('⚠️ Erro ao carregar usuários, mantendo array vazio');
+                    mentionUsers = [];
                 }
             } catch (error) {
                 console.error('❌ Erro ao carregar usuários para menções:', error);
