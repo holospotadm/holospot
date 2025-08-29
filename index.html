@@ -2161,6 +2161,59 @@
             }
         }
 
+        async function getFeedbacksForAuthorPost(post) {
+            try {
+                // Buscar todos os feedbacks para este post (quando o usuário é o autor)
+                const { data: feedbacks, error } = await supabase
+                    .from('feedbacks')
+                    .select(`
+                        *,
+                        mentioned_user:mentioned_user_id(name, email)
+                    `)
+                    .eq('post_id', post.id)
+                    .eq('author_id', currentUser.id);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar feedbacks:', error);
+                    return '';
+                }
+                
+                if (!feedbacks || feedbacks.length === 0) {
+                    return ''; // Não mostrar seção se não há feedbacks
+                }
+                
+                // Criar HTML para todos os feedbacks recebidos
+                const feedbacksHtml = feedbacks.map(feedback => {
+                    const userName = feedback.mentioned_user?.name || 'Usuário';
+                    const username = feedback.mentioned_user?.email?.split('@')[0] || 'usuario';
+                    
+                    return `
+                        <div style="margin-bottom: 10px; padding: 12px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
+                            <div style="color: #e65100; font-weight: bold; margin-bottom: 6px; font-size: 13px;">
+                                🔄 Feedback de ${userName} (@${username}):
+                            </div>
+                            <div style="color: #bf360c; line-height: 1.4; font-style: italic; font-size: 14px;">
+                                "${feedback.feedback_text}"
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                return `
+                    <div class="feedbacks-received-section" style="margin-top: 15px;">
+                        <div style="color: #666; font-weight: bold; margin-bottom: 10px; font-size: 14px;">
+                            📬 Feedbacks Recebidos (${feedbacks.length}):
+                        </div>
+                        ${feedbacksHtml}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Erro na função getFeedbacksForAuthorPost:', error);
+                return '';
+            }
+        }
+
         async function loadPostsInModal() {
             try {
                 console.log('📝 Carregando posts no modal...');
@@ -2204,8 +2257,8 @@
                         'admiracao': 'Admiração', 'admiration': 'Admiração'
                     };
                     
-                    // Obter botão de feedback usando função
-                    const feedbackButton = await getFeedbackButtonForPost(post);
+                    // Obter feedbacks recebidos para posts do próprio usuário
+                    const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
                     const postHtml = `
                         <div class="post">
@@ -2252,7 +2305,7 @@
                                 </button>
                             </div>
                             
-                            ${feedbackButton}
+                            ${feedbacksSection}
                         </div>
                     `;
                     
