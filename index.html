@@ -63,33 +63,45 @@
 
         /* Layout mobile - duas linhas */
         @media (max-width: 768px) {
+            /* Reorganiza elementos para mobile */
             .header-content {
-                flex-direction: column;
+                display: grid;
+                grid-template-areas: 
+                    "logo notifications"
+                    "user-section logout";
+                grid-template-columns: 1fr auto;
                 gap: 1rem;
-                align-items: stretch;
-            }
-
-            .header-top {
-                display: flex;
-                justify-content: space-between;
                 align-items: center;
             }
 
-            .header-top .logo {
-                flex: 1;
-                justify-content: center;
-            }
-
-            .header-bottom {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .user-section {
+            .logo {
+                grid-area: logo;
+                justify-self: center;
                 display: flex;
                 align-items: center;
                 gap: 0.75rem;
+            }
+
+            .notifications {
+                grid-area: notifications;
+                justify-self: end;
+            }
+
+            .user-section {
+                grid-area: user-section;
+                justify-self: start;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .logout-btn {
+                grid-area: logout;
+                justify-self: end;
+            }
+
+            .header-actions {
+                display: contents;
             }
         }
 
@@ -112,6 +124,45 @@
             /* Aproxima abas do header apenas no desktop */
             .nav-tabs {
                 top: 67px !important;
+            }
+
+            /* Reorganiza header para desktop */
+            .header-content {
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                align-items: center;
+                gap: 2rem;
+            }
+
+            /* Logo no centro */
+            .logo {
+                grid-column: 2;
+                justify-self: center;
+            }
+
+            /* User info na esquerda */
+            .user-section {
+                grid-column: 1;
+                justify-self: start;
+                order: 1;
+            }
+
+            /* Notificações e botão sair na direita */
+            .header-actions {
+                grid-column: 3;
+                justify-self: end;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                order: 3;
+            }
+
+            .notifications {
+                order: 1;
+            }
+
+            .logout-btn {
+                order: 2;
             }
         }
 
@@ -1250,12 +1301,23 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <!-- Linha superior: Logo centralizado e notificações à direita -->
-            <div class="header-top">
-                <div class="logo">
-                    <div class="logo-icon"></div>
-                    <span>HoloSpot</span>
+            <!-- User section (esquerda no desktop) -->
+            <div class="user-section">
+                <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                <div class="user-info">
+                    <div id="userName" class="user-name">Carregando...</div>
+                    <div id="userUsername" class="user-username">@carregando</div>
                 </div>
+            </div>
+
+            <!-- Logo (centro no desktop) -->
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <span>HoloSpot</span>
+            </div>
+
+            <!-- Actions (direita no desktop) -->
+            <div class="header-actions">
                 <div class="notifications" id="notificationsBtn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -1267,21 +1329,6 @@
                             <div class="notification-text">Você tem novas menções!</div>
                             <div class="notification-time">há 2 minutos</div>
                         </div>
-                        <div class="notification-item">
-                            <div class="notification-text">Novo seguidor: Maria Silva</div>
-                            <div class="notification-time">há 1 hora</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Linha inferior: Avatar, nome/@username e botão Sair -->
-            <div class="header-bottom">
-                <div class="user-section">
-                    <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
-                    <div class="user-info">
-                        <div id="userName" class="user-name">Carregando...</div>
-                        <div id="userUsername" class="user-username">@carregando</div>
                     </div>
                 </div>
                 <button id="logoutBtn" class="logout-btn">Sair</button>
