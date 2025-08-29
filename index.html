@@ -3035,11 +3035,42 @@
         async function toggleReaction(postId, type) {
             try {
                 console.log(`💖 Tentando ${type} no post:`, postId);
-                const post = posts.find(p => p.id === postId);
+                
+                // Buscar post diretamente do banco se não estiver no array global
+                let post = posts.find(p => p.id === postId);
                 
                 if (!post) {
-                    console.error('❌ Post não encontrado:', postId);
-                    return;
+                    console.log('🔍 Post não encontrado no array local, buscando no banco...');
+                    
+                    try {
+                        const { data: postData, error: postError } = await supabase
+                            .from('posts')
+                            .select('*')
+                            .eq('id', postId)
+                            .single();
+                        
+                        if (postError || !postData) {
+                            console.error('❌ Post não encontrado no banco:', postError);
+                            return;
+                        }
+                        
+                        // Buscar reações do post
+                        const { data: reactions } = await supabase
+                            .from('reactions')
+                            .select('*')
+                            .eq('post_id', postId);
+                        
+                        postData.reactions = reactions || [];
+                        post = postData;
+                        
+                        // Adicionar ao array global para próximas interações
+                        posts.push(post);
+                        console.log('✅ Post carregado do banco e adicionado ao array local');
+                        
+                    } catch (fetchError) {
+                        console.error('❌ Erro ao buscar post:', fetchError);
+                        return;
+                    }
                 }
                 
                 const existingReaction = post.reactions.find(r => r.user_id === currentUser.id && r.type === type);
