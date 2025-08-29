@@ -3122,11 +3122,11 @@
         function openFeedbackModal(postId) {
             console.log('💬 Abrindo modal de feedback para post:', postId);
             
-            // Verificar se já existe modal aberto e fechar
-            const existingModal = document.querySelector('.modal-overlay');
-            if (existingModal) {
-                console.log('⚠️ Modal já existe, fechando antes de abrir novo');
-                existingModal.remove();
+            // Verificar se já existe modal de feedback e fechar apenas ele
+            const existingFeedbackModal = document.querySelector('[id*="feedbackModal"]');
+            if (existingFeedbackModal) {
+                console.log('⚠️ Modal de feedback já existe, fechando antes de abrir novo');
+                existingFeedbackModal.remove();
             }
             
             // Encontrar o post
@@ -3832,11 +3832,11 @@
         async function showFollowingModal() {
             console.log('👥 Abrindo modal de seguindo...');
             
-            // Verificar se já existe modal aberto e fechar
-            const existingModal = document.querySelector('.modal-overlay');
-            if (existingModal) {
-                console.log('⚠️ Modal já existe, fechando antes de abrir novo');
-                existingModal.remove();
+            // Verificar se já existe modal de seguindo e fechar apenas ele
+            const existingFollowingModal = document.getElementById('followingModal');
+            if (existingFollowingModal) {
+                console.log('⚠️ Modal de seguindo já existe, fechando antes de abrir novo');
+                existingFollowingModal.remove();
             }
             
             const followingList = await Promise.all(following.map(async f => {
@@ -3900,11 +3900,11 @@
         async function showFollowersModal() {
             console.log('👥 Abrindo modal de seguidores...');
             
-            // Verificar se já existe modal aberto e fechar
-            const existingModal = document.querySelector('.modal-overlay');
-            if (existingModal) {
-                console.log('⚠️ Modal já existe, fechando antes de abrir novo');
-                existingModal.remove();
+            // Verificar se já existe modal de seguidores e fechar apenas ele
+            const existingFollowersModal = document.getElementById('followersModal');
+            if (existingFollowersModal) {
+                console.log('⚠️ Modal de seguidores já existe, fechando antes de abrir novo');
+                existingFollowersModal.remove();
             }
             
             const followersList = await Promise.all(followers.map(async f => {
