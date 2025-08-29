@@ -2165,17 +2165,14 @@
             try {
                 console.log('📝 Carregando posts no modal...');
                 
-                const { data: userPosts, error } = await supabase
+                // Buscar posts do usuário
+                const { data: userPosts, error: postsError } = await supabase
                     .from('posts')
-                    .select(`
-                        *,
-                        reactions(*),
-                        feedbacks(*)
-                    `)
+                    .select('*')
                     .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (postsError) throw postsError;
 
                 const postsContainer = document.getElementById('modalPostsContent');
                 
@@ -2189,16 +2186,37 @@
                     return;
                 }
 
+                // Buscar reações para todos os posts
+                const postIds = userPosts.map(post => post.id);
+                const { data: reactions } = await supabase
+                    .from('reactions')
+                    .select('*')
+                    .in('post_id', postIds);
+
+                // Buscar feedbacks para todos os posts (se a tabela existir)
+                let feedbacks = [];
+                try {
+                    const { data: feedbacksData } = await supabase
+                        .from('feedbacks')
+                        .select('*')
+                        .in('post_id', postIds);
+                    feedbacks = feedbacksData || [];
+                } catch (feedbackError) {
+                    console.log('Tabela feedbacks não encontrada ou sem relacionamento com posts');
+                    feedbacks = [];
+                }
+
                 const postsHtml = userPosts.map(post => {
-                    // Contar reações por tipo
-                    const reactions = post.reactions || [];
-                    const heartCount = reactions.filter(r => r.type === 'heart').length;
-                    const fireCount = reactions.filter(r => r.type === 'fire').length;
-                    const clapCount = reactions.filter(r => r.type === 'clap').length;
-                    const totalReactions = reactions.length;
+                    // Filtrar reações para este post
+                    const postReactions = reactions ? reactions.filter(r => r.post_id === post.id) : [];
+                    const heartCount = postReactions.filter(r => r.type === 'heart').length;
+                    const fireCount = postReactions.filter(r => r.type === 'fire').length;
+                    const clapCount = postReactions.filter(r => r.type === 'clap').length;
+                    const totalReactions = postReactions.length;
                     
-                    // Contar feedbacks
-                    const feedbacksCount = post.feedbacks ? post.feedbacks.length : 0;
+                    // Filtrar feedbacks para este post
+                    const postFeedbacks = feedbacks.filter(f => f.post_id === post.id);
+                    const feedbacksCount = postFeedbacks.length;
                     
                     // Mapear tipos de destaque
                     const highlightTypeMap = {
@@ -2261,7 +2279,7 @@
                 document.getElementById('modalPostsContent').innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #666;">
                         <p>❌ Erro ao carregar posts</p>
-                        <p style="font-size: 14px;">Tente recarregar a página</p>
+                        <p style="font-size: 14px;">Erro: ${error.message}</p>
                     </div>
                 `;
             }
