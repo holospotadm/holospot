@@ -2622,45 +2622,11 @@
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar posts:', error);
                 
-                // Fallback para posts de exemplo
-                console.log('⚠️ Usando posts de exemplo como fallback');
-                posts = [
-                    {
-                        id: 'example-1',
-                        user_id: 'user-1',
-                        celebrated_person_name: 'Ana Santos',
-                        content: 'Hoje quero destacar minha colega Ana, que sempre nos inspira com sua dedicação e positividade. Obrigado por tornar nosso ambiente de trabalho mais leve!',
-                        created_at: new Date().toISOString(),
-                        user_name: 'João Silva',
-                        user_avatar: null,
-                        reactions: { tocado: 5, grato: 3, inspirado: 2 },
-                        user_reactions: []
-                    },
-                    {
-                        id: 'example-2',
-                        user_id: 'user-2',
-                        celebrated_person_name: 'Carlos Mendes',
-                        content: 'Carlos, você é um exemplo de liderança e companheirismo. Sua forma de conduzir os projetos nos motiva a dar sempre o melhor!',
-                        created_at: new Date(Date.now() - 3600000).toISOString(),
-                        user_name: 'Maria Oliveira',
-                        user_avatar: null,
-                        reactions: { tocado: 8, grato: 6, inspirado: 4 },
-                        user_reactions: []
-                    },
-                    {
-                        id: 'example-3',
-                        user_id: 'user-3',
-                        celebrated_person_name: 'Lucia Ferreira',
-                        content: 'Lucia, sua criatividade e inovação transformam cada desafio em oportunidade. Você é uma verdadeira fonte de inspiração!',
-                        created_at: new Date(Date.now() - 7200000).toISOString(),
-                        user_name: 'Pedro Costa',
-                        user_avatar: null,
-                        reactions: { tocado: 12, grato: 9, inspirado: 7 },
-                        user_reactions: []
-                    }
-                ];
+                // Não usar fallback de posts fictícios - manter array vazio
+                console.log('⚠️ Mantendo array de posts vazio devido ao erro');
+                posts = [];
                 await renderPosts();
-                console.log('✅ Posts de exemplo renderizados');
+                console.log('✅ Interface renderizada sem posts');
             }
         }
 
