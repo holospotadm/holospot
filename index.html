@@ -3794,16 +3794,26 @@
             const followersEl = document.getElementById('userFollowersCount');
             if (followersEl) followersEl.textContent = followers.length;
             
-            // Impact tab stats
-            const totalReactions = posts.reduce((sum, post) => sum + post.reactions.length, 0);
+            // Impact tab stats - verificar se elementos existem
+            const totalReactions = posts.reduce((sum, post) => {
+                const reactions = Array.isArray(post.reactions) ? post.reactions : [];
+                return sum + reactions.length;
+            }, 0);
             const estimatedReach = totalReactions * 3 + userPosts.length * 5; // More realistic calculation
-            document.getElementById('totalReachCount').textContent = estimatedReach;
-            document.getElementById('totalReactionsCount').textContent = totalReactions;
-            document.getElementById('averageReactionsCount').textContent = posts.length > 0 ? Math.round(totalReactions / posts.length) : 0;
+            
+            const totalReachEl = document.getElementById('totalReachCount');
+            if (totalReachEl) totalReachEl.textContent = estimatedReach;
+            
+            const totalReactionsEl = document.getElementById('totalReactionsCount');
+            if (totalReactionsEl) totalReactionsEl.textContent = totalReactions;
+            
+            const avgReactionsEl = document.getElementById('averageReactionsCount');
+            if (avgReactionsEl) avgReactionsEl.textContent = posts.length > 0 ? Math.round(totalReactions / posts.length) : 0;
             
             // Growth calculation (mock for now)
             const growthPercentage = Math.min(userPosts.length * 10, 200);
-            document.getElementById('impactGrowthCount').textContent = `+${growthPercentage}%`;
+            const growthEl = document.getElementById('impactGrowthCount');
+            if (growthEl) growthEl.textContent = `+${growthPercentage}%`;
             
             // Update progress bars
             updateProgressBars(userPosts.length, totalReactions);
@@ -3815,24 +3825,32 @@
         function updateProgressBars(postsCount, reactionsCount) {
             // First highlight achievement
             const firstProgress = Math.min(postsCount / 1 * 100, 100);
-            document.getElementById('firstHighlightProgress').style.width = firstProgress + '%';
-            document.getElementById('firstHighlightText').textContent = `${Math.min(postsCount, 1)}/1`;
+            const firstProgressEl = document.getElementById('firstHighlightProgress');
+            if (firstProgressEl) firstProgressEl.style.width = firstProgress + '%';
+            const firstTextEl = document.getElementById('firstHighlightText');
+            if (firstTextEl) firstTextEl.textContent = `${Math.min(postsCount, 1)}/1`;
             
             // Multiplier achievement
             const multiplierValue = 1.0 + (Math.min(postsCount, 10) * 0.1);
             const multiplierProgress = Math.min(postsCount / 10 * 100, 100);
-            document.getElementById('multiplierProgress').style.width = multiplierProgress + '%';
-            document.getElementById('multiplierText').textContent = `${multiplierValue.toFixed(1)}x`;
+            const multiplierProgressEl = document.getElementById('multiplierProgress');
+            if (multiplierProgressEl) multiplierProgressEl.style.width = multiplierProgress + '%';
+            const multiplierTextEl = document.getElementById('multiplierText');
+            if (multiplierTextEl) multiplierTextEl.textContent = `${multiplierValue.toFixed(1)}x`;
             
             // Inspirer achievement
             const inspirerProgress = Math.min(reactionsCount / 50 * 100, 100);
-            document.getElementById('inspirerProgress').style.width = inspirerProgress + '%';
-            document.getElementById('inspirerText').textContent = `${Math.min(reactionsCount, 50)}/50`;
+            const inspirerProgressEl = document.getElementById('inspirerProgress');
+            if (inspirerProgressEl) inspirerProgressEl.style.width = inspirerProgress + '%';
+            const inspirerTextEl = document.getElementById('inspirerText');
+            if (inspirerTextEl) inspirerTextEl.textContent = `${Math.min(reactionsCount, 50)}/50`;
             
             // Monthly goal
             const monthlyProgress = Math.min(postsCount / 20 * 100, 100);
-            document.getElementById('monthlyGoalProgress').style.width = monthlyProgress + '%';
-            document.getElementById('monthlyGoalText').textContent = `${Math.min(postsCount, 20)}/20`;
+            const monthlyProgressEl = document.getElementById('monthlyGoalProgress');
+            if (monthlyProgressEl) monthlyProgressEl.style.width = monthlyProgress + '%';
+            const monthlyTextEl = document.getElementById('monthlyGoalText');
+            if (monthlyTextEl) monthlyTextEl.textContent = `${Math.min(postsCount, 20)}/20`;
             
             // Engagement
             const engagementRate = postsCount > 0 ? Math.min((reactionsCount / postsCount) * 10, 100) : 0;
