@@ -2397,27 +2397,83 @@
                     return;
                 }
 
-                // Buscar dados dos usuários que deram feedback
+                console.log('📊 Feedbacks encontrados:', feedbacks);
+
+                // Buscar dados dos usuários que deram feedback com múltiplas estratégias
                 const userIds = [...new Set(feedbacks.map(f => f.mentioned_user_id).filter(Boolean))];
+                console.log('👥 User IDs para buscar:', userIds);
+                
                 let users = [];
                 
                 if (userIds.length > 0) {
+                    // Estratégia 1: Tentar tabela 'users'
                     try {
-                        const { data: usersData } = await supabase
+                        const { data: usersData, error: usersError } = await supabase
                             .from('users')
                             .select('id, name, email')
                             .in('id', userIds);
-                        users = usersData || [];
+                        
+                        if (!usersError && usersData) {
+                            users = usersData;
+                            console.log('✅ Dados encontrados na tabela users:', users);
+                        }
                     } catch (userError) {
-                        console.log('Erro ao buscar dados dos usuários:', userError);
+                        console.log('⚠️ Tabela users não encontrada:', userError);
+                    }
+                    
+                    // Estratégia 2: Se não encontrou, tentar tabela 'profiles'
+                    if (users.length === 0) {
+                        try {
+                            const { data: profilesData, error: profilesError } = await supabase
+                                .from('profiles')
+                                .select('id, name, email, full_name')
+                                .in('id', userIds);
+                            
+                            if (!profilesError && profilesData) {
+                                users = profilesData.map(p => ({
+                                    id: p.id,
+                                    name: p.name || p.full_name,
+                                    email: p.email
+                                }));
+                                console.log('✅ Dados encontrados na tabela profiles:', users);
+                            }
+                        } catch (profileError) {
+                            console.log('⚠️ Tabela profiles não encontrada:', profileError);
+                        }
+                    }
+                    
+                    // Estratégia 3: Se ainda não encontrou, tentar auth.users
+                    if (users.length === 0) {
+                        try {
+                            const { data: authData, error: authError } = await supabase
+                                .from('auth.users')
+                                .select('id, email, user_metadata')
+                                .in('id', userIds);
+                            
+                            if (!authError && authData) {
+                                users = authData.map(u => ({
+                                    id: u.id,
+                                    name: u.user_metadata?.name || u.user_metadata?.full_name,
+                                    email: u.email
+                                }));
+                                console.log('✅ Dados encontrados na tabela auth.users:', users);
+                            }
+                        } catch (authError) {
+                            console.log('⚠️ Tabela auth.users não acessível:', authError);
+                        }
                     }
                 }
+
+                console.log('👥 Usuários finais encontrados:', users);
 
                 const feedbacksHtml = feedbacks.map(feedback => {
                     // Encontrar dados do usuário
                     const user = users.find(u => u.id === feedback.mentioned_user_id);
-                    const userName = user?.name || feedback.sender_name || 'Usuário';
-                    const username = user?.email?.split('@')[0] || feedback.sender_username || 'usuario';
+                    console.log(`🔍 Feedback de ${feedback.mentioned_user_id}:`, user);
+                    
+                    const userName = user?.name || feedback.sender_name || feedback.user_name || 'Usuário';
+                    const userEmail = user?.email || feedback.sender_email || feedback.user_email;
+                    const username = userEmail?.split('@')[0] || feedback.sender_username || feedback.username || 'usuario';
                     const date = new Date(feedback.created_at).toLocaleDateString('pt-BR');
                     const feedbackText = feedback.feedback_text || feedback.message || feedback.content || 'Feedback sem conteúdo';
                     
