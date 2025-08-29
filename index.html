@@ -44,7 +44,7 @@
             top: 0;
             z-index: 100;
             border-bottom: none;
-            border-radius: 15px 15px 0 0;
+            border-radius: 0;
             margin-bottom: -10px;
             width: 100%;
             max-width: 1200px;
@@ -352,7 +352,7 @@
         .nav-tabs {
             display: flex;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 0 0 15px 15px;
+            border-radius: 0;
             padding: 0.5rem 2rem;
             margin-bottom: 2rem;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
@@ -1112,8 +1112,10 @@
 
             .nav-tab {
                 min-width: auto;
-                flex: none;
-                padding: 0.8rem;
+                flex: 1;
+                padding: 0.5rem 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 500;
             }
 
             .stats-grid {
