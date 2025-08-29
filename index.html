@@ -1230,46 +1230,50 @@
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="appContainer" class="app-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-content">
-                <!-- Linha superior: Logo centralizado e notificações à direita -->
-                <div class="header-top">
-                    <div class="logo">
-                        <div class="logo-icon"></div>
-                        <span>HoloSpot</span>
-                    </div>
-                    <div class="notifications" id="notificationsBtn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                        </svg>
-                        <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
-                        <div class="notification-dropdown" id="notificationDropdown">
-                            <div class="notification-item">
-                                <strong>Bem-vindo ao HoloSpot!</strong><br>
-                                <small>Comece destacando alguém especial</small>
-                            </div>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <!-- Linha superior: Logo centralizado e notificações à direita -->
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <span>HoloSpot</span>
+                </div>
+                <div class="notifications" id="notificationsBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-item">
+                            <div class="notification-text">Você tem novas menções!</div>
+                            <div class="notification-time">há 2 minutos</div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-text">Novo seguidor: Maria Silva</div>
+                            <div class="notification-time">há 1 hora</div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Linha inferior: Avatar, nome/@username e botão Sair -->
-                <div class="header-bottom">
-                    <div class="user-section">
-                        <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
-                        <div class="user-info">
-                            <span id="userName" class="user-name"></span>
-                            <span id="userUsername" class="user-username"></span>
-                        </div>
-                    </div>
-                    <button id="logoutBtn" class="logout-btn">Sair</button>
-                </div>
                 </div>
             </div>
+            
+            <!-- Linha inferior: Avatar, nome/@username e botão Sair -->
+            <div class="header-bottom">
+                <div class="user-section">
+                    <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                    <div class="user-info">
+                        <div id="userName" class="user-name">Carregando...</div>
+                        <div id="userUsername" class="user-username">@carregando</div>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Sair</button>
+            </div>
         </div>
+    </div>
+
+       <!-- Main App -->
+    <div id="appContainer" class="app-container">
 
         <!-- Navigation -->
         <div class="nav-tabs">
