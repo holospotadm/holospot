@@ -429,13 +429,24 @@
             line-height: 1.2;
         }
 
+        .post-author-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
         .post-author-username {
             font-size: 0.85rem;
             color: #666;
-            margin-top: 3px;
-            margin-bottom: 0;
+            margin: 0;
             padding: 0;
             line-height: 1.1;
+        }
+
+        .post-time-separator {
+            color: #999;
+            font-size: 0.8rem;
         }
 
         .post-time {
@@ -2097,8 +2108,11 @@
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
                                 <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
-                                <div class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</div>
-                                <div class="post-time">${formatDate(post.created_at)}</div>
+                                <div class="post-author-meta">
+                                    <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
+                                    <span class="post-time-separator">•</span>
+                                    <span class="post-time">${formatDateShort(post.created_at)}</span>
+                                </div>
                             </div>
                             ${post.user_id !== currentUser.id ? `
                                 <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.user_id}')">
@@ -3070,6 +3084,24 @@
             } else {
                 const days = Math.floor(diffInMinutes / 1440);
                 return `Há ${days} dia${days > 1 ? 's' : ''}`;
+            }
+        }
+
+        function formatDateShort(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+            
+            if (diffInMinutes < 1) {
+                return 'agora';
+            } else if (diffInMinutes < 60) {
+                return `${diffInMinutes}m`;
+            } else if (diffInMinutes < 1440) { // 24 hours
+                const hours = Math.floor(diffInMinutes / 60);
+                return `${hours}h`;
+            } else {
+                const days = Math.floor(diffInMinutes / 1440);
+                return `${days}d`;
             }
         }
 
