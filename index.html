@@ -1603,8 +1603,7 @@
 
             <!-- Botão para abrir modal de Feedbacks -->
             <div class="impact-button-container">
-                <button id="feedbacksBtn" class="impact-btn">🔄 Feedbacks Recebidos</button>
-            </div>
+                </div>
 
             <!-- Dica Personalizada movida do modal de impacto -->
             <div class="evolution-chart">
@@ -1855,13 +1854,13 @@
                     console.warn('⚠️ Impact button não encontrado');
                 }
 
-                // Feedbacks button
-                const feedbacksBtn = document.getElementById('feedbacksBtn');
-                if (feedbacksBtn) {
-                    feedbacksBtn.addEventListener('click', openFeedbacksModal);
-                    console.log('✅ Feedbacks button listener configurado');
+                // Posts button
+                const postsBtn = document.getElementById('postsBtn');
+                if (postsBtn) {
+                    postsBtn.addEventListener('click', openPostsModal);
+                    console.log('✅ Posts button listener configurado');
                 } else {
-                    console.warn('⚠️ Feedbacks button não encontrado');
+                    console.warn('⚠️ Posts button não encontrado');
                 }
                 
             } catch (error) {
@@ -2170,14 +2169,26 @@
             try {
                 console.log('📝 Carregando posts no modal...');
                 
-                const postsContainer = document.getElementById('modalPostsContent');
+                // Recarregar posts do usuário atual para evitar problemas de cache
+                const { data: userPosts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
                 
-                // Filtrar posts do usuário logado
-                const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                if (error) {
+                    console.error('❌ Erro ao carregar posts do usuário:', error);
+                    throw error;
+                }
                 
-                if (userPosts.length === 0) {
+                console.log('📊 Posts do usuário encontrados:', userPosts?.length || 0);
+                
+                const postsContainer = document.getElementById('postsModalContent');
+                
+                if (!userPosts || userPosts.length === 0) {
                     postsContainer.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📝</div>
                             <p>📝 Nenhum post criado ainda</p>
                             <p style="font-size: 14px; margin-top: 10px;">Comece destacando alguém especial!</p>
                         </div>
@@ -2185,11 +2196,32 @@
                     return;
                 }
 
+                // Recarregar reações para os posts do usuário
+                const postIds = userPosts.map(p => p.id);
+                let allReactions = [];
+                
+                if (postIds.length > 0) {
+                    try {
+                        const { data: reactionsData } = await supabase
+                            .from('reactions')
+                            .select('*')
+                            .in('post_id', postIds);
+                        allReactions = reactionsData || [];
+                    } catch (reactionError) {
+                        console.log('Erro ao carregar reações:', reactionError);
+                    }
+                }
+
                 // Usar o mesmo código do renderPosts do início
                 const postsHtml = [];
                 for (const post of userPosts) {
-                    const isFollowing = following.some(f => f.following_id === post.user_id);
-                    const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
+                    // Adicionar reações ao post
+                    post.reactions = allReactions.filter(r => r.post_id === post.id);
+                    post.user_data = {
+                        name: currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário',
+                        email: currentUser.email,
+                        avatar_url: currentUser.user_metadata?.avatar_url || ''
+                    };
                     
                     const typeEmojis = {
                         'gratidao': '🙏', 'gratitude': '🙏',
