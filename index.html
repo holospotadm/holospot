@@ -2166,10 +2166,7 @@
                 // Buscar todos os feedbacks para este post (quando o usuário é o autor)
                 const { data: feedbacks, error } = await supabase
                     .from('feedbacks')
-                    .select(`
-                        *,
-                        mentioned_user:mentioned_user_id(name, email)
-                    `)
+                    .select('*')
                     .eq('post_id', post.id)
                     .eq('author_id', currentUser.id);
                 
@@ -2182,10 +2179,28 @@
                     return ''; // Não mostrar seção se não há feedbacks
                 }
                 
+                // Buscar dados dos usuários que deram feedback
+                const userIds = [...new Set(feedbacks.map(f => f.mentioned_user_id).filter(Boolean))];
+                let users = [];
+                
+                if (userIds.length > 0) {
+                    try {
+                        const { data: usersData } = await supabase
+                            .from('users')
+                            .select('id, name, email')
+                            .in('id', userIds);
+                        users = usersData || [];
+                    } catch (userError) {
+                        console.log('Erro ao buscar dados dos usuários:', userError);
+                    }
+                }
+                
                 // Criar HTML para todos os feedbacks recebidos
                 const feedbacksHtml = feedbacks.map(feedback => {
-                    const userName = feedback.mentioned_user?.name || 'Usuário';
-                    const username = feedback.mentioned_user?.email?.split('@')[0] || 'usuario';
+                    const user = users.find(u => u.id === feedback.mentioned_user_id);
+                    const userName = user?.name || feedback.sender_name || 'Usuário';
+                    const username = user?.email?.split('@')[0] || feedback.sender_username || 'usuario';
+                    const feedbackText = feedback.feedback_text || feedback.message || feedback.content || 'Feedback sem conteúdo';
                     
                     return `
                         <div style="margin-bottom: 10px; padding: 12px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
@@ -2193,7 +2208,7 @@
                                 🔄 Feedback de ${userName} (@${username}):
                             </div>
                             <div style="color: #bf360c; line-height: 1.4; font-style: italic; font-size: 14px;">
-                                "${feedback.feedback_text}"
+                                "${feedbackText}"
                             </div>
                         </div>
                     `;
@@ -2422,12 +2437,10 @@
             try {
                 console.log('📬 Carregando feedbacks para post:', postId);
                 
+                // Buscar feedbacks sem relacionamento
                 const { data: feedbacks, error } = await supabase
                     .from('feedbacks')
-                    .select(`
-                        *,
-                        mentioned_user:mentioned_user_id(name, email)
-                    `)
+                    .select('*')
                     .eq('post_id', postId)
                     .eq('author_id', currentUser.id)
                     .order('created_at', { ascending: false });
@@ -2447,10 +2460,29 @@
                     return;
                 }
 
+                // Buscar dados dos usuários que deram feedback
+                const userIds = [...new Set(feedbacks.map(f => f.mentioned_user_id).filter(Boolean))];
+                let users = [];
+                
+                if (userIds.length > 0) {
+                    try {
+                        const { data: usersData } = await supabase
+                            .from('users')
+                            .select('id, name, email')
+                            .in('id', userIds);
+                        users = usersData || [];
+                    } catch (userError) {
+                        console.log('Erro ao buscar dados dos usuários:', userError);
+                    }
+                }
+
                 const feedbacksHtml = feedbacks.map(feedback => {
-                    const userName = feedback.mentioned_user?.name || 'Usuário';
-                    const username = feedback.mentioned_user?.email?.split('@')[0] || 'usuario';
+                    // Encontrar dados do usuário
+                    const user = users.find(u => u.id === feedback.mentioned_user_id);
+                    const userName = user?.name || feedback.sender_name || 'Usuário';
+                    const username = user?.email?.split('@')[0] || feedback.sender_username || 'usuario';
                     const date = new Date(feedback.created_at).toLocaleDateString('pt-BR');
+                    const feedbackText = feedback.feedback_text || feedback.message || feedback.content || 'Feedback sem conteúdo';
                     
                     return `
                         <div style="margin-bottom: 15px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 12px; box-shadow: 0 2px 8px rgba(255,152,0,0.1);">
@@ -2463,7 +2495,7 @@
                                 </div>
                             </div>
                             <div style="color: #bf360c; line-height: 1.5; font-size: 15px; font-style: italic;">
-                                "${feedback.feedback_text}"
+                                "${feedbackText}"
                             </div>
                         </div>
                     `;
