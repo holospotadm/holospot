@@ -2162,71 +2162,8 @@
         }
 
         async function getFeedbacksForAuthorPost(post) {
-            try {
-                // Buscar todos os feedbacks para este post (quando o usuário é o autor)
-                const { data: feedbacks, error } = await supabase
-                    .from('feedbacks')
-                    .select('*')
-                    .eq('post_id', post.id)
-                    .eq('author_id', currentUser.id);
-                
-                if (error) {
-                    console.error('❌ Erro ao buscar feedbacks:', error);
-                    return '';
-                }
-                
-                if (!feedbacks || feedbacks.length === 0) {
-                    return ''; // Não mostrar seção se não há feedbacks
-                }
-                
-                // Buscar dados dos usuários que deram feedback
-                const userIds = [...new Set(feedbacks.map(f => f.mentioned_user_id).filter(Boolean))];
-                let users = [];
-                
-                if (userIds.length > 0) {
-                    try {
-                        const { data: usersData } = await supabase
-                            .from('users')
-                            .select('id, name, email')
-                            .in('id', userIds);
-                        users = usersData || [];
-                    } catch (userError) {
-                        console.log('Erro ao buscar dados dos usuários:', userError);
-                    }
-                }
-                
-                // Criar HTML para todos os feedbacks recebidos
-                const feedbacksHtml = feedbacks.map(feedback => {
-                    const user = users.find(u => u.id === feedback.mentioned_user_id);
-                    const userName = user?.name || feedback.sender_name || 'Usuário';
-                    const username = user?.email?.split('@')[0] || feedback.sender_username || 'usuario';
-                    const feedbackText = feedback.feedback_text || feedback.message || feedback.content || 'Feedback sem conteúdo';
-                    
-                    return `
-                        <div style="margin-bottom: 10px; padding: 12px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
-                            <div style="color: #e65100; font-weight: bold; margin-bottom: 6px; font-size: 13px;">
-                                🔄 Feedback de ${userName} (@${username}):
-                            </div>
-                            <div style="color: #bf360c; line-height: 1.4; font-style: italic; font-size: 14px;">
-                                "${feedbackText}"
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                return `
-                    <div class="feedbacks-received-section" style="margin-top: 15px;">
-                        <div style="color: #666; font-weight: bold; margin-bottom: 10px; font-size: 14px;">
-                            📬 Feedbacks Recebidos (${feedbacks.length}):
-                        </div>
-                        ${feedbacksHtml}
-                    </div>
-                `;
-                
-            } catch (error) {
-                console.error('❌ Erro na função getFeedbacksForAuthorPost:', error);
-                return '';
-            }
+            // Função removida - agora só usamos o modal clicável
+            return '';
         }
 
         async function loadPostsInModal() {
@@ -2323,7 +2260,7 @@
                                 <span class="reaction-display" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 14px;">
                                     ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                                 </span>
-                                <span class="feedback-display" onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
                             </div>
@@ -2501,12 +2438,7 @@
                     `;
                 }).join('');
 
-                feedbackContent.innerHTML = `
-                    <div style="margin-bottom: 15px; color: #666; font-weight: 600; text-align: center;">
-                        ${feedbacks.length} feedback${feedbacks.length > 1 ? 's' : ''} recebido${feedbacks.length > 1 ? 's' : ''}
-                    </div>
-                    ${feedbacksHtml}
-                `;
+                feedbackContent.innerHTML = feedbacksHtml;
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar feedbacks do post:', error);
