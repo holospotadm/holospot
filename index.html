@@ -1550,7 +1550,7 @@
             </div>
             
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" id="postsCreatedCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openPostsModal()">
                     <div class="stat-number" id="userPostsCount">0</div>
                     <div class="stat-label">Posts Criados</div>
                 </div>
@@ -1561,10 +1561,6 @@
                 <div class="stat-card">
                     <div class="stat-number" id="userPeopleHighlighted">0</div>
                     <div class="stat-label">Pessoas Destacadas</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="userFollowersCount">0</div>
-                    <div class="stat-label">Seguidores</div>
                 </div>
             </div>
 
@@ -1583,30 +1579,35 @@
                     <div class="progress-text" id="firstHighlightText">0/1</div>
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Multiplicador de Holofotes</strong>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="multiplierProgress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text" id="multiplierText">0/10</div>
-                </div>
-                <div style="margin-bottom: 1rem;">
                     <strong>Inspirador da Comunidade</strong>
                     <div class="progress-bar">
                         <div class="progress-fill" id="inspirerProgress" style="width: 0%"></div>
                     </div>
                     <div class="progress-text" id="inspirerText">0/50</div>
                 </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Meta Mensal: 20 Destaques</strong>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="monthlyGoalProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="monthlyGoalText">0/20</div>
+                </div>
             </div>
 
-            <div class="evolution-chart" style="background: linear-gradient(135deg, #e65100, #bf360c); color: white; border: 2px solid #d84315;">
-                <h3 class="chart-title" style="color: white;">🔄 Feedbacks Recebidos</h3>
-                <div id="feedbacksRecebidos" style="color: white; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 10px;">
-                    <!-- Feedbacks serão carregados aqui -->
-                </div>
+            <!-- Botão para abrir modal de Feedbacks -->
+            <div class="impact-button-container">
+                <button id="feedbacksBtn" class="impact-btn">🔄 Feedbacks Recebidos</button>
+            </div>
+
+            <!-- Dica Personalizada movida do modal de impacto -->
+            <div class="evolution-chart">
+                <h3 class="chart-title">💡 Dica Personalizada</h3>
+                <p id="personalizedTip" style="color: #666; line-height: 1.6;">
+                    Continue destacando pessoas especiais! Cada post seu inspira outros a reconhecer o valor das pessoas ao seu redor.
+                </p>
             </div>
         </div>
     </div>
-
     <!-- Modal de Impacto -->
     <div id="impactModal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
@@ -1637,13 +1638,6 @@
                 <div class="evolution-chart">
                     <h3 class="chart-title">📈 Sua Evolução</h3>
                     <div style="margin-bottom: 1rem;">
-                        <strong>Meta Mensal: 20 Destaques</strong>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="modalMonthlyGoalProgress" style="width: 0%"></div>
-                        </div>
-                        <div class="progress-text" id="modalMonthlyGoalText">0/20</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
                         <strong>Engajamento da Comunidade</strong>
                         <div class="progress-bar">
                             <div class="progress-fill" id="modalEngagementProgress" style="width: 0%"></div>
@@ -1651,12 +1645,35 @@
                         <div class="progress-text" id="modalEngagementText">0%</div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="evolution-chart">
-                    <h3 class="chart-title">💡 Dica Personalizada</h3>
-                    <p id="modalPersonalizedTip" style="color: #666; line-height: 1.6;">
-                        Continue destacando pessoas especiais! Cada post seu inspira outros a reconhecer o valor das pessoas ao seu redor.
-                    </p>
+    <!-- Modal de Feedbacks Recebidos -->
+    <div id="feedbacksModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>🔄 Feedbacks Recebidos</h2>
+                <button class="close-btn" onclick="closeFeedbacksModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalFeedbacksContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Feedbacks serão carregados aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Posts Criados -->
+    <div id="postsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>📝 Seus Posts</h2>
+                <button class="close-btn" onclick="closePostsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPostsContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Posts serão carregados aqui -->
                 </div>
             </div>
         </div>
@@ -1830,6 +1847,15 @@
                 } else {
                     console.warn('⚠️ Impact button não encontrado');
                 }
+
+                // Feedbacks button
+                const feedbacksBtn = document.getElementById('feedbacksBtn');
+                if (feedbacksBtn) {
+                    feedbacksBtn.addEventListener('click', openFeedbacksModal);
+                    console.log('✅ Feedbacks button listener configurado');
+                } else {
+                    console.warn('⚠️ Feedbacks button não encontrado');
+                }
                 
             } catch (error) {
                 console.error('❌ Erro ao configurar event listeners:', error);
@@ -1960,11 +1986,7 @@
                 document.getElementById('modalAverageReactionsCount').textContent = averageReactions;
                 document.getElementById('modalImpactGrowthCount').textContent = '+15%';
 
-                // Atualizar barras de progresso
-                const monthlyProgress = Math.min((totalPosts / 20) * 100, 100);
-                document.getElementById('modalMonthlyGoalProgress').style.width = `${monthlyProgress}%`;
-                document.getElementById('modalMonthlyGoalText').textContent = `${totalPosts}/20`;
-
+                // Atualizar barra de progresso de engajamento
                 const engagementProgress = Math.min((averageReactions / 10) * 100, 100);
                 document.getElementById('modalEngagementProgress').style.width = `${engagementProgress}%`;
                 document.getElementById('modalEngagementText').textContent = `${Math.round(engagementProgress)}%`;
@@ -1972,6 +1994,152 @@
                 console.log('✅ Dados de impacto carregados no modal');
             } catch (error) {
                 console.error('❌ Erro ao carregar dados de impacto:', error);
+            }
+        }
+
+        // Funções do Modal de Feedbacks
+        function openFeedbacksModal() {
+            const modal = document.getElementById('feedbacksModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                loadFeedbacksInModal();
+            }
+        }
+
+        function closeFeedbacksModal() {
+            const modal = document.getElementById('feedbacksModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadFeedbacksInModal() {
+            try {
+                console.log('🔄 Carregando feedbacks no modal...');
+                
+                const { data: feedbacks, error } = await supabase
+                    .from('feedbacks')
+                    .select(`
+                        *,
+                        from_user:from_user_id(name, username, avatar_url)
+                    `)
+                    .eq('to_user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const feedbacksContainer = document.getElementById('modalFeedbacksContent');
+                
+                if (!feedbacks || feedbacks.length === 0) {
+                    feedbacksContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <p>📭 Nenhum feedback recebido ainda</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Continue destacando pessoas para receber feedbacks!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const feedbacksHtml = feedbacks.map(feedback => `
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <img src="${feedback.from_user?.avatar_url || '/default-avatar.png'}" 
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 600; color: #333;">${feedback.from_user?.name || 'Usuário'}</div>
+                                <div style="font-size: 12px; color: #666;">@${feedback.from_user?.username || 'usuario'}</div>
+                            </div>
+                            <div style="margin-left: auto; font-size: 12px; color: #999;">
+                                ${new Date(feedback.created_at).toLocaleDateString('pt-BR')}
+                            </div>
+                        </div>
+                        <div style="color: #555; line-height: 1.5;">${feedback.message}</div>
+                    </div>
+                `).join('');
+
+                feedbacksContainer.innerHTML = feedbacksHtml;
+                console.log('✅ Feedbacks carregados no modal');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar feedbacks:', error);
+                document.getElementById('modalFeedbacksContent').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p>❌ Erro ao carregar feedbacks</p>
+                        <p style="font-size: 14px;">Tente recarregar a página</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Funções do Modal de Posts
+        function openPostsModal() {
+            const modal = document.getElementById('postsModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                loadPostsInModal();
+            }
+        }
+
+        function closePostsModal() {
+            const modal = document.getElementById('postsModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadPostsInModal() {
+            try {
+                console.log('📝 Carregando posts no modal...');
+                
+                const { data: userPosts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const postsContainer = document.getElementById('modalPostsContent');
+                
+                if (!userPosts || userPosts.length === 0) {
+                    postsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <p>📝 Nenhum post criado ainda</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Comece destacando alguém especial!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const postsHtml = userPosts.map(post => `
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #764ba2;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                ${post.highlight_type || 'Destaque'}
+                            </div>
+                            <div style="margin-left: auto; font-size: 12px; color: #999;">
+                                ${new Date(post.created_at).toLocaleDateString('pt-BR')}
+                            </div>
+                        </div>
+                        <div style="color: #555; line-height: 1.5; margin-bottom: 10px;">${post.content}</div>
+                        <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #666;">
+                            <span>❤️ ${post.reactions_count || 0} reações</span>
+                            <span>💬 ${post.comments_count || 0} comentários</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                postsContainer.innerHTML = postsHtml;
+                console.log('✅ Posts carregados no modal');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar posts:', error);
+                document.getElementById('modalPostsContent').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p>❌ Erro ao carregar posts</p>
+                        <p style="font-size: 14px;">Tente recarregar a página</p>
+                    </div>
+                `;
             }
         }
 
@@ -3208,9 +3376,6 @@
             
             // Update personalized tip
             updatePersonalizedTip(userPosts.length, totalReactions);
-            
-            // Load feedbacks recebidos
-            loadFeedbacksRecebidos();
         }
 
         function updateProgressBars(postsCount, reactionsCount) {
@@ -3254,92 +3419,6 @@
             }
             
             document.getElementById('personalizedTip').textContent = tip;
-        }
-
-        async function loadFeedbacksRecebidos() {
-            try {
-                console.log('🔄 Carregando feedbacks recebidos...');
-                
-                const { data: feedbacks, error } = await supabase
-                    .from('feedbacks')
-                    .select('*')
-                    .eq('author_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-                
-                if (error) {
-                    console.error('❌ Erro ao carregar feedbacks:', error);
-                    throw error;
-                }
-                
-                const feedbacksContainer = document.getElementById('feedbacksRecebidos');
-                
-                if (!feedbacks || feedbacks.length === 0) {
-                    feedbacksContainer.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.8);">
-                            <p>📭 Nenhum feedback recebido ainda</p>
-                            <p style="font-size: 14px; margin-top: 10px;">
-                                Continue destacando pessoas! Quando alguém que você mencionou der feedback, aparecerá aqui.
-                            </p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                console.log(`✅ ${feedbacks.length} feedbacks carregados`);
-                
-                // Buscar dados dos posts e usuários para cada feedback
-                const feedbacksHtml = await Promise.all(feedbacks.map(async feedback => {
-                    // Buscar dados do post
-                    const post = posts.find(p => p.id === feedback.post_id);
-                    const postTitle = post ? (post.celebrated_person_name || post.person_name) : 'Post não encontrado';
-                    const postContent = post ? (post.content || post.story) : '';
-                    
-                    // Buscar dados do usuário que enviou o feedback
-                    let senderName = 'Usuário';
-                    try {
-                        const { data: senderData } = await supabase
-                            .from('profiles')
-                            .select('name, email')
-                            .eq('id', feedback.mentioned_user_id)
-                            .single();
-                        
-                        if (senderData) {
-                            senderName = senderData.name || senderData.email?.split('@')[0] || 'Usuário';
-                        }
-                    } catch (senderError) {
-                        console.warn('⚠️ Erro ao buscar dados do remetente:', senderError);
-                    }
-                    
-                    return `
-                        <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #ffab40;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <strong style="color: #ffab40;">💬 @${senderName}</strong>
-                                <small style="color: rgba(255,255,255,0.7);">${formatDate(feedback.created_at)}</small>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.9); color: #333; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-style: italic;">
-                                "${feedback.feedback_text}"
-                            </div>
-                            <div style="background: rgba(255, 193, 7, 0.2); color: rgba(255,255,255,0.9); padding: 8px; border-radius: 6px; font-size: 12px;">
-                                <strong>📝 Post original:</strong> ${postTitle}<br>
-                                <span style="opacity: 0.8;">${postContent.substring(0, 100)}${postContent.length > 100 ? '...' : ''}</span>
-                            </div>
-                        </div>
-                    `;
-                }));
-                
-                feedbacksContainer.innerHTML = feedbacksHtml.join('');
-                console.log('✅ Feedbacks renderizados na aba Perfil');
-                
-            } catch (error) {
-                console.error('❌ Erro ao carregar feedbacks recebidos:', error);
-                const feedbacksContainer = document.getElementById('feedbacksRecebidos');
-                feedbacksContainer.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.8);">
-                        <p>❌ Erro ao carregar feedbacks</p>
-                        <p style="font-size: 14px;">Tente recarregar a página</p>
-                    </div>
-                `;
-            }
         }
 
         function formatDate(dateString) {
