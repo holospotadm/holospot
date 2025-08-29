@@ -3880,11 +3880,11 @@
             }));
             
             const modal = `
-                <div class="modal-overlay" onclick="closeModal()">
+                <div id="followingModal" class="modal-overlay" onclick="closeFollowingModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
                             <h3>Seguindo (${following.length})</h3>
-                            <button class="modal-close" onclick="closeModal()">×</button>
+                            <button class="modal-close" onclick="closeFollowingModal()">×</button>
                         </div>
                         <div class="modal-body">
                             <div class="follow-list">
@@ -3948,11 +3948,11 @@
             }));
             
             const modal = `
-                <div class="modal-overlay" onclick="closeModal()">
+                <div id="followersModal" class="modal-overlay" onclick="closeFollowersModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
                             <h3>Seguidores (${followers.length})</h3>
-                            <button class="modal-close" onclick="closeModal()">×</button>
+                            <button class="modal-close" onclick="closeFollowersModal()">×</button>
                         </div>
                         <div class="modal-body">
                             <div class="follow-list">
@@ -3967,6 +3967,20 @@
 
         function closeModal() {
             const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function closeFollowingModal() {
+            const modal = document.getElementById('followingModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function closeFollowersModal() {
+            const modal = document.getElementById('followersModal');
             if (modal) {
                 modal.remove();
             }
