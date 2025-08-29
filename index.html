@@ -3854,8 +3854,10 @@
             
             // Engagement
             const engagementRate = postsCount > 0 ? Math.min((reactionsCount / postsCount) * 10, 100) : 0;
-            document.getElementById('engagementProgress').style.width = engagementRate + '%';
-            document.getElementById('engagementText').textContent = Math.round(engagementRate) + '%';
+            const engagementProgressEl = document.getElementById('engagementProgress');
+            if (engagementProgressEl) engagementProgressEl.style.width = engagementRate + '%';
+            const engagementTextEl = document.getElementById('engagementText');
+            if (engagementTextEl) engagementTextEl.textContent = Math.round(engagementRate) + '%';
         }
 
         function updatePersonalizedTip(postsCount, reactionsCount) {
@@ -3871,7 +3873,8 @@
                 tip = 'Incrível! Você está criando uma onda de positividade. Continue espalhando reconhecimento!';
             }
             
-            document.getElementById('personalizedTip').textContent = tip;
+            const tipEl = document.getElementById('personalizedTip');
+            if (tipEl) tipEl.textContent = tip;
         }
 
         function formatDate(dateString) {
