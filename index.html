@@ -2165,18 +2165,12 @@
             try {
                 console.log('📝 Carregando posts no modal...');
                 
-                // Buscar posts do usuário
-                const { data: userPosts, error: postsError } = await supabase
-                    .from('posts')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-
-                if (postsError) throw postsError;
-
                 const postsContainer = document.getElementById('modalPostsContent');
                 
-                if (!userPosts || userPosts.length === 0) {
+                // Filtrar posts do usuário logado
+                const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                
+                if (userPosts.length === 0) {
                     postsContainer.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #666;">
                             <p>📝 Nenhum post criado ainda</p>
@@ -2186,92 +2180,86 @@
                     return;
                 }
 
-                // Buscar reações para todos os posts
-                const postIds = userPosts.map(post => post.id);
-                const { data: reactions } = await supabase
-                    .from('reactions')
-                    .select('*')
-                    .in('post_id', postIds);
-
-                // Buscar feedbacks para todos os posts (se a tabela existir)
-                let feedbacks = [];
-                try {
-                    const { data: feedbacksData } = await supabase
-                        .from('feedbacks')
-                        .select('*')
-                        .in('post_id', postIds);
-                    feedbacks = feedbacksData || [];
-                } catch (feedbackError) {
-                    console.log('Tabela feedbacks não encontrada ou sem relacionamento com posts');
-                    feedbacks = [];
-                }
-
-                const postsHtml = userPosts.map(post => {
-                    // Filtrar reações para este post
-                    const postReactions = reactions ? reactions.filter(r => r.post_id === post.id) : [];
-                    const heartCount = postReactions.filter(r => r.type === 'heart').length;
-                    const fireCount = postReactions.filter(r => r.type === 'fire').length;
-                    const clapCount = postReactions.filter(r => r.type === 'clap').length;
-                    const totalReactions = postReactions.length;
+                // Usar o mesmo código do renderPosts do início
+                const postsHtml = [];
+                for (const post of userPosts) {
+                    const isFollowing = following.some(f => f.following_id === post.user_id);
+                    const userReactions = post.reactions.filter(r => r.user_id === currentUser.id);
                     
-                    // Filtrar feedbacks para este post
-                    const postFeedbacks = feedbacks.filter(f => f.post_id === post.id);
-                    const feedbacksCount = postFeedbacks.length;
-                    
-                    // Mapear tipos de destaque
-                    const highlightTypeMap = {
-                        'professional': '💼 Profissional',
-                        'personal': '❤️ Pessoal',
-                        'creative': '🎨 Criativo'
+                    const typeEmojis = {
+                        'gratidao': '🙏', 'gratitude': '🙏',
+                        'memoria': '💭', 'memory': '💭',
+                        'conquista': '🏆', 'achievement': '🏆',
+                        'inspiracao': '✨', 'inspiration': '✨',
+                        'apoio': '🤝', 'support': '🤝',
+                        'admiracao': '🌟', 'admiration': '🌟'
                     };
-                    const highlightLabel = highlightTypeMap[post.highlight_type] || '✨ Destaque';
+
+                    const typeNames = {
+                        'gratidao': 'Gratidão', 'gratitude': 'Gratidão',
+                        'memoria': 'Memória', 'memory': 'Memória',
+                        'conquista': 'Conquista', 'achievement': 'Conquista',
+                        'inspiracao': 'Inspiração', 'inspiration': 'Inspiração',
+                        'apoio': 'Apoio', 'support': 'Apoio',
+                        'admiracao': 'Admiração', 'admiration': 'Admiração'
+                    };
                     
-                    return `
-                        <div style="background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #764ba2;">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                                <img src="${currentUser.avatar_url || '/default-avatar.png'}" 
-                                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; color: #333;">${currentUser.name || 'Você'}</div>
-                                    <div style="font-size: 12px; color: #666;">@${currentUser.username || 'usuario'}</div>
+                    // Obter botão de feedback usando função
+                    const feedbackButton = await getFeedbackButtonForPost(post);
+                    
+                    const postHtml = `
+                        <div class="post">
+                            <div class="post-header">
+                                <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
+                                <div class="post-author">
+                                    <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
+                                    <div class="post-author-meta">
+                                        <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
+                                        <span class="post-time-separator">•</span>
+                                        <span class="post-time">${formatDateShort(post.created_at)}</span>
+                                    </div>
                                 </div>
-                                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                    ${highlightLabel}
-                                </div>
-                                <div style="font-size: 12px; color: #999;">
-                                    ${new Date(post.created_at).toLocaleDateString('pt-BR')}
-                                </div>
+                                ${post.user_id !== currentUser.id ? `
+                                    <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.user_id}')">
+                                        ${isFollowing ? '✓ Seguindo' : '+ Seguir'}
+                                    </button>
+                                ` : ''}
                             </div>
                             
-                            <div style="color: #333; line-height: 1.6; margin-bottom: 15px; font-size: 15px;">
-                                ${post.content || post.story || ''}
+                            <div class="post-content">
+                                <div class="post-person">Holofotes para: ${post.celebrated_person_name || post.person_name}</div>
+                                ${post.type || post.highlight_type ? `
+                                    <div class="post-type">
+                                        ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
+                                    </div>
+                                ` : ''}
+                                <div class="post-story">${post.content || post.story}</div>
+                                ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post">` : ''}
                             </div>
                             
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 15px; border-top: 1px solid #eee;">
-                                <div style="display: flex; align-items: center; gap: 20px;">
-                                    <div style="display: flex; align-items: center; gap: 5px; color: #666; font-size: 14px;">
-                                        <span style="color: #e74c3c;">❤️</span>
-                                        <span>${heartCount}</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 5px; color: #666; font-size: 14px;">
-                                        <span style="color: #f39c12;">🔥</span>
-                                        <span>${fireCount}</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 5px; color: #666; font-size: 14px;">
-                                        <span style="color: #3498db;">👏</span>
-                                        <span>${clapCount}</span>
-                                    </div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #666;">
-                                    <span>${totalReactions} reações</span>
-                                    <span>${feedbacksCount} feedbacks</span>
-                                </div>
+                            <div class="post-reactions">
+                                <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''}" 
+                                        onclick="toggleReaction('${post.id}', 'touched')">
+                                    ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
+                                </button>
+                                <button class="reaction-btn ${userReactions.some(r => r.type === 'grateful') ? 'active' : ''}" 
+                                        onclick="toggleReaction('${post.id}', 'grateful')">
+                                    🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
+                                </button>
+                                <button class="reaction-btn ${userReactions.some(r => r.type === 'inspired') ? 'active' : ''}" 
+                                        onclick="toggleReaction('${post.id}', 'inspired')">
+                                    ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
+                                </button>
                             </div>
+                            
+                            ${feedbackButton}
                         </div>
                     `;
-                }).join('');
+                    
+                    postsHtml.push(postHtml);
+                }
 
-                postsContainer.innerHTML = postsHtml;
+                postsContainer.innerHTML = postsHtml.join('');
                 console.log('✅ Posts carregados no modal');
                 
             } catch (error) {
