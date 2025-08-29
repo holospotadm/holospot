@@ -53,6 +53,55 @@
             align-items: center;
         }
 
+        /* Layout mobile - duas linhas */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .header-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-top .logo {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .header-bottom {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .user-section {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+        }
+
+        /* Layout desktop - uma linha */
+        @media (min-width: 769px) {
+            .header-top {
+                display: contents;
+            }
+
+            .header-bottom {
+                display: contents;
+            }
+
+            .user-section {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+        }
+
         .logo {
             display: flex;
             align-items: center;
@@ -1149,11 +1198,12 @@
         <!-- Header -->
         <div class="header">
             <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon"></div>
-                    <span>HoloSpot</span>
-                </div>
-                <div class="user-info">
+                <!-- Linha superior: Logo centralizado e notificações à direita -->
+                <div class="header-top">
+                    <div class="logo">
+                        <div class="logo-icon"></div>
+                        <span>HoloSpot</span>
+                    </div>
                     <div class="notifications" id="notificationsBtn">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -1167,12 +1217,19 @@
                             </div>
                         </div>
                     </div>
-                    <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
-                    <div class="user-info">
-                        <span id="userName" class="user-name"></span>
-                        <span id="userUsername" class="user-username"></span>
+                </div>
+                
+                <!-- Linha inferior: Avatar, nome/@username e botão Sair -->
+                <div class="header-bottom">
+                    <div class="user-section">
+                        <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                        <div class="user-info">
+                            <span id="userName" class="user-name"></span>
+                            <span id="userUsername" class="user-username"></span>
+                        </div>
                     </div>
                     <button id="logoutBtn" class="logout-btn">Sair</button>
+                </div>
                 </div>
             </div>
         </div>
