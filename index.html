@@ -1566,7 +1566,7 @@
 
             <!-- Botão para abrir modal de Impacto -->
             <div class="impact-button-container">
-                <button id="impactBtn" class="impact-btn">📊 Ver Impacto Detalhado</button>
+                <button id="impactBtn" class="impact-btn" onclick="openImpactModal()">📊 Ver Impacto Detalhado</button>
             </div>
 
             <div class="evolution-chart">
@@ -1845,23 +1845,8 @@
                 });
                 console.log('✅ Outside click listener configurado');
 
-                // Impact button
-                const impactBtn = document.getElementById('impactBtn');
-                if (impactBtn) {
-                    impactBtn.addEventListener('click', openImpactModal);
-                    console.log('✅ Impact button listener configurado');
-                } else {
-                    console.warn('⚠️ Impact button não encontrado');
-                }
-
-                // Posts button
-                const postsBtn = document.getElementById('postsBtn');
-                if (postsBtn) {
-                    postsBtn.addEventListener('click', openPostsModal);
-                    console.log('✅ Posts button listener configurado');
-                } else {
-                    console.warn('⚠️ Posts button não encontrado');
-                }
+                // Event listeners já configurados via onclick no HTML
+                console.log('✅ Event listeners configurados via onclick no HTML');
                 
             } catch (error) {
                 console.error('❌ Erro ao configurar event listeners:', error);
