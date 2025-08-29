@@ -45,15 +45,17 @@
             z-index: 100;
             border-bottom: none;
             border-radius: 15px 15px 0 0;
-            margin-bottom: 0;
+            margin-bottom: -1px;
         }
 
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0;
         }
 
         /* Layout mobile - duas linhas */
@@ -348,11 +350,17 @@
             display: flex;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 0 0 15px 15px;
-            padding: 0.5rem;
+            padding: 0.5rem 1rem;
             margin-bottom: 2rem;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             overflow-x: auto;
-            margin-top: 0;
+            margin-top: -1px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            position: relative;
+            z-index: 99;
         }
 
         .nav-tab {
