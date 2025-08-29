@@ -381,7 +381,7 @@
 
         .post-time {
             color: #666;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .follow-btn {
@@ -1852,6 +1852,7 @@
                         // Usuário atual
                         post.user_data = {
                             name: currentUser.user_metadata?.name || currentUser.email || 'Você',
+                            email: currentUser.email,
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         };
                     } else {
@@ -1874,6 +1875,7 @@
                                 
                                 post.user_data = {
                                     name: realName,
+                                    email: userData.email,
                                     avatar_url: realAvatar
                                 };
                                 
