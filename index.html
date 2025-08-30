@@ -978,7 +978,7 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e55a2b 0%, #ffb700 100%);
             color: white;
             padding: 20px 24px;
             display: flex;
@@ -1377,7 +1377,7 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #e55a2b, #ffb700);
             color: white;
             padding: 1.5rem 2rem;
             border-radius: 20px 20px 0 0;
@@ -3100,7 +3100,20 @@
                             return;
                         }
                         
-                        // Buscar reações do post
+                        post = postData;
+                    } catch (fetchError) {
+                        console.error('❌ Erro ao buscar post:', fetchError);
+                        return;
+                    }
+                }
+                
+                // Verificar se o usuário está tentando reagir ao próprio post
+                if (post.user_id === currentUser.id) {
+                    alert('Você não pode reagir ao seu próprio post! 😊');
+                    return;
+                }
+                
+                // Buscar reações do post
                         const { data: reactions } = await supabase
                             .from('reactions')
                             .select('*')
