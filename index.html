@@ -2782,7 +2782,7 @@
                 // Verificar se já existe feedback para este post
                 const { data: existingFeedback, error } = await supabase
                     .from('feedbacks')
-                    .select('feedback_text, mentioned_user_id')
+                    .select('feedback_text, mentioned_user_id, created_at')
                     .eq('post_id', post.id)
                     .eq('mentioned_user_id', currentUser.id)
                     .limit(1);
@@ -2804,7 +2804,7 @@
                                     🔄 Feedback (@${username}):
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
-                                    ${formatDateShort(feedback.created_at)}
+                                    ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
                                 </div>
                             </div>
                             <div style="color: #bf360c; line-height: 1.4; font-style: italic;">
