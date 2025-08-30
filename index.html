@@ -2239,7 +2239,17 @@
                         console.log('Erro ao contar feedbacks:', error);
                     }
                     
-                    // Obter feedbacks recebidos para posts do próprio usuário
+                    // Contar comentários para este post
+                    let commentsCount = 0;
+                    try {
+                        const { data: commentsData } = await supabase
+                            .from('comments')
+                            .select('id')
+                            .eq('post_id', post.id);
+                        commentsCount = commentsData ? commentsData.length : 0;
+                    } catch (error) {
+                        console.log('Erro ao contar comentários:', error);
+                    }
                     const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
                     const postHtml = `
@@ -2280,8 +2290,8 @@
                                 <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
-                                <span class="comments-display" id="comments-${post.id}" onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                    💬 0
+                                <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #e0e0e0; color: #999; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"`}>
+                                    💬 ${commentsCount}
                                 </span>
                             </div>
                             
@@ -2489,7 +2499,7 @@
                                 </div>
                             </div>
                             <div style="color: #bf360c; line-height: 1.5; font-size: 15px; font-style: italic;">
-                                "${feedbackText}"
+                                ${feedbackText}
                             </div>
                         </div>
                     `;
@@ -2793,7 +2803,7 @@
                                 🔄 Feedback (@${username}):
                             </div>
                             <div style="color: #bf360c; line-height: 1.4; font-style: italic;">
-                                "${feedback.feedback_text}"
+                                ${feedback.feedback_text}
                             </div>
                         </div>
                     `;
@@ -2801,18 +2811,18 @@
                     // Não existe feedback - mostrar botão para dar feedback
                     return `
                         <div class="feedback-section" style="margin-top: 10px; padding: 10px;">
-                            <button class="feedback-btn" onclick="openFeedbackModal('${post.id}')" style="
-                                background: linear-gradient(135deg, #f57c00, #ff8f00);
+                            <button onclick="sendComment('${postId}')" style="
+                                background: linear-gradient(135deg, #667eea, #764ba2);
                                 color: white;
                                 border: none;
-                                padding: 10px 16px;
-                                border-radius: 6px;
+                                padding: 12px 24px;
+                                border-radius: 8px;
                                 cursor: pointer;
-                                font-size: 14px;
-                                font-weight: bold;
+                                font-weight: 600;
                                 transition: transform 0.2s ease;
-                                box-shadow: none;
-                                outline: none;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                Enviar
+                            </button>: none;
                             " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 🔄 Dar Feedback
                             </button>
@@ -4139,7 +4149,7 @@
                                 </div>
                             </div>
                             <div style="color: #0d47a1; line-height: 1.4; font-size: 14px;">
-                                "${comment.content || comment.text || comment.message}"
+                                ${comment.content || comment.text || comment.message}
                             </div>
                         </div>
                     `;
@@ -4162,8 +4172,8 @@
                         
                         <div style="padding: 20px; border-top: 1px solid #eee; flex-shrink: 0;">
                             <div style="display: flex; gap: 10px; align-items: flex-end;">
-                                <textarea id="newCommentText" placeholder="Escreva seu comentário..." style="flex: 1; min-height: 60px; max-height: 120px; padding: 12px; border: 2px solid #2196f3; border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;" rows="3"></textarea>
-                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <textarea id="newCommentText" placeholder="Escreva seu comentário..." style="flex: 1; min-height: 60px; max-height: 120px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;" rows="3"></textarea>
+                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                     Enviar
                                 </button>
                             </div>
@@ -4290,13 +4300,13 @@
                                 </div>
                             </div>
                             <div style="color: #1b5e20; line-height: 1.4; font-size: 14px;">
-                                "${commentText}"
+                                ${commentText}
                             </div>
                         </div>
                     `;
                     
                     // Verificar se há mensagem "Seja o primeiro a comentar" e removê-la
-                    const firstCommentMsg = commentsContainer.querySelector('div[style*="Seja o primeiro a comentar"]');
+                    const firstCommentMsg = commentsContainer.querySelector('div[style*="primeiro a comentar"]');
                     if (firstCommentMsg) {
                         firstCommentMsg.remove();
                     }
