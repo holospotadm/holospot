@@ -978,13 +978,18 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #e55a2b 0%, #ffb700 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-radius: 16px 16px 0 0;
+        }
+
+        /* Header específico para modal de feedbacks */
+        #feedbacksModal .modal-header {
+            background: linear-gradient(135deg, #e55a2b 0%, #ffb700 100%);
         }
 
         .modal-header h3 {
@@ -1377,7 +1382,7 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #e55a2b, #ffb700);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 1.5rem 2rem;
             border-radius: 20px 20px 0 0;
@@ -2982,15 +2987,15 @@
                         
                         <div class="post-reactions">
                             <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
-                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'touched')"`}>
+                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.7; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'touched')"`}>
                                 ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
                             </button>
                             <button class="reaction-btn ${userReactions.some(r => r.type === 'grateful') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
-                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'grateful')"`}>
+                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.7; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'grateful')"`}>
                                 🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
                             </button>
                             <button class="reaction-btn ${userReactions.some(r => r.type === 'inspired') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
-                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'inspired')"`}>
+                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.7; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'inspired')"`}>
                                 ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                             </button>
                         </div>
