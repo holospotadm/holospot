@@ -1448,7 +1448,7 @@
     <!-- Navigation -->
     <div class="nav-tabs">
         <div class="nav-tab active" data-tab="inicio">🏠 Início</div>
-        <div class="nav-tab" data-tab="destacar">✨ Destacar</div>
+        <div class="nav-tab" data-tab="destacar"><img src="holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
     </div>
 
@@ -1464,7 +1464,7 @@
 
         <div id="destacarTab" class="tab-content">
             <div class="create-post-form">
-                <h2 style="margin-bottom: 1.5rem; color: #764ba2;">✨ Destacar Alguém</h2>
+                <h2 style="margin-bottom: 1.5rem; color: #764ba2;"><img src="holofote.png" style="width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;"> Destacar Alguém</h2>
                 
                 <div class="form-group">
                     <label class="form-label">Nome da pessoa</label>
@@ -1529,7 +1529,7 @@
                 </div>
 
                 <button id="createPostBtn" class="submit-btn" onclick="createPost()">
-                    ✨ Destacar Pessoa
+                    <img src="holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa
                 </button>
             </div>
         </div>
@@ -2879,7 +2879,7 @@
                     <div class="post">
                         <h3 style="text-align: center; color: #764ba2; margin-bottom: 1rem;">🎭 Bem-vindo ao HoloSpot!</h3>
                         <p style="text-align: center; color: #666;">
-                            Seja o primeiro a destacar alguém especial! Vá para a aba "✨ Destacar" e comece a espalhar reconhecimento.
+                            Seja o primeiro a destacar alguém especial! Vá para a aba "<img src="holofote.png" style="width: 14px; height: 14px; margin: 0 2px; vertical-align: middle;"> Destacar" e comece a espalhar reconhecimento.
                         </p>
                     </div>
                 `;
@@ -3544,7 +3544,7 @@
                         
                         if (!continueWithoutPhoto) {
                             createBtn.disabled = false;
-                            createBtn.textContent = '✨ Destacar Pessoa';
+                            createBtn.innerHTML = '<img src="holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
                             return;
                         }
                         
@@ -3654,7 +3654,7 @@
                 alert('Erro ao criar post: ' + error.message);
             } finally {
                 createBtn.disabled = false;
-                createBtn.textContent = '✨ Destacar Pessoa';
+                createBtn.innerHTML = '<img src="holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
             }
         }
 
