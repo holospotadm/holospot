@@ -2485,7 +2485,7 @@
                         username = userEmail?.split('@')[0] || feedback.sender_username || feedback.username || 'usuario';
                     }
                     
-                    const date = new Date(feedback.created_at).toLocaleDateString('pt-BR');
+                    const date = feedback.created_at ? formatDateShort(feedback.created_at) : 'recente';
                     const feedbackText = feedback.feedback_text || feedback.message || feedback.content || 'Feedback sem conteúdo';
                     
                     return `
