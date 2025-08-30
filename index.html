@@ -4021,7 +4021,8 @@
                 } else {
                     console.warn('⚠️ Erro ao carregar usuários, mantendo array vazio');
                     mentionUsers = [];
-                           } catch (error) {
+                }
+            } catch (error) {
                 console.error('❌ Erro ao carregar usuários para menções:', error);
                 mentionUsers = [];
             }
