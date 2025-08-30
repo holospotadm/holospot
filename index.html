@@ -2847,7 +2847,7 @@
                 if (post.mentioned_user_id === currentUser.id && !userHasFeedback) {
                     feedbacksHtml += `
                         <div class="feedback-section" style="margin-top: 10px; padding: 10px;">
-                            <button onclick="sendComment('${post.id}')" style="
+                            <button onclick="openFeedbackModal('${post.id}')" style="
                                 background: linear-gradient(135deg, #667eea, #764ba2);
                                 color: white;
                                 border: none;
