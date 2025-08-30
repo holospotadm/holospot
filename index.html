@@ -4196,17 +4196,27 @@
         }
 
         // Listen for auth state changes
+        let isInitialLoad = true;
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 showApp();
-                await loadUserData();
-                await loadPosts();
-                await loadNotifications();
-                updateStats();
+                
+                // Só carrega dados na primeira vez ou se não há dados
+                if (isInitialLoad || posts.length === 0) {
+                    console.log('🔄 Carregamento inicial ou dados vazios, carregando tudo...');
+                    await loadUserData();
+                    await loadPosts();
+                    await loadNotifications();
+                    updateStats();
+                    isInitialLoad = false;
+                } else {
+                    console.log('✅ Dados já carregados, pulando recarregamento desnecessário');
+                }
             } else if (event === 'SIGNED_OUT') {
                 currentUser = null;
                 showLogin();
+                isInitialLoad = true; // Reset para próximo login
             }
         });
 
