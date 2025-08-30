@@ -2783,50 +2783,71 @@
         // Função getFeedbackButtonForPost - VERSÃO REAL
         async function getFeedbackButtonForPost(post) {
             try {
-                // Verificar se o usuário atual é a pessoa mencionada no post
-                if (!post.mentioned_user_id || post.mentioned_user_id !== currentUser.id) {
-                    return ''; // Não mostrar botão se não for a pessoa mencionada
-                }
-                
-                // Verificar se já existe feedback para este post
-                const { data: existingFeedback, error } = await supabase
+                // Buscar TODOS os feedbacks para este post (não apenas do usuário atual)
+                const { data: allFeedbacks, error } = await supabase
                     .from('feedbacks')
-                    .select('feedback_text, mentioned_user_id, created_at')
+                    .select('feedback_text, mentioned_user_id, created_at, user_id')
                     .eq('post_id', post.id)
-                    .eq('mentioned_user_id', currentUser.id)
-                    .limit(1);
+                    .order('created_at', { ascending: true });
                 
                 if (error) {
-                    console.error('❌ Erro ao verificar feedback existente:', error);
-                    return ''; // Em caso de erro, não mostrar botão
+                    console.error('❌ Erro ao carregar feedbacks:', error);
+                    return ''; // Em caso de erro, não mostrar nada
                 }
                 
-                if (existingFeedback && existingFeedback.length > 0) {
-                    // Já existe feedback - mostrar o feedback enviado
-                    const feedback = existingFeedback[0];
-                    const username = currentUser.email?.split('@')[0] || 'Usuário';
-                    const userName = currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário';
-                    
-                    return `
-                        <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                <div style="color: #e65100; font-weight: bold;">
-                                    🔄 Feedback de ${userName} (@${username})
+                let feedbacksHtml = '';
+                let userHasFeedback = false;
+                
+                // Mostrar todos os feedbacks existentes
+                if (allFeedbacks && allFeedbacks.length > 0) {
+                    for (const feedback of allFeedbacks) {
+                        // Verificar se este feedback é do usuário atual
+                        if (feedback.mentioned_user_id === currentUser.id) {
+                            userHasFeedback = true;
+                        }
+                        
+                        // Buscar dados do usuário que deu o feedback
+                        let feedbackUserName = 'Usuário';
+                        let feedbackUsername = 'usuario';
+                        
+                        try {
+                            const { data: feedbackUser } = await supabase
+                                .from('profiles')
+                                .select('name, email')
+                                .eq('id', feedback.mentioned_user_id)
+                                .single();
+                            
+                            if (feedbackUser) {
+                                feedbackUserName = feedbackUser.name || feedbackUser.email?.split('@')[0] || 'Usuário';
+                                feedbackUsername = feedbackUser.email?.split('@')[0] || 'usuario';
+                            }
+                        } catch (userError) {
+                            console.warn('⚠️ Erro ao buscar dados do usuário do feedback');
+                        }
+                        
+                        feedbacksHtml += `
+                            <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div style="color: #e65100; font-weight: bold;">
+                                        🔄 Feedback de ${feedbackUserName} (@${feedbackUsername})
+                                    </div>
+                                    <div style="color: #999; font-size: 11px; margin-left: 10px;">
+                                        ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
+                                    </div>
                                 </div>
-                                <div style="color: #999; font-size: 11px; margin-left: 10px;">
-                                    ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
+                                <div style="color: #bf360c; line-height: 1.4; font-style: italic;">
+                                    ${feedback.feedback_text}
                                 </div>
                             </div>
-                            <div style="color: #bf360c; line-height: 1.4; font-style: italic;">
-                                ${feedback.feedback_text}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Não existe feedback - mostrar botão para dar feedback
-                    return `
+                        `;
+                    }
+                }
+                
+                // Se o usuário atual é a pessoa mencionada E ainda não deu feedback, mostrar botão
+                if (post.mentioned_user_id === currentUser.id && !userHasFeedback) {
+                    feedbacksHtml += `
                         <div class="feedback-section" style="margin-top: 10px; padding: 10px;">
-                            <button onclick="sendComment('${postId}')" style="
+                            <button onclick="sendComment('${post.id}')" style="
                                 background: linear-gradient(135deg, #667eea, #764ba2);
                                 color: white;
                                 border: none;
@@ -2836,18 +2857,17 @@
                                 font-weight: 600;
                                 transition: transform 0.2s ease;
                             " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                Enviar
-                            </button>: none;
-                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 🔄 Dar Feedback
                             </button>
                         </div>
                     `;
                 }
                 
+                return feedbacksHtml;
+                
             } catch (error) {
                 console.error('❌ Erro na função getFeedbackButtonForPost:', error);
-                return ''; // Em caso de erro, não mostrar botão
+                return ''; // Em caso de erro, não mostrar nada
             }
         }
 
