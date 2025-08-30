@@ -2981,16 +2981,16 @@
                         </div>
                         
                         <div class="post-reactions">
-                            <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''}" 
-                                    onclick="toggleReaction('${post.id}', 'touched')">
+                            <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
+                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'touched')"`}>
                                 ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
                             </button>
-                            <button class="reaction-btn ${userReactions.some(r => r.type === 'grateful') ? 'active' : ''}" 
-                                    onclick="toggleReaction('${post.id}', 'grateful')">
+                            <button class="reaction-btn ${userReactions.some(r => r.type === 'grateful') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
+                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'grateful')"`}>
                                 🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
                             </button>
-                            <button class="reaction-btn ${userReactions.some(r => r.type === 'inspired') ? 'active' : ''}" 
-                                    onclick="toggleReaction('${post.id}', 'inspired')">
+                            <button class="reaction-btn ${userReactions.some(r => r.type === 'inspired') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
+                                    ${post.user_id === currentUser.id ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'inspired')"`}>
                                 ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                             </button>
                         </div>
@@ -3109,8 +3109,7 @@
                 
                 // Verificar se o usuário está tentando reagir ao próprio post
                 if (post.user_id === currentUser.id) {
-                    alert('Você não pode reagir ao seu próprio post! 😊');
-                    return;
+                    return; // Silenciosamente não fazer nada
                 }
                 
                 const existingReaction = post.reactions.find(r => r.user_id === currentUser.id && r.type === type);
