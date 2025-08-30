@@ -2796,12 +2796,13 @@
                     // Já existe feedback - mostrar o feedback enviado
                     const feedback = existingFeedback[0];
                     const username = currentUser.email?.split('@')[0] || 'Usuário';
+                    const userName = currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário';
                     
                     return `
                         <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #e65100; font-weight: bold;">
-                                    🔄 Feedback (@${username}):
+                                    🔄 Feedback de ${userName} (@${username})
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
