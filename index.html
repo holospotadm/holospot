@@ -1395,7 +1395,9 @@
         <div class="login-container">
             <div class="login-logo">
                 <div class="logo-icon"></div>
-                <div class="login-title">HoloSpot</div>
+                <div class="login-title">
+                    <span style="background: linear-gradient(135deg, #667eea, #764ba2) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important; color: transparent !important;">HoloSpot</span>
+                </div>
             </div>
             <p class="login-subtitle">Colocando os holofotes nos outros</p>
             <button id="loginBtn" class="google-login-btn">
@@ -1901,11 +1903,23 @@
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('appContainer').classList.remove('active');
+            
+            // Ocultar header e navegação quando mostrar login
+            const header = document.querySelector('.header');
+            const navTabs = document.querySelector('.nav-tabs');
+            if (header) header.style.display = 'none';
+            if (navTabs) navTabs.style.display = 'none';
         }
 
         function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appContainer').classList.add('active');
+            
+            // Mostrar header e navegação quando mostrar app
+            const header = document.querySelector('.header');
+            const navTabs = document.querySelector('.nav-tabs');
+            if (header) header.style.display = 'block';
+            if (navTabs) navTabs.style.display = 'flex';
             
             // Update user info in header
             if (currentUser) {
