@@ -1169,6 +1169,29 @@
             box-shadow: 0 4px 12px rgba(229, 90, 43, 0.3);
         }
 
+        .holofote-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+            position: relative;
+        }
+
+        .holofote-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: #FF8C00;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .header-content {
@@ -1448,7 +1471,7 @@
     <!-- Navigation -->
     <div class="nav-tabs">
         <div class="nav-tab active" data-tab="inicio">🏠 Início</div>
-        <div class="nav-tab" data-tab="destacar">🔦 Destacar</div>
+        <div class="nav-tab" data-tab="destacar"><span class="holofote-icon"></span> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
     </div>
 
