@@ -2280,7 +2280,7 @@
                                 <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
-                                <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;">
+                                <span class="comments-display" id="comments-${post.id}" onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                     💬 0
                                 </span>
                             </div>
@@ -2294,6 +2294,11 @@
 
                 postsContainer.innerHTML = postsHtml.join('');
                 console.log('✅ Posts carregados no modal');
+                
+                // Atualizar contadores de comentários após carregar posts
+                setTimeout(() => {
+                    updateAllCommentsCounters();
+                }, 500);
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar posts:', error);
@@ -4146,9 +4151,9 @@
                 modal.className = 'modal-overlay';
                 modal.innerHTML = `
                     <div style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                            <h3 style="margin: 0; color: #333;">💬 Comentários (${comments.length})</h3>
-                            <button onclick="closeCommentsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                        <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px 12px 0 0;">
+                            <h3 style="margin: 0; color: white;">💬 Comentários (${comments.length})</h3>
+                            <button onclick="closeCommentsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: white;">&times;</button>
                         </div>
                         
                         <div id="commentsContainer" style="flex: 1; overflow-y: auto; padding: 20px; max-height: 400px;">
@@ -4304,6 +4309,7 @@
                     if (titleElement) {
                         const currentCount = parseInt(titleElement.textContent.match(/\d+/)[0]) || 0;
                         titleElement.textContent = `💬 Comentários (${currentCount + 1})`;
+                        titleElement.style.color = 'white'; // Manter cor branca do header
                     }
                 }
                 
