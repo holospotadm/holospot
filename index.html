@@ -3198,6 +3198,36 @@
                 return;
             }
             
+            // Buscar dados da pessoa mencionada
+            let mentionedPersonName = 'Usuário';
+            let mentionedPersonUsername = 'usuario';
+            
+            // Se temos mentioned_user_id, buscar dados reais do usuário
+            if (post.mentioned_user_id) {
+                try {
+                    // Buscar na lista de usuários carregados
+                    const mentionedUser = mentionUsers.find(u => u.id === post.mentioned_user_id);
+                    if (mentionedUser) {
+                        mentionedPersonName = mentionedUser.name;
+                        mentionedPersonUsername = mentionedUser.username;
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Erro ao buscar dados da pessoa mencionada:', error);
+                }
+            }
+            
+            // Se não encontrou pelos dados reais, usar os campos do post (removendo @ se existir)
+            if (mentionedPersonName === 'Usuário') {
+                const personName = post.celebrated_person_name || post.person_name || '';
+                if (personName.startsWith('@')) {
+                    mentionedPersonUsername = personName.substring(1);
+                    mentionedPersonName = personName.substring(1); // Usar username como nome se não tiver nome real
+                } else {
+                    mentionedPersonName = personName;
+                    mentionedPersonUsername = personName.toLowerCase().replace(/\s+/g, '');
+                }
+            }
+            
             // Criar modal de feedback
             const modal = document.createElement('div');
             modal.id = 'feedbackModal';
@@ -3209,7 +3239,7 @@
                         <button class="close-btn" onclick="closeFeedbackModal()">×</button>
                     </div>
                     <div class="feedback-modal-body">
-                        <p><strong>Post sobre:</strong> ${post.celebrated_person_name || post.person_name} (@${(post.celebrated_person_name || post.person_name)?.toLowerCase().replace(/\s+/g, '') || 'usuario'})</p>
+                        <p><strong>Post sobre:</strong> ${mentionedPersonName} (@${mentionedPersonUsername})</p>
                         <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'} (@${post.user_data?.email?.split('@')[0] || 'usuario'})</p>
                         <div class="form-group">
                             <label class="form-label">Seu feedback:</label>
