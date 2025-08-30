@@ -2296,7 +2296,7 @@
                                 <span class="reaction-display" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 14px;">
                                     ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                                 </span>
-                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
+                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #e55a2b, #ffb700); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
                                 <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
@@ -3209,8 +3209,8 @@
                         <button class="close-btn" onclick="closeFeedbackModal()">×</button>
                     </div>
                     <div class="feedback-modal-body">
-                        <p><strong>Post sobre:</strong> ${post.celebrated_person_name || post.person_name}</p>
-                        <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'}</p>
+                        <p><strong>Post sobre:</strong> ${post.celebrated_person_name || post.person_name} (@${post.celebrated_person_name?.toLowerCase().replace(/\s+/g, '') || post.person_name?.toLowerCase().replace(/\s+/g, '') || 'usuario'})</p>
+                        <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'} (@${post.user_data?.email?.split('@')[0] || 'usuario'})</p>
                         <div class="form-group">
                             <label class="form-label">Seu feedback:</label>
                             <textarea id="feedbackText" class="form-input" rows="4" 
