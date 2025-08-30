@@ -2786,7 +2786,7 @@
                 // Buscar TODOS os feedbacks para este post (não apenas do usuário atual)
                 const { data: allFeedbacks, error } = await supabase
                     .from('feedbacks')
-                    .select('feedback_text, mentioned_user_id, created_at, user_id')
+                    .select('feedback_text, mentioned_user_id, created_at')
                     .eq('post_id', post.id)
                     .order('created_at', { ascending: true });
                 
