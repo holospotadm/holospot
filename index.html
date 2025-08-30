@@ -3113,25 +3113,6 @@
                     return;
                 }
                 
-                // Buscar reações do post
-                        const { data: reactions } = await supabase
-                            .from('reactions')
-                            .select('*')
-                            .eq('post_id', postId);
-                        
-                        postData.reactions = reactions || [];
-                        post = postData;
-                        
-                        // Adicionar ao array global para próximas interações
-                        posts.push(post);
-                        console.log('✅ Post carregado do banco e adicionado ao array local');
-                        
-                    } catch (fetchError) {
-                        console.error('❌ Erro ao buscar post:', fetchError);
-                        return;
-                    }
-                }
-                
                 const existingReaction = post.reactions.find(r => r.user_id === currentUser.id && r.type === type);
                 
                 if (existingReaction) {
