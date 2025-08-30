@@ -3209,7 +3209,7 @@
                         <button class="close-btn" onclick="closeFeedbackModal()">×</button>
                     </div>
                     <div class="feedback-modal-body">
-                        <p><strong>Post sobre:</strong> ${post.celebrated_person_name || post.person_name} (@${post.celebrated_person_name?.toLowerCase().replace(/\s+/g, '') || post.person_name?.toLowerCase().replace(/\s+/g, '') || 'usuario'})</p>
+                        <p><strong>Post sobre:</strong> ${post.celebrated_person_name || post.person_name} (@${(post.celebrated_person_name || post.person_name)?.toLowerCase().replace(/\s+/g, '') || 'usuario'})</p>
                         <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'} (@${post.user_data?.email?.split('@')[0] || 'usuario'})</p>
                         <div class="form-group">
                             <label class="form-label">Seu feedback:</label>
