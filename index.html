@@ -2290,7 +2290,7 @@
                                 <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
-                                <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #e0e0e0; color: #999; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"`}>
+                                <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"`}>
                                     💬 ${commentsCount}
                                 </span>
                             </div>
@@ -2927,7 +2927,7 @@
                                     onclick="toggleReaction('${post.id}', 'inspired')">
                                 ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                             </button>
-                            <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;">
+                            <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onclick="openCommentsModal('${post.id}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 💬 0
                             </span>
                         </div>
@@ -4079,8 +4079,9 @@
                 if (commentsElement) {
                     // Sempre permitir clique, mesmo com 0 comentários
                     commentsElement.innerHTML = `💬 ${commentsCount}`;
-                    commentsElement.style.background = commentsCount > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : 'linear-gradient(135deg, #9e9e9e, #757575)';
-                    commentsElement.style.color = 'white';
+                    // Usar a mesma cor dos botões de reação zerados quando não há comentários
+                    commentsElement.style.background = commentsCount > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5';
+                    commentsElement.style.color = commentsCount > 0 ? 'white' : '#666';
                     commentsElement.style.cursor = 'pointer';
                     commentsElement.onclick = () => openCommentsModal(postId);
                     commentsElement.onmouseover = () => commentsElement.style.transform = 'scale(1.05)';
@@ -4290,25 +4291,26 @@
                     const userAvatar = currentUser.user_metadata?.avatar_url || '';
                     
                     const newCommentHtml = `
-                        <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e8f5e8, #c8e6c9); border: 1px solid #4caf50; border-radius: 8px;">
+                        <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                 <img src="${userAvatar}" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
                                 <div>
-                                    <div style="color: #2e7d32; font-weight: bold; font-size: 13px;">
-                                        💬 ${userName} (@${username}) <span style="color: #4caf50; font-size: 11px;">• Agora</span>
+                                    <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
+                                        💬 ${userName} (@${username}) <span style="color: #2196f3; font-size: 11px;">• Agora</span>
                                     </div>
                                 </div>
                             </div>
-                            <div style="color: #1b5e20; line-height: 1.4; font-size: 14px;">
+                            <div style="color: #0d47a1; line-height: 1.4; font-size: 14px;">
                                 ${commentText}
                             </div>
                         </div>
                     `;
                     
                     // Verificar se há mensagem "Seja o primeiro a comentar" e removê-la
-                    const firstCommentMsg = commentsContainer.querySelector('div[style*="primeiro a comentar"]');
-                    if (firstCommentMsg) {
+                    const firstCommentMsg = commentsContainer.querySelector('div');
+                    if (firstCommentMsg && firstCommentMsg.textContent.includes('primeiro a comentar')) {
                         firstCommentMsg.remove();
+                        console.log('✅ Mensagem "primeiro a comentar" removida');
                     }
                     
                     // Adicionar novo comentário no topo
