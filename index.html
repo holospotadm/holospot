@@ -2290,7 +2290,7 @@
                                 <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #ccc; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
-                                <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"`}>
+                                <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"`}>
                                     💬 ${commentsCount}
                                 </span>
                             </div>
@@ -2927,7 +2927,7 @@
                                     onclick="toggleReaction('${post.id}', 'inspired')">
                                 ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                             </button>
-                            <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onclick="openCommentsModal('${post.id}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onclick="openCommentsModal('${post.id}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 💬 0
                             </span>
                         </div>
@@ -4052,7 +4052,7 @@
                     .from('comments')
                     .select('*')
                     .eq('post_id', postId)
-                    .order('created_at', { ascending: true });
+                    .order('created_at', { ascending: false }); // Ordem decrescente - mais recente primeiro
                 
                 const { data: comments, error } = await withTimeout(commentsQuery, 5000);
                 
@@ -4079,9 +4079,10 @@
                 if (commentsElement) {
                     // Sempre permitir clique, mesmo com 0 comentários
                     commentsElement.innerHTML = `💬 ${commentsCount}`;
-                    // Usar a mesma cor dos botões de reação zerados quando não há comentários
+                    // Usar a mesma cor dos botões de reação zerados quando não há comentários, mas com cor branca e sombra
                     commentsElement.style.background = commentsCount > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5';
-                    commentsElement.style.color = commentsCount > 0 ? 'white' : '#666';
+                    commentsElement.style.color = 'white'; // Sempre branco
+                    commentsElement.style.textShadow = commentsCount === 0 ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'; // Sombra quando vazio
                     commentsElement.style.cursor = 'pointer';
                     commentsElement.onclick = () => openCommentsModal(postId);
                     commentsElement.onmouseover = () => commentsElement.style.transform = 'scale(1.05)';
@@ -4134,20 +4135,11 @@
                     const userName = user.name || 'Usuário';
                     const userEmail = user.email || '';
                     const username = userEmail ? userEmail.split('@')[0] : 'usuario';
-                    const userAvatar = user.avatar_url || '';
                     
                     return `
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
-                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                <img src="${userAvatar}" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
-                                <div>
-                                    <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                        💬 ${userName} (@${username})
-                                    </div>
-                                    <div style="color: #1976d2; font-size: 11px;">
-                                        ${formatDateShort(comment.created_at)}
-                                    </div>
-                                </div>
+                            <div style="color: #1565c0; font-weight: bold; font-size: 13px; margin-bottom: 8px;">
+                                💬 ${userName} (@${username}) • ${formatDateShort(comment.created_at)}
                             </div>
                             <div style="color: #0d47a1; line-height: 1.4; font-size: 14px;">
                                 ${comment.content || comment.text || comment.message}
@@ -4292,13 +4284,8 @@
                     
                     const newCommentHtml = `
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
-                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                <img src="${userAvatar}" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
-                                <div>
-                                    <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                        💬 ${userName} (@${username}) <span style="color: #2196f3; font-size: 11px;">• Agora</span>
-                                    </div>
-                                </div>
+                            <div style="color: #1565c0; font-weight: bold; font-size: 13px; margin-bottom: 8px;">
+                                💬 ${userName} (@${username}) • Agora
                             </div>
                             <div style="color: #0d47a1; line-height: 1.4; font-size: 14px;">
                                 ${commentText}
@@ -4313,16 +4300,65 @@
                         console.log('✅ Mensagem "primeiro a comentar" removida');
                     }
                     
-                    // Adicionar novo comentário no topo
-                    commentsContainer.insertAdjacentHTML('afterbegin', newCommentHtml);
-                    
-                    // Atualizar contador no título
-                    const titleElement = commentsContainer.parentElement.querySelector('h3');
-                    if (titleElement) {
-                        const currentCount = parseInt(titleElement.textContent.match(/\d+/)[0]) || 0;
-                        titleElement.textContent = `💬 Comentários (${currentCount + 1})`;
-                        titleElement.style.color = 'white'; // Manter cor branca do header
-                    }
+                    // Recarregar todos os comentários para evitar sobreposição
+                    setTimeout(async () => {
+                        try {
+                            const updatedComments = await loadCommentsForPost(postId);
+                            
+                            // Buscar dados dos usuários novamente
+                            const userIds = [...new Set(updatedComments.map(c => c.user_id))];
+                            let updatedUsersData = {};
+                            
+                            try {
+                                const usersQuery = supabase
+                                    .from('profiles')
+                                    .select('id, name, email, avatar_url')
+                                    .in('id', userIds);
+                                
+                                const { data: users, error } = await withTimeout(usersQuery, 5000);
+                                
+                                if (users) {
+                                    users.forEach(user => {
+                                        updatedUsersData[user.id] = user;
+                                    });
+                                }
+                            } catch (error) {
+                                console.warn('⚠️ Erro ao carregar dados dos usuários:', error.message);
+                            }
+                            
+                            // Recriar HTML com todos os comentários
+                            const updatedCommentsHtml = updatedComments.length > 0 ? updatedComments.map(comment => {
+                                const user = updatedUsersData[comment.user_id] || {};
+                                const userName = user.name || 'Usuário';
+                                const userEmail = user.email || '';
+                                const username = userEmail ? userEmail.split('@')[0] : 'usuario';
+                                
+                                return `
+                                    <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
+                                        <div style="color: #1565c0; font-weight: bold; font-size: 13px; margin-bottom: 8px;">
+                                            💬 ${userName} (@${username}) • ${formatDateShort(comment.created_at)}
+                                        </div>
+                                        <div style="color: #0d47a1; line-height: 1.4; font-size: 14px;">
+                                            ${comment.content || comment.text || comment.message}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('') : '<div style="text-align: center; color: #666; padding: 20px; font-style: italic;">Seja o primeiro a comentar!</div>';
+                            
+                            // Atualizar container com todos os comentários
+                            commentsContainer.innerHTML = updatedCommentsHtml;
+                            
+                            // Atualizar contador no título
+                            const titleElement = commentsContainer.parentElement.querySelector('h3');
+                            if (titleElement) {
+                                titleElement.textContent = `💬 Comentários (${updatedComments.length})`;
+                                titleElement.style.color = 'white';
+                            }
+                            
+                        } catch (error) {
+                            console.warn('⚠️ Erro ao recarregar comentários:', error.message);
+                        }
+                    }, 500);
                 }
                 
                 // Limpar textarea
