@@ -4821,22 +4821,80 @@
                     const usernames = peopleDetails.map(p => p.username);
                     console.log('🔍 Buscando perfis reais para:', usernames);
                     
-                    // Corrigir sintaxe da consulta Supabase
-                    const { data: realUsers, error } = await supabase
+                    // Primeiro, vamos descobrir a estrutura da tabela profiles
+                    console.log('🔍 Verificando estrutura da tabela profiles...');
+                    const { data: sampleProfile, error: sampleError } = await supabase
                         .from('profiles')
-                        .select('id, username, name, avatar_url')
-                        .filter('username', 'in', `(${usernames.join(',')})`);
+                        .select('*')
+                        .limit(1);
+                    
+                    console.log('📋 Estrutura da tabela profiles:', sampleProfile);
+                    console.log('❌ Erro na amostra:', sampleError);
+                    
+                    // Tentar diferentes possibilidades de campo username
+                    let realUsers = null;
+                    let error = null;
+                    
+                    // Tentar com 'email' (comum em auth)
+                    try {
+                        const result = await supabase
+                            .from('profiles')
+                            .select('id, email, name, avatar_url')
+                            .filter('email', 'in', `(${usernames.map(u => u + '@example.com').join(',')})`);
+                        
+                        if (!result.error) {
+                            realUsers = result.data;
+                            console.log('✅ Encontrado usando campo email:', realUsers);
+                        }
+                    } catch (e) {
+                        console.log('❌ Tentativa com email falhou:', e);
+                    }
+                    
+                    // Se não funcionou com email, tentar buscar todos os profiles e filtrar manualmente
+                    if (!realUsers || realUsers.length === 0) {
+                        console.log('🔍 Tentando buscar todos os profiles para filtrar manualmente...');
+                        const { data: allProfiles, error: allError } = await supabase
+                            .from('profiles')
+                            .select('*');
+                        
+                        console.log('📊 Todos os perfis encontrados:', allProfiles);
+                        console.log('❌ Erro na busca geral:', allError);
+                        
+                        if (!allError && allProfiles) {
+                            // Filtrar manualmente baseado em qualquer campo que contenha o username
+                            realUsers = allProfiles.filter(profile => {
+                                return usernames.some(username => {
+                                    // Verificar em diferentes campos possíveis
+                                    const email = profile.email || '';
+                                    const name = profile.name || '';
+                                    const displayName = profile.display_name || '';
+                                    
+                                    return email.includes(username) || 
+                                           name.toLowerCase().includes(username.toLowerCase()) ||
+                                           displayName.toLowerCase().includes(username.toLowerCase());
+                                });
+                            });
+                            
+                            console.log('✅ Perfis filtrados manualmente:', realUsers);
+                        }
+                    }
 
-                    console.log('📊 Perfis reais encontrados:', realUsers);
-                    console.log('❌ Erro na busca:', error);
-
-                    if (!error && realUsers && realUsers.length > 0) {
+                    if (realUsers && realUsers.length > 0) {
                         // Combinar dados reais com os dados extraídos
                         peopleDetails.forEach(person => {
-                            const realUser = realUsers.find(u => u.username === person.username);
+                            const realUser = realUsers.find(u => {
+                                const email = u.email || '';
+                                const name = u.name || '';
+                                const displayName = u.display_name || '';
+                                
+                                return email.includes(person.username) || 
+                                       name.toLowerCase().includes(person.username.toLowerCase()) ||
+                                       displayName.toLowerCase().includes(person.username.toLowerCase());
+                            });
+                            
                             if (realUser) {
                                 person.userId = realUser.id;
-                                person.realName = realUser.name;
+                                person.realName = realUser.name || realUser.display_name;
                                 person.avatarUrl = realUser.avatar_url;
                                 console.log(`✅ Dados REAIS encontrados para @${person.username}:`, {
                                     id: realUser.id,
