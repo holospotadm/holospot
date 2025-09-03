@@ -1600,11 +1600,11 @@
                     <div class="stat-number" id="userPeopleHighlighted">0</div>
                     <div class="stat-label">Pessoas Destacadas</div>
                 </div>
-                <div class="stat-card" id="commentsGivenCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openCommentsGivenModal()">
+                <div class="stat-card">
                     <div class="stat-number" id="userCommentsGiven">0</div>
                     <div class="stat-label">Comentários e Feedbacks</div>
                 </div>
-                <div class="stat-card" id="reactionsGivenCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openReactionsGivenModal()">
+                <div class="stat-card">
                     <div class="stat-number" id="userReactionsGiven">0</div>
                     <div class="stat-label">Reações Dadas</div>
                 </div>
@@ -4746,8 +4746,13 @@
                 showLogin();
                 isInitialLoad = true; // Reset para próximo login
             }
-        });
-
+         });
+        
+        // Modal de Pessoas Destacadas (função simples)
+        function openPeopleHighlightedModal() {
+            alert('Modal de Pessoas Destacadas será implementado em breve!');
+        }
+        
         console.log('✅ HoloSpot v8 carregado com sucesso!');
     </script>
 </body>
