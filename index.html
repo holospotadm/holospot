@@ -1600,11 +1600,11 @@
                     <div class="stat-number" id="userPeopleHighlighted">0</div>
                     <div class="stat-label">Pessoas Destacadas</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="commentsGivenCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openCommentsGivenModal()">
                     <div class="stat-number" id="userCommentsGiven">0</div>
                     <div class="stat-label">Comentários e Feedbacks</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="reactionsGivenCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openReactionsGivenModal()">
                     <div class="stat-number" id="userReactionsGiven">0</div>
                     <div class="stat-label">Reações Dadas</div>
                 </div>
@@ -1738,21 +1738,6 @@
             <div class="modal-body">
                 <div id="modalPostsContent" style="max-height: 400px; overflow-y: auto;">
                     <!-- Posts serão carregados aqui -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Pessoas Destacadas -->
-    <div id="peopleHighlightedModal" class="modal-overlay" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>👥 Pessoas Destacadas</h2>
-                <button class="close-btn" onclick="closePeopleHighlightedModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="modalPeopleHighlightedContent" style="max-height: 400px; overflow-y: auto;">
-                    <!-- Pessoas destacadas serão carregadas aqui -->
                 </div>
             </div>
         </div>
@@ -3915,9 +3900,6 @@
             
             // Update personalized tip
             updatePersonalizedTip(userPosts.length, totalReactions);
-            
-            // Update HoloSpot Score metrics
-            updateHoloSpotScoreMetrics();
         }
 
         function updateProgressBars(postsCount, reactionsCount) {
@@ -4741,158 +4723,6 @@
             input.focus();
         }
 
-        // ===== HOLOSPOT SCORE METRICS FUNCTIONS =====
-
-        // Modal de Pessoas Destacadas
-        async function openPeopleHighlightedModal() {
-            try {
-                console.log('👥 Abrindo modal de pessoas destacadas...');
-                
-                // Buscar posts do usuário atual que mencionam pessoas reais
-                const { data: userPosts, error } = await supabase
-                    .from('posts')
-                    .select('celebrated_person_name, person_name, created_at')
-                    .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('❌ Erro ao buscar posts:', error);
-                    return;
-                }
-
-                // Buscar pessoas reais mencionadas nos posts
-                const peopleHighlighted = new Map();
-                
-                for (const post of userPosts) {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.trim()) {
-                        // Verificar se é uma menção (@username)
-                        const mentionMatch = personName.match(/@(\w+)/);
-                        if (mentionMatch) {
-                            const username = mentionMatch[1];
-                            
-                            // Buscar dados do usuário mencionado
-                            const { data: mentionedUser, error: userError } = await supabase
-                                .from('profiles')
-                                .select('id, name, email, avatar_url')
-                                .eq('email', `${username}@*`)
-                                .single();
-
-                            if (!userError && mentionedUser) {
-                                const key = mentionedUser.id;
-                                if (!peopleHighlighted.has(key)) {
-                                    peopleHighlighted.set(key, {
-                                        id: mentionedUser.id,
-                                        name: mentionedUser.name || username,
-                                        username: username,
-                                        avatar: mentionedUser.avatar_url || '',
-                                        count: 0
-                                    });
-                                }
-                                peopleHighlighted.get(key).count++;
-                            }
-                        }
-                    }
-                }
-
-                const modalContent = document.getElementById('modalPeopleHighlightedContent');
-                
-                if (peopleHighlighted.size === 0) {
-                    modalContent.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #666;">
-                            <p>Você ainda não destacou nenhuma pessoa registrada na plataforma.</p>
-                            <p>Use @username nos seus posts para mencionar pessoas!</p>
-                        </div>
-                    `;
-                } else {
-                    const peopleArray = Array.from(peopleHighlighted.values())
-                        .sort((a, b) => b.count - a.count);
-                    
-                    modalContent.innerHTML = peopleArray.map(person => `
-                        <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
-                            <img src="${person.avatar || '/default-avatar.png'}" 
-                                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 1rem;" 
-                                 alt="${person.name}">
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #333;">${person.name}</div>
-                                <div style="font-size: 0.9rem; color: #666;">@${person.username}</div>
-                            </div>
-                            <div style="background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">
-                                ${person.count}x destacado
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                document.getElementById('peopleHighlightedModal').style.display = 'flex';
-            } catch (error) {
-                console.error('❌ Erro ao abrir modal de pessoas destacadas:', error);
-            }
-        }
-
-        function closePeopleHighlightedModal() {
-            document.getElementById('peopleHighlightedModal').style.display = 'none';
-        }
-
-        // Atualizar métricas do HoloSpot Score (otimizado)
-        async function updateHoloSpotScoreMetrics() {
-            try {
-                // 1. Posts de Reconhecimento (já calculado em updateStats)
-                // Não precisa recalcular
-
-                // 2. Pessoas Destacadas (cálculo simples)
-                const userPosts = posts.filter(post => post.user_id === currentUser.id);
-                const mentionedPeople = new Set();
-                
-                userPosts.forEach(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.includes('@')) {
-                        const username = personName.match(/@(\w+)/)?.[1];
-                        if (username) {
-                            mentionedPeople.add(username);
-                        }
-                    }
-                });
-                
-                document.getElementById('userPeopleHighlighted').textContent = mentionedPeople.size;
-
-                // 3. Comentários e Feedbacks Dados (consulta rápida)
-                const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
-                    supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
-                ]);
-
-                const totalCommentsAndFeedbacks = (commentsResult.count || 0) + (feedbacksResult.count || 0);
-                document.getElementById('userCommentsGiven').textContent = totalCommentsAndFeedbacks;
-
-                // 4. Reações Dadas
-                document.getElementById('userReactionsGiven').textContent = reactionsResult.count || 0;
-
-                // 5. Streak de Engajamento (cálculo simplificado)
-                const today = new Date().toDateString();
-                const yesterday = new Date(Date.now() - 86400000).toDateString();
-                
-                // Verificar atividade hoje ou ontem para streak básico
-                const hasRecentActivity = userPosts.some(post => {
-                    const postDate = new Date(post.created_at).toDateString();
-                    return postDate === today || postDate === yesterday;
-                });
-                
-                const currentStreak = hasRecentActivity ? 1 : 0;
-                const isLeapYear = new Date().getFullYear() % 4 === 0;
-                const maxDays = isLeapYear ? 366 : 365;
-                const percentage = Math.min((currentStreak / maxDays) * 100, 100);
-                
-                document.getElementById('engagementStreakProgress').style.width = `${percentage}%`;
-                document.getElementById('engagementStreakText').textContent = `${currentStreak}/${maxDays}`;
-
-            } catch (error) {
-                console.error('❌ Erro ao atualizar métricas do HoloSpot Score:', error);
-                // Não bloquear a interface em caso de erro
-            }
-        }
-
         // Listen for auth state changes
         let isInitialLoad = true;
         supabase.auth.onAuthStateChange(async (event, session) => {
@@ -4907,7 +4737,6 @@
                     await loadPosts();
                     await loadNotifications();
                     updateStats();
-                    await updateHoloSpotScoreMetrics(); // Adicionar aqui
                     isInitialLoad = false;
                 } else {
                     console.log('✅ Dados já carregados, pulando recarregamento desnecessário');
