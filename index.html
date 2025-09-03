@@ -4821,10 +4821,11 @@
                     const usernames = peopleDetails.map(p => p.username);
                     console.log('🔍 Buscando perfis reais para:', usernames);
                     
+                    // Corrigir sintaxe da consulta Supabase
                     const { data: realUsers, error } = await supabase
                         .from('profiles')
                         .select('id, username, name, avatar_url')
-                        .in('username', usernames);
+                        .filter('username', 'in', `(${usernames.join(',')})`);
 
                     console.log('📊 Perfis reais encontrados:', realUsers);
                     console.log('❌ Erro na busca:', error);
