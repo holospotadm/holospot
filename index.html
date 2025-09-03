@@ -1615,12 +1615,29 @@
                 <h3 class="chart-title">🔥 Streak de Engajamento</h3>
                 <div style="margin-bottom: 1rem;">
                     <strong>Dias consecutivos ativo</strong>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="engagementStreakProgress" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
+                    
+                    <!-- Barra 7 dias -->
+                    <div class="progress-bar" style="margin-top: 0.5rem;">
+                        <div class="progress-fill" id="engagementStreakProgress7" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
                     </div>
                     <div class="progress-text" id="engagementStreakText7">0/7</div>
+                    
+                    <!-- Barra 30 dias -->
+                    <div class="progress-bar" style="margin-top: 0.3rem;">
+                        <div class="progress-fill" id="engagementStreakProgress30" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
+                    </div>
                     <div class="progress-text" id="engagementStreakText30">0/30</div>
+                    
+                    <!-- Barra 182 dias -->
+                    <div class="progress-bar" style="margin-top: 0.3rem;">
+                        <div class="progress-fill" id="engagementStreakProgress182" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
+                    </div>
                     <div class="progress-text" id="engagementStreakText182">0/182</div>
+                    
+                    <!-- Barra 365 dias -->
+                    <div class="progress-bar" style="margin-top: 0.3rem;">
+                        <div class="progress-fill" id="engagementStreakProgress365" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
+                    </div>
                     <div class="progress-text" id="engagementStreakText365">0/365</div>
                 </div>
             </div>
@@ -3247,6 +3264,14 @@
                 try {
                     updateStats();
                     console.log('✅ Estatísticas atualizadas');
+                    
+                    // Atualizar métricas do perfil em tempo real
+                    if (typeof updateSimpleMetrics === 'function') {
+                        setTimeout(() => {
+                            updateSimpleMetrics();
+                            console.log('✅ Métricas do perfil atualizadas após reação');
+                        }, 500);
+                    }
                 } catch (statsError) {
                     console.error('❌ Erro ao atualizar estatísticas:', statsError);
                 }
@@ -3408,6 +3433,14 @@
                 // Fechar modal e atualizar interface
                 closeFeedbackModal();
                 await renderPosts();
+                
+                // Atualizar métricas do perfil em tempo real
+                if (typeof updateSimpleMetrics === 'function') {
+                    setTimeout(() => {
+                        updateSimpleMetrics();
+                        console.log('✅ Métricas do perfil atualizadas após feedback');
+                    }, 500);
+                }
                 
                 alert('Feedback enviado com sucesso! O autor do post foi notificado.');
                 console.log('✅ Feedback enviado com sucesso');
@@ -3719,6 +3752,14 @@
                 switchTab('inicio');
                 renderPosts();
                 updateStats();
+                
+                // Atualizar métricas do perfil em tempo real
+                if (typeof updateSimpleMetrics === 'function') {
+                    setTimeout(() => {
+                        updateSimpleMetrics();
+                        console.log('✅ Métricas do perfil atualizadas após criação de post');
+                    }, 500);
+                }
                 
                 trackEvent('post_created', { 
                     person_name: personName, 
@@ -4547,6 +4588,11 @@
                 // Atualizar contador na interface principal
                 setTimeout(() => {
                     updateCommentsCount(postId);
+                    // Atualizar métricas do perfil em tempo real
+                    if (typeof updateSimpleMetrics === 'function') {
+                        updateSimpleMetrics();
+                        console.log('✅ Métricas do perfil atualizadas após comentário');
+                    }
                 }, 500);
                 
                 console.log('✅ Comentário enviado com sucesso');
@@ -5021,21 +5067,39 @@
                 
                 const currentStreak = hasRecentActivity ? Math.max(1, userPosts.length) : 0;
                 
-                // Atualizar todos os contadores de streak
-                const progressBar = document.getElementById('engagementStreakProgress');
+                // Atualizar todas as barras de progresso individuais
+                const progressBar7 = document.getElementById('engagementStreakProgress7');
+                const progressBar30 = document.getElementById('engagementStreakProgress30');
+                const progressBar182 = document.getElementById('engagementStreakProgress182');
+                const progressBar365 = document.getElementById('engagementStreakProgress365');
+                
                 const progressText7 = document.getElementById('engagementStreakText7');
                 const progressText30 = document.getElementById('engagementStreakText30');
                 const progressText182 = document.getElementById('engagementStreakText182');
                 const progressText365 = document.getElementById('engagementStreakText365');
                 
-                // Calcular percentual baseado no maior período (365 dias)
-                const percentage = Math.min((currentStreak / 365) * 100, 100);
+                // Calcular percentuais para cada período
+                const streak7 = Math.min(currentStreak, 7);
+                const streak30 = Math.min(currentStreak, 30);
+                const streak182 = Math.min(currentStreak, 182);
+                const streak365 = Math.min(currentStreak, 365);
                 
-                if (progressBar) progressBar.style.width = `${percentage}%`;
-                if (progressText7) progressText7.textContent = `${Math.min(currentStreak, 7)}/7`;
-                if (progressText30) progressText30.textContent = `${Math.min(currentStreak, 30)}/30`;
-                if (progressText182) progressText182.textContent = `${Math.min(currentStreak, 182)}/182`;
-                if (progressText365) progressText365.textContent = `${Math.min(currentStreak, 365)}/365`;
+                const percentage7 = (streak7 / 7) * 100;
+                const percentage30 = (streak30 / 30) * 100;
+                const percentage182 = (streak182 / 182) * 100;
+                const percentage365 = (streak365 / 365) * 100;
+                
+                // Atualizar barras de progresso
+                if (progressBar7) progressBar7.style.width = `${percentage7}%`;
+                if (progressBar30) progressBar30.style.width = `${percentage30}%`;
+                if (progressBar182) progressBar182.style.width = `${percentage182}%`;
+                if (progressBar365) progressBar365.style.width = `${percentage365}%`;
+                
+                // Atualizar textos
+                if (progressText7) progressText7.textContent = `${streak7}/7`;
+                if (progressText30) progressText30.textContent = `${streak30}/30`;
+                if (progressText182) progressText182.textContent = `${streak182}/182`;
+                if (progressText365) progressText365.textContent = `${streak365}/365`;
 
                 console.log('✅ Métricas reais atualizadas:', {
                     pessoas: uniquePeople.size,
