@@ -1618,7 +1618,10 @@
                     <div class="progress-bar">
                         <div class="progress-fill" id="engagementStreakProgress" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
                     </div>
-                    <div class="progress-text" id="engagementStreakText">0/365</div>
+                    <div class="progress-text" id="engagementStreakText7">0/7</div>
+                    <div class="progress-text" id="engagementStreakText30">0/30</div>
+                    <div class="progress-text" id="engagementStreakText182">0/182</div>
+                    <div class="progress-text" id="engagementStreakText365">0/365</div>
                 </div>
             </div>
 
@@ -4935,10 +4938,6 @@
                             ? person.realName 
                             : person.username;
                         
-                        const userInfo = person.userId 
-                            ? `(ID: ${person.userId})`
-                            : '(Usuário não encontrado)';
-                        
                         return `
                             <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
                                 ${avatarHtml}
@@ -4948,9 +4947,6 @@
                                     </div>
                                     <div style="font-size: 0.9rem; color: #666;">
                                         @${person.username}
-                                    </div>
-                                    <div style="font-size: 0.7rem; color: #999; margin-top: 0.2rem;">
-                                        ${userInfo}
                                     </div>
                                     <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
                                         Destacado ${person.postCount} vez${person.postCount !== 1 ? 'es' : ''}
@@ -5024,14 +5020,22 @@
                 });
                 
                 const currentStreak = hasRecentActivity ? Math.max(1, userPosts.length) : 0;
-                const maxDays = 365;
-                const percentage = Math.min((currentStreak / maxDays) * 100, 100);
                 
+                // Atualizar todos os contadores de streak
                 const progressBar = document.getElementById('engagementStreakProgress');
-                const progressText = document.getElementById('engagementStreakText');
+                const progressText7 = document.getElementById('engagementStreakText7');
+                const progressText30 = document.getElementById('engagementStreakText30');
+                const progressText182 = document.getElementById('engagementStreakText182');
+                const progressText365 = document.getElementById('engagementStreakText365');
+                
+                // Calcular percentual baseado no maior período (365 dias)
+                const percentage = Math.min((currentStreak / 365) * 100, 100);
                 
                 if (progressBar) progressBar.style.width = `${percentage}%`;
-                if (progressText) progressText.textContent = `${currentStreak}/${maxDays}`;
+                if (progressText7) progressText7.textContent = `${Math.min(currentStreak, 7)}/7`;
+                if (progressText30) progressText30.textContent = `${Math.min(currentStreak, 30)}/30`;
+                if (progressText182) progressText182.textContent = `${Math.min(currentStreak, 182)}/182`;
+                if (progressText365) progressText365.textContent = `${Math.min(currentStreak, 365)}/365`;
 
                 console.log('✅ Métricas reais atualizadas:', {
                     pessoas: uniquePeople.size,
