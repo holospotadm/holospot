@@ -4790,39 +4790,55 @@
                 const peopleHighlighted = new Set();
                 const peopleDetails = [];
                 
-                // Extrair pessoas mencionadas com @username
+                // Extrair pessoas mencionadas com @username (incluindo pontos e underscores)
                 userPosts.forEach(post => {
                     const personName = post.celebrated_person_name || post.person_name;
                     if (personName && personName.includes('@')) {
-                        const username = personName.match(/@(\w+)/)?.[1];
-                        if (username && !peopleHighlighted.has(username)) {
-                            peopleHighlighted.add(username);
-                            peopleDetails.push({
-                                username: username,
-                                displayName: personName,
-                                postCount: userPosts.filter(p => 
-                                    (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
-                                ).length
+                        // Regex melhorada para capturar usernames com pontos, underscores e hífens
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            usernameMatch.forEach(match => {
+                                const username = match.substring(1); // Remove o @
+                                if (username && !peopleHighlighted.has(username)) {
+                                    peopleHighlighted.add(username);
+                                    peopleDetails.push({
+                                        username: username,
+                                        displayName: personName,
+                                        postCount: userPosts.filter(p => 
+                                            (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
+                                        ).length
+                                    });
+                                }
                             });
                         }
                     }
                 });
 
+                console.log('🔍 Usernames encontrados:', peopleDetails.map(p => p.username));
+
                 // Buscar dados reais dos usuários mencionados
                 if (peopleDetails.length > 0) {
                     const usernames = peopleDetails.map(p => p.username);
+                    console.log('🔍 Buscando perfis para:', usernames);
+                    
                     const { data: realUsers, error } = await supabase
                         .from('profiles')
                         .select('username, name, avatar_url')
                         .in('username', usernames);
 
-                    if (!error && realUsers) {
+                    console.log('📊 Perfis encontrados:', realUsers);
+                    console.log('❌ Erro na busca:', error);
+
+                    if (!error && realUsers && realUsers.length > 0) {
                         // Combinar dados reais com os dados extraídos
                         peopleDetails.forEach(person => {
                             const realUser = realUsers.find(u => u.username === person.username);
                             if (realUser) {
                                 person.realName = realUser.name;
                                 person.avatarUrl = realUser.avatar_url;
+                                console.log(`✅ Dados encontrados para @${person.username}:`, realUser);
+                            } else {
+                                console.log(`⚠️ Perfil não encontrado para @${person.username}`);
                             }
                         });
                     }
@@ -4841,12 +4857,15 @@
                 } else {
                     modalContent.innerHTML = peopleDetails.map(person => {
                         const avatarHtml = person.avatarUrl 
-                            ? `<img src="${person.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">`
+                            ? `<img src="${person.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                               <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
+                                ${person.username.charAt(0).toUpperCase()}
+                               </div>`
                             : `<div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
                                 ${person.username.charAt(0).toUpperCase()}
                                </div>`;
                         
-                        const displayName = person.realName || person.displayName;
+                        const displayName = person.realName || person.username;
                         
                         return `
                             <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
@@ -4883,16 +4902,22 @@
             try {
                 console.log('📊 Atualizando métricas reais...');
 
-                // 1. Pessoas Destacadas (contar corretamente)
+                // 1. Pessoas Destacadas (contar corretamente com regex melhorada)
                 const userPosts = posts.filter(post => post.user_id === currentUser.id);
                 const uniquePeople = new Set();
                 
                 userPosts.forEach(post => {
                     const personName = post.celebrated_person_name || post.person_name;
                     if (personName && personName.includes('@')) {
-                        const username = personName.match(/@(\w+)/)?.[1];
-                        if (username) {
-                            uniquePeople.add(username);
+                        // Regex melhorada para capturar usernames com pontos, underscores e hífens
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            usernameMatch.forEach(match => {
+                                const username = match.substring(1); // Remove o @
+                                if (username) {
+                                    uniquePeople.add(username);
+                                }
+                            });
                         }
                     }
                 });
@@ -4933,6 +4958,7 @@
 
                 console.log('✅ Métricas reais atualizadas:', {
                     pessoas: uniquePeople.size,
+                    usernames: Array.from(uniquePeople),
                     comentarios: totalCommentsAndFeedbacks,
                     reacoes: reactionsResult.count || 0,
                     streak: currentStreak
