@@ -4816,17 +4816,17 @@
 
                 console.log('🔍 Usernames encontrados:', peopleDetails.map(p => p.username));
 
-                // Buscar dados reais dos usuários mencionados
+                // Buscar dados REAIS dos usuários mencionados na tabela profiles
                 if (peopleDetails.length > 0) {
                     const usernames = peopleDetails.map(p => p.username);
-                    console.log('🔍 Buscando perfis para:', usernames);
+                    console.log('🔍 Buscando perfis reais para:', usernames);
                     
                     const { data: realUsers, error } = await supabase
                         .from('profiles')
-                        .select('username, name, avatar_url')
+                        .select('id, username, name, avatar_url')
                         .in('username', usernames);
 
-                    console.log('📊 Perfis encontrados:', realUsers);
+                    console.log('📊 Perfis reais encontrados:', realUsers);
                     console.log('❌ Erro na busca:', error);
 
                     if (!error && realUsers && realUsers.length > 0) {
@@ -4834,11 +4834,16 @@
                         peopleDetails.forEach(person => {
                             const realUser = realUsers.find(u => u.username === person.username);
                             if (realUser) {
+                                person.userId = realUser.id;
                                 person.realName = realUser.name;
                                 person.avatarUrl = realUser.avatar_url;
-                                console.log(`✅ Dados encontrados para @${person.username}:`, realUser);
+                                console.log(`✅ Dados REAIS encontrados para @${person.username}:`, {
+                                    id: realUser.id,
+                                    name: realUser.name,
+                                    avatar: realUser.avatar_url
+                                });
                             } else {
-                                console.log(`⚠️ Perfil não encontrado para @${person.username}`);
+                                console.log(`⚠️ Perfil REAL não encontrado para @${person.username}`);
                             }
                         });
                     }
@@ -4856,8 +4861,9 @@
                     `;
                 } else {
                     modalContent.innerHTML = peopleDetails.map(person => {
-                        const avatarHtml = person.avatarUrl 
-                            ? `<img src="${person.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        // Usar avatar real se disponível
+                        const avatarHtml = person.avatarUrl && person.avatarUrl.trim() !== '' 
+                            ? `<img src="${person.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;" onerror="console.log('❌ Erro ao carregar avatar:', '${person.avatarUrl}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
                                 ${person.username.charAt(0).toUpperCase()}
                                </div>`
@@ -4865,7 +4871,14 @@
                                 ${person.username.charAt(0).toUpperCase()}
                                </div>`;
                         
-                        const displayName = person.realName || person.username;
+                        // Usar nome real se disponível, senão username
+                        const displayName = person.realName && person.realName.trim() !== '' 
+                            ? person.realName 
+                            : person.username;
+                        
+                        const userInfo = person.userId 
+                            ? `(ID: ${person.userId})`
+                            : '(Usuário não encontrado)';
                         
                         return `
                             <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
@@ -4877,6 +4890,9 @@
                                     <div style="font-size: 0.9rem; color: #666;">
                                         @${person.username}
                                     </div>
+                                    <div style="font-size: 0.7rem; color: #999; margin-top: 0.2rem;">
+                                        ${userInfo}
+                                    </div>
                                     <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
                                         Destacado ${person.postCount} vez${person.postCount !== 1 ? 'es' : ''}
                                     </div>
@@ -4887,11 +4903,13 @@
                 }
                 
                 console.log('✅ Pessoas destacadas carregadas no modal:', peopleDetails.length);
+                console.log('📋 Detalhes completos:', peopleDetails);
             } catch (error) {
                 console.error('❌ Erro ao carregar pessoas destacadas:', error);
                 document.getElementById('modalPeopleHighlightedContent').innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #666;">
                         <p>❌ Erro ao carregar pessoas destacadas</p>
+                        <p style="font-size: 12px;">${error.message}</p>
                     </div>
                 `;
             }
