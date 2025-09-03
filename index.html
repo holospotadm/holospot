@@ -5047,9 +5047,15 @@
                 // 2. Comentários e Feedbacks (consultas reais)
                 const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
                     supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id), // Corrigido: usar mentioned_user_id
                     supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
                 ]);
+
+                console.log('📊 Contagens das consultas:', {
+                    comments: commentsResult.count,
+                    feedbacks: feedbacksResult.count,
+                    reactions: reactionsResult.count
+                });
 
                 const totalCommentsAndFeedbacks = (commentsResult.count || 0) + (feedbacksResult.count || 0);
                 document.getElementById('userCommentsGiven').textContent = totalCommentsAndFeedbacks;
@@ -5065,7 +5071,7 @@
                     const [postsData, commentsData, feedbacksData, reactionsData] = await Promise.all([
                         supabase.from('posts').select('created_at').eq('user_id', currentUser.id),
                         supabase.from('comments').select('created_at').eq('user_id', currentUser.id), // Todos os comentários (inclusive em posts próprios)
-                        supabase.from('feedbacks').select('created_at').eq('user_id', currentUser.id),
+                        supabase.from('feedbacks').select('created_at').eq('mentioned_user_id', currentUser.id), // Corrigido: usar mentioned_user_id
                         supabase.from('reactions').select('created_at').eq('user_id', currentUser.id)
                     ]);
                     
