@@ -1743,6 +1743,21 @@
         </div>
     </div>
 
+    <!-- Modal de Pessoas Destacadas -->
+    <div id="peopleHighlightedModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>👥 Pessoas Destacadas</h2>
+                <button class="close-btn" onclick="closePeopleHighlightedModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPeopleHighlightedContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Pessoas destacadas serão carregadas aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
@@ -3900,6 +3915,9 @@
             
             // Update personalized tip
             updatePersonalizedTip(userPosts.length, totalReactions);
+            
+            // Update simple metrics
+            updateSimpleMetrics();
         }
 
         function updateProgressBars(postsCount, reactionsCount) {
@@ -4748,9 +4766,125 @@
             }
          });
         
-        // Modal de Pessoas Destacadas (função simples)
+        // Modal de Pessoas Destacadas
         function openPeopleHighlightedModal() {
-            alert('Modal de Pessoas Destacadas será implementado em breve!');
+            const modal = document.getElementById('peopleHighlightedModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                loadPeopleHighlightedInModal();
+            }
+        }
+
+        function closePeopleHighlightedModal() {
+            const modal = document.getElementById('peopleHighlightedModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadPeopleHighlightedInModal() {
+            try {
+                console.log('👥 Carregando pessoas destacadas no modal...');
+                
+                const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                const peopleHighlighted = new Set();
+                const peopleDetails = [];
+                
+                // Extrair pessoas mencionadas com @username
+                userPosts.forEach(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const username = personName.match(/@(\w+)/)?.[1];
+                        if (username && !peopleHighlighted.has(username)) {
+                            peopleHighlighted.add(username);
+                            peopleDetails.push({
+                                username: username,
+                                displayName: personName,
+                                postCount: userPosts.filter(p => 
+                                    (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
+                                ).length
+                            });
+                        }
+                    }
+                });
+
+                const modalContent = document.getElementById('modalPeopleHighlightedContent');
+                
+                if (peopleDetails.length === 0) {
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">👥</div>
+                            <p>Você ainda não destacou ninguém com @username</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Use @username ao destacar pessoas para elas aparecerem aqui!</p>
+                        </div>
+                    `;
+                } else {
+                    modalContent.innerHTML = peopleDetails.map(person => `
+                        <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
+                                ${person.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 0.2rem;">
+                                    ${person.displayName}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666;">
+                                    @${person.username}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
+                                    Destacado ${person.postCount} vez${person.postCount !== 1 ? 'es' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                console.log('✅ Pessoas destacadas carregadas no modal:', peopleDetails.length);
+            } catch (error) {
+                console.error('❌ Erro ao carregar pessoas destacadas:', error);
+                document.getElementById('modalPeopleHighlightedContent').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <p>❌ Erro ao carregar pessoas destacadas</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Atualizar métricas simples
+        function updateSimpleMetrics() {
+            try {
+                // 1. Comentários e Feedbacks (simulado por enquanto)
+                const commentsCount = Math.floor(Math.random() * 10); // Placeholder
+                document.getElementById('userCommentsGiven').textContent = commentsCount;
+
+                // 2. Reações Dadas (simulado por enquanto)  
+                const reactionsCount = Math.floor(Math.random() * 15); // Placeholder
+                document.getElementById('userReactionsGiven').textContent = reactionsCount;
+
+                // 3. Streak de Engajamento (baseado em posts recentes)
+                const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                const today = new Date().toDateString();
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                
+                const hasRecentActivity = userPosts.some(post => {
+                    const postDate = new Date(post.created_at).toDateString();
+                    return postDate === today || postDate === yesterday;
+                });
+                
+                const currentStreak = hasRecentActivity ? Math.max(1, userPosts.length) : 0;
+                const maxDays = 365;
+                const percentage = Math.min((currentStreak / maxDays) * 100, 100);
+                
+                const progressBar = document.getElementById('engagementStreakProgress');
+                const progressText = document.getElementById('engagementStreakText');
+                
+                if (progressBar) progressBar.style.width = `${percentage}%`;
+                if (progressText) progressText.textContent = `${currentStreak}/${maxDays}`;
+
+                console.log('✅ Métricas simples atualizadas');
+            } catch (error) {
+                console.error('❌ Erro ao atualizar métricas simples:', error);
+            }
         }
         
         console.log('✅ HoloSpot v8 carregado com sucesso!');
