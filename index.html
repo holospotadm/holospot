@@ -3409,6 +3409,15 @@
                     
                     if (error) throw error;
                     console.log('✅ Feedback salvo no banco');
+                    
+                    // Atualizar métricas imediatamente após salvar no banco
+                    setTimeout(() => {
+                        if (typeof updateSimpleMetrics === 'function') {
+                            updateSimpleMetrics();
+                            console.log('✅ Métricas do perfil atualizadas após feedback (imediato)');
+                        }
+                    }, 100);
+                    
                 } catch (dbError) {
                     console.warn('⚠️ Erro ao salvar feedback no banco:', dbError.message);
                     // Continuar mesmo com erro no banco
@@ -3433,14 +3442,6 @@
                 // Fechar modal e atualizar interface
                 closeFeedbackModal();
                 await renderPosts();
-                
-                // Atualizar métricas do perfil em tempo real
-                if (typeof updateSimpleMetrics === 'function') {
-                    setTimeout(() => {
-                        updateSimpleMetrics();
-                        console.log('✅ Métricas do perfil atualizadas após feedback');
-                    }, 500);
-                }
                 
                 alert('Feedback enviado com sucesso! O autor do post foi notificado.');
                 console.log('✅ Feedback enviado com sucesso');
