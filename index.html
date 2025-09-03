@@ -1743,6 +1743,51 @@
         </div>
     </div>
 
+    <!-- Modal de Pessoas Destacadas -->
+    <div id="peopleHighlightedModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>👥 Pessoas Destacadas</h2>
+                <button class="close-btn" onclick="closePeopleHighlightedModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPeopleHighlightedContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Pessoas destacadas serão carregadas aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Comentários e Feedbacks Dados -->
+    <div id="commentsGivenModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>💬 Comentários e Feedbacks Dados</h2>
+                <button class="close-btn" onclick="closeCommentsGivenModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalCommentsGivenContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Comentários e feedbacks dados serão carregados aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reações Dadas -->
+    <div id="reactionsGivenModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>❤️ Reações Dadas</h2>
+                <button class="close-btn" onclick="closeReactionsGivenModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalReactionsGivenContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Reações dadas serão carregadas aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
@@ -4723,6 +4768,395 @@
             input.focus();
         }
 
+        // ===== HOLOSPOT SCORE METRICS FUNCTIONS =====
+
+        // Modal de Pessoas Destacadas
+        async function openPeopleHighlightedModal() {
+            try {
+                console.log('👥 Abrindo modal de pessoas destacadas...');
+                
+                // Buscar posts do usuário atual que mencionam pessoas reais
+                const { data: userPosts, error } = await supabase
+                    .from('posts')
+                    .select('celebrated_person_name, person_name, created_at')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Erro ao buscar posts:', error);
+                    return;
+                }
+
+                // Buscar pessoas reais mencionadas nos posts
+                const peopleHighlighted = new Map();
+                
+                for (const post of userPosts) {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.trim()) {
+                        // Verificar se é uma menção (@username)
+                        const mentionMatch = personName.match(/@(\w+)/);
+                        if (mentionMatch) {
+                            const username = mentionMatch[1];
+                            
+                            // Buscar dados do usuário mencionado
+                            const { data: mentionedUser, error: userError } = await supabase
+                                .from('profiles')
+                                .select('id, name, email, avatar_url')
+                                .eq('email', `${username}@*`)
+                                .single();
+
+                            if (!userError && mentionedUser) {
+                                const key = mentionedUser.id;
+                                if (!peopleHighlighted.has(key)) {
+                                    peopleHighlighted.set(key, {
+                                        id: mentionedUser.id,
+                                        name: mentionedUser.name || username,
+                                        username: username,
+                                        avatar: mentionedUser.avatar_url || '',
+                                        count: 0
+                                    });
+                                }
+                                peopleHighlighted.get(key).count++;
+                            }
+                        }
+                    }
+                }
+
+                const modalContent = document.getElementById('modalPeopleHighlightedContent');
+                
+                if (peopleHighlighted.size === 0) {
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <p>Você ainda não destacou nenhuma pessoa registrada na plataforma.</p>
+                            <p>Use @username nos seus posts para mencionar pessoas!</p>
+                        </div>
+                    `;
+                } else {
+                    const peopleArray = Array.from(peopleHighlighted.values())
+                        .sort((a, b) => b.count - a.count);
+                    
+                    modalContent.innerHTML = peopleArray.map(person => `
+                        <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
+                            <img src="${person.avatar || '/default-avatar.png'}" 
+                                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 1rem;" 
+                                 alt="${person.name}">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333;">${person.name}</div>
+                                <div style="font-size: 0.9rem; color: #666;">@${person.username}</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">
+                                ${person.count}x destacado
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                document.getElementById('peopleHighlightedModal').style.display = 'flex';
+            } catch (error) {
+                console.error('❌ Erro ao abrir modal de pessoas destacadas:', error);
+            }
+        }
+
+        function closePeopleHighlightedModal() {
+            document.getElementById('peopleHighlightedModal').style.display = 'none';
+        }
+
+        // Modal de Comentários e Feedbacks Dados
+        async function openCommentsGivenModal() {
+            try {
+                console.log('💬 Abrindo modal de comentários e feedbacks dados...');
+                
+                // Buscar comentários dados pelo usuário
+                const { data: comments, error: commentsError } = await supabase
+                    .from('comments')
+                    .select(`
+                        id, comment_text, created_at, post_id,
+                        posts!inner(celebrated_person_name, person_name, user_id)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                // Buscar feedbacks dados pelo usuário
+                const { data: feedbacks, error: feedbacksError } = await supabase
+                    .from('feedbacks')
+                    .select(`
+                        id, feedback_text, created_at, post_id,
+                        posts!inner(celebrated_person_name, person_name, user_id)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (commentsError || feedbacksError) {
+                    console.error('❌ Erro ao buscar comentários/feedbacks:', commentsError || feedbacksError);
+                    return;
+                }
+
+                const modalContent = document.getElementById('modalCommentsGivenContent');
+                
+                const totalItems = (comments?.length || 0) + (feedbacks?.length || 0);
+                
+                if (totalItems === 0) {
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <p>Você ainda não escreveu comentários ou feedbacks.</p>
+                            <p>Interaja com os posts de outras pessoas!</p>
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    
+                    if (comments && comments.length > 0) {
+                        html += '<h3 style="color: #e65100; margin-bottom: 1rem;">💬 Comentários</h3>';
+                        html += comments.slice(0, 10).map(comment => `
+                            <div style="padding: 1rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem;">
+                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
+                                    Post: ${comment.posts.celebrated_person_name || comment.posts.person_name || 'Sem título'}
+                                </div>
+                                <div style="color: #333; line-height: 1.4;">${comment.comment_text}</div>
+                                <div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">
+                                    ${formatDateShort(comment.created_at)}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    if (feedbacks && feedbacks.length > 0) {
+                        html += '<h3 style="color: #e65100; margin-bottom: 1rem; margin-top: 1.5rem;">🔄 Feedbacks</h3>';
+                        html += feedbacks.slice(0, 10).map(feedback => `
+                            <div style="padding: 1rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem;">
+                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
+                                    Post: ${feedback.posts.celebrated_person_name || feedback.posts.person_name || 'Sem título'}
+                                </div>
+                                <div style="color: #333; line-height: 1.4;">${feedback.feedback_text}</div>
+                                <div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">
+                                    ${formatDateShort(feedback.created_at)}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    modalContent.innerHTML = html;
+                }
+
+                document.getElementById('commentsGivenModal').style.display = 'flex';
+            } catch (error) {
+                console.error('❌ Erro ao abrir modal de comentários dados:', error);
+            }
+        }
+
+        function closeCommentsGivenModal() {
+            document.getElementById('commentsGivenModal').style.display = 'none';
+        }
+
+        // Modal de Reações Dadas
+        async function openReactionsGivenModal() {
+            try {
+                console.log('❤️ Abrindo modal de reações dadas...');
+                
+                // Buscar reações dadas pelo usuário
+                const { data: reactions, error } = await supabase
+                    .from('reactions')
+                    .select(`
+                        id, type, created_at, post_id,
+                        posts!inner(celebrated_person_name, person_name, user_id)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Erro ao buscar reações:', error);
+                    return;
+                }
+
+                const modalContent = document.getElementById('modalReactionsGivenContent');
+                
+                if (!reactions || reactions.length === 0) {
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <p>Você ainda não reagiu a nenhum post.</p>
+                            <p>Use ❤️ 🙏 ✨ para reagir aos posts!</p>
+                        </div>
+                    `;
+                } else {
+                    const reactionEmojis = {
+                        'touched': '❤️',
+                        'grateful': '🙏',
+                        'inspired': '✨'
+                    };
+                    
+                    const reactionNames = {
+                        'touched': 'Tocado',
+                        'grateful': 'Grato',
+                        'inspired': 'Inspirado'
+                    };
+
+                    modalContent.innerHTML = reactions.slice(0, 20).map(reaction => `
+                        <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
+                            <div style="font-size: 1.5rem; margin-right: 1rem;">
+                                ${reactionEmojis[reaction.type] || '✨'}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333;">
+                                    ${reactionNames[reaction.type] || 'Reação'}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.2rem;">
+                                    Post: ${reaction.posts.celebrated_person_name || reaction.posts.person_name || 'Sem título'}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
+                                    ${formatDateShort(reaction.created_at)}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                document.getElementById('reactionsGivenModal').style.display = 'flex';
+            } catch (error) {
+                console.error('❌ Erro ao abrir modal de reações dadas:', error);
+            }
+        }
+
+        function closeReactionsGivenModal() {
+            document.getElementById('reactionsGivenModal').style.display = 'none';
+        }
+
+        // Atualizar métricas do HoloSpot Score
+        async function updateHoloSpotScoreMetrics() {
+            try {
+                console.log('📊 Atualizando métricas do HoloSpot Score...');
+
+                // 1. Posts de Reconhecimento (já existe)
+                const userPostsCount = posts.filter(post => post.user_id === currentUser.id).length;
+                document.getElementById('userPostsCount').textContent = userPostsCount;
+
+                // 2. Pessoas Destacadas (contar apenas pessoas reais)
+                let realPeopleCount = 0;
+                const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                const mentionedPeople = new Set();
+                
+                for (const post of userPosts) {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const username = personName.match(/@(\w+)/)?.[1];
+                        if (username) {
+                            mentionedPeople.add(username);
+                        }
+                    }
+                }
+                
+                document.getElementById('userPeopleHighlighted').textContent = mentionedPeople.size;
+
+                // 3. Comentários e Feedbacks Dados
+                const { data: commentsCount } = await supabase
+                    .from('comments')
+                    .select('id', { count: 'exact' })
+                    .eq('user_id', currentUser.id);
+                
+                const { data: feedbacksCount } = await supabase
+                    .from('feedbacks')
+                    .select('id', { count: 'exact' })
+                    .eq('user_id', currentUser.id);
+
+                const totalCommentsAndFeedbacks = (commentsCount?.length || 0) + (feedbacksCount?.length || 0);
+                document.getElementById('userCommentsGiven').textContent = totalCommentsAndFeedbacks;
+
+                // 4. Reações Dadas
+                const { data: reactionsCount } = await supabase
+                    .from('reactions')
+                    .select('id', { count: 'exact' })
+                    .eq('user_id', currentUser.id);
+
+                document.getElementById('userReactionsGiven').textContent = reactionsCount?.length || 0;
+
+                // 5. Streak de Engajamento (implementação básica)
+                await updateEngagementStreak();
+
+                console.log('✅ Métricas do HoloSpot Score atualizadas');
+            } catch (error) {
+                console.error('❌ Erro ao atualizar métricas do HoloSpot Score:', error);
+            }
+        }
+
+        // Calcular Streak de Engajamento
+        async function updateEngagementStreak() {
+            try {
+                // Buscar todas as atividades do usuário nos últimos 365 dias
+                const oneYearAgo = new Date();
+                oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                
+                const activities = [];
+                
+                // Posts criados
+                const { data: userPosts } = await supabase
+                    .from('posts')
+                    .select('created_at')
+                    .eq('user_id', currentUser.id)
+                    .gte('created_at', oneYearAgo.toISOString());
+                
+                // Comentários dados
+                const { data: userComments } = await supabase
+                    .from('comments')
+                    .select('created_at')
+                    .eq('user_id', currentUser.id)
+                    .gte('created_at', oneYearAgo.toISOString());
+                
+                // Feedbacks dados
+                const { data: userFeedbacks } = await supabase
+                    .from('feedbacks')
+                    .select('created_at')
+                    .eq('user_id', currentUser.id)
+                    .gte('created_at', oneYearAgo.toISOString());
+                
+                // Reações dadas
+                const { data: userReactions } = await supabase
+                    .from('reactions')
+                    .select('created_at')
+                    .eq('user_id', currentUser.id)
+                    .gte('created_at', oneYearAgo.toISOString());
+
+                // Combinar todas as atividades
+                if (userPosts) activities.push(...userPosts.map(p => p.created_at));
+                if (userComments) activities.push(...userComments.map(c => c.created_at));
+                if (userFeedbacks) activities.push(...userFeedbacks.map(f => f.created_at));
+                if (userReactions) activities.push(...userReactions.map(r => r.created_at));
+
+                // Agrupar por dia
+                const activeDays = new Set();
+                activities.forEach(activity => {
+                    const date = new Date(activity).toDateString();
+                    activeDays.add(date);
+                });
+
+                // Calcular streak atual
+                let currentStreak = 0;
+                const today = new Date();
+                
+                for (let i = 0; i < 365; i++) {
+                    const checkDate = new Date(today);
+                    checkDate.setDate(checkDate.getDate() - i);
+                    const dateString = checkDate.toDateString();
+                    
+                    if (activeDays.has(dateString)) {
+                        currentStreak++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // Atualizar UI
+                const isLeapYear = new Date().getFullYear() % 4 === 0;
+                const maxDays = isLeapYear ? 366 : 365;
+                const percentage = Math.min((currentStreak / maxDays) * 100, 100);
+                
+                document.getElementById('engagementStreakProgress').style.width = `${percentage}%`;
+                document.getElementById('engagementStreakText').textContent = `${currentStreak}/${maxDays}`;
+
+                console.log(`🔥 Streak de engajamento: ${currentStreak} dias`);
+            } catch (error) {
+                console.error('❌ Erro ao calcular streak de engajamento:', error);
+            }
+        }
+
         // Listen for auth state changes
         let isInitialLoad = true;
         supabase.auth.onAuthStateChange(async (event, session) => {
@@ -4737,6 +5171,7 @@
                     await loadPosts();
                     await loadNotifications();
                     updateStats();
+                    await updateHoloSpotScoreMetrics(); // Adicionar aqui
                     isInitialLoad = false;
                 } else {
                     console.log('✅ Dados já carregados, pulando recarregamento desnecessário');
