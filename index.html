@@ -4808,6 +4808,26 @@
                     }
                 });
 
+                // Buscar dados reais dos usuários mencionados
+                if (peopleDetails.length > 0) {
+                    const usernames = peopleDetails.map(p => p.username);
+                    const { data: realUsers, error } = await supabase
+                        .from('profiles')
+                        .select('username, name, avatar_url')
+                        .in('username', usernames);
+
+                    if (!error && realUsers) {
+                        // Combinar dados reais com os dados extraídos
+                        peopleDetails.forEach(person => {
+                            const realUser = realUsers.find(u => u.username === person.username);
+                            if (realUser) {
+                                person.realName = realUser.name;
+                                person.avatarUrl = realUser.avatar_url;
+                            }
+                        });
+                    }
+                }
+
                 const modalContent = document.getElementById('modalPeopleHighlightedContent');
                 
                 if (peopleDetails.length === 0) {
@@ -4819,24 +4839,32 @@
                         </div>
                     `;
                 } else {
-                    modalContent.innerHTML = peopleDetails.map(person => `
-                        <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
+                    modalContent.innerHTML = peopleDetails.map(person => {
+                        const avatarHtml = person.avatarUrl 
+                            ? `<img src="${person.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;">`
+                            : `<div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
                                 ${person.username.charAt(0).toUpperCase()}
+                               </div>`;
+                        
+                        const displayName = person.realName || person.displayName;
+                        
+                        return `
+                            <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
+                                ${avatarHtml}
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #333; margin-bottom: 0.2rem;">
+                                        ${displayName}
+                                    </div>
+                                    <div style="font-size: 0.9rem; color: #666;">
+                                        @${person.username}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
+                                        Destacado ${person.postCount} vez${person.postCount !== 1 ? 'es' : ''}
+                                    </div>
+                                </div>
                             </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #333; margin-bottom: 0.2rem;">
-                                    ${person.displayName}
-                                </div>
-                                <div style="font-size: 0.9rem; color: #666;">
-                                    @${person.username}
-                                </div>
-                                <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
-                                    Destacado ${person.postCount} vez${person.postCount !== 1 ? 'es' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
                 
                 console.log('✅ Pessoas destacadas carregadas no modal:', peopleDetails.length);
@@ -4850,19 +4878,41 @@
             }
         }
 
-        // Atualizar métricas simples
-        function updateSimpleMetrics() {
+        // Atualizar métricas reais
+        async function updateSimpleMetrics() {
             try {
-                // 1. Comentários e Feedbacks (simulado por enquanto)
-                const commentsCount = Math.floor(Math.random() * 10); // Placeholder
-                document.getElementById('userCommentsGiven').textContent = commentsCount;
+                console.log('📊 Atualizando métricas reais...');
 
-                // 2. Reações Dadas (simulado por enquanto)  
-                const reactionsCount = Math.floor(Math.random() * 15); // Placeholder
-                document.getElementById('userReactionsGiven').textContent = reactionsCount;
-
-                // 3. Streak de Engajamento (baseado em posts recentes)
+                // 1. Pessoas Destacadas (contar corretamente)
                 const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                const uniquePeople = new Set();
+                
+                userPosts.forEach(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const username = personName.match(/@(\w+)/)?.[1];
+                        if (username) {
+                            uniquePeople.add(username);
+                        }
+                    }
+                });
+                
+                document.getElementById('userPeopleHighlighted').textContent = uniquePeople.size;
+
+                // 2. Comentários e Feedbacks (consultas reais)
+                const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
+                    supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
+                    supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
+                ]);
+
+                const totalCommentsAndFeedbacks = (commentsResult.count || 0) + (feedbacksResult.count || 0);
+                document.getElementById('userCommentsGiven').textContent = totalCommentsAndFeedbacks;
+
+                // 3. Reações Dadas (consulta real)
+                document.getElementById('userReactionsGiven').textContent = reactionsResult.count || 0;
+
+                // 4. Streak de Engajamento (baseado em atividade real)
                 const today = new Date().toDateString();
                 const yesterday = new Date(Date.now() - 86400000).toDateString();
                 
@@ -4881,9 +4931,15 @@
                 if (progressBar) progressBar.style.width = `${percentage}%`;
                 if (progressText) progressText.textContent = `${currentStreak}/${maxDays}`;
 
-                console.log('✅ Métricas simples atualizadas');
+                console.log('✅ Métricas reais atualizadas:', {
+                    pessoas: uniquePeople.size,
+                    comentarios: totalCommentsAndFeedbacks,
+                    reacoes: reactionsResult.count || 0,
+                    streak: currentStreak
+                });
             } catch (error) {
-                console.error('❌ Erro ao atualizar métricas simples:', error);
+                console.error('❌ Erro ao atualizar métricas reais:', error);
+                // Em caso de erro, manter valores existentes
             }
         }
         
