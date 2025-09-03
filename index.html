@@ -5056,50 +5056,122 @@
                 // 3. Reações Dadas (consulta real)
                 document.getElementById('userReactionsGiven').textContent = reactionsResult.count || 0;
 
-                // 4. Streak de Engajamento (baseado em atividade real)
-                const today = new Date().toDateString();
-                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                // 4. Streak de Engajamento (baseado em dias consecutivos reais)
+                console.log('📊 Calculando streak de engajamento...');
                 
-                const hasRecentActivity = userPosts.some(post => {
-                    const postDate = new Date(post.created_at).toDateString();
-                    return postDate === today || postDate === yesterday;
-                });
-                
-                const currentStreak = hasRecentActivity ? Math.max(1, userPosts.length) : 0;
-                
-                // Atualizar todas as barras de progresso individuais
-                const progressBar7 = document.getElementById('engagementStreakProgress7');
-                const progressBar30 = document.getElementById('engagementStreakProgress30');
-                const progressBar182 = document.getElementById('engagementStreakProgress182');
-                const progressBar365 = document.getElementById('engagementStreakProgress365');
-                
-                const progressText7 = document.getElementById('engagementStreakText7');
-                const progressText30 = document.getElementById('engagementStreakText30');
-                const progressText182 = document.getElementById('engagementStreakText182');
-                const progressText365 = document.getElementById('engagementStreakText365');
-                
-                // Calcular percentuais para cada período
-                const streak7 = Math.min(currentStreak, 7);
-                const streak30 = Math.min(currentStreak, 30);
-                const streak182 = Math.min(currentStreak, 182);
-                const streak365 = Math.min(currentStreak, 365);
-                
-                const percentage7 = (streak7 / 7) * 100;
-                const percentage30 = (streak30 / 30) * 100;
-                const percentage182 = (streak182 / 182) * 100;
-                const percentage365 = (streak365 / 365) * 100;
-                
-                // Atualizar barras de progresso
-                if (progressBar7) progressBar7.style.width = `${percentage7}%`;
-                if (progressBar30) progressBar30.style.width = `${percentage30}%`;
-                if (progressBar182) progressBar182.style.width = `${percentage182}%`;
-                if (progressBar365) progressBar365.style.width = `${percentage365}%`;
-                
-                // Atualizar textos
-                if (progressText7) progressText7.textContent = `${streak7}/7`;
-                if (progressText30) progressText30.textContent = `${streak30}/30`;
-                if (progressText182) progressText182.textContent = `${streak182}/182`;
-                if (progressText365) progressText365.textContent = `${streak365}/365`;
+                try {
+                    // Buscar todas as atividades do usuário
+                    const [postsData, commentsData, feedbacksData, reactionsData] = await Promise.all([
+                        supabase.from('posts').select('created_at').eq('user_id', currentUser.id),
+                        supabase.from('comments').select('created_at').eq('user_id', currentUser.id), // Todos os comentários (inclusive em posts próprios)
+                        supabase.from('feedbacks').select('created_at').eq('user_id', currentUser.id),
+                        supabase.from('reactions').select('created_at').eq('user_id', currentUser.id)
+                    ]);
+                    
+                    // Combinar todas as atividades
+                    const allActivities = [
+                        ...(postsData.data || []),
+                        ...(commentsData.data || []),
+                        ...(feedbacksData.data || []),
+                        ...(reactionsData.data || [])
+                    ];
+                    
+                    console.log(`📈 Total de atividades encontradas: ${allActivities.length}`);
+                    
+                    // Agrupar atividades por data (YYYY-MM-DD)
+                    const activitiesByDate = {};
+                    allActivities.forEach(activity => {
+                        const date = new Date(activity.created_at).toISOString().split('T')[0]; // YYYY-MM-DD
+                        activitiesByDate[date] = true;
+                    });
+                    
+                    const activeDates = Object.keys(activitiesByDate).sort().reverse(); // Mais recente primeiro
+                    console.log('📅 Dias com atividade:', activeDates);
+                    
+                    // Calcular streak consecutivo a partir de hoje
+                    const today = new Date().toISOString().split('T')[0];
+                    let currentStreak = 0;
+                    let checkDate = new Date();
+                    
+                    // Verificar dias consecutivos a partir de hoje
+                    while (true) {
+                        const dateStr = checkDate.toISOString().split('T')[0];
+                        
+                        if (activitiesByDate[dateStr]) {
+                            currentStreak++;
+                            console.log(`✅ Atividade encontrada em ${dateStr} - Streak: ${currentStreak}`);
+                        } else {
+                            console.log(`❌ Sem atividade em ${dateStr} - Streak quebrado`);
+                            break;
+                        }
+                        
+                        // Ir para o dia anterior
+                        checkDate.setDate(checkDate.getDate() - 1);
+                        
+                        // Limite de segurança para evitar loop infinito
+                        if (currentStreak >= 365) {
+                            console.log('🏆 Streak máximo de 365 dias atingido!');
+                            break;
+                        }
+                    }
+                    
+                    console.log(`🔥 Streak final calculado: ${currentStreak} dias consecutivos`);
+                    
+                    // Atualizar todas as barras de progresso individuais
+                    const progressBar7 = document.getElementById('engagementStreakProgress7');
+                    const progressBar30 = document.getElementById('engagementStreakProgress30');
+                    const progressBar182 = document.getElementById('engagementStreakProgress182');
+                    const progressBar365 = document.getElementById('engagementStreakProgress365');
+                    
+                    const progressText7 = document.getElementById('engagementStreakText7');
+                    const progressText30 = document.getElementById('engagementStreakText30');
+                    const progressText182 = document.getElementById('engagementStreakText182');
+                    const progressText365 = document.getElementById('engagementStreakText365');
+                    
+                    // Calcular percentuais para cada período
+                    const streak7 = Math.min(currentStreak, 7);
+                    const streak30 = Math.min(currentStreak, 30);
+                    const streak182 = Math.min(currentStreak, 182);
+                    const streak365 = Math.min(currentStreak, 365);
+                    
+                    const percentage7 = (streak7 / 7) * 100;
+                    const percentage30 = (streak30 / 30) * 100;
+                    const percentage182 = (streak182 / 182) * 100;
+                    const percentage365 = (streak365 / 365) * 100;
+                    
+                    // Atualizar barras de progresso
+                    if (progressBar7) progressBar7.style.width = `${percentage7}%`;
+                    if (progressBar30) progressBar30.style.width = `${percentage30}%`;
+                    if (progressBar182) progressBar182.style.width = `${percentage182}%`;
+                    if (progressBar365) progressBar365.style.width = `${percentage365}%`;
+                    
+                    // Atualizar textos
+                    if (progressText7) progressText7.textContent = `${streak7}/7`;
+                    if (progressText30) progressText30.textContent = `${streak30}/30`;
+                    if (progressText182) progressText182.textContent = `${streak182}/182`;
+                    if (progressText365) progressText365.textContent = `${streak365}/365`;
+                    
+                    console.log('✅ Barras de progresso do streak atualizadas:', {
+                        streak7, streak30, streak182, streak365,
+                        percentage7: `${percentage7.toFixed(1)}%`,
+                        percentage30: `${percentage30.toFixed(1)}%`,
+                        percentage182: `${percentage182.toFixed(1)}%`,
+                        percentage365: `${percentage365.toFixed(1)}%`
+                    });
+                    
+                } catch (streakError) {
+                    console.error('❌ Erro ao calcular streak:', streakError);
+                    
+                    // Fallback: zerar todos os streaks em caso de erro
+                    const progressElements = ['7', '30', '182', '365'];
+                    progressElements.forEach(period => {
+                        const progressBar = document.getElementById(`engagementStreakProgress${period}`);
+                        const progressText = document.getElementById(`engagementStreakText${period}`);
+                        
+                        if (progressBar) progressBar.style.width = '0%';
+                        if (progressText) progressText.textContent = `0/${period}`;
+                    });
+                }
 
                 console.log('✅ Métricas reais atualizadas:', {
                     pessoas: uniquePeople.size,
