@@ -1602,7 +1602,11 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="userCommentsGiven">0</div>
-                    <div class="stat-label">Comentários e Feedbacks</div>
+                    <div class="stat-label">Comentários Escritos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="userFeedbacksGiven">0</div>
+                    <div class="stat-label">Feedbacks Dados</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="userReactionsGiven">0</div>
@@ -5044,10 +5048,10 @@
                 
                 document.getElementById('userPeopleHighlighted').textContent = uniquePeople.size;
 
-                // 2. Comentários e Feedbacks (consultas reais)
+                // 2. Comentários, Feedbacks e Reações (consultas separadas)
                 const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
                     supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id), // Corrigido: usar mentioned_user_id
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id),
                     supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
                 ]);
 
@@ -5057,15 +5061,14 @@
                     reactions: reactionsResult.count
                 });
 
-                const totalCommentsAndFeedbacks = (commentsResult.count || 0) + (feedbacksResult.count || 0);
-                document.getElementById('userCommentsGiven').textContent = totalCommentsAndFeedbacks;
+                const commentsCount = commentsResult.count || 0;
+                const feedbacksCount = feedbacksResult.count || 0;
+                const reactionsCount = reactionsResult.count || 0;
 
-                // 3. Reações Dadas (consulta real)
-                document.getElementById('userReactionsGiven').textContent = reactionsResult.count || 0;
-
-                // 4. Streak de Engajamento (baseado em dias consecutivos reais)
-                console.log('📊 Calculando streak de engajamento...');
-                
+                // Atualizar elementos separadamente
+                document.getElementById('userCommentsGiven').textContent = commentsCount;
+                document.getElementById('userFeedbacksGiven').textContent = feedbacksCount;
+                document.getElementById('userReactionsGiven').textContent = reactionsCount;             
                 try {
                     // Buscar todas as atividades do usuário
                     const [postsData, commentsData, feedbacksData, reactionsData] = await Promise.all([
