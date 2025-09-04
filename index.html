@@ -2605,6 +2605,9 @@
                 // Recarregar feedbacks no modal
                 loadPostFeedbacks(postId, 'holofotes_recebidos');
                 
+                // Atualizar contador de feedbacks
+                updateFeedbackCounter(postId);
+                
                 // Atualizar métricas do usuário
                 updateSimpleMetrics();
                 
@@ -3281,6 +3284,48 @@
             } catch (error) {
                 console.error('❌ Erro crítico ao seguir/desseguir:', error);
                 alert('Erro ao seguir/desseguir usuário. Tente novamente.');
+            }
+        }
+
+        // Função para atualizar contador de feedbacks de um post específico
+        async function updateFeedbackCounter(postId) {
+            try {
+                // Buscar número atual de feedbacks
+                const { data: feedbacks, error } = await supabase
+                    .from('feedbacks')
+                    .select('id')
+                    .eq('post_id', postId);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar feedbacks:', error);
+                    return;
+                }
+                
+                const feedbackCount = feedbacks ? feedbacks.length : 0;
+                console.log(`📊 Atualizando contador de feedbacks do post ${postId}: ${feedbackCount}`);
+                
+                // Atualizar TODOS os elementos de feedback deste post
+                const allFeedbackElements = document.querySelectorAll(`[onclick*="openPostFeedbackModal('${postId}'"]`);
+                
+                allFeedbackElements.forEach((element, index) => {
+                    if (element.innerHTML.includes('🔄')) {
+                        element.innerHTML = `🔄 ${feedbackCount}`;
+                        
+                        // Atualizar estilo baseado no número de feedbacks
+                        if (feedbackCount > 0) {
+                            element.style.background = 'linear-gradient(135deg, #e55a2b, #ffb700)';
+                            element.style.color = 'white';
+                        } else {
+                            element.style.background = '#f5f5f5';
+                            element.style.color = '#666';
+                        }
+                        
+                        console.log(`✅ Contador de feedback ${index + 1} atualizado para post ${postId}: ${feedbackCount}`);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar contador de feedbacks:', error);
             }
         }
 
@@ -4726,21 +4771,15 @@
                         console.log('✅ Mensagem "primeiro a comentar" removida');
                     }
                     
-                    // Recarregar todos os comentários para evitar sobreposição
-                    setTimeout(async () => {
-                        try {
-                            const updatedComments = await loadCommentsForPost(postId);
-                            
-                            // Atualizar contador de comentários no post
-                            updateCommentCounter(postId);
-                            
-                            // Atualizar métricas do usuário
-                            updateSimpleMetrics();
-                            
-                        } catch (reloadError) {
-                            console.warn('⚠️ Erro ao recarregar comentários:', reloadError.message);
-                        }
-                    }, 500);
+                    // Adicionar o novo comentário no topo IMEDIATAMENTE
+                    commentsContainer.insertAdjacentHTML('afterbegin', newCommentHtml);
+                    console.log('✅ Comentário adicionado imediatamente no topo do modal');
+                    
+                    // Atualizar contador de comentários no post
+                    updateCommentCounter(postId);
+                    
+                    // Atualizar métricas do usuário
+                    updateSimpleMetrics();
                 }
                 
                 // Limpar textarea
