@@ -5318,7 +5318,11 @@
                 // Atualizar elementos separadamente
                 document.getElementById('userCommentsGiven').textContent = commentsCount;
                 document.getElementById('userFeedbacksGiven').textContent = feedbacksCount;
-                document.getElementById('userReactionsGiven').textContent = reactionsCount;             
+                document.getElementById('userReactionsGiven').textContent = reactionsCount;
+                
+                // Declarar currentStreak no escopo correto
+                let currentStreak = 0;
+                
                 try {
                     // Buscar todas as atividades do usuário
                     const [postsData, commentsData, feedbacksData, reactionsData] = await Promise.all([
@@ -5350,7 +5354,7 @@
                     
                     // Calcular streak consecutivo a partir de hoje
                     const today = new Date().toISOString().split('T')[0];
-                    let currentStreak = 0;
+                    currentStreak = 0; // Reset para recalcular
                     let checkDate = new Date();
                     
                     // Verificar dias consecutivos a partir de hoje
