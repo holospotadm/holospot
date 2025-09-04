@@ -5758,7 +5758,7 @@
                 // Buscar métricas de reconhecimento DADO
                 const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
                     supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('user_id', currentUser.id), // Corrigido: usar user_id para feedbacks dados
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id), // Feedbacks Dados: fui mencionado, vou dar feedback
                     supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
                 ]);
 
@@ -5785,7 +5785,7 @@
                     const [postsData, commentsData, feedbacksData, reactionsData] = await Promise.all([
                         supabase.from('posts').select('created_at').eq('user_id', currentUser.id),
                         supabase.from('comments').select('created_at').eq('user_id', currentUser.id),
-                        supabase.from('feedbacks').select('created_at').eq('user_id', currentUser.id), // Corrigido: usar user_id para feedbacks dados
+                        supabase.from('feedbacks').select('created_at').eq('mentioned_user_id', currentUser.id), // Feedbacks dados: fui mencionado
                         supabase.from('reactions').select('created_at').eq('user_id', currentUser.id)
                     ]);
                     
