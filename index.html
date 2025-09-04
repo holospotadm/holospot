@@ -3457,7 +3457,7 @@
                             // Usuário já reagiu - usar gradiente dourado/roxo
                             button.style.background = 'linear-gradient(135deg, #FFB700, #9C27B0)';
                             button.style.color = 'white';
-                            button.style.border = '1px solid #FFB700';
+                            button.style.border = 'none';
                             
                             // Remover eventos de hover para manter o estilo
                             button.onmouseover = null;
@@ -3466,7 +3466,7 @@
                             // Usuário não reagiu - usar estilo padrão com hover
                             button.style.background = '#f5f5f5';
                             button.style.color = '#666';
-                            button.style.border = '1px solid #ddd';
+                            button.style.border = 'none';
                             
                             // Adicionar eventos de hover apenas quando não reagiu
                             if (reactionType === 'touched') {
@@ -6197,7 +6197,7 @@
     <div id="holofotesRecebidosModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
         <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2><img src="holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
+                <h2><img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
