@@ -869,9 +869,12 @@
             }
         }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        /* Hover effect only for clickable stat cards */
+        #postsCreatedCard:hover,
+        #peopleHighlightedCard:hover,
+        #postsReceivedCard:hover,
+        #peopleWhoHighlightedCard:hover {
+            /* Hover effects are now handled by inline styles for better control */
         }
 
         .stat-number {
