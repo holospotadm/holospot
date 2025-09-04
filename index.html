@@ -1819,36 +1819,6 @@
         </div>
     </div>
 
-    <!-- Modal de Posts Criados -->
-    <div id="postsModal" class="modal-overlay" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>📝 Seus Posts</h2>
-                <button class="close-btn" onclick="closePostsModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="modalPostsContent" style="max-height: 400px; overflow-y: auto;">
-                    <!-- Posts serão carregados aqui -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Pessoas Destacadas -->
-    <div id="peopleHighlightedModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>👥 Pessoas Destacadas</h2>
-                <button class="close-btn" onclick="closePeopleHighlightedModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="modalPeopleHighlightedContent" style="max-height: 400px; overflow-y: auto;">
-                    <!-- Pessoas destacadas serão carregadas aqui -->
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
@@ -6297,8 +6267,38 @@
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="modalPessoasQueTeDestacaramContent">
+                <div id="modalPessoasQueTeDestacaramContent" style="max-height: 400px; overflow-y: auto;">
                     <p style="text-align: center; color: #666;">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Posts Criados -->
+    <div id="postsModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>📝 Seus Posts</h2>
+                <button class="close-btn" onclick="closePostsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPostsContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Posts serão carregados aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Pessoas Destacadas -->
+    <div id="peopleHighlightedModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>👥 Pessoas Destacadas</h2>
+                <button class="close-btn" onclick="closePeopleHighlightedModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPeopleHighlightedContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Pessoas destacadas serão carregadas aqui -->
                 </div>
             </div>
         </div>
