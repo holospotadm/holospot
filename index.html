@@ -2591,10 +2591,10 @@
                 }
 
                 console.log('📊 Feedbacks encontrados:', feedbacks);
-                console.log('🔍 Author IDs dos feedbacks:', feedbacks.map(f => f.author_id));
+                console.log('🔍 Mentioned User IDs dos feedbacks:', feedbacks.map(f => f.mentioned_user_id));
 
                 // Buscar dados dos usuários que deram feedback
-                const userIds = [...new Set(feedbacks.map(f => f.author_id).filter(Boolean))];
+                const userIds = [...new Set(feedbacks.map(f => f.mentioned_user_id).filter(Boolean))];
                 console.log('👥 User IDs para buscar:', userIds);
                 
                 let users = [];
@@ -2622,8 +2622,8 @@
 
                 const feedbacksHtml = feedbacks.map(feedback => {
                     // Encontrar dados do usuário que deu o feedback
-                    const user = users.find(u => u.id === feedback.author_id);
-                    console.log(`🔍 Feedback de ${feedback.author_id}:`, user);
+                    const user = users.find(u => u.id === feedback.mentioned_user_id);
+                    console.log(`🔍 Feedback de ${feedback.mentioned_user_id}:`, user);
                     
                     // Se não encontrou o usuário e é o próprio currentUser, usar dados dele
                     let userName, userEmail, username;
@@ -2632,7 +2632,7 @@
                         userName = user.name || 'Usuário';
                         userEmail = user.email;
                         username = userEmail?.split('@')[0] || 'usuario';
-                    } else if (feedback.author_id === currentUser.id) {
+                    } else if (feedback.mentioned_user_id === currentUser.id) {
                         // É o próprio usuário logado
                         userName = currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Você';
                         userEmail = currentUser.email;
