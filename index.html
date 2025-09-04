@@ -2436,13 +2436,13 @@
                             </div>
                             
                             <div class="post-reactions">
-                                <button onclick="reactToPost('${post.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease; opacity: 0.6;" disabled>
                                     ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease; opacity: 0.6;" disabled>
                                     🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease; opacity: 0.6;" disabled>
                                     ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                                 </button>
                             </div>
@@ -2451,7 +2451,7 @@
                                 <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
                                     💬 ${commentsCount}
                                 </span>
-                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #e55a2b, #ffb700); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
+                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #e55a2b, #ffb700); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: not-allowed; font-size: 14px; font-weight: 600; transition: all 0.2s ease; opacity: 0.6;"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
                             </div>
@@ -5590,13 +5590,13 @@
                             </div>
                             
                             <div class="post-reactions">
-                                <button onclick="reactToPost('${post.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button onclick="reactToPost('${post.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button onclick="reactToPost('${post.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button onclick="reactToPost('${post.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
                                 </button>
                             </div>
@@ -6197,7 +6197,7 @@
     <div id="holofotesRecebidosModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
         <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2>📨 Holofotes Recebidos</h2>
+                <h2><img src="holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
