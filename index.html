@@ -2110,6 +2110,15 @@
             });
             document.getElementById(`${tabName}Tab`).classList.add('active');
             
+            // Reconfigurar event listeners quando mudar para aba perfil
+            if (tabName === 'perfil') {
+                // Aguardar um pequeno delay para garantir que o DOM esteja pronto
+                setTimeout(() => {
+                    setupStatCardListeners();
+                    console.log('🔄 Event listeners dos cards reconfigurados na aba perfil');
+                }, 100);
+            }
+            
             console.log('📱 Aba alterada para:', tabName);
         }
 
@@ -5365,11 +5374,16 @@
 
         // ===== EVENT LISTENERS ROBUSTOS PARA CARDS DE ESTATÍSTICAS =====
         function setupStatCardListeners() {
+            console.log('🔧 Configurando event listeners dos cards de estatísticas...');
+            
             // Posts Criados
             const postsCreatedCard = document.getElementById('postsCreatedCard');
             if (postsCreatedCard) {
                 postsCreatedCard.removeEventListener('click', openPostsModal); // Remove listener anterior se existir
                 postsCreatedCard.addEventListener('click', openPostsModal);
+                console.log('✅ Event listener configurado para Posts Criados');
+            } else {
+                console.warn('⚠️ Elemento postsCreatedCard não encontrado');
             }
             
             // Pessoas Destacadas
@@ -5377,6 +5391,9 @@
             if (peopleHighlightedCard) {
                 peopleHighlightedCard.removeEventListener('click', openPeopleHighlightedModal); // Remove listener anterior se existir
                 peopleHighlightedCard.addEventListener('click', openPeopleHighlightedModal);
+                console.log('✅ Event listener configurado para Pessoas Destacadas');
+            } else {
+                console.warn('⚠️ Elemento peopleHighlightedCard não encontrado');
             }
             
             // Holofotes Recebidos
@@ -5384,6 +5401,9 @@
             if (postsReceivedCard) {
                 postsReceivedCard.removeEventListener('click', openHolofotesRecebidosModal); // Remove listener anterior se existir
                 postsReceivedCard.addEventListener('click', openHolofotesRecebidosModal);
+                console.log('✅ Event listener configurado para Holofotes Recebidos');
+            } else {
+                console.warn('⚠️ Elemento postsReceivedCard não encontrado');
             }
             
             // Pessoas que te Destacaram
@@ -5391,6 +5411,9 @@
             if (peopleWhoHighlightedCard) {
                 peopleWhoHighlightedCard.removeEventListener('click', openPessoasQueTeDestacaramModal); // Remove listener anterior se existir
                 peopleWhoHighlightedCard.addEventListener('click', openPessoasQueTeDestacaramModal);
+                console.log('✅ Event listener configurado para Pessoas que te Destacaram');
+            } else {
+                console.warn('⚠️ Elemento peopleWhoHighlightedCard não encontrado');
             }
             
             console.log('✅ Event listeners dos cards de estatísticas configurados');
