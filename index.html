@@ -5766,12 +5766,23 @@
             try {
                 console.log('📊 Atualizando métricas reais...');
 
-                // 1. Pessoas Destacadas (contar corretamente com regex melhorada)
-                const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                // 1. Buscar posts do usuário diretamente do Supabase (mesma lógica do modal)
+                const { data: userPosts, error: postsError } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+                
+                if (postsError) {
+                    console.error('❌ Erro ao buscar posts do usuário:', postsError);
+                    return;
+                }
+                
+                console.log('📊 Posts do usuário encontrados para métricas:', userPosts?.length || 0);
                 
                 // Atualizar contador de Posts Criados
-                document.getElementById('userPostsCount').textContent = userPosts.length;
+                document.getElementById('userPostsCount').textContent = userPosts?.length || 0;
                 
+                // 2. Pessoas Destacadas (contar corretamente com regex melhorada)
                 const uniquePeople = new Set();
                 
                 userPosts.forEach(post => {
