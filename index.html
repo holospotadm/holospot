@@ -1662,41 +1662,6 @@
                 </div>
             </div>
 
-            <!-- Dashboard de Comparação Estratégica -->
-            <div style="margin-top: 2rem;">
-                <h3 style="color: #333; margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">⚖️ Seu Perfil de Impacto - DADO vs RECEBIDO</h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="userBalanceIndex">0%</div>
-                        <div class="stat-label">Equilíbrio</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="userEngagementProfile">-</div>
-                        <div class="stat-label">Perfil</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="userReturnRate">0%</div>
-                        <div class="stat-label">Retorno</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="userGrowthPotential">-</div>
-                        <div class="stat-label">Crescimento</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="userMutualInfluence">-</div>
-                        <div class="stat-label">Influência</div>
-                    </div>
-                </div>
-                
-                <!-- Insights Personalizados -->
-                <div style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border-left: 4px solid #FFB700;">
-                    <h4 style="margin: 0 0 0.5rem 0; color: #333; font-size: 1rem;">💡 Insights Personalizados:</h4>
-                    <div id="personalizedInsights" style="color: #666; font-size: 0.9rem; line-height: 1.4;">
-                        <p>Analisando seu perfil de impacto...</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Streak de Engajamento -->
             <div class="evolution-chart">
                 <h3 class="chart-title">🔥 Streak de Engajamento</h3>
@@ -3357,7 +3322,7 @@
                         setTimeout(() => {
                             updateSimpleMetrics();
                             updateReceivedMetrics();
-                            updateStrategicMetrics();
+                            
                             console.log('✅ Métricas do perfil atualizadas após reação');
                         }, 500);
                     }
@@ -3504,7 +3469,7 @@
                         if (typeof updateSimpleMetrics === 'function') {
                             updateSimpleMetrics();
                             updateReceivedMetrics();
-                            updateStrategicMetrics();
+                            
                             console.log('✅ Métricas do perfil atualizadas após feedback (imediato)');
                         }
                     }, 100);
@@ -3850,7 +3815,7 @@
                     setTimeout(() => {
                         updateSimpleMetrics();
                         updateReceivedMetrics();
-                        updateStrategicMetrics();
+                        
                         console.log('✅ Métricas do perfil atualizadas após criação de post');
                     }, 500);
                 }
@@ -4057,7 +4022,7 @@
             // Update simple metrics
             updateSimpleMetrics();
             updateReceivedMetrics();
-            updateStrategicMetrics();
+            
         }
 
         function updateProgressBars(postsCount, reactionsCount) {
@@ -4698,7 +4663,7 @@
                     if (typeof updateSimpleMetrics === 'function') {
                         updateSimpleMetrics();
                         updateReceivedMetrics();
-                        updateStrategicMetrics();
+                        
                         console.log('✅ Métricas do perfil atualizadas após comentário');
                     }
                 }, 500);
@@ -5591,170 +5556,6 @@
 
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas recebidas:', error);
-                // Em caso de erro, manter valores existentes
-            }
-        }
-
-        // Atualizar métricas estratégicas de comparação
-        async function updateStrategicMetrics() {
-            try {
-                console.log('⚖️ Atualizando métricas estratégicas...');
-
-                // Obter valores das métricas já calculadas
-                const postsGiven = parseInt(document.getElementById('userPostsCount').textContent) || 0;
-                const peopleHighlighted = parseInt(document.getElementById('userPeopleHighlighted').textContent) || 0;
-                const feedbacksGiven = parseInt(document.getElementById('userFeedbacksGiven').textContent) || 0;
-                const commentsGiven = parseInt(document.getElementById('userCommentsGiven').textContent) || 0;
-                const reactionsGiven = parseInt(document.getElementById('userReactionsGiven').textContent) || 0;
-
-                const postsReceived = parseInt(document.getElementById('userPostsReceived').textContent) || 0;
-                const reactionsReceived = parseInt(document.getElementById('userReactionsReceived').textContent) || 0;
-                const commentsReceived = parseInt(document.getElementById('userCommentsReceived').textContent) || 0;
-                const feedbacksReceived = parseInt(document.getElementById('userFeedbacksReceived').textContent) || 0;
-
-                // 1. Índice de Equilíbrio
-                const totalGiven = postsGiven + feedbacksGiven + commentsGiven + reactionsGiven;
-                const totalReceived = postsReceived + reactionsReceived + commentsReceived + feedbacksReceived;
-                
-                let balanceIndex = 0;
-                if (totalReceived > 0) {
-                    balanceIndex = Math.round((totalGiven / totalReceived) * 100);
-                }
-                document.getElementById('userBalanceIndex').textContent = `${balanceIndex}%`;
-
-                // 2. Perfil de Engajamento
-                let engagementProfile = "Crescendo";
-                if (totalGiven > totalReceived * 1.2) {
-                    engagementProfile = "Destacador";
-                } else if (totalReceived > totalGiven * 1.2) {
-                    engagementProfile = "Magnético";
-                } else if (totalGiven > 0 && totalReceived > 0) {
-                    engagementProfile = "Equilibrado";
-                }
-                document.getElementById('userEngagementProfile').textContent = engagementProfile;
-
-                // 3. Taxa de Retorno - % de pessoas que retribuem reconhecimento
-                let returnRate = 0;
-                if (peopleHighlighted > 0) {
-                    // Calcular quantas pessoas que você destacou também te destacaram
-                    const userPosts = posts.filter(post => post.user_id === currentUser.id);
-                    const peopleYouHighlighted = new Set();
-                    
-                    userPosts.forEach(post => {
-                        const personName = post.celebrated_person_name || post.person_name;
-                        if (personName && personName.includes('@')) {
-                            const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                            if (usernameMatch) {
-                                usernameMatch.forEach(match => {
-                                    const username = match.substring(1);
-                                    if (username) {
-                                        peopleYouHighlighted.add(username);
-                                    }
-                                });
-                            }
-                        }
-                    });
-
-                    const postsAboutYou = posts.filter(post => {
-                        const personName = post.celebrated_person_name || post.person_name;
-                        if (personName && personName.includes('@')) {
-                            const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                            if (usernameMatch) {
-                                return usernameMatch.some(match => {
-                                    const username = match.substring(1);
-                                    return username === currentUser.username;
-                                });
-                            }
-                        }
-                        return false;
-                    });
-
-                    const peopleWhoHighlightedYou = new Set();
-                    postsAboutYou.forEach(post => {
-                        // Aqui precisaríamos do username do autor do post
-                        // Por simplicidade, vamos usar uma estimativa baseada nos posts recebidos
-                    });
-
-                    // Estimativa simplificada baseada na proporção
-                    if (peopleYouHighlighted.size > 0) {
-                        returnRate = Math.round((postsReceived / peopleYouHighlighted.size) * 100);
-                        returnRate = Math.min(returnRate, 100); // Cap at 100%
-                    }
-                }
-                document.getElementById('userReturnRate').textContent = `${returnRate}%`;
-
-                // 4. Potencial de Crescimento
-                let growthPotential = "Iniciante";
-                const totalActivity = totalGiven + totalReceived;
-                if (totalActivity >= 100) {
-                    growthPotential = "Avançado";
-                } else if (totalActivity >= 50) {
-                    growthPotential = "Intermediário";
-                } else if (totalActivity >= 20) {
-                    growthPotential = "Ativo";
-                }
-                
-                // Sugestões baseadas no que está mais baixo
-                if (totalReceived < totalGiven * 0.5) {
-                    growthPotential += " (Receber +)";
-                } else if (totalGiven < totalReceived * 0.5) {
-                    growthPotential += " (Dar +)";
-                }
-                document.getElementById('userGrowthPotential').textContent = growthPotential;
-
-                // 5. Índice de Influência Mútua
-                let mutualInfluence = "Básico";
-                const mutualScore = (returnRate / 100) * (balanceIndex / 100) * totalActivity;
-                if (mutualScore >= 50) {
-                    mutualInfluence = "Liderança";
-                } else if (mutualScore >= 25) {
-                    mutualInfluence = "Sólida";
-                } else if (mutualScore >= 10) {
-                    mutualInfluence = "Crescente";
-                }
-                document.getElementById('userMutualInfluence').textContent = mutualInfluence;
-
-                // 6. Insights Personalizados
-                const insights = [];
-                
-                if (balanceIndex > 120) {
-                    insights.push("• Você é generoso! Destaca mais do que recebe");
-                } else if (balanceIndex < 80) {
-                    insights.push("• Você é popular! Recebe mais reconhecimento do que dá");
-                } else {
-                    insights.push("• Você tem um perfil equilibrado entre dar e receber");
-                }
-
-                if (engagementProfile === "Destacador") {
-                    insights.push("• Força: Excelente em reconhecer outras pessoas");
-                } else if (engagementProfile === "Magnético") {
-                    insights.push("• Força: Seus posts geram muito engajamento");
-                }
-
-                if (returnRate < 30) {
-                    insights.push("• Oportunidade: Tente interagir mais com quem você destaca");
-                } else if (returnRate > 70) {
-                    insights.push("• Força: Excelente em criar relacionamentos mútuos");
-                }
-
-                if (totalActivity < 10) {
-                    insights.push("• Dica: Seja mais ativo para aumentar seu impacto na comunidade");
-                }
-
-                document.getElementById('personalizedInsights').innerHTML = insights.join('<br>');
-
-                console.log('✅ Métricas estratégicas atualizadas:', {
-                    balanceIndex: `${balanceIndex}%`,
-                    engagementProfile,
-                    returnRate: `${returnRate}%`,
-                    growthPotential,
-                    mutualInfluence,
-                    totalGiven,
-                    totalReceived
-                });
-
-            } catch (error) {
-                console.error('❌ Erro ao atualizar métricas estratégicas:', error);
                 // Em caso de erro, manter valores existentes
             }
         }
