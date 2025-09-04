@@ -5768,6 +5768,10 @@
 
                 // 1. Pessoas Destacadas (contar corretamente com regex melhorada)
                 const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                
+                // Atualizar contador de Posts Criados
+                document.getElementById('userPostsCount').textContent = userPosts.length;
+                
                 const uniquePeople = new Set();
                 
                 userPosts.forEach(post => {
