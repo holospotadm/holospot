@@ -2389,8 +2389,7 @@
                         const { data: feedbacksData } = await supabase
                             .from('feedbacks')
                             .select('id')
-                            .eq('post_id', post.id)
-                            .eq('author_id', currentUser.id);
+                            .eq('post_id', post.id);
                         feedbacksCount = feedbacksData ? feedbacksData.length : 0;
                     } catch (error) {
                         console.log('Erro ao contar feedbacks:', error);
@@ -5198,7 +5197,7 @@
                     try {
                         const { data: authorsData, error: authorsError } = await supabase
                             .from('profiles')
-                            .select('id, name, avatar_url')
+                            .select('id, name, email, avatar_url')
                             .filter('id', 'in', `(${authorIds.join(',')})`);
                         
                         if (authorsError) {
@@ -5254,8 +5253,7 @@
                         const { data: feedbacksData } = await supabase
                             .from('feedbacks')
                             .select('id')
-                            .eq('post_id', post.id)
-                            .eq('author_id', currentUser.id);
+                            .eq('post_id', post.id);
                         feedbacksCount = feedbacksData ? feedbacksData.length : 0;
                     } catch (error) {
                         console.log('Erro ao contar feedbacks:', error);
@@ -5282,7 +5280,7 @@
                                 <div class="post-author">
                                     <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
                                     <div class="post-author-meta">
-                                        <span class="post-author-username">@${author.id || 'usuario'}</span>
+                                        <span class="post-author-username">@${author.email?.split('@')[0] || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
                                         <span class="post-time">${formatDateShort(post.created_at)}</span>
                                     </div>
