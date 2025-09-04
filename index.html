@@ -4741,64 +4741,7 @@
                             updateSimpleMetrics();
                             
                         } catch (reloadError) {
-                            
-                            // Buscar dados dos usuários novamente
-                            const userIds = [...new Set(updatedComments.map(c => c.user_id))];
-                            let updatedUsersData = {};
-                            
-                            try {
-                                const usersQuery = supabase
-                                    .from('profiles')
-                                    .select('id, name, email, avatar_url')
-                                    .in('id', userIds);
-                                
-                                const { data: users, error } = await withTimeout(usersQuery, 5000);
-                                
-                                if (users) {
-                                    users.forEach(user => {
-                                        updatedUsersData[user.id] = user;
-                                    });
-                                }
-                            } catch (error) {
-                                console.warn('⚠️ Erro ao carregar dados dos usuários:', error.message);
-                            }
-                            
-                            // Recriar HTML com todos os comentários
-                            const updatedCommentsHtml = updatedComments.length > 0 ? updatedComments.map(comment => {
-                                const user = updatedUsersData[comment.user_id] || {};
-                                const userName = user.name || 'Usuário';
-                                const userEmail = user.email || '';
-                                const username = userEmail ? userEmail.split('@')[0] : 'usuario';
-                                
-                                return `
-                                    <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
-                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                            <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                                💬 ${userName} (@${username})
-                                            </div>
-                                            <div style="color: #999; font-size: 11px; margin-left: 10px;">
-                                                ${formatDateShort(comment.created_at)}
-                                            </div>
-                                        </div>
-                                        <div style="color: #0d47a1; line-height: 1.4; font-size: 14px;">
-                                            ${comment.content || comment.text || comment.message}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('') : '<div style="text-align: center; color: #666; padding: 20px; font-style: italic;">Seja o primeiro a comentar!</div>';
-                            
-                            // Atualizar container com todos os comentários
-                            commentsContainer.innerHTML = updatedCommentsHtml;
-                            
-                            // Atualizar contador no título
-                            const titleElement = commentsContainer.parentElement.querySelector('h3');
-                            if (titleElement) {
-                                titleElement.textContent = `💬 Comentários (${updatedComments.length})`;
-                                titleElement.style.color = 'white';
-                            }
-                            
-                        } catch (error) {
-                            console.warn('⚠️ Erro ao recarregar comentários:', error.message);
+                            console.warn('⚠️ Erro ao recarregar comentários:', reloadError.message);
                         }
                     }, 500);
                 }
