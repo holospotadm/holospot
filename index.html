@@ -2568,12 +2568,11 @@
             try {
                 console.log('📬 Carregando feedbacks para post:', postId);
                 
-                // Buscar feedbacks sem relacionamento
+                // Buscar todos os feedbacks do post (não filtrar por author_id)
                 const { data: feedbacks, error } = await supabase
                     .from('feedbacks')
                     .select('*')
                     .eq('post_id', postId)
-                    .eq('author_id', currentUser.id)
                     .order('created_at', { ascending: false });
                 
                 if (error) throw error;
@@ -2594,7 +2593,7 @@
                 console.log('📊 Feedbacks encontrados:', feedbacks);
 
                 // Buscar dados dos usuários que deram feedback
-                const userIds = [...new Set(feedbacks.map(f => f.mentioned_user_id).filter(Boolean))];
+                const userIds = [...new Set(feedbacks.map(f => f.author_id).filter(Boolean))];
                 console.log('👥 User IDs para buscar:', userIds);
                 
                 let users = [];
@@ -2605,7 +2604,7 @@
                         const { data: profilesData, error: profilesError } = await supabase
                             .from('profiles')
                             .select('id, name, email')
-                            .in('id', userIds);
+                            .filter('id', 'in', `(${userIds.join(',')})`);
                         
                         if (!profilesError && profilesData) {
                             users = profilesData;
@@ -2621,9 +2620,9 @@
                 console.log('👥 Usuários finais encontrados:', users);
 
                 const feedbacksHtml = feedbacks.map(feedback => {
-                    // Encontrar dados do usuário
-                    const user = users.find(u => u.id === feedback.mentioned_user_id);
-                    console.log(`🔍 Feedback de ${feedback.mentioned_user_id}:`, user);
+                    // Encontrar dados do usuário que deu o feedback
+                    const user = users.find(u => u.id === feedback.author_id);
+                    console.log(`🔍 Feedback de ${feedback.author_id}:`, user);
                     
                     // Se não encontrou o usuário e é o próprio currentUser, usar dados dele
                     let userName, userEmail, username;
@@ -2632,7 +2631,7 @@
                         userName = user.name || 'Usuário';
                         userEmail = user.email;
                         username = userEmail?.split('@')[0] || 'usuario';
-                    } else if (feedback.mentioned_user_id === currentUser.id) {
+                    } else if (feedback.author_id === currentUser.id) {
                         // É o próprio usuário logado
                         userName = currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Você';
                         userEmail = currentUser.email;
