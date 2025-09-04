@@ -2316,10 +2316,21 @@
 
         // Funções do Modal de Posts
         function openPostsModal() {
+            console.log('🔍 Tentando abrir modal de posts...');
+            console.log('Current user:', currentUser);
+            
+            if (!currentUser || !currentUser.id) {
+                console.error('❌ currentUser não está definido ou não tem ID');
+                alert('Erro: Usuário não identificado. Tente fazer login novamente.');
+                return;
+            }
+            
             const modal = document.getElementById('postsModal');
             if (modal) {
                 modal.style.display = 'flex';
                 loadPostsInModal();
+            } else {
+                console.error('❌ Modal postsModal não encontrado');
             }
         }
 
@@ -2339,6 +2350,11 @@
             try {
                 console.log('📝 Carregando posts no modal...');
                 
+                if (!currentUser || !currentUser.id) {
+                    console.error('❌ currentUser não está definido em loadPostsInModal');
+                    throw new Error('Usuário não identificado');
+                }
+                
                 // Recarregar posts do usuário atual para evitar problemas de cache
                 const { data: userPosts, error } = await supabase
                     .from('posts')
@@ -2354,6 +2370,11 @@
                 console.log('📊 Posts do usuário encontrados:', userPosts?.length || 0);
                 
                 const postsContainer = document.getElementById('modalPostsContent');
+                
+                if (!postsContainer) {
+                    console.error('❌ Container modalPostsContent não encontrado');
+                    throw new Error('Container do modal não encontrado');
+                }
                 
                 if (!userPosts || userPosts.length === 0) {
                     postsContainer.innerHTML = `
@@ -5170,10 +5191,21 @@
         
         // Modal de Pessoas Destacadas
         function openPeopleHighlightedModal() {
+            console.log('🔍 Tentando abrir modal de pessoas destacadas...');
+            console.log('Current user:', currentUser);
+            
+            if (!currentUser || !currentUser.id) {
+                console.error('❌ currentUser não está definido ou não tem ID');
+                alert('Erro: Usuário não identificado. Tente fazer login novamente.');
+                return;
+            }
+            
             const modal = document.getElementById('peopleHighlightedModal');
             if (modal) {
                 modal.style.display = 'flex';
                 loadPeopleHighlightedInModal();
+            } else {
+                console.error('❌ Modal peopleHighlightedModal não encontrado');
             }
         }
 
@@ -5187,6 +5219,16 @@
         async function loadPeopleHighlightedInModal() {
             try {
                 console.log('👥 Carregando pessoas destacadas no modal...');
+                
+                if (!currentUser || !currentUser.id) {
+                    console.error('❌ currentUser não está definido em loadPeopleHighlightedInModal');
+                    throw new Error('Usuário não identificado');
+                }
+                
+                if (!posts || !Array.isArray(posts)) {
+                    console.error('❌ Array posts não está definido ou não é um array');
+                    throw new Error('Dados de posts não disponíveis');
+                }
                 
                 const userPosts = posts.filter(post => post.user_id === currentUser.id);
                 const peopleHighlighted = new Set();
