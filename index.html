@@ -869,12 +869,18 @@
             }
         }
 
-        /* Simple solid borders for clickable stat cards */
+        /* Gradient borders for clickable stat cards */
         #postsCreatedCard,
         #peopleHighlightedCard,
         #postsReceivedCard,
         #peopleWhoHighlightedCard {
-            border: 2px solid #E55A2B !important;
+            border: 2px solid transparent !important;
+            background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box !important;
+        }
+
+        #postsReceivedCard,
+        #peopleWhoHighlightedCard {
+            background: linear-gradient(#f8f9fa, #f8f9fa) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box !important;
         }
 
         /* Hover effect only for clickable stat cards */
