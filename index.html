@@ -5549,7 +5549,7 @@
                 console.log('✅ Holofotes recebidos carregados no modal');
                 
                 // Renderizar estado inicial das reações para cada post
-                for (const post of postsAboutUser) {
+                for (const post of userPosts) {
                     await updateModalReactions(post.id);
                 }
                 
