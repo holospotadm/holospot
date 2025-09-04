@@ -5192,10 +5192,24 @@
 
                 // Buscar dados dos autores dos posts
                 const authorIds = [...new Set(userPosts.map(post => post.user_id))];
-                const { data: authors } = await supabase
-                    .from('profiles')
-                    .select('id, name, username, avatar_url')
-                    .in('id', authorIds);
+                let authors = [];
+                
+                if (authorIds.length > 0) {
+                    try {
+                        const { data: authorsData, error: authorsError } = await supabase
+                            .from('profiles')
+                            .select('id, name, username, avatar_url')
+                            .filter('id', 'in', `(${authorIds.join(',')})`);
+                        
+                        if (authorsError) {
+                            console.error('❌ Erro ao buscar autores:', authorsError);
+                        } else {
+                            authors = authorsData || [];
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro na query de autores:', error);
+                    }
+                }
 
                 const authorMap = {};
                 authors?.forEach(author => {
