@@ -1633,33 +1633,6 @@
                     <div class="stat-number" id="userReactionsGiven">0</div>
                     <div class="stat-label">Reações Dadas</div>
                 </div>
-
-                <!-- MÉTRICAS RECEBIDAS - Segunda linha -->
-                <!-- Holofotes Recebidos (abaixo de Posts Criados) -->
-                <div class="stat-card" id="postsReceivedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openHolofotesRecebidosModal()">
-                    <div class="stat-number" id="userHolofotesReceived">0</div>
-                    <div class="stat-label">Holofotes Recebidos</div>
-                </div>
-                <!-- Pessoas que te Destacaram (abaixo de Pessoas Destacadas) -->
-                <div class="stat-card" id="peopleWhoHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openPessoasQueTeDestacaramModal()">
-                    <div class="stat-number" id="userPeopleWhoHighlighted">0</div>
-                    <div class="stat-label">Pessoas que te Destacaram</div>
-                </div>
-                <!-- Feedbacks Recebidos (abaixo de Feedbacks Dados) -->
-                <div class="stat-card" style="background-color: #f8f9fa;">
-                    <div class="stat-number" id="userFeedbacksReceived">0</div>
-                    <div class="stat-label">Feedbacks Recebidos</div>
-                </div>
-                <!-- Comentários Recebidos (abaixo de Comentários Escritos) -->
-                <div class="stat-card" style="background-color: #f8f9fa;">
-                    <div class="stat-number" id="userCommentsReceived">0</div>
-                    <div class="stat-label">Comentários Recebidos</div>
-                </div>
-                <!-- Reações Recebidas (abaixo de Reações Dadas) -->
-                <div class="stat-card" style="background-color: #f8f9fa;">
-                    <div class="stat-number" id="userReactionsReceived">0</div>
-                    <div class="stat-label">Reações Recebidas</div>
-                </div>
             </div>
 
             <!-- Streak de Engajamento -->
@@ -1691,6 +1664,35 @@
                         <div class="progress-fill" id="engagementStreakProgress365" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
                     </div>
                     <div class="progress-text" id="engagementStreakText365">0/365</div>
+                </div>
+            </div>
+
+            <!-- MÉTRICAS RECEBIDAS -->
+            <div class="stats-grid">
+                <!-- Holofotes Recebidos (abaixo de Posts Criados) -->
+                <div class="stat-card" id="postsReceivedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openHolofotesRecebidosModal()">
+                    <div class="stat-number" id="userHolofotesReceived">0</div>
+                    <div class="stat-label">Holofotes Recebidos</div>
+                </div>
+                <!-- Pessoas que te Destacaram (abaixo de Pessoas Destacadas) -->
+                <div class="stat-card" id="peopleWhoHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openPessoasQueTeDestacaramModal()">
+                    <div class="stat-number" id="userPeopleWhoHighlighted">0</div>
+                    <div class="stat-label">Pessoas que te Destacaram</div>
+                </div>
+                <!-- Feedbacks Recebidos (abaixo de Feedbacks Dados) -->
+                <div class="stat-card" style="background-color: #f8f9fa;">
+                    <div class="stat-number" id="userFeedbacksReceived">0</div>
+                    <div class="stat-label">Feedbacks Recebidos</div>
+                </div>
+                <!-- Comentários Recebidos (abaixo de Comentários Escritos) -->
+                <div class="stat-card" style="background-color: #f8f9fa;">
+                    <div class="stat-number" id="userCommentsReceived">0</div>
+                    <div class="stat-label">Comentários Recebidos</div>
+                </div>
+                <!-- Reações Recebidas (abaixo de Reações Dadas) -->
+                <div class="stat-card" style="background-color: #f8f9fa;">
+                    <div class="stat-number" id="userReactionsReceived">0</div>
+                    <div class="stat-label">Reações Recebidas</div>
                 </div>
             </div>
 
@@ -5753,10 +5755,10 @@
                 
                 document.getElementById('userPeopleHighlighted').textContent = uniquePeople.size;
 
-                // 2. Comentários, Feedbacks e Reações (consultas separadas)
+                // Buscar métricas de reconhecimento DADO
                 const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
                     supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id),
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('user_id', currentUser.id), // Corrigido: usar user_id para feedbacks dados
                     supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
                 ]);
 
@@ -5782,8 +5784,8 @@
                     // Buscar todas as atividades do usuário
                     const [postsData, commentsData, feedbacksData, reactionsData] = await Promise.all([
                         supabase.from('posts').select('created_at').eq('user_id', currentUser.id),
-                        supabase.from('comments').select('created_at').eq('user_id', currentUser.id), // Todos os comentários (inclusive em posts próprios)
-                        supabase.from('feedbacks').select('created_at').eq('mentioned_user_id', currentUser.id), // Corrigido: usar mentioned_user_id
+                        supabase.from('comments').select('created_at').eq('user_id', currentUser.id),
+                        supabase.from('feedbacks').select('created_at').eq('user_id', currentUser.id), // Corrigido: usar user_id para feedbacks dados
                         supabase.from('reactions').select('created_at').eq('user_id', currentUser.id)
                     ]);
                     
