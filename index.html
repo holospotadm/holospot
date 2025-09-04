@@ -2416,7 +2416,7 @@
                                 <div class="post-author">
                                     <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
                                     <div class="post-author-meta">
-                                        <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
+                                        <span class="post-author-username">@${currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
                                         <span class="post-time">${formatDateShort(post.created_at)}</span>
                                     </div>
@@ -2435,15 +2435,15 @@
                             </div>
                             
                             <div class="post-reactions">
-                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                <button onclick="reactToPost('${post.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
-                                </span>
-                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                </button>
+                                <button onclick="reactToPost('${post.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
-                                </span>
-                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                </button>
+                                <button onclick="reactToPost('${post.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
-                                </span>
+                                </button>
                             </div>
                             
                             <div class="post-footer">
@@ -5287,15 +5287,15 @@
                             </div>
                             
                             <div class="post-reactions">
-                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                <button onclick="reactToPost('${post.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
-                                </span>
-                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                </button>
+                                <button onclick="reactToPost('${post.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
-                                </span>
-                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                </button>
+                                <button onclick="reactToPost('${post.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
                                     ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
-                                </span>
+                                </button>
                             </div>
                             
                             <div class="post-footer">
