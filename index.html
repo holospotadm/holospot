@@ -5111,19 +5111,9 @@
             try {
                 console.log('📨 Carregando holofotes recebidos no modal...');
                 
-                // Filtrar posts que mencionaram o usuário atual
+                // Filtrar posts que mencionaram o usuário atual usando mentioned_user_id
                 const postsAboutUser = posts.filter(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.includes('@')) {
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (usernameMatch) {
-                            return usernameMatch.some(match => {
-                                const username = match.substring(1);
-                                return username === currentUser.username;
-                            });
-                        }
-                    }
-                    return false;
+                    return post.mentioned_user_id === currentUser.id;
                 });
 
                 const modalContent = document.getElementById('modalHolofotesRecebidosContent');
@@ -5183,19 +5173,9 @@
             try {
                 console.log('👥 Carregando pessoas que te destacaram no modal...');
                 
-                // Encontrar posts que mencionaram o usuário atual
+                // Encontrar posts que mencionaram o usuário atual usando mentioned_user_id
                 const postsAboutUser = posts.filter(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.includes('@')) {
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (usernameMatch) {
-                            return usernameMatch.some(match => {
-                                const username = match.substring(1);
-                                return username === currentUser.username;
-                            });
-                        }
-                    }
-                    return false;
+                    return post.mentioned_user_id === currentUser.id;
                 });
 
                 // Extrair pessoas únicas que destacaram o usuário
@@ -5440,32 +5420,11 @@
                 // ===== CÁLCULOS DAS MÉTRICAS RECEBIDAS =====
 
                 // 1. Holofotes Recebidos (posts que mencionaram o usuário)
-                console.log('🔍 Debugando holofotes recebidos...');
-                console.log('Current user:', currentUser);
-                console.log('Current user username:', currentUser?.username);
-                console.log('Total posts:', posts?.length);
+                console.log('🔍 Buscando holofotes recebidos usando mentioned_user_id...');
+                console.log('Current user ID:', currentUser?.id);
                 
                 const postsAboutUser = posts.filter(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    console.log('Verificando post:', {
-                        id: post.id,
-                        personName: personName,
-                        author: post.user_name
-                    });
-                    
-                    if (personName && personName.includes('@')) {
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        console.log('Username matches encontrados:', usernameMatch);
-                        
-                        if (usernameMatch) {
-                            return usernameMatch.some(match => {
-                                const username = match.substring(1);
-                                console.log(`Comparando: "${username}" === "${currentUser?.username}"`);
-                                return username === currentUser?.username;
-                            });
-                        }
-                    }
-                    return false;
+                    return post.mentioned_user_id === currentUser.id;
                 });
                 
                 console.log('Posts about user encontrados:', postsAboutUser.length);
