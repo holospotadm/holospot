@@ -1609,12 +1609,12 @@
             
             <div class="stats-grid">
                 <!-- Posts Criados -->
-                <div class="stat-card" id="postsCreatedCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openPostsModal()">
+                <div class="stat-card" id="postsCreatedCard" style="cursor: pointer; transition: transform 0.2s ease;">
                     <div class="stat-number" id="userPostsCount">0</div>
                     <div class="stat-label">Posts Criados</div>
                 </div>
                 <!-- Pessoas Destacadas -->
-                <div class="stat-card" id="peopleHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openPeopleHighlightedModal()">
+                <div class="stat-card" id="peopleHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease;">
                     <div class="stat-number" id="userPeopleHighlighted">0</div>
                     <div class="stat-label">Pessoas Destacadas</div>
                 </div>
@@ -1670,12 +1670,12 @@
             <!-- MÉTRICAS RECEBIDAS -->
             <div class="stats-grid">
                 <!-- Holofotes Recebidos (abaixo de Posts Criados) -->
-                <div class="stat-card" id="postsReceivedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openHolofotesRecebidosModal()">
+                <div class="stat-card" id="postsReceivedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;">
                     <div class="stat-number" id="userHolofotesReceived">0</div>
                     <div class="stat-label">Holofotes Recebidos</div>
                 </div>
                 <!-- Pessoas que te Destacaram (abaixo de Pessoas Destacadas) -->
-                <div class="stat-card" id="peopleWhoHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openPessoasQueTeDestacaramModal()">
+                <div class="stat-card" id="peopleWhoHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;">
                     <div class="stat-number" id="userPeopleWhoHighlighted">0</div>
                     <div class="stat-label">Pessoas que te Destacaram</div>
                 </div>
@@ -5346,7 +5346,40 @@
             }
         }
 
-        // ===== FUNÇÕES DOS NOVOS MODAIS DE MÉTRICAS RECEBIDAS =====
+        // ===== EVENT LISTENERS ROBUSTOS PARA CARDS DE ESTATÍSTICAS =====
+        function setupStatCardListeners() {
+            // Posts Criados
+            const postsCreatedCard = document.getElementById('postsCreatedCard');
+            if (postsCreatedCard) {
+                postsCreatedCard.removeEventListener('click', openPostsModal); // Remove listener anterior se existir
+                postsCreatedCard.addEventListener('click', openPostsModal);
+            }
+            
+            // Pessoas Destacadas
+            const peopleHighlightedCard = document.getElementById('peopleHighlightedCard');
+            if (peopleHighlightedCard) {
+                peopleHighlightedCard.removeEventListener('click', openPeopleHighlightedModal); // Remove listener anterior se existir
+                peopleHighlightedCard.addEventListener('click', openPeopleHighlightedModal);
+            }
+            
+            // Holofotes Recebidos
+            const postsReceivedCard = document.getElementById('postsReceivedCard');
+            if (postsReceivedCard) {
+                postsReceivedCard.removeEventListener('click', openHolofotesRecebidosModal); // Remove listener anterior se existir
+                postsReceivedCard.addEventListener('click', openHolofotesRecebidosModal);
+            }
+            
+            // Pessoas que te Destacaram
+            const peopleWhoHighlightedCard = document.getElementById('peopleWhoHighlightedCard');
+            if (peopleWhoHighlightedCard) {
+                peopleWhoHighlightedCard.removeEventListener('click', openPessoasQueTeDestacaramModal); // Remove listener anterior se existir
+                peopleWhoHighlightedCard.addEventListener('click', openPessoasQueTeDestacaramModal);
+            }
+            
+            console.log('✅ Event listeners dos cards de estatísticas configurados');
+        }
+
+        // ===== FUNÇÕES DOS MODAIS DE MÉTRICAS RECEBIDAS =====
 
         function openHolofotesRecebidosModal() {
             const modal = document.getElementById('holofotesRecebidosModal');
@@ -5943,6 +5976,9 @@
                     comentariosRecebidos: commentsReceivedResult.count || 0,
                     feedbacksRecebidos: feedbacksReceivedResult.count || 0
                 });
+                
+                // Reconfigurar event listeners após atualizar métricas
+                setupStatCardListeners();
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas reais:', error);
                 // Em caso de erro, manter valores existentes
