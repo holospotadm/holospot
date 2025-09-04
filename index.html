@@ -869,32 +869,12 @@
             }
         }
 
-        /* Gradient borders for clickable stat cards */
+        /* Simple solid borders for clickable stat cards */
         #postsCreatedCard,
-        #peopleHighlightedCard {
-            position: relative;
-            background: rgba(255, 255, 255, 1) !important; /* Solid white background */
-        }
-
+        #peopleHighlightedCard,
         #postsReceivedCard,
         #peopleWhoHighlightedCard {
-            position: relative;
-            background: #f8f9fa !important; /* Solid gray background */
-        }
-
-        #postsCreatedCard::before,
-        #peopleHighlightedCard::before,
-        #postsReceivedCard::before,
-        #peopleWhoHighlightedCard::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, #E55A2B, #9C27B0);
-            border-radius: 14px;
-            z-index: -1;
+            border: 2px solid #E55A2B !important;
         }
 
         /* Hover effect only for clickable stat cards */
