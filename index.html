@@ -3373,14 +3373,103 @@
                     }
                 });
                 
+                // Atualizar título do modal de comentários se estiver aberto
+                const commentsModal = document.getElementById('commentsModal');
+                if (commentsModal) {
+                    const titleElement = commentsModal.querySelector('h3');
+                    if (titleElement) {
+                        titleElement.textContent = `💬 Comentários (${commentCount})`;
+                        console.log(`✅ Título do modal atualizado: Comentários (${commentCount})`);
+                    }
+                }
+                
             } catch (error) {
                 console.error('❌ Erro ao atualizar contador de comentários:', error);
             }
         }
 
         // Função para reagir a posts (usada nos modais)
-        function reactToPost(postId, type) {
-            toggleReaction(postId, type);
+        async function reactToPost(postId, type) {
+            console.log(`🎯 Reagindo ao post ${postId} com ${type} no modal`);
+            
+            // Chamar a função original de reação
+            await toggleReaction(postId, type);
+            
+            // Atualizar botões de reação no modal em tempo real
+            setTimeout(async () => {
+                await updateModalReactions(postId);
+            }, 500);
+        }
+        
+        // Função para atualizar reações no modal em tempo real
+        async function updateModalReactions(postId) {
+            try {
+                console.log(`🔄 Atualizando reações do post ${postId} no modal`);
+                
+                // Buscar reações atualizadas do post
+                const { data: reactions, error } = await supabase
+                    .from('reactions')
+                    .select('*')
+                    .eq('post_id', postId);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar reações:', error);
+                    return;
+                }
+                
+                // Contar reações por tipo
+                const reactionCounts = {
+                    touched: reactions?.filter(r => r.type === 'touched').length || 0,
+                    grateful: reactions?.filter(r => r.type === 'grateful').length || 0,
+                    inspired: reactions?.filter(r => r.type === 'inspired').length || 0
+                };
+                
+                // Verificar se o usuário atual já reagiu
+                const userReactions = reactions?.filter(r => r.user_id === currentUser.id) || [];
+                const userReactionTypes = userReactions.map(r => r.type);
+                
+                console.log(`📊 Contadores: touched=${reactionCounts.touched}, grateful=${reactionCounts.grateful}, inspired=${reactionCounts.inspired}`);
+                console.log(`👤 Usuário reagiu com: ${userReactionTypes.join(', ')}`);
+                
+                // Atualizar botões de reação no modal
+                const reactionButtons = document.querySelectorAll(`[onclick*="reactToPost('${postId}'"]`);
+                
+                reactionButtons.forEach(button => {
+                    const onclick = button.getAttribute('onclick');
+                    let reactionType = '';
+                    
+                    if (onclick.includes("'touched'")) reactionType = 'touched';
+                    else if (onclick.includes("'grateful'")) reactionType = 'grateful';
+                    else if (onclick.includes("'inspired'")) reactionType = 'inspired';
+                    
+                    if (reactionType) {
+                        const count = reactionCounts[reactionType];
+                        const userReacted = userReactionTypes.includes(reactionType);
+                        
+                        // Atualizar texto do botão
+                        const emoji = { touched: '❤️', grateful: '🙏', inspired: '✨' }[reactionType];
+                        button.innerHTML = `${emoji} ${count}`;
+                        
+                        // Atualizar estilo baseado se o usuário reagiu
+                        if (userReacted) {
+                            // Usuário já reagiu - usar gradiente dourado/roxo
+                            button.style.background = 'linear-gradient(135deg, #FFB700, #9C27B0)';
+                            button.style.color = 'white';
+                            button.style.border = '1px solid #FFB700';
+                        } else {
+                            // Usuário não reagiu - usar estilo padrão
+                            button.style.background = '#f5f5f5';
+                            button.style.color = '#666';
+                            button.style.border = '1px solid #ddd';
+                        }
+                        
+                        console.log(`✅ Botão ${reactionType} atualizado: ${count} (usuário reagiu: ${userReacted})`);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar reações do modal:', error);
+            }
         }
 
         async function toggleReaction(postId, type) {
