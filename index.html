@@ -839,18 +839,34 @@
         /* Profile & Impact Tabs */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
             margin-bottom: 2rem;
+        }
+
+        /* Desktop: Force 5 columns for metrics */
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 0.8rem;
+            }
         }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            padding: 1.5rem;
+            padding: 1.2rem;
             text-align: center;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+        }
+
+        /* Desktop: Smaller padding for compact layout */
+        @media (min-width: 1024px) {
+            .stat-card {
+                padding: 1rem;
+                border-radius: 12px;
+            }
         }
 
         .stat-card:hover {
@@ -1601,12 +1617,12 @@
                     <div class="stat-label">Pessoas Destacadas</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="userCommentsGiven">0</div>
-                    <div class="stat-label">Comentários Escritos</div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-number" id="userFeedbacksGiven">0</div>
                     <div class="stat-label">Feedbacks Dados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="userCommentsGiven">0</div>
+                    <div class="stat-label">Comentários Escritos</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="userReactionsGiven">0</div>
