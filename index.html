@@ -5198,7 +5198,7 @@
                     try {
                         const { data: authorsData, error: authorsError } = await supabase
                             .from('profiles')
-                            .select('id, name, username, avatar_url')
+                            .select('id, name, avatar_url')
                             .filter('id', 'in', `(${authorIds.join(',')})`);
                         
                         if (authorsError) {
@@ -5226,7 +5226,7 @@
                     const author = authorMap[post.user_id] || {};
                     post.user_data = {
                         name: author.name || 'Usuário',
-                        email: author.username ? `${author.username}@example.com` : 'usuario@example.com',
+                        email: author.email || 'usuario@example.com',
                         avatar_url: author.avatar_url || ''
                     };
                     
@@ -5282,7 +5282,7 @@
                                 <div class="post-author">
                                     <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
                                     <div class="post-author-meta">
-                                        <span class="post-author-username">@${author.username || 'usuario'}</span>
+                                        <span class="post-author-username">@${author.name?.toLowerCase().replace(/\s+/g, '') || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
                                         <span class="post-time">${formatDateShort(post.created_at)}</span>
                                     </div>
