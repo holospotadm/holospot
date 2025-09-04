@@ -3321,7 +3321,7 @@
                     if (typeof updateSimpleMetrics === 'function') {
                         setTimeout(() => {
                             updateSimpleMetrics();
-                            updateReceivedMetrics();
+                            
                             
                             console.log('✅ Métricas do perfil atualizadas após reação');
                         }, 500);
@@ -3468,7 +3468,7 @@
                     setTimeout(() => {
                         if (typeof updateSimpleMetrics === 'function') {
                             updateSimpleMetrics();
-                            updateReceivedMetrics();
+                            
                             
                             console.log('✅ Métricas do perfil atualizadas após feedback (imediato)');
                         }
@@ -3814,7 +3814,7 @@
                 if (typeof updateSimpleMetrics === 'function') {
                     setTimeout(() => {
                         updateSimpleMetrics();
-                        updateReceivedMetrics();
+                        
                         
                         console.log('✅ Métricas do perfil atualizadas após criação de post');
                     }, 500);
@@ -4021,7 +4021,7 @@
             
             // Update simple metrics
             updateSimpleMetrics();
-            updateReceivedMetrics();
+            
             
         }
 
@@ -4662,7 +4662,7 @@
                     // Atualizar métricas do perfil em tempo real
                     if (typeof updateSimpleMetrics === 'function') {
                         updateSimpleMetrics();
-                        updateReceivedMetrics();
+                        
                         
                         console.log('✅ Métricas do perfil atualizadas após comentário');
                     }
@@ -5475,7 +5475,7 @@
                 console.log('✅ Métricas reais atualizadas:', {
                     pessoas: uniquePeople.size,
                     usernames: Array.from(uniquePeople),
-                    comentarios: totalCommentsAndFeedbacks,
+                    comentarios: commentsResult.count || 0,
                     reacoes: reactionsResult.count || 0,
                     streak: currentStreak,
                     // Métricas recebidas
@@ -5487,75 +5487,6 @@
                 });
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas reais:', error);
-                // Em caso de erro, manter valores existentes
-            }
-        }
-
-        // Atualizar métricas de reconhecimento recebido
-        async function updateReceivedMetrics() {
-            try {
-                console.log('📨 Atualizando métricas de reconhecimento recebido...');
-
-                // 1. Posts Recebidos - posts que mencionaram o usuário
-                const userPostsReceived = posts.filter(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.includes('@')) {
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (usernameMatch) {
-                            return usernameMatch.some(match => {
-                                const username = match.substring(1);
-                                return username === currentUser.username;
-                            });
-                        }
-                    }
-                    return false;
-                });
-
-                document.getElementById('userPostsReceived').textContent = userPostsReceived.length;
-
-                // 2. Consultas paralelas para métricas recebidas
-                const userPostIds = posts.filter(post => post.user_id === currentUser.id).map(post => post.id);
-                
-                const [reactionsReceivedResult, commentsReceivedResult, feedbacksReceivedResult] = await Promise.all([
-                    userPostIds.length > 0 ? 
-                        supabase.from('reactions').select('id', { count: 'exact' }).in('post_id', userPostIds) :
-                        Promise.resolve({ count: 0 }),
-                    userPostIds.length > 0 ? 
-                        supabase.from('comments').select('id', { count: 'exact' }).in('post_id', userPostIds).neq('user_id', currentUser.id) :
-                        Promise.resolve({ count: 0 }),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id)
-                ]);
-
-                console.log('📨 Contagens das métricas recebidas:', {
-                    postsReceived: userPostsReceived.length,
-                    reactionsReceived: reactionsReceivedResult.count,
-                    commentsReceived: commentsReceivedResult.count,
-                    feedbacksReceived: feedbacksReceivedResult.count
-                });
-
-                const reactionsReceivedCount = reactionsReceivedResult.count || 0;
-                const commentsReceivedCount = commentsReceivedResult.count || 0;
-                const feedbacksReceivedCount = feedbacksReceivedResult.count || 0;
-
-                // 3. Atualizar elementos
-                document.getElementById('userReactionsReceived').textContent = reactionsReceivedCount;
-                document.getElementById('userCommentsReceived').textContent = commentsReceivedCount;
-                document.getElementById('userFeedbacksReceived').textContent = feedbacksReceivedCount;
-
-                // 4. Calcular Score de Popularidade
-                const popularityScore = (userPostsReceived.length * 10) + (reactionsReceivedCount * 2) + (commentsReceivedCount * 3) + (feedbacksReceivedCount * 5);
-                document.getElementById('userPopularityScore').textContent = popularityScore;
-
-                console.log('✅ Métricas de reconhecimento recebido atualizadas:', {
-                    postsReceived: userPostsReceived.length,
-                    reactionsReceived: reactionsReceivedCount,
-                    commentsReceived: commentsReceivedCount,
-                    feedbacksReceived: feedbacksReceivedCount,
-                    popularityScore: popularityScore
-                });
-
-            } catch (error) {
-                console.error('❌ Erro ao atualizar métricas recebidas:', error);
                 // Em caso de erro, manter valores existentes
             }
         }
