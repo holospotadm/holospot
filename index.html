@@ -2515,7 +2515,7 @@
                     animation: slideIn 0.3s ease;
                 ">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: linear-gradient(135deg, #e55a2b 0%, #ffb700 100%); color: white; padding: 20px; margin: -25px -25px 20px -25px; border-radius: 15px 15px 0 0;">
-                        <h3 style="margin: 0; color: white; font-size: 18px;">📬 Feedbacks</h3>
+                        <h3 style="margin: 0; color: white; font-size: 18px;">📬 Feedbacks Recebidos</h3>
                         <button onclick="closePostFeedbackModal()" style="
                             background: rgba(255, 255, 255, 0.2);
                             border: none;
@@ -2591,6 +2591,7 @@
                 }
 
                 console.log('📊 Feedbacks encontrados:', feedbacks);
+                console.log('🔍 Author IDs dos feedbacks:', feedbacks.map(f => f.author_id));
 
                 // Buscar dados dos usuários que deram feedback
                 const userIds = [...new Set(feedbacks.map(f => f.author_id).filter(Boolean))];
