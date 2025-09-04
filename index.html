@@ -5922,7 +5922,7 @@
                 const [reactionsReceivedResult, commentsReceivedResult, feedbacksReceivedResult] = await Promise.all([
                     userPostIds.length > 0 ? supabase.from('reactions').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 },
                     userPostIds.length > 0 ? supabase.from('comments').select('id', { count: 'exact' }).in('post_id', userPostIds).neq('user_id', currentUser.id) : { count: 0 },
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('user_id', currentUser.id) // Feedbacks Recebidos: eu mencionei alguém
+                    userPostIds.length > 0 ? supabase.from('feedbacks').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 } // Feedbacks nos posts do usuário
                 ]);
 
                 // 4. Atualizar elementos das métricas recebidas
