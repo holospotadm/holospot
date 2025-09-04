@@ -871,10 +871,15 @@
 
         /* Gradient borders for clickable stat cards */
         #postsCreatedCard,
-        #peopleHighlightedCard,
+        #peopleHighlightedCard {
+            position: relative;
+            background: rgba(255, 255, 255, 1) !important; /* Solid white background */
+        }
+
         #postsReceivedCard,
         #peopleWhoHighlightedCard {
             position: relative;
+            background: #f8f9fa !important; /* Solid gray background */
         }
 
         #postsCreatedCard::before,
