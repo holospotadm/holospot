@@ -5440,19 +5440,37 @@
                 // ===== CÁLCULOS DAS MÉTRICAS RECEBIDAS =====
 
                 // 1. Holofotes Recebidos (posts que mencionaram o usuário)
+                console.log('🔍 Debugando holofotes recebidos...');
+                console.log('Current user:', currentUser);
+                console.log('Current user username:', currentUser?.username);
+                console.log('Total posts:', posts?.length);
+                
                 const postsAboutUser = posts.filter(post => {
                     const personName = post.celebrated_person_name || post.person_name;
+                    console.log('Verificando post:', {
+                        id: post.id,
+                        personName: personName,
+                        author: post.user_name
+                    });
+                    
                     if (personName && personName.includes('@')) {
                         const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        console.log('Username matches encontrados:', usernameMatch);
+                        
                         if (usernameMatch) {
                             return usernameMatch.some(match => {
                                 const username = match.substring(1);
-                                return username === currentUser.username;
+                                console.log(`Comparando: "${username}" === "${currentUser?.username}"`);
+                                return username === currentUser?.username;
                             });
                         }
                     }
                     return false;
                 });
+                
+                console.log('Posts about user encontrados:', postsAboutUser.length);
+                console.log('Posts details:', postsAboutUser);
+                
                 document.getElementById('userHolofotesReceived').textContent = postsAboutUser.length;
 
                 // 2. Pessoas que te Destacaram (pessoas únicas que mencionaram o usuário)
