@@ -5603,7 +5603,7 @@
             }
         }
 
-        async function loadPessoasQueTeDestacaramInModal() {
+         async function loadPessoasQueTeDestacaramInModal() {
             try {
                 console.log('👥 Carregando pessoas que te destacaram no modal...');
                 
@@ -5612,21 +5612,60 @@
                     return post.mentioned_user_id === currentUser.id;
                 });
 
-                // Extrair pessoas únicas que destacaram o usuário
-                const peopleWhoHighlighted = new Set();
-                const peopleDetails = [];
+                // Extrair IDs únicos dos autores que destacaram o usuário
+                const authorIds = [...new Set(postsAboutUser.map(post => post.user_id))];
+                
+                if (authorIds.length === 0) {
+                    const modalContent = document.getElementById('modalPessoasQueTeDestacaramContent');
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Nenhuma pessoa te destacou ainda</div>
+                            <div style="font-size: 14px;">Quando alguém criar um post mencionando você, aparecerá aqui!</div>
+                        </div>
+                    `;
+                    return;
+                }
 
-                postsAboutUser.forEach(post => {
-                    const authorId = post.user_id;
-                    const authorName = post.author_name || 'Usuário';
+                // Buscar dados reais dos usuários da tabela profiles
+                const { data: authorsData, error } = await supabase
+                    .from('profiles')
+                    .select('id, name, email, avatar_url')
+                    .filter('id', 'in', `(${authorIds.join(',')})`);
+
+                if (error) {
+                    console.error('❌ Erro ao buscar dados dos autores:', error);
+                    throw error;
+                }
+
+                console.log('📊 Dados dos autores encontrados:', authorsData?.length || 0);
+
+                // Criar mapa de autores para acesso rápido
+                const authorMap = {};
+                authorsData?.forEach(author => {
+                    authorMap[author.id] = author;
+                });
+
+                // Criar lista de pessoas com dados reais
+                const peopleDetails = [];
+                
+                authorIds.forEach(authorId => {
+                    const author = authorMap[authorId];
+                    const authorPosts = postsAboutUser.filter(p => p.user_id === authorId);
                     
-                    if (!peopleWhoHighlighted.has(authorId)) {
-                        peopleWhoHighlighted.add(authorId);
+                    if (author) {
+                        const userName = author.name || author.email?.split('@')[0] || 'Usuário';
+                        const userEmail = author.email || '';
+                        const username = userEmail ? userEmail.split('@')[0] : author.id;
+                        const userAvatar = author.avatar_url || '';
+                        
                         peopleDetails.push({
                             id: authorId,
-                            name: authorName,
-                            lastMention: new Date(post.created_at).toLocaleDateString('pt-BR'),
-                            postsCount: postsAboutUser.filter(p => p.user_id === authorId).length
+                            name: userName,
+                            username: username,
+                            avatar: userAvatar,
+                            lastMention: new Date(authorPosts[0].created_at).toLocaleDateString('pt-BR'),
+                            postsCount: authorPosts.length
                         });
                     }
                 });
@@ -5635,9 +5674,10 @@
                 
                 if (peopleDetails.length === 0) {
                     modalContent.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #666;">
-                            <p>👥 Ninguém te destacou ainda</p>
-                            <p style="font-size: 14px;">Quando alguém te mencionar em um post, aparecerá aqui!</p>
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Nenhuma pessoa te destacou ainda</div>
+                            <div style="font-size: 14px;">Quando alguém criar um post mencionando você, aparecerá aqui!</div>
                         </div>
                     `;
                     return;
@@ -5646,38 +5686,39 @@
                 // Ordenar por número de posts (quem mais destacou primeiro)
                 peopleDetails.sort((a, b) => b.postsCount - a.postsCount);
 
-                let html = '';
-                peopleDetails.forEach(person => {
-                    html += `
-                        <div class="person-item" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: white;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <strong style="color: #333; font-size: 16px;">${person.name}</strong>
-                                    <p style="color: #666; font-size: 12px; margin: 0.2rem 0;">
-                                        ${person.postsCount} ${person.postsCount === 1 ? 'destaque' : 'destaques'}
-                                    </p>
-                                    <p style="color: #888; font-size: 11px; margin: 0;">
-                                        Último destaque: ${person.lastMention}
-                                    </p>
-                                </div>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button onclick="highlightPerson('${person.name}')" style="background: #FFB700; color: white; border: none; border-radius: 20px; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 12px;">
-                                        ⭐ Destacar de volta
-                                    </button>
-                                </div>
+                // Gerar HTML das pessoas com fotos e dados reais
+                const peopleHtml = peopleDetails.map(person => `
+                    <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; margin-right: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                            ${person.avatar ? 
+                                `<img src="${person.avatar}" alt="${person.name}" style="width: 100%; height: 100%; object-fit: cover;">` :
+                                `<span style="color: white; font-weight: bold; font-size: 18px;">${person.name.charAt(0).toUpperCase()}</span>`
+                            }
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${person.name}</div>
+                            <div style="color: #666; font-size: 13px; margin-bottom: 4px;">@${person.username}</div>
+                            <div style="color: #999; font-size: 12px;">
+                                ${person.postsCount} ${person.postsCount === 1 ? 'destaque' : 'destaques'} • Último: ${person.lastMention}
                             </div>
                         </div>
-                    `;
-                });
+                        <button onclick="highlightPerson('@${person.username}')" style="padding: 8px 16px; background: linear-gradient(135deg, #FFB700, #E55A2B); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            Destacar de volta
+                        </button>
+                    </div>
+                `).join('');
 
-                modalContent.innerHTML = html;
-                console.log('✅ Pessoas que te destacaram carregadas no modal:', peopleDetails.length);
+                modalContent.innerHTML = peopleHtml;
+                console.log('✅ Pessoas que te destacaram carregadas no modal');
+
             } catch (error) {
                 console.error('❌ Erro ao carregar pessoas que te destacaram:', error);
-                document.getElementById('modalPessoasQueTeDestacaramContent').innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #666;">
-                        <p>❌ Erro ao carregar pessoas que te destacaram</p>
-                        <p style="font-size: 12px;">${error.message}</p>
+                const modalContent = document.getElementById('modalPessoasQueTeDestacaramContent');
+                modalContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Erro ao carregar pessoas</div>
+                        <div style="font-size: 14px;">Tente novamente em alguns instantes.</div>
                     </div>
                 `;
             }
