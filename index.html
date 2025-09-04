@@ -2515,7 +2515,7 @@
                     animation: slideIn 0.3s ease;
                 ">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: linear-gradient(135deg, #e55a2b 0%, #ffb700 100%); color: white; padding: 20px; margin: -25px -25px 20px -25px; border-radius: 15px 15px 0 0;">
-                        <h3 style="margin: 0; color: white; font-size: 18px;">📬 Feedbacks Recebidos</h3>
+                        <h3 style="margin: 0; color: white; font-size: 18px;">📬 Feedbacks</h3>
                         <button onclick="closePostFeedbackModal()" style="
                             background: rgba(255, 255, 255, 0.2);
                             border: none;
@@ -5843,7 +5843,7 @@
 
     <!-- Novos Modais para Métricas Recebidas -->
     <div id="holofotesRecebidosModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2>📨 Holofotes Recebidos</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
