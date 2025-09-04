@@ -5548,6 +5548,11 @@
                 postsContainer.innerHTML = postsHtml.join('');
                 console.log('✅ Holofotes recebidos carregados no modal');
                 
+                // Renderizar estado inicial das reações para cada post
+                for (const post of postsAboutUser) {
+                    await updateModalReactions(post.id);
+                }
+                
                 // Atualizar contadores de comentários após carregar posts
                 setTimeout(() => {
                     updateAllCommentsCounters();
