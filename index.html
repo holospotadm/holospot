@@ -5293,6 +5293,9 @@
                         </div>
                     `;
                 } else {
+                    // Ordenar por número de destaques (maior para menor)
+                    peopleDetails.sort((a, b) => b.postCount - a.postCount);
+                    
                     modalContent.innerHTML = peopleDetails.map(person => {
                         // Usar avatar real se disponível
                         const avatarHtml = person.avatarUrl && person.avatarUrl.trim() !== '' 
@@ -5320,7 +5323,7 @@
                                         @${person.username}
                                     </div>
                                     <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
-                                        Destacado ${person.postCount} vez${person.postCount !== 1 ? 'es' : ''}
+                                        ${person.postCount} ${person.postCount === 1 ? 'destaque' : 'destaques'}
                                     </div>
                                 </div>
                             </div>
@@ -5699,12 +5702,9 @@
                             <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${person.name}</div>
                             <div style="color: #666; font-size: 13px; margin-bottom: 4px;">@${person.username}</div>
                             <div style="color: #999; font-size: 12px;">
-                                ${person.postsCount} ${person.postsCount === 1 ? 'destaque' : 'destaques'} • Último: ${person.lastMention}
+                                ${person.postsCount} ${person.postsCount === 1 ? 'destaque' : 'destaques'}
                             </div>
                         </div>
-                        <button onclick="highlightPerson('@${person.username}')" style="padding: 8px 16px; background: linear-gradient(135deg, #FFB700, #E55A2B); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            Destacar de volta
-                        </button>
                     </div>
                 `).join('');
 
