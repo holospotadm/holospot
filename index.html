@@ -3301,22 +3301,13 @@
                 const commentCount = comments ? comments.length : 0;
                 console.log(`📊 Atualizando contador de comentários do post ${postId}: ${commentCount}`);
                 
-                // Atualizar contador no modal "Seus Posts"
-                const commentsDisplaySeusPosts = document.querySelector(`#comments-${postId}`);
-                if (commentsDisplaySeusPosts) {
-                    commentsDisplaySeusPosts.innerHTML = `💬 ${commentCount}`;
-                    console.log('✅ Contador atualizado no modal Seus Posts');
-                }
+                // Atualizar TODOS os elementos de comentários deste post (em todos os modais)
+                const allCommentsElements = document.querySelectorAll(`[id="comments-${postId}"], [id*="comments-${postId}"]`);
                 
-                // Atualizar contador no modal "Holofotes Recebidos"
-                const commentsDisplayHolofotes = document.querySelector(`[id*="comments-${postId}"]`);
-                if (commentsDisplayHolofotes && commentsDisplayHolofotes !== commentsDisplaySeusPosts) {
-                    commentsDisplayHolofotes.innerHTML = `💬 ${commentCount}`;
-                    console.log('✅ Contador atualizado no modal Holofotes Recebidos');
-                }
-                
-                // Atualizar estilo do botão baseado no número de comentários
-                const updateButtonStyle = (element) => {
+                allCommentsElements.forEach((element, index) => {
+                    element.innerHTML = `💬 ${commentCount}`;
+                    
+                    // Atualizar estilo baseado no número de comentários
                     if (commentCount > 0) {
                         element.style.background = 'linear-gradient(135deg, #2196f3, #1976d2)';
                         element.style.color = 'white';
@@ -3324,12 +3315,18 @@
                         element.style.background = '#f5f5f5';
                         element.style.color = '#666';
                     }
-                };
+                    
+                    console.log(`✅ Contador ${index + 1} atualizado para post ${postId}: ${commentCount}`);
+                });
                 
-                if (commentsDisplaySeusPosts) updateButtonStyle(commentsDisplaySeusPosts);
-                if (commentsDisplayHolofotes && commentsDisplayHolofotes !== commentsDisplaySeusPosts) {
-                    updateButtonStyle(commentsDisplayHolofotes);
-                }
+                // Também atualizar qualquer elemento que contenha o ID do post
+                const additionalElements = document.querySelectorAll(`[onclick*="${postId}"][class*="comments"]`);
+                additionalElements.forEach((element, index) => {
+                    if (element.innerHTML.includes('💬')) {
+                        element.innerHTML = `💬 ${commentCount}`;
+                        console.log(`✅ Elemento adicional ${index + 1} atualizado para post ${postId}`);
+                    }
+                });
                 
             } catch (error) {
                 console.error('❌ Erro ao atualizar contador de comentários:', error);
@@ -5408,7 +5405,7 @@
                                 <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
                                     💬 ${commentsCount}
                                 </span>
-                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}', 'holofotes_recebidos')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #e55a2b, #ffb700); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
+                                <span class="feedback-display" onclick="openPostFeedbackModal('${post.id}', 'holofotes_recebidos')" ${feedbacksCount > 0 ? `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #e55a2b, #ffb700); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
                                     🔄 ${feedbacksCount}
                                 </span>
                             </div>
