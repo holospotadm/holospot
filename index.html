@@ -2547,7 +2547,7 @@
             document.body.appendChild(modal);
             
             // Carregar feedbacks
-            loadPostFeedbacks(postId);
+            loadPostFeedbacks(postId, source);
             
             // Fechar ao clicar fora
             modal.addEventListener('click', (e) => {
@@ -2567,9 +2567,58 @@
             }
         }
 
-        async function loadPostFeedbacks(postId) {
+        // Função para enviar feedback (usada no modal Holofotes Recebidos)
+        async function sendFeedback(postId) {
             try {
-                console.log('📬 Carregando feedbacks para post:', postId);
+                const textarea = document.getElementById('newFeedbackText');
+                const feedbackText = textarea.value.trim();
+                
+                if (!feedbackText) {
+                    alert('Por favor, escreva um feedback antes de enviar.');
+                    return;
+                }
+                
+                console.log('📤 Enviando feedback para post:', postId);
+                
+                // Salvar feedback no banco
+                const feedbackData = {
+                    post_id: postId,
+                    mentioned_user_id: currentUser.id,
+                    feedback_text: feedbackText,
+                    created_at: new Date().toISOString()
+                };
+                
+                const { data: savedFeedback, error } = await supabase
+                    .from('feedbacks')
+                    .insert([feedbackData])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('❌ Erro ao salvar feedback:', error);
+                    alert('Erro ao enviar feedback. Tente novamente.');
+                    return;
+                }
+                
+                console.log('✅ Feedback salvo no banco');
+                
+                // Recarregar feedbacks no modal
+                loadPostFeedbacks(postId, 'holofotes_recebidos');
+                
+                // Atualizar métricas do usuário
+                updateSimpleMetrics();
+                
+                alert('✅ Feedback enviado com sucesso!');
+                
+            } catch (error) {
+                console.error('❌ Erro ao enviar feedback:', error);
+                alert('Erro ao enviar feedback. Tente novamente.');
+            }
+        }
+
+        async function loadPostFeedbacks(postId, source = 'seus_posts') {
+            try {
+                console.log('📬 Carregando feedbacks para post:', postId, 'origem:', source);
                 
                 // Buscar todos os feedbacks do post (não filtrar por author_id)
                 const { data: feedbacks, error } = await supabase
@@ -2583,13 +2632,47 @@
                 const feedbackContent = document.getElementById('postFeedbackContent');
                 
                 if (!feedbacks || feedbacks.length === 0) {
-                    feedbackContent.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #666;">
-                            <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
-                            <p style="font-size: 16px; margin-bottom: 5px;">Nenhum feedback recebido</p>
-                            <p style="font-size: 14px; color: #999;">Este post ainda não recebeu feedbacks</p>
-                        </div>
-                    `;
+                    // Se for modal "Holofotes Recebidos", permitir escrever feedback
+                    if (source === 'holofotes_recebidos') {
+                        feedbackContent.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: #666;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">📝</div>
+                                <p style="font-size: 16px; margin-bottom: 15px;">Seja o primeiro a dar feedback!</p>
+                                <div style="margin-top: 20px;">
+                                    <textarea id="newFeedbackText" placeholder="Escreva seu feedback aqui..." style="
+                                        width: 100%;
+                                        min-height: 80px;
+                                        padding: 12px;
+                                        border: 2px solid #ddd;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        resize: vertical;
+                                        margin-bottom: 10px;
+                                    "></textarea>
+                                    <button onclick="sendFeedback('${postId}')" style="
+                                        background: linear-gradient(135deg, #e55a2b, #ffb700);
+                                        color: white;
+                                        border: none;
+                                        padding: 10px 20px;
+                                        border-radius: 20px;
+                                        cursor: pointer;
+                                        font-weight: 600;
+                                        transition: transform 0.2s ease;
+                                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                        📤 Enviar Feedback
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        feedbackContent.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: #666;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
+                                <p style="font-size: 16px; margin-bottom: 5px;">Nenhum feedback recebido</p>
+                                <p style="font-size: 14px; color: #999;">Este post ainda não recebeu feedbacks</p>
+                            </div>
+                        `;
+                    }
                     return;
                 }
 
@@ -3199,6 +3282,63 @@
                 console.error('❌ Erro crítico ao seguir/desseguir:', error);
                 alert('Erro ao seguir/desseguir usuário. Tente novamente.');
             }
+        }
+
+        // Função para atualizar contador de comentários de um post específico
+        async function updateCommentCounter(postId) {
+            try {
+                // Buscar número atual de comentários
+                const { data: comments, error } = await supabase
+                    .from('comments')
+                    .select('id')
+                    .eq('post_id', postId);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar comentários:', error);
+                    return;
+                }
+                
+                const commentCount = comments ? comments.length : 0;
+                console.log(`📊 Atualizando contador de comentários do post ${postId}: ${commentCount}`);
+                
+                // Atualizar contador no modal "Seus Posts"
+                const commentsDisplaySeusPosts = document.querySelector(`#comments-${postId}`);
+                if (commentsDisplaySeusPosts) {
+                    commentsDisplaySeusPosts.innerHTML = `💬 ${commentCount}`;
+                    console.log('✅ Contador atualizado no modal Seus Posts');
+                }
+                
+                // Atualizar contador no modal "Holofotes Recebidos"
+                const commentsDisplayHolofotes = document.querySelector(`[id*="comments-${postId}"]`);
+                if (commentsDisplayHolofotes && commentsDisplayHolofotes !== commentsDisplaySeusPosts) {
+                    commentsDisplayHolofotes.innerHTML = `💬 ${commentCount}`;
+                    console.log('✅ Contador atualizado no modal Holofotes Recebidos');
+                }
+                
+                // Atualizar estilo do botão baseado no número de comentários
+                const updateButtonStyle = (element) => {
+                    if (commentCount > 0) {
+                        element.style.background = 'linear-gradient(135deg, #2196f3, #1976d2)';
+                        element.style.color = 'white';
+                    } else {
+                        element.style.background = '#f5f5f5';
+                        element.style.color = '#666';
+                    }
+                };
+                
+                if (commentsDisplaySeusPosts) updateButtonStyle(commentsDisplaySeusPosts);
+                if (commentsDisplayHolofotes && commentsDisplayHolofotes !== commentsDisplaySeusPosts) {
+                    updateButtonStyle(commentsDisplayHolofotes);
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar contador de comentários:', error);
+            }
+        }
+
+        // Função para reagir a posts (usada nos modais)
+        function reactToPost(postId, type) {
+            toggleReaction(postId, type);
         }
 
         async function toggleReaction(postId, type) {
@@ -4593,6 +4733,14 @@
                     setTimeout(async () => {
                         try {
                             const updatedComments = await loadCommentsForPost(postId);
+                            
+                            // Atualizar contador de comentários no post
+                            updateCommentCounter(postId);
+                            
+                            // Atualizar métricas do usuário
+                            updateSimpleMetrics();
+                            
+                        } catch (reloadError) {
                             
                             // Buscar dados dos usuários novamente
                             const userIds = [...new Set(updatedComments.map(c => c.user_id))];
