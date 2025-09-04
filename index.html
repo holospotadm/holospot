@@ -5147,45 +5147,51 @@
             try {
                 console.log('📨 Carregando holofotes recebidos no modal...');
                 
-                // Filtrar posts que mencionaram o usuário atual usando mentioned_user_id
-                const postsAboutUser = posts.filter(post => {
-                    return post.mentioned_user_id === currentUser.id;
-                });
-
-                const modalContent = document.getElementById('modalHolofotesRecebidosContent');
+                // Recarregar posts onde o usuário atual foi mencionado
+                const { data: userPosts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('mentioned_user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
                 
-                if (postsAboutUser.length === 0) {
-                    modalContent.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #666;">
-                            <p>📭 Nenhum holofote recebido ainda</p>
-                            <p style="font-size: 14px;">Quando alguém te mencionar em um post, aparecerá aqui!</p>
+                if (error) {
+                    console.error('❌ Erro ao carregar holofotes recebidos:', error);
+                    throw error;
+                }
+                
+                console.log('📊 Holofotes recebidos encontrados:', userPosts?.length || 0);
+                
+                const postsContainer = document.getElementById('modalHolofotesRecebidosContent');
+                
+                if (!userPosts || userPosts.length === 0) {
+                    postsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📨</div>
+                            <p>📨 Nenhum holofote recebido ainda</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Quando alguém te destacar, aparecerá aqui!</p>
                         </div>
                     `;
                     return;
                 }
 
-                // Ordenar por data (mais recente primeiro)
-                postsAboutUser.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                // Mapear tipos de destaque
-                const typeEmojis = {
-                    'gratidao': '🙏',
-                    'memoria': '💭', 
-                    'conquista': '🏆',
-                    'inspiracao': '✨',
-                    'admiracao': '🌟'
-                };
-
-                const typeNames = {
-                    'gratidao': 'Gratidão',
-                    'memoria': 'Memória',
-                    'conquista': 'Conquista', 
-                    'inspiracao': 'Inspiração',
-                    'admiracao': 'Admiração'
-                };
+                // Recarregar reações para os posts recebidos
+                const postIds = userPosts.map(p => p.id);
+                let allReactions = [];
+                
+                if (postIds.length > 0) {
+                    try {
+                        const { data: reactionsData } = await supabase
+                            .from('reactions')
+                            .select('*')
+                            .in('post_id', postIds);
+                        allReactions = reactionsData || [];
+                    } catch (reactionError) {
+                        console.log('Erro ao carregar reações:', reactionError);
+                    }
+                }
 
                 // Buscar dados dos autores dos posts
-                const authorIds = [...new Set(postsAboutUser.map(post => post.user_id))];
+                const authorIds = [...new Set(userPosts.map(post => post.user_id))];
                 const { data: authors } = await supabase
                     .from('profiles')
                     .select('id, name, username, avatar_url')
@@ -5196,72 +5202,132 @@
                     authorMap[author.id] = author;
                 });
 
-                let html = '';
-                for (const post of postsAboutUser) {
-                    const author = authorMap[post.user_id] || {};
-                    const timeAgo = new Date(post.created_at).toLocaleDateString('pt-BR');
+                // Usar o mesmo código do renderPosts do início
+                const postsHtml = [];
+                for (const post of userPosts) {
+                    // Adicionar reações ao post
+                    post.reactions = allReactions.filter(r => r.post_id === post.id);
                     
-                    html += `
-                        <div class="post-item" style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; background: white;">
-                            <div class="post-header" style="display: flex; align-items: center; margin-bottom: 1rem;">
-                                <img src="${author.avatar_url || '/default-avatar.png'}" 
-                                     style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;"
-                                     onerror="this.src='/default-avatar.png'">
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; color: #333;">${author.name || 'Usuário'}</div>
-                                    <div style="color: #666; font-size: 0.9em;">@${author.username || 'usuario'} • ${timeAgo}</div>
+                    // Usar dados do autor do post (não do usuário atual)
+                    const author = authorMap[post.user_id] || {};
+                    post.user_data = {
+                        name: author.name || 'Usuário',
+                        email: author.username ? `${author.username}@example.com` : 'usuario@example.com',
+                        avatar_url: author.avatar_url || ''
+                    };
+                    
+                    const typeEmojis = {
+                        'gratidao': '🙏', 'gratitude': '🙏',
+                        'memoria': '💭', 'memory': '💭',
+                        'conquista': '🏆', 'achievement': '🏆',
+                        'inspiracao': '✨', 'inspiration': '✨',
+                        'apoio': '🤝', 'support': '🤝',
+                        'admiracao': '🌟', 'admiration': '🌟'
+                    };
+
+                    const typeNames = {
+                        'gratidao': 'Gratidão', 'gratitude': 'Gratidão',
+                        'memoria': 'Memória', 'memory': 'Memória',
+                        'conquista': 'Conquista', 'achievement': 'Conquista',
+                        'inspiracao': 'Inspiração', 'inspiration': 'Inspiração',
+                        'apoio': 'Apoio', 'support': 'Apoio',
+                        'admiracao': 'Admiração', 'admiration': 'Admiração'
+                    };
+                    
+                    // Contar feedbacks para este post
+                    let feedbacksCount = 0;
+                    try {
+                        const { data: feedbacksData } = await supabase
+                            .from('feedbacks')
+                            .select('id')
+                            .eq('post_id', post.id)
+                            .eq('author_id', currentUser.id);
+                        feedbacksCount = feedbacksData ? feedbacksData.length : 0;
+                    } catch (error) {
+                        console.log('Erro ao contar feedbacks:', error);
+                    }
+                    
+                    // Contar comentários para este post
+                    let commentsCount = 0;
+                    try {
+                        const { data: commentsData } = await supabase
+                            .from('comments')
+                            .select('id')
+                            .eq('post_id', post.id);
+                        commentsCount = commentsData ? commentsData.length : 0;
+                    } catch (error) {
+                        console.log('Erro ao contar comentários:', error);
+                    }
+                    
+                    const feedbacksSection = await getFeedbacksForAuthorPost(post);
+                    
+                    const postHtml = `
+                        <div class="post">
+                            <div class="post-header">
+                                <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
+                                <div class="post-author">
+                                    <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
+                                    <div class="post-author-meta">
+                                        <span class="post-author-username">@${author.username || 'usuario'}</span>
+                                        <span class="post-time-separator">•</span>
+                                        <span class="post-time">${formatDateShort(post.created_at)}</span>
+                                    </div>
                                 </div>
                             </div>
                             
                             <div class="post-content">
-                                <div style="color: #e67e22; font-weight: 600; margin-bottom: 0.5rem;">
-                                    Holofotes para: ${post.celebrated_person_name || post.person_name}
-                                </div>
+                                <div class="post-person">Holofotes para: ${post.celebrated_person_name || post.person_name}</div>
                                 ${post.type || post.highlight_type ? `
-                                    <div style="display: inline-block; background: #e67e22; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8em; margin-bottom: 1rem;">
+                                    <div class="post-type">
                                         ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
                                     </div>
                                 ` : ''}
-                                <div style="color: #333; line-height: 1.6; margin-bottom: 1rem;">
-                                    ${post.content || post.story}
-                                </div>
-                                ${post.photo_url ? `<img src="${post.photo_url}" style="width: 100%; border-radius: 8px; margin-bottom: 1rem;" alt="Foto do post">` : ''}
+                                <div class="post-story">${post.content || post.story}</div>
+                                ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post">` : ''}
                             </div>
                             
-                            <div class="post-reactions" style="display: flex; align-items: center; gap: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
-                                <button onclick="reactToPost('${post.id}', 'heart')" style="background: none; border: none; color: #e74c3c; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                    ❤️ <span id="heart-count-${post.id}">0</span>
-                                </button>
-                                <button onclick="reactToPost('${post.id}', 'gratitude')" style="background: none; border: none; color: #f39c12; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                    🙏 <span id="gratitude-count-${post.id}">0</span>
-                                </button>
-                                <button onclick="reactToPost('${post.id}', 'inspiration')" style="background: none; border: none; color: #9b59b6; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                    ✨ <span id="inspiration-count-${post.id}">0</span>
-                                </button>
-                                <button onclick="toggleComments('${post.id}')" style="background: #3498db; color: white; border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-size: 0.9em;">
-                                    💬 <span id="comment-count-${post.id}">0</span>
-                                </button>
-                                <button onclick="openFeedbackModal('${post.id}', '${author.id}')" style="background: #e67e22; color: white; border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-size: 0.9em;">
-                                    📝 <span id="feedback-count-${post.id}">0</span>
-                                </button>
+                            <div class="post-reactions">
+                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                    ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
+                                </span>
+                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                    🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
+                                </span>
+                                <span class="reaction-display" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border-radius: 20px; color: #666; font-size: 12px;">
+                                    ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
+                                </span>
                             </div>
+                            
+                            <div class="post-footer">
+                                <span class="comments-display" id="comments-${post.id}" ${commentsCount > 0 ? `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"` : `onclick="openCommentsModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
+                                    💬 ${commentsCount}
+                                </span>
+                                <span class="feedback-display" ${feedbacksCount > 0 ? `onclick="openPostFeedbackModal('${post.id}')" style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: linear-gradient(135deg, #e55a2b, #ffb700); color: white; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"` : `style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f5f5f5; color: #666; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"`}>
+                                    🔄 ${feedbacksCount}
+                                </span>
+                            </div>
+                            
+                            ${feedbacksSection}
                         </div>
                     `;
+                    
+                    postsHtml.push(postHtml);
                 }
 
-                modalContent.innerHTML = html;
+                postsContainer.innerHTML = postsHtml.join('');
+                console.log('✅ Holofotes recebidos carregados no modal');
                 
-                // Carregar contadores de reações, comentários e feedbacks para cada post
-                for (const post of postsAboutUser) {
-                    await loadPostCounts(post.id);
-                }
-                console.log('✅ Holofotes recebidos carregados no modal:', postsAboutUser.length);
+                // Atualizar contadores de comentários após carregar posts
+                setTimeout(() => {
+                    updateAllCommentsCounters();
+                }, 500);
+                
             } catch (error) {
                 console.error('❌ Erro ao carregar holofotes recebidos:', error);
                 document.getElementById('modalHolofotesRecebidosContent').innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #666;">
+                    <div style="text-align: center; padding: 40px; color: #666;">
                         <p>❌ Erro ao carregar holofotes recebidos</p>
-                        <p style="font-size: 12px;">${error.message}</p>
+                        <p style="font-size: 14px;">Erro: ${error.message}</p>
                     </div>
                 `;
             }
