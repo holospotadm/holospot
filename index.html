@@ -1608,25 +1608,92 @@
             </div>
             
             <div class="stats-grid">
+                <!-- Posts Criados -->
                 <div class="stat-card" id="postsCreatedCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openPostsModal()">
                     <div class="stat-number" id="userPostsCount">0</div>
                     <div class="stat-label">Posts Criados</div>
                 </div>
+                <!-- Pessoas Destacadas -->
                 <div class="stat-card" id="peopleHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease;" onclick="openPeopleHighlightedModal()">
                     <div class="stat-number" id="userPeopleHighlighted">0</div>
                     <div class="stat-label">Pessoas Destacadas</div>
                 </div>
+                <!-- Feedbacks Dados -->
                 <div class="stat-card">
                     <div class="stat-number" id="userFeedbacksGiven">0</div>
                     <div class="stat-label">Feedbacks Dados</div>
                 </div>
+                <!-- Comentários Escritos -->
                 <div class="stat-card">
                     <div class="stat-number" id="userCommentsGiven">0</div>
                     <div class="stat-label">Comentários Escritos</div>
                 </div>
+                <!-- Reações Dadas -->
                 <div class="stat-card">
                     <div class="stat-number" id="userReactionsGiven">0</div>
                     <div class="stat-label">Reações Dadas</div>
+                </div>
+
+                <!-- MÉTRICAS RECEBIDAS - Segunda linha -->
+                <!-- Holofotes Recebidos (abaixo de Posts Criados) -->
+                <div class="stat-card" id="postsReceivedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openHolofotesRecebidosModal()">
+                    <div class="stat-number" id="userHolofotesReceived">0</div>
+                    <div class="stat-label">Holofotes Recebidos</div>
+                </div>
+                <!-- Pessoas que te Destacaram (abaixo de Pessoas Destacadas) -->
+                <div class="stat-card" id="peopleWhoHighlightedCard" style="cursor: pointer; transition: transform 0.2s ease; background-color: #f8f9fa;" onclick="openPessoasQueTeDestacaramModal()">
+                    <div class="stat-number" id="userPeopleWhoHighlighted">0</div>
+                    <div class="stat-label">Pessoas que te Destacaram</div>
+                </div>
+                <!-- Feedbacks Recebidos (abaixo de Feedbacks Dados) -->
+                <div class="stat-card" style="background-color: #f8f9fa;">
+                    <div class="stat-number" id="userFeedbacksReceived">0</div>
+                    <div class="stat-label">Feedbacks Recebidos</div>
+                </div>
+                <!-- Comentários Recebidos (abaixo de Comentários Escritos) -->
+                <div class="stat-card" style="background-color: #f8f9fa;">
+                    <div class="stat-number" id="userCommentsReceived">0</div>
+                    <div class="stat-label">Comentários Recebidos</div>
+                </div>
+                <!-- Reações Recebidas (abaixo de Reações Dadas) -->
+                <div class="stat-card" style="background-color: #f8f9fa;">
+                    <div class="stat-number" id="userReactionsReceived">0</div>
+                    <div class="stat-label">Reações Recebidas</div>
+                </div>
+            </div>
+
+            <!-- Dashboard de Comparação Estratégica -->
+            <div style="margin-top: 2rem;">
+                <h3 style="color: #333; margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">⚖️ Seu Perfil de Impacto - DADO vs RECEBIDO</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="userBalanceIndex">0%</div>
+                        <div class="stat-label">Equilíbrio</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="userEngagementProfile">-</div>
+                        <div class="stat-label">Perfil</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="userReturnRate">0%</div>
+                        <div class="stat-label">Retorno</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="userGrowthPotential">-</div>
+                        <div class="stat-label">Crescimento</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="userMutualInfluence">-</div>
+                        <div class="stat-label">Influência</div>
+                    </div>
+                </div>
+                
+                <!-- Insights Personalizados -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border-left: 4px solid #FFB700;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: #333; font-size: 1rem;">💡 Insights Personalizados:</h4>
+                    <div id="personalizedInsights" style="color: #666; font-size: 0.9rem; line-height: 1.4;">
+                        <p>Analisando seu perfil de impacto...</p>
+                    </div>
                 </div>
             </div>
 
@@ -3289,6 +3356,8 @@
                     if (typeof updateSimpleMetrics === 'function') {
                         setTimeout(() => {
                             updateSimpleMetrics();
+                            updateReceivedMetrics();
+                            updateStrategicMetrics();
                             console.log('✅ Métricas do perfil atualizadas após reação');
                         }, 500);
                     }
@@ -3434,6 +3503,8 @@
                     setTimeout(() => {
                         if (typeof updateSimpleMetrics === 'function') {
                             updateSimpleMetrics();
+                            updateReceivedMetrics();
+                            updateStrategicMetrics();
                             console.log('✅ Métricas do perfil atualizadas após feedback (imediato)');
                         }
                     }, 100);
@@ -3778,6 +3849,8 @@
                 if (typeof updateSimpleMetrics === 'function') {
                     setTimeout(() => {
                         updateSimpleMetrics();
+                        updateReceivedMetrics();
+                        updateStrategicMetrics();
                         console.log('✅ Métricas do perfil atualizadas após criação de post');
                     }, 500);
                 }
@@ -3983,6 +4056,8 @@
             
             // Update simple metrics
             updateSimpleMetrics();
+            updateReceivedMetrics();
+            updateStrategicMetrics();
         }
 
         function updateProgressBars(postsCount, reactionsCount) {
@@ -4213,10 +4288,20 @@
         }
 
         function closeModal() {
-            const modal = document.querySelector('.modal-overlay');
-            if (modal) {
-                modal.remove();
+            // Close dynamic modals (remove from DOM)
+            const dynamicModal = document.querySelector('.modal-overlay');
+            if (dynamicModal) {
+                dynamicModal.remove();
             }
+            
+            // Close static modals (hide with display: none)
+            const staticModals = ['postsReceivedModal', 'commentsReceivedModal', 'feedbacksReceivedModal', 'holofotesRecebidosModal', 'pessoasQueTeDestacaramModal'];
+            staticModals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            });
         }
 
         function closeFollowingModal() {
@@ -4612,6 +4697,8 @@
                     // Atualizar métricas do perfil em tempo real
                     if (typeof updateSimpleMetrics === 'function') {
                         updateSimpleMetrics();
+                        updateReceivedMetrics();
+                        updateStrategicMetrics();
                         console.log('✅ Métricas do perfil atualizadas após comentário');
                     }
                 }, 500);
@@ -5037,6 +5124,188 @@
             }
         }
 
+        // ===== FUNÇÕES DOS NOVOS MODAIS DE MÉTRICAS RECEBIDAS =====
+
+        function openHolofotesRecebidosModal() {
+            const modal = document.getElementById('holofotesRecebidosModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                loadHolofotesRecebidosInModal();
+            }
+        }
+
+        function openPessoasQueTeDestacaramModal() {
+            const modal = document.getElementById('pessoasQueTeDestacaramModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                loadPessoasQueTeDestacaramInModal();
+            }
+        }
+
+        async function loadHolofotesRecebidosInModal() {
+            try {
+                console.log('📨 Carregando holofotes recebidos no modal...');
+                
+                // Filtrar posts que mencionaram o usuário atual
+                const postsAboutUser = posts.filter(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            return usernameMatch.some(match => {
+                                const username = match.substring(1);
+                                return username === currentUser.username;
+                            });
+                        }
+                    }
+                    return false;
+                });
+
+                const modalContent = document.getElementById('modalHolofotesRecebidosContent');
+                
+                if (postsAboutUser.length === 0) {
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <p>📭 Nenhum holofote recebido ainda</p>
+                            <p style="font-size: 14px;">Quando alguém te mencionar em um post, aparecerá aqui!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Ordenar por data (mais recente primeiro)
+                postsAboutUser.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                let html = '';
+                for (const post of postsAboutUser) {
+                    const authorName = post.author_name || 'Usuário';
+                    const createdAt = new Date(post.created_at).toLocaleDateString('pt-BR');
+                    const content = post.content || post.celebrated_person_name || '';
+                    
+                    html += `
+                        <div class="post-item" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: white;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <strong style="color: #333;">${authorName}</strong>
+                                <span style="color: #666; font-size: 12px;">${createdAt}</span>
+                            </div>
+                            <p style="color: #555; line-height: 1.4; margin-bottom: 1rem;">${content}</p>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <button onclick="reactToPost('${post.id}', '❤️')" style="background: none; border: 1px solid #ddd; border-radius: 20px; padding: 0.3rem 0.8rem; cursor: pointer; font-size: 12px;">
+                                    ❤️ Reagir
+                                </button>
+                                <button onclick="openCommentModal('${post.id}')" style="background: none; border: 1px solid #ddd; border-radius: 20px; padding: 0.3rem 0.8rem; cursor: pointer; font-size: 12px;">
+                                    💬 Comentar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                modalContent.innerHTML = html;
+                console.log('✅ Holofotes recebidos carregados no modal:', postsAboutUser.length);
+            } catch (error) {
+                console.error('❌ Erro ao carregar holofotes recebidos:', error);
+                document.getElementById('modalHolofotesRecebidosContent').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <p>❌ Erro ao carregar holofotes recebidos</p>
+                        <p style="font-size: 12px;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadPessoasQueTeDestacaramInModal() {
+            try {
+                console.log('👥 Carregando pessoas que te destacaram no modal...');
+                
+                // Encontrar posts que mencionaram o usuário atual
+                const postsAboutUser = posts.filter(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            return usernameMatch.some(match => {
+                                const username = match.substring(1);
+                                return username === currentUser.username;
+                            });
+                        }
+                    }
+                    return false;
+                });
+
+                // Extrair pessoas únicas que destacaram o usuário
+                const peopleWhoHighlighted = new Set();
+                const peopleDetails = [];
+
+                postsAboutUser.forEach(post => {
+                    const authorId = post.user_id;
+                    const authorName = post.author_name || 'Usuário';
+                    
+                    if (!peopleWhoHighlighted.has(authorId)) {
+                        peopleWhoHighlighted.add(authorId);
+                        peopleDetails.push({
+                            id: authorId,
+                            name: authorName,
+                            lastMention: new Date(post.created_at).toLocaleDateString('pt-BR'),
+                            postsCount: postsAboutUser.filter(p => p.user_id === authorId).length
+                        });
+                    }
+                });
+
+                const modalContent = document.getElementById('modalPessoasQueTeDestacaramContent');
+                
+                if (peopleDetails.length === 0) {
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <p>👥 Ninguém te destacou ainda</p>
+                            <p style="font-size: 14px;">Quando alguém te mencionar em um post, aparecerá aqui!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Ordenar por número de posts (quem mais destacou primeiro)
+                peopleDetails.sort((a, b) => b.postsCount - a.postsCount);
+
+                let html = '';
+                peopleDetails.forEach(person => {
+                    html += `
+                        <div class="person-item" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: white;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="color: #333; font-size: 16px;">${person.name}</strong>
+                                    <p style="color: #666; font-size: 12px; margin: 0.2rem 0;">
+                                        ${person.postsCount} ${person.postsCount === 1 ? 'destaque' : 'destaques'}
+                                    </p>
+                                    <p style="color: #888; font-size: 11px; margin: 0;">
+                                        Último destaque: ${person.lastMention}
+                                    </p>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="highlightPerson('${person.name}')" style="background: #FFB700; color: white; border: none; border-radius: 20px; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 12px;">
+                                        ⭐ Destacar de volta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                modalContent.innerHTML = html;
+                console.log('✅ Pessoas que te destacaram carregadas no modal:', peopleDetails.length);
+            } catch (error) {
+                console.error('❌ Erro ao carregar pessoas que te destacaram:', error);
+                document.getElementById('modalPessoasQueTeDestacaramContent').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <p>❌ Erro ao carregar pessoas que te destacaram</p>
+                        <p style="font-size: 12px;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== FIM DAS FUNÇÕES DOS NOVOS MODAIS =====
+
         // Atualizar métricas reais
         async function updateSimpleMetrics() {
             try {
@@ -5199,20 +5468,518 @@
                     });
                 }
 
+                // ===== CÁLCULOS DAS MÉTRICAS RECEBIDAS =====
+
+                // 1. Holofotes Recebidos (posts que mencionaram o usuário)
+                const postsAboutUser = posts.filter(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            return usernameMatch.some(match => {
+                                const username = match.substring(1);
+                                return username === currentUser.username;
+                            });
+                        }
+                    }
+                    return false;
+                });
+                document.getElementById('userHolofotesReceived').textContent = postsAboutUser.length;
+
+                // 2. Pessoas que te Destacaram (pessoas únicas que mencionaram o usuário)
+                const peopleWhoHighlighted = new Set();
+                postsAboutUser.forEach(post => {
+                    peopleWhoHighlighted.add(post.user_id);
+                });
+                document.getElementById('userPeopleWhoHighlighted').textContent = peopleWhoHighlighted.size;
+
+                // 3. Consultas para métricas recebidas (reações, comentários, feedbacks nos posts do usuário)
+                const userPostIds = userPosts.map(post => post.id);
+                
+                const [reactionsReceivedResult, commentsReceivedResult, feedbacksReceivedResult] = await Promise.all([
+                    userPostIds.length > 0 ? supabase.from('reactions').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 },
+                    userPostIds.length > 0 ? supabase.from('comments').select('id', { count: 'exact' }).in('post_id', userPostIds).neq('user_id', currentUser.id) : { count: 0 },
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id)
+                ]);
+
+                // 4. Atualizar elementos das métricas recebidas
+                document.getElementById('userReactionsReceived').textContent = reactionsReceivedResult.count || 0;
+                document.getElementById('userCommentsReceived').textContent = commentsReceivedResult.count || 0;
+                document.getElementById('userFeedbacksReceived').textContent = feedbacksReceivedResult.count || 0;
+
                 console.log('✅ Métricas reais atualizadas:', {
                     pessoas: uniquePeople.size,
                     usernames: Array.from(uniquePeople),
                     comentarios: totalCommentsAndFeedbacks,
                     reacoes: reactionsResult.count || 0,
-                    streak: currentStreak
+                    streak: currentStreak,
+                    // Métricas recebidas
+                    holofotesRecebidos: postsAboutUser.length,
+                    pessoasQueTeDestacaram: peopleWhoHighlighted.size,
+                    reacoesRecebidas: reactionsReceivedResult.count || 0,
+                    comentariosRecebidos: commentsReceivedResult.count || 0,
+                    feedbacksRecebidos: feedbacksReceivedResult.count || 0
                 });
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas reais:', error);
                 // Em caso de erro, manter valores existentes
             }
         }
+
+        // Atualizar métricas de reconhecimento recebido
+        async function updateReceivedMetrics() {
+            try {
+                console.log('📨 Atualizando métricas de reconhecimento recebido...');
+
+                // 1. Posts Recebidos - posts que mencionaram o usuário
+                const userPostsReceived = posts.filter(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            return usernameMatch.some(match => {
+                                const username = match.substring(1);
+                                return username === currentUser.username;
+                            });
+                        }
+                    }
+                    return false;
+                });
+
+                document.getElementById('userPostsReceived').textContent = userPostsReceived.length;
+
+                // 2. Consultas paralelas para métricas recebidas
+                const userPostIds = posts.filter(post => post.user_id === currentUser.id).map(post => post.id);
+                
+                const [reactionsReceivedResult, commentsReceivedResult, feedbacksReceivedResult] = await Promise.all([
+                    userPostIds.length > 0 ? 
+                        supabase.from('reactions').select('id', { count: 'exact' }).in('post_id', userPostIds) :
+                        Promise.resolve({ count: 0 }),
+                    userPostIds.length > 0 ? 
+                        supabase.from('comments').select('id', { count: 'exact' }).in('post_id', userPostIds).neq('user_id', currentUser.id) :
+                        Promise.resolve({ count: 0 }),
+                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id)
+                ]);
+
+                console.log('📨 Contagens das métricas recebidas:', {
+                    postsReceived: userPostsReceived.length,
+                    reactionsReceived: reactionsReceivedResult.count,
+                    commentsReceived: commentsReceivedResult.count,
+                    feedbacksReceived: feedbacksReceivedResult.count
+                });
+
+                const reactionsReceivedCount = reactionsReceivedResult.count || 0;
+                const commentsReceivedCount = commentsReceivedResult.count || 0;
+                const feedbacksReceivedCount = feedbacksReceivedResult.count || 0;
+
+                // 3. Atualizar elementos
+                document.getElementById('userReactionsReceived').textContent = reactionsReceivedCount;
+                document.getElementById('userCommentsReceived').textContent = commentsReceivedCount;
+                document.getElementById('userFeedbacksReceived').textContent = feedbacksReceivedCount;
+
+                // 4. Calcular Score de Popularidade
+                const popularityScore = (userPostsReceived.length * 10) + (reactionsReceivedCount * 2) + (commentsReceivedCount * 3) + (feedbacksReceivedCount * 5);
+                document.getElementById('userPopularityScore').textContent = popularityScore;
+
+                console.log('✅ Métricas de reconhecimento recebido atualizadas:', {
+                    postsReceived: userPostsReceived.length,
+                    reactionsReceived: reactionsReceivedCount,
+                    commentsReceived: commentsReceivedCount,
+                    feedbacksReceived: feedbacksReceivedCount,
+                    popularityScore: popularityScore
+                });
+
+            } catch (error) {
+                console.error('❌ Erro ao atualizar métricas recebidas:', error);
+                // Em caso de erro, manter valores existentes
+            }
+        }
+
+        // Atualizar métricas estratégicas de comparação
+        async function updateStrategicMetrics() {
+            try {
+                console.log('⚖️ Atualizando métricas estratégicas...');
+
+                // Obter valores das métricas já calculadas
+                const postsGiven = parseInt(document.getElementById('userPostsCount').textContent) || 0;
+                const peopleHighlighted = parseInt(document.getElementById('userPeopleHighlighted').textContent) || 0;
+                const feedbacksGiven = parseInt(document.getElementById('userFeedbacksGiven').textContent) || 0;
+                const commentsGiven = parseInt(document.getElementById('userCommentsGiven').textContent) || 0;
+                const reactionsGiven = parseInt(document.getElementById('userReactionsGiven').textContent) || 0;
+
+                const postsReceived = parseInt(document.getElementById('userPostsReceived').textContent) || 0;
+                const reactionsReceived = parseInt(document.getElementById('userReactionsReceived').textContent) || 0;
+                const commentsReceived = parseInt(document.getElementById('userCommentsReceived').textContent) || 0;
+                const feedbacksReceived = parseInt(document.getElementById('userFeedbacksReceived').textContent) || 0;
+
+                // 1. Índice de Equilíbrio
+                const totalGiven = postsGiven + feedbacksGiven + commentsGiven + reactionsGiven;
+                const totalReceived = postsReceived + reactionsReceived + commentsReceived + feedbacksReceived;
+                
+                let balanceIndex = 0;
+                if (totalReceived > 0) {
+                    balanceIndex = Math.round((totalGiven / totalReceived) * 100);
+                }
+                document.getElementById('userBalanceIndex').textContent = `${balanceIndex}%`;
+
+                // 2. Perfil de Engajamento
+                let engagementProfile = "Crescendo";
+                if (totalGiven > totalReceived * 1.2) {
+                    engagementProfile = "Destacador";
+                } else if (totalReceived > totalGiven * 1.2) {
+                    engagementProfile = "Magnético";
+                } else if (totalGiven > 0 && totalReceived > 0) {
+                    engagementProfile = "Equilibrado";
+                }
+                document.getElementById('userEngagementProfile').textContent = engagementProfile;
+
+                // 3. Taxa de Retorno - % de pessoas que retribuem reconhecimento
+                let returnRate = 0;
+                if (peopleHighlighted > 0) {
+                    // Calcular quantas pessoas que você destacou também te destacaram
+                    const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                    const peopleYouHighlighted = new Set();
+                    
+                    userPosts.forEach(post => {
+                        const personName = post.celebrated_person_name || post.person_name;
+                        if (personName && personName.includes('@')) {
+                            const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                            if (usernameMatch) {
+                                usernameMatch.forEach(match => {
+                                    const username = match.substring(1);
+                                    if (username) {
+                                        peopleYouHighlighted.add(username);
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+                    const postsAboutYou = posts.filter(post => {
+                        const personName = post.celebrated_person_name || post.person_name;
+                        if (personName && personName.includes('@')) {
+                            const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                            if (usernameMatch) {
+                                return usernameMatch.some(match => {
+                                    const username = match.substring(1);
+                                    return username === currentUser.username;
+                                });
+                            }
+                        }
+                        return false;
+                    });
+
+                    const peopleWhoHighlightedYou = new Set();
+                    postsAboutYou.forEach(post => {
+                        // Aqui precisaríamos do username do autor do post
+                        // Por simplicidade, vamos usar uma estimativa baseada nos posts recebidos
+                    });
+
+                    // Estimativa simplificada baseada na proporção
+                    if (peopleYouHighlighted.size > 0) {
+                        returnRate = Math.round((postsReceived / peopleYouHighlighted.size) * 100);
+                        returnRate = Math.min(returnRate, 100); // Cap at 100%
+                    }
+                }
+                document.getElementById('userReturnRate').textContent = `${returnRate}%`;
+
+                // 4. Potencial de Crescimento
+                let growthPotential = "Iniciante";
+                const totalActivity = totalGiven + totalReceived;
+                if (totalActivity >= 100) {
+                    growthPotential = "Avançado";
+                } else if (totalActivity >= 50) {
+                    growthPotential = "Intermediário";
+                } else if (totalActivity >= 20) {
+                    growthPotential = "Ativo";
+                }
+                
+                // Sugestões baseadas no que está mais baixo
+                if (totalReceived < totalGiven * 0.5) {
+                    growthPotential += " (Receber +)";
+                } else if (totalGiven < totalReceived * 0.5) {
+                    growthPotential += " (Dar +)";
+                }
+                document.getElementById('userGrowthPotential').textContent = growthPotential;
+
+                // 5. Índice de Influência Mútua
+                let mutualInfluence = "Básico";
+                const mutualScore = (returnRate / 100) * (balanceIndex / 100) * totalActivity;
+                if (mutualScore >= 50) {
+                    mutualInfluence = "Liderança";
+                } else if (mutualScore >= 25) {
+                    mutualInfluence = "Sólida";
+                } else if (mutualScore >= 10) {
+                    mutualInfluence = "Crescente";
+                }
+                document.getElementById('userMutualInfluence').textContent = mutualInfluence;
+
+                // 6. Insights Personalizados
+                const insights = [];
+                
+                if (balanceIndex > 120) {
+                    insights.push("• Você é generoso! Destaca mais do que recebe");
+                } else if (balanceIndex < 80) {
+                    insights.push("• Você é popular! Recebe mais reconhecimento do que dá");
+                } else {
+                    insights.push("• Você tem um perfil equilibrado entre dar e receber");
+                }
+
+                if (engagementProfile === "Destacador") {
+                    insights.push("• Força: Excelente em reconhecer outras pessoas");
+                } else if (engagementProfile === "Magnético") {
+                    insights.push("• Força: Seus posts geram muito engajamento");
+                }
+
+                if (returnRate < 30) {
+                    insights.push("• Oportunidade: Tente interagir mais com quem você destaca");
+                } else if (returnRate > 70) {
+                    insights.push("• Força: Excelente em criar relacionamentos mútuos");
+                }
+
+                if (totalActivity < 10) {
+                    insights.push("• Dica: Seja mais ativo para aumentar seu impacto na comunidade");
+                }
+
+                document.getElementById('personalizedInsights').innerHTML = insights.join('<br>');
+
+                console.log('✅ Métricas estratégicas atualizadas:', {
+                    balanceIndex: `${balanceIndex}%`,
+                    engagementProfile,
+                    returnRate: `${returnRate}%`,
+                    growthPotential,
+                    mutualInfluence,
+                    totalGiven,
+                    totalReceived
+                });
+
+            } catch (error) {
+                console.error('❌ Erro ao atualizar métricas estratégicas:', error);
+                // Em caso de erro, manter valores existentes
+            }
+        }
+
+        // Modal functions for received metrics
+        function openPostsReceivedModal() {
+            const modal = document.getElementById('postsReceivedModal');
+            if (modal) {
+                modal.style.display = 'block';
+                loadPostsReceivedInModal();
+            }
+        }
+
+        function openCommentsReceivedModal() {
+            const modal = document.getElementById('commentsReceivedModal');
+            if (modal) {
+                modal.style.display = 'block';
+                loadCommentsReceivedInModal();
+            }
+        }
+
+        function openFeedbacksReceivedModal() {
+            const modal = document.getElementById('feedbacksReceivedModal');
+            if (modal) {
+                modal.style.display = 'block';
+                loadFeedbacksReceivedInModal();
+            }
+        }
+
+        async function loadPostsReceivedInModal() {
+            try {
+                const userPostsReceived = posts.filter(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            return usernameMatch.some(match => {
+                                const username = match.substring(1);
+                                return username === currentUser.username;
+                            });
+                        }
+                    }
+                    return false;
+                });
+
+                const modalContent = document.getElementById('postsReceivedModalContent');
+                if (!modalContent) return;
+
+                if (userPostsReceived.length === 0) {
+                    modalContent.innerHTML = '<p style="text-align: center; color: #666;">Nenhum post recebido ainda.</p>';
+                    return;
+                }
+
+                let html = '';
+                for (const post of userPostsReceived) {
+                    const timeAgo = getTimeAgo(post.created_at);
+                    html += `
+                        <div style="padding: 1rem; border-bottom: 1px solid #eee;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">${post.celebrated_person_name || post.person_name}</div>
+                            <div style="color: #666; margin-bottom: 0.5rem;">${post.content || post.story || ''}</div>
+                            <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
+                        </div>
+                    `;
+                }
+                modalContent.innerHTML = html;
+            } catch (error) {
+                console.error('❌ Erro ao carregar posts recebidos:', error);
+            }
+        }
+
+        async function loadCommentsReceivedInModal() {
+            try {
+                const userPostIds = posts.filter(post => post.user_id === currentUser.id).map(post => post.id);
+                
+                if (userPostIds.length === 0) {
+                    const modalContent = document.getElementById('commentsReceivedModalContent');
+                    if (modalContent) {
+                        modalContent.innerHTML = '<p style="text-align: center; color: #666;">Nenhum comentário recebido ainda.</p>';
+                    }
+                    return;
+                }
+
+                const { data: commentsReceived, error } = await supabase
+                    .from('comments')
+                    .select('*, profiles(name, username)')
+                    .in('post_id', userPostIds)
+                    .neq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                const modalContent = document.getElementById('commentsReceivedModalContent');
+                if (!modalContent) return;
+
+                if (error || !commentsReceived || commentsReceived.length === 0) {
+                    modalContent.innerHTML = '<p style="text-align: center; color: #666;">Nenhum comentário recebido ainda.</p>';
+                    return;
+                }
+
+                let html = '';
+                commentsReceived.forEach(comment => {
+                    const timeAgo = getTimeAgo(comment.created_at);
+                    const userName = comment.profiles?.name || 'Usuário';
+                    const username = comment.profiles?.username || '';
+                    html += `
+                        <div style="padding: 1rem; border-bottom: 1px solid #eee;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">💬 ${userName} ${username ? `(@${username})` : ''}</div>
+                            <div style="color: #666; margin-bottom: 0.5rem;">${comment.content}</div>
+                            <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
+                        </div>
+                    `;
+                });
+                modalContent.innerHTML = html;
+            } catch (error) {
+                console.error('❌ Erro ao carregar comentários recebidos:', error);
+            }
+        }
+
+        async function loadFeedbacksReceivedInModal() {
+            try {
+                const { data: feedbacksReceived, error } = await supabase
+                    .from('feedbacks')
+                    .select('*, profiles(name, username)')
+                    .eq('mentioned_user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                const modalContent = document.getElementById('feedbacksReceivedModalContent');
+                if (!modalContent) return;
+
+                if (error || !feedbacksReceived || feedbacksReceived.length === 0) {
+                    modalContent.innerHTML = '<p style="text-align: center; color: #666;">Nenhum feedback recebido ainda.</p>';
+                    return;
+                }
+
+                let html = '';
+                feedbacksReceived.forEach(feedback => {
+                    const timeAgo = getTimeAgo(feedback.created_at);
+                    const userName = feedback.profiles?.name || 'Usuário';
+                    const username = feedback.profiles?.username || '';
+                    html += `
+                        <div style="padding: 1rem; border-bottom: 1px solid #eee;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${userName} ${username ? `(@${username})` : ''}</div>
+                            <div style="color: #666; margin-bottom: 0.5rem;">${feedback.content}</div>
+                            <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
+                        </div>
+                    `;
+                });
+                modalContent.innerHTML = html;
+            } catch (error) {
+                console.error('❌ Erro ao carregar feedbacks recebidos:', error);
+            }
+        }
         
         console.log('✅ HoloSpot v8 carregado com sucesso!');
     </script>
+
+    <!-- Modals for Received Metrics -->
+    <div id="postsReceivedModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>📨 Posts Recebidos</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="postsReceivedModalContent">
+                    <p style="text-align: center; color: #666;">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="commentsReceivedModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>💬 Comentários Recebidos</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="commentsReceivedModalContent">
+                    <p style="text-align: center; color: #666;">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedbacksReceivedModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🔄 Feedbacks Recebidos</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="feedbacksReceivedModalContent">
+                    <p style="text-align: center; color: #666;">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Novos Modais para Métricas Recebidas -->
+    <div id="holofotesRecebidosModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>📨 Holofotes Recebidos</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalHolofotesRecebidosContent">
+                    <p style="text-align: center; color: #666;">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pessoasQueTeDestacaramModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>👥 Pessoas que te Destacaram</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPessoasQueTeDestacaramContent">
+                    <p style="text-align: center; color: #666;">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
