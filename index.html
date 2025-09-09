@@ -5967,8 +5967,8 @@
         }
 
         function closeModal() {
-            // Close dynamic modals (remove from DOM) - MAS NÃO O MODAL DE IMPACTO
-            const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal)');
+            // Close dynamic modals (remove from DOM) - MAS NÃO OS MODAIS DE IMPACTO E CONQUISTAS
+            const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal):not(#achievementsModal)');
             if (dynamicModal) {
                 dynamicModal.remove();
             }
