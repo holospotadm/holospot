@@ -2113,12 +2113,12 @@
                         <!-- Seção de Pontos e Nível -->
                         <div class="gamification-section">
                             <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                                <span>📊</span> Seu Progresso
+                                <span>🚀</span> Seu Progresso
                             </h3>
                             <div class="level-progress-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                     <div>
-                                        <div id="userLevel" style="font-size: 24px; font-weight: bold;">Nível 1</div>
+                                        <div id="userLevel" style="font-size: 24px; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="openLevelsModal()">Nível 1</div>
                                         <div id="userLevelName" style="opacity: 0.9;">Novato</div>
                                     </div>
                                     <div id="userLevelIcon" style="font-size: 48px;">🌱</div>
@@ -2140,8 +2140,13 @@
                         
                         <!-- Seção de Badges -->
                         <div class="gamification-section">
-                            <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                                <span>🎖️</span> Seus Emblemas
+                            <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                                <span style="display: flex; align-items: center; gap: 10px;">
+                                    <span>🎖️</span> Seus Emblemas
+                                </span>
+                                <a href="#" onclick="openProgressModal()" style="font-size: 14px; color: #667eea; text-decoration: none; font-weight: normal;">
+                                    ver conquistas em andamento →
+                                </a>
                             </h3>
                             <div id="badgesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
                                 <!-- Badges serão carregados aqui -->
@@ -2156,11 +2161,57 @@
                         <!-- Seção de Atividade Recente -->
                         <div class="gamification-section">
                             <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                                <span>📈</span> Atividades Recentes
+                                <span>⚡</span> Atividades Recentes
                             </h3>
                             <div id="recentActivity" style="max-height: 200px; overflow-y: auto;">
                                 <!-- Atividades recentes serão carregadas aqui -->
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Níveis -->
+    <div id="levelsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;">
+            <div class="modal-header">
+                <h2 style="margin: 0; color: white;">📊 Níveis do HoloSpot</h2>
+                <button class="modal-close" onclick="closeLevelsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="levelsContent">
+                    <div style="margin-bottom: 20px; text-align: center; color: #666;">
+                        <p>Progrida através dos níveis ganhando pontos com suas atividades!</p>
+                    </div>
+                    <div id="levelsContainer" style="display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Níveis serão carregados aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Conquistas em Andamento -->
+    <div id="progressModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; width: 95%; max-height: 80vh;">
+            <div class="modal-header">
+                <h2 style="margin: 0; color: white;">🎯 Conquistas em Andamento</h2>
+                <button class="modal-close" onclick="closeProgressModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="progressContent">
+                    <div class="loading-spinner" style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+                        <div style="font-size: 18px; color: #e65100;">Carregando conquistas...</div>
+                    </div>
+                    <div id="progressData" style="display: none;">
+                        <div style="margin-bottom: 20px; text-align: center; color: #666;">
+                            <p>Seus próximos emblemas para conquistar!</p>
+                        </div>
+                        <div id="progressContainer" style="display: flex; flex-direction: column; gap: 20px;">
+                            <!-- Conquistas em andamento serão carregadas aqui -->
                         </div>
                     </div>
                 </div>
@@ -2182,6 +2233,8 @@
                 // Close all possible modals
                 closeImpactModal();
                 closeAchievementsModal();
+                closeLevelsModal();
+                closeProgressModal();
                 closeFeedbacksModal();
                 closePostsModal();
                 closePeopleHighlightedModal();
@@ -2497,6 +2550,301 @@
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
+
+        // ===== FUNÇÕES DO MODAL DE NÍVEIS =====
+        function openLevelsModal() {
+            console.log('📊 openLevelsModal chamada');
+            const modal = document.getElementById('levelsModal');
+            if (modal) {
+                console.log('📋 Modal encontrado:', modal);
+                modal.style.display = 'flex';
+                console.log('✅ Abrindo modal de níveis...');
+                loadLevelsData();
+            } else {
+                console.error('❌ Modal levelsModal não encontrado no DOM');
+            }
+        }
+
+        function closeLevelsModal() {
+            const modal = document.getElementById('levelsModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadLevelsData() {
+            console.log('📊 Carregando dados dos níveis...');
+            try {
+                const { data: levels, error } = await supabase
+                    .from('levels')
+                    .select('*')
+                    .order('id');
+
+                if (error) throw error;
+
+                console.log('📊 Níveis carregados:', levels);
+                populateLevelsUI(levels);
+            } catch (error) {
+                console.error('❌ Erro ao carregar níveis:', error);
+            }
+        }
+
+        function populateLevelsUI(levels) {
+            const container = document.getElementById('levelsContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            levels.forEach(level => {
+                const levelCard = document.createElement('div');
+                levelCard.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    padding: 15px;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, ${level.color}20 0%, ${level.color}10 100%);
+                    transition: all 0.3s ease;
+                `;
+
+                levelCard.innerHTML = `
+                    <div style="font-size: 32px; margin-right: 15px;">${level.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 18px; color: #333; margin-bottom: 5px;">
+                            Nível ${level.id} - ${level.name}
+                        </div>
+                        <div style="color: #666; font-size: 14px; margin-bottom: 5px;">
+                            ${level.benefits}
+                        </div>
+                        <div style="color: ${level.color}; font-weight: bold; font-size: 14px;">
+                            ${level.points_required === 0 ? 'Nível inicial' : `${level.points_required}+ pontos`}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(levelCard);
+            });
+        }
+
+        // ===== FUNÇÕES DO MODAL DE CONQUISTAS EM ANDAMENTO =====
+        function openProgressModal() {
+            console.log('🎯 openProgressModal chamada');
+            const modal = document.getElementById('progressModal');
+            if (modal) {
+                console.log('📋 Modal encontrado:', modal);
+                modal.style.display = 'flex';
+                console.log('✅ Abrindo modal de conquistas em andamento...');
+                loadProgressData();
+            } else {
+                console.error('❌ Modal progressModal não encontrado no DOM');
+            }
+        }
+
+        function closeProgressModal() {
+            const modal = document.getElementById('progressModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadProgressData() {
+            console.log('🎯 Carregando conquistas em andamento...');
+            
+            const loadingSpinner = document.querySelector('#progressContent .loading-spinner');
+            const progressData = document.getElementById('progressData');
+            
+            if (loadingSpinner) loadingSpinner.style.display = 'block';
+            if (progressData) progressData.style.display = 'none';
+
+            try {
+                const currentUser = await getCurrentUser();
+                if (!currentUser) throw new Error('Usuário não encontrado');
+
+                // Buscar dados de gamificação do usuário
+                const { data: gamificationData, error: gamError } = await supabase
+                    .rpc('get_user_gamification_data', { p_user_id: currentUser.id });
+
+                if (gamError) throw gamError;
+
+                // Buscar todos os badges disponíveis
+                const { data: allBadges, error: badgesError } = await supabase
+                    .from('badges')
+                    .select('*')
+                    .order('rarity', { ascending: false });
+
+                if (badgesError) throw badgesError;
+
+                console.log('🎯 Dados carregados:', { gamificationData, allBadges });
+                
+                // Calcular progresso dos badges
+                const progressBadges = await calculateBadgeProgress(currentUser.id, allBadges, gamificationData.badges || []);
+                
+                populateProgressUI(progressBadges);
+                
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+                if (progressData) progressData.style.display = 'block';
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar conquistas em andamento:', error);
+                if (loadingSpinner) {
+                    loadingSpinner.innerHTML = `
+                        <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+                        <div style="font-size: 18px; color: #f44336;">Erro ao carregar conquistas</div>
+                    `;
+                }
+            }
+        }
+
+        async function calculateBadgeProgress(userId, allBadges, earnedBadges) {
+            const earnedBadgeIds = earnedBadges.map(b => b.name);
+            const unearned = allBadges.filter(badge => !earnedBadgeIds.includes(badge.name));
+            
+            const progressBadges = [];
+            
+            for (const badge of unearned) {
+                const progress = await calculateSingleBadgeProgress(userId, badge);
+                if (progress.percentage > 0) {
+                    progressBadges.push({
+                        ...badge,
+                        progress: progress.percentage,
+                        current: progress.current,
+                        required: progress.required,
+                        description_progress: progress.description
+                    });
+                }
+            }
+            
+            // Ordenar por progresso (mais próximo primeiro)
+            return progressBadges
+                .sort((a, b) => b.progress - a.progress)
+                .slice(0, 10); // Máximo 10 badges
+        }
+
+        async function calculateSingleBadgeProgress(userId, badge) {
+            try {
+                let current = 0;
+                let required = badge.condition_value;
+                let description = '';
+
+                switch (badge.condition_type) {
+                    case 'posts_count':
+                        const { count: postsCount } = await supabase
+                            .from('posts')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('user_id', userId);
+                        current = postsCount || 0;
+                        description = `${current}/${required} posts criados`;
+                        break;
+                        
+                    case 'reactions_given':
+                        const { count: reactionsCount } = await supabase
+                            .from('reactions')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('user_id', userId);
+                        current = reactionsCount || 0;
+                        description = `${current}/${required} reações dadas`;
+                        break;
+                        
+                    case 'comments_written':
+                        const { count: commentsCount } = await supabase
+                            .from('comments')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('user_id', userId);
+                        current = commentsCount || 0;
+                        description = `${current}/${required} comentários escritos`;
+                        break;
+                        
+                    case 'unique_people_highlighted':
+                        const { data: uniqueHighlights } = await supabase
+                            .from('posts')
+                            .select('mentioned_user_id')
+                            .eq('user_id', userId)
+                            .not('mentioned_user_id', 'is', null);
+                        const uniqueCount = new Set(uniqueHighlights?.map(h => h.mentioned_user_id) || []).size;
+                        current = uniqueCount;
+                        description = `${current}/${required} pessoas diferentes destacadas`;
+                        break;
+                        
+                    default:
+                        return { percentage: 0, current: 0, required, description: 'Não implementado' };
+                }
+
+                const percentage = Math.min(Math.round((current / required) * 100), 100);
+                return { percentage, current, required, description };
+                
+            } catch (error) {
+                console.error('Erro ao calcular progresso do badge:', badge.name, error);
+                return { percentage: 0, current: 0, required: badge.condition_value, description: 'Erro no cálculo' };
+            }
+        }
+
+        function populateProgressUI(progressBadges) {
+            const container = document.getElementById('progressContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (progressBadges.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Parabéns!</div>
+                        <div style="font-size: 14px;">Você está muito próximo de conquistar todos os emblemas disponíveis!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            progressBadges.forEach(badge => {
+                const rarityColors = {
+                    'common': '#4CAF50',
+                    'rare': '#2196F3', 
+                    'epic': '#9C27B0',
+                    'legendary': '#FF9800'
+                };
+
+                const badgeCard = document.createElement('div');
+                badgeCard.style.cssText = `
+                    padding: 20px;
+                    border: 2px solid ${rarityColors[badge.rarity] || '#e0e0e0'};
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, ${rarityColors[badge.rarity] || '#f5f5f5'}20 0%, ${rarityColors[badge.rarity] || '#f5f5f5'}10 100%);
+                `;
+
+                badgeCard.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div style="font-size: 32px; margin-right: 15px;">${badge.icon}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 5px;">
+                                ${badge.name}
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                ${badge.description}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold; color: ${rarityColors[badge.rarity] || '#666'}; font-size: 18px;">
+                                ${badge.progress}%
+                            </div>
+                            <div style="font-size: 12px; color: #666; text-transform: capitalize;">
+                                ${badge.rarity}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #666;">
+                            <span>${badge.description_progress}</span>
+                            <span>${badge.progress}%</span>
+                        </div>
+                        <div style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
+                            <div style="background: ${rarityColors[badge.rarity] || '#666'}; height: 100%; border-radius: 10px; width: ${badge.progress}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(badgeCard);
+            });
         }
 
         // Carregar dados de gamificação do usuário
