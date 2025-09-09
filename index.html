@@ -1512,6 +1512,12 @@
             display: inline-block;
         }
         
+        /* Animação de loading */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .simple-tooltip {
             visibility: hidden;
             opacity: 0;
@@ -1883,7 +1889,7 @@
             <!-- Streak de Engajamento -->
             <div class="evolution-chart">
                 <h3 class="chart-title">🔥 Streak de Engajamento</h3>
-                <div style="margin-bottom: 1rem;">
+                <div style="margin-bottom: 1rem; margin-top: 1.5rem;">
                     <strong>Dias consecutivos ativo</strong>
                     
                     <!-- Barra 7 dias -->
@@ -3097,6 +3103,11 @@
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
+                
+                // Marcar como carregando e renderizar loading
+                window.isLoadingPosts = true;
+                await renderPosts();
+                
                 console.log('🔍 Carregando posts reais do Supabase com timeout...');
                 
                 const postsQuery = supabase
@@ -3121,6 +3132,8 @@
                 // Carregar reações para cada post
                 await loadPostsReactions();
                 
+                // Finalizar loading
+                window.isLoadingPosts = false;
                 await renderPosts();
                 console.log('✅ Posts processados e renderizados');
                 
@@ -3130,6 +3143,9 @@
                 // Não usar fallback de posts fictícios - manter array vazio
                 console.log('⚠️ Mantendo array de posts vazio devido ao erro');
                 posts = [];
+                
+                // Finalizar loading mesmo em caso de erro
+                window.isLoadingPosts = false;
                 await renderPosts();
                 console.log('✅ Interface renderizada sem posts');
             }
@@ -3414,6 +3430,17 @@
 
         async function renderPosts() {
             const container = document.getElementById('postsContainer');
+            
+            // Se ainda está carregando, mostrar loading
+            if (window.isLoadingPosts) {
+                container.innerHTML = `
+                    <div class="post" style="text-align: center; padding: 2rem;">
+                        <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #e65100; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem;"></div>
+                        <p style="color: #666; margin: 0;">Carregando...</p>
+                    </div>
+                `;
+                return;
+            }
             
             if (posts.length === 0) {
                 container.innerHTML = `
