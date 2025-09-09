@@ -1953,7 +1953,7 @@
                         </div>
                         <div class="insight-altruism">
                             <div class="altruism-value" id="altruismValue">0</div>
-                            <div class="altruism-message" id="altruismMessage">Calculando...</div>
+                            <div class="altruism-message" id="altruismMessage" style="font-style: italic;">Calculando...</div>
                         </div>
                         <div class="insight-description">balanço dar vs receber</div>
                     </div>
@@ -5242,13 +5242,13 @@
                 insights.push("🌱 Sua rede está no início. Continue destacando e interagindo!");
             }
 
-            // Altruísmo - sempre gera insight com cálculo específico
+            // Altruísmo - sempre gera insight genérico motivacional
             if (metrics.altruism.type === "giving") {
-                insights.push(`💝 ${metrics.altruism.message}`);
+                insights.push("💝 Você é muito altruísta! Continue espalhando positividade.");
             } else if (metrics.altruism.type === "received") {
-                insights.push(`🏆 ${metrics.altruism.message}`);
+                insights.push("🏆 Você é muito reconhecido pela comunidade!");
             } else {
-                insights.push(`⚖️ ${metrics.altruism.message}`);
+                insights.push("⚖️ Você tem um equilíbrio perfeito entre dar e receber!");
             }
 
             // Garantir mínimo de 3 insights
