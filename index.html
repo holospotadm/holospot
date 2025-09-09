@@ -4852,10 +4852,10 @@
             
             const ctx = canvas.getContext('2d');
             
-            // Create radial gradient for better color distribution in doughnut
-            const gradient = ctx.createRadialGradient(60, 60, 0, 60, 60, 60);
-            gradient.addColorStop(0, '#ff6600'); // 100% Orange at center
-            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at edge
+            // Create linear gradient positioned to follow arc direction (bottom to top)
+            const gradient = ctx.createLinearGradient(60, 120, 60, 0);
+            gradient.addColorStop(0, '#ff6600'); // 100% Orange at bottom (start)
+            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at top (end)
             
             // Destruir chart existente se houver
             if (window.reciprocityChartInstance) {
@@ -4902,10 +4902,10 @@
             
             const ctx = canvas.getContext('2d');
             
-            // Create radial gradient for better color distribution in doughnut
-            const gradient = ctx.createRadialGradient(60, 60, 0, 60, 60, 60);
-            gradient.addColorStop(0, '#ff6600'); // 100% Orange at center
-            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at edge
+            // Create linear gradient positioned to follow arc direction (bottom to top)
+            const gradient = ctx.createLinearGradient(60, 120, 60, 0);
+            gradient.addColorStop(0, '#ff6600'); // 100% Orange at bottom (start)
+            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at top (end)
             
             // Destruir chart existente se houver
             if (window.impactChartInstance) {
@@ -4962,10 +4962,10 @@
             
             const ctx = canvas.getContext('2d');
             
-            // Create radial gradient for better color distribution in doughnut
-            const gradient = ctx.createRadialGradient(60, 60, 0, 60, 60, 60);
-            gradient.addColorStop(0, '#ff6600'); // 100% Orange at center
-            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at edge
+            // Create linear gradient positioned to follow arc direction (bottom to top)
+            const gradient = ctx.createLinearGradient(60, 120, 60, 0);
+            gradient.addColorStop(0, '#ff6600'); // 100% Orange at bottom (start)
+            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at top (end)
             
             // Destruir chart existente se houver
             if (window.reachChartInstance) {
