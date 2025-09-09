@@ -1506,6 +1506,46 @@
         }
 
         /* Chart.js style tooltip */
+        .tooltip-container {
+            position: relative;
+            cursor: help;
+        }
+        
+        .simple-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .simple-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+        }
+        
+        .tooltip-container:hover .simple-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
         .chart-tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.8);
@@ -1990,7 +2030,9 @@
                             <span class="insight-icon">🔗</span>
                             <span class="insight-title">Rede de Engajamento</span>
                         </div>
-                        <div class="insight-value" id="networkSize">0</div>
+                        <div class="insight-value tooltip-container" id="networkSize">6
+                            <span class="simple-tooltip">Tamanho da sua rede: pessoas diferentes que interagiram com você</span>
+                        </div>
                         <div class="insight-description">pessoas conectadas</div>
                     </div>
                 </div>
@@ -7176,51 +7218,6 @@
                 console.error('❌ Erro ao carregar feedbacks recebidos:', error);
             }
         }
-        
-        // Chart.js style tooltip for network card
-        document.addEventListener('DOMContentLoaded', function() {
-            const networkSize = document.getElementById('networkSize');
-            
-            if (networkSize) {
-                // Create tooltip element
-                const tooltip = document.createElement('div');
-                tooltip.className = 'chart-tooltip';
-                tooltip.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px;">Rede de Engajamento</div><div>Tamanho da sua rede:<br>pessoas diferentes que<br>interagiram com você</div>';
-                document.body.appendChild(tooltip);
-                
-                // Mouse enter event
-                networkSize.addEventListener('mouseenter', function(e) {
-                    tooltip.style.opacity = '1';
-                });
-                
-                // Mouse move event
-                networkSize.addEventListener('mousemove', function(e) {
-                    const rect = networkSize.getBoundingClientRect();
-                    
-                    // Position tooltip exactly on the number element
-                    let tooltipX = rect.left;
-                    let tooltipY = rect.top - tooltip.offsetHeight - 5;
-                    
-                    // Adjust if tooltip would go off right edge
-                    if (tooltipX + tooltip.offsetWidth > window.innerWidth) {
-                        tooltipX = rect.right - tooltip.offsetWidth;
-                    }
-                    
-                    // Adjust if tooltip would go off top edge
-                    if (tooltipY < 0) {
-                        tooltipY = rect.bottom + 5;
-                    }
-                    
-                    tooltip.style.left = tooltipX + 'px';
-                    tooltip.style.top = tooltipY + 'px';
-                });
-                
-                // Mouse leave event
-                networkSize.addEventListener('mouseleave', function(e) {
-                    tooltip.style.opacity = '0';
-                });
-            }
-        });
         
         console.log('✅ HoloSpot v8 carregado com sucesso!');
     </script>
