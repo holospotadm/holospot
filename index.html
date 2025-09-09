@@ -2252,6 +2252,23 @@
                 )
             ]);
         }
+
+        // Função para obter usuário atual
+        async function getCurrentUser() {
+            try {
+                if (currentUser) {
+                    return currentUser;
+                }
+                
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error) throw error;
+                
+                return user;
+            } catch (error) {
+                console.error('❌ Erro ao obter usuário atual:', error);
+                return null;
+            }
+        }
         
         let currentUser = null;
         let posts = [];
@@ -2608,6 +2625,16 @@
                     transition: all 0.3s ease;
                 `;
 
+                // Determinar o texto dos pontos baseado na nova estrutura
+                let pointsText;
+                if (level.id === 1) {
+                    pointsText = 'Nível inicial';
+                } else if (level.max_points) {
+                    pointsText = `${level.min_points || level.points_required} - ${level.max_points} pontos`;
+                } else {
+                    pointsText = `${level.min_points || level.points_required}+ pontos`;
+                }
+
                 levelCard.innerHTML = `
                     <div style="font-size: 32px; margin-right: 15px;">${level.icon}</div>
                     <div style="flex: 1;">
@@ -2618,7 +2645,7 @@
                             ${level.benefits}
                         </div>
                         <div style="color: ${level.color}; font-weight: bold; font-size: 14px;">
-                            ${level.points_required === 0 ? 'Nível inicial' : `${level.points_required}+ pontos`}
+                            ${pointsText}
                         </div>
                     </div>
                 `;
