@@ -3010,8 +3010,16 @@
         // Função para obter ícone do nível
         function getLevelIcon(levelId) {
             const icons = {
-                1: '🌱', 2: '🌿', 3: '🌳', 4: '⭐', 5: '🔥',
-                6: '💎', 7: '👑', 8: '🚀', 9: '🏆', 10: '🎖️'
+                1: '🌱', // Novato
+                2: '🔍', // Iniciante
+                3: '💬', // Ativo
+                4: '⭐', // Engajado
+                5: '🎯', // Influente
+                6: '👑', // Líder
+                7: '🧠', // Especialista
+                8: '🚀', // Mestre
+                9: '🏆', // Lenda
+                10: '💎' // Hall da Fama
             };
             return icons[levelId] || '🌱';
         }
