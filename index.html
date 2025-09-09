@@ -4725,7 +4725,12 @@
                             });
                         }
 
-                        // Buscar feedbacks do post (com tratamento de erro específico)
+                        // Buscar feedbacks do post (removido user_id que não existe na tabela)
+                        // Nota: A tabela feedbacks não possui coluna user_id, então não incluímos nos cálculos
+                        console.log(`ℹ️ Pulando feedbacks para post ${post.id} - tabela não possui user_id`);
+                        
+                        // Se futuramente a tabela feedbacks tiver user_id, descomente:
+                        /*
                         const { data: feedbacks, error: feedbacksError } = await supabase
                             .from('feedbacks')
                             .select('user_id')
@@ -4740,6 +4745,7 @@
                         } else if (feedbacksError) {
                             console.warn(`⚠️ Erro ao buscar feedbacks para post ${post.id}:`, feedbacksError.message);
                         }
+                        */
 
                     } catch (postError) {
                         console.warn(`⚠️ Erro ao processar post ${post.id}:`, postError);
