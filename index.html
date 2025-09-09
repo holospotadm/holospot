@@ -3056,8 +3056,8 @@
                 
                 try {
                     const [followingResult, followersResult] = await Promise.all([
-                        withTimeout(followingQuery, 2000),
-                        withTimeout(followersQuery, 2000)
+                        withTimeout(followingQuery, 10000),
+                        withTimeout(followersQuery, 10000)
                     ]);
                     
                     if (followingResult.error) throw followingResult.error;
@@ -3107,9 +3107,8 @@
             try {
                 console.log('📝 Carregando posts...');
                 
-                // Marcar como carregando e renderizar loading
+                // Marcar como carregando (SEM renderizar ainda)
                 window.isLoadingPosts = true;
-                await renderPosts();
                 
                 console.log('🔍 Carregando posts reais do Supabase com timeout...');
                 
@@ -3119,7 +3118,7 @@
                     .order('created_at', { ascending: false })
                     .limit(20);
                 
-                const { data, error } = await withTimeout(postsQuery, 2000);
+                const { data, error } = await withTimeout(postsQuery, 10000);
                 
                 if (error) {
                     console.error('❌ Erro ao carregar posts:', error);
@@ -4518,7 +4517,7 @@
                     .order('created_at', { ascending: false })
                     .limit(20);
                 
-                const { data, error } = await withTimeout(notificationsQuery, 2000);
+                const { data, error } = await withTimeout(notificationsQuery, 10000);
                 
                 if (error) {
                     console.error('❌ Erro ao carregar notificações:', error);
@@ -5764,7 +5763,7 @@
                     .select('id, name, email, avatar_url')
                     .limit(50);
                 
-                const { data: users, error } = await withTimeout(userQuery, 3000);
+                const { data: users, error } = await withTimeout(userQuery, 10000);
                 
                 if (users && !error) {
                     mentionUsers = users.map(user => ({
@@ -6285,6 +6284,10 @@
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 showApp();
+                
+                // Mostrar loading imediatamente
+                window.isLoadingPosts = true;
+                await renderPosts();
                 
                 // Só carrega dados na primeira vez ou se não há dados
                 if (isInitialLoad || posts.length === 0) {
