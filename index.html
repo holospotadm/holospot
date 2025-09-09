@@ -2742,30 +2742,30 @@
                 }
             }
             
-            // Definir ordem de dificuldade dos tipos (mais simples primeiro)
-            const difficultyOrder = {
-                'posts_count': 1,           // Mais simples - criar posts
-                'reactions_given': 2,       // Simples - dar reações
-                'comments_written': 3,      // Médio - escrever comentários
-                'unique_people_highlighted': 4  // Mais difícil - destacar pessoas diferentes
+            // Definir ordem de dificuldade dos tipos de rarity (mais simples primeiro)
+            const rarityOrder = {
+                'common': 1,      // Mais simples
+                'rare': 2,        // Simples
+                'epic': 3,        // Médio
+                'legendary': 4    // Mais difícil
             };
             
-            // Agrupar por tipo de condição
+            // Agrupar por rarity
             const grouped = progressBadges.reduce((groups, badge) => {
-                const type = badge.condition_type;
-                if (!groups[type]) {
-                    groups[type] = [];
+                const rarity = badge.rarity;
+                if (!groups[rarity]) {
+                    groups[rarity] = [];
                 }
-                groups[type].push(badge);
+                groups[rarity].push(badge);
                 return groups;
             }, {});
             
             // Ordenar dentro de cada grupo (mais próximo primeiro) e entre grupos (mais simples primeiro)
             const sortedBadges = [];
             
-            // Ordenar grupos por dificuldade
+            // Ordenar grupos por dificuldade (common → rare → epic → legendary)
             const sortedGroupKeys = Object.keys(grouped).sort((a, b) => {
-                return (difficultyOrder[a] || 999) - (difficultyOrder[b] || 999);
+                return (rarityOrder[a] || 999) - (rarityOrder[b] || 999);
             });
             
             // Para cada grupo, ordenar por progresso descendente e adicionar ao resultado
