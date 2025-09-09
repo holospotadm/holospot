@@ -3612,7 +3612,9 @@
                 
                 // Sempre atualizar contadores e interface
                 updateFollowCounts();
-                await renderPosts();
+                if (!window.isLoadingPosts) {
+                    await renderPosts();
+                }
                 console.log('✅ Interface atualizada após follow/unfollow');
                 
             } catch (error) {
@@ -3948,8 +3950,10 @@
                 
                 // Sempre re-renderizar posts e atualizar estatísticas
                 try {
-                    await renderPosts();
-                    console.log('✅ Posts re-renderizados');
+                    if (!window.isLoadingPosts) {
+                        await renderPosts();
+                        console.log('✅ Posts re-renderizados');
+                    }
                 } catch (renderError) {
                     console.error('❌ Erro ao re-renderizar posts:', renderError);
                 }
@@ -4138,7 +4142,9 @@
                 
                 // Fechar modal e atualizar interface
                 closeFeedbackModal();
-                await renderPosts();
+                if (!window.isLoadingPosts) {
+                    await renderPosts();
+                }
                 
                 alert('Feedback enviado com sucesso! O autor do post foi notificado.');
                 console.log('✅ Feedback enviado com sucesso');
@@ -4448,7 +4454,7 @@
                 
                 // Switch to home tab and re-render
                 switchTab('inicio');
-                renderPosts();
+                // renderPosts(); // Removido - não chamar durante loading
                 updateStats();
                 
                 // Atualizar métricas do perfil em tempo real
