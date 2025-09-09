@@ -1415,6 +1415,25 @@
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
         }
 
+        /* Botão de Conquistas */
+        .achievements-btn {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .achievements-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
         /* Modal de Impacto - Using unified modal-overlay */
         .modal-overlay--impact {
             backdrop-filter: blur(5px);
@@ -1951,6 +1970,11 @@
             <div class="impact-button-container">
                 <button id="impactBtn" class="impact-btn">📊 Ver Impacto Detalhado</button>
             </div>
+            
+            <!-- Botão para abrir modal de Conquistas -->
+            <div class="achievements-button-container" style="margin-top: 1rem;">
+                <button id="achievementsBtn" class="achievements-btn">🏆 Ver Suas Conquistas</button>
+            </div>
         </div>
     </div>
     <!-- Modal de Impacto -->
@@ -2069,6 +2093,23 @@
         </div>
     </div>
 
+    <!-- Modal de Conquistas -->
+    <div id="achievementsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🏆 Suas Conquistas</h2>
+                <button class="close-btn" onclick="closeAchievementsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="achievementsContent" style="text-align: center; padding: 40px; color: #666;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🚧</div>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Sistema de Conquistas em Desenvolvimento</div>
+                    <div style="font-size: 14px;">Em breve você poderá ver todas as suas conquistas e badges aqui!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
@@ -2082,6 +2123,7 @@
             if (e.key === 'Escape') {
                 // Close all possible modals
                 closeImpactModal();
+                closeAchievementsModal();
                 closeFeedbacksModal();
                 closePostsModal();
                 closePeopleHighlightedModal();
@@ -2373,6 +2415,27 @@
 
         function closeImpactModal() {
             const modal = document.getElementById('impactModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Funções do Modal de Conquistas
+        function openAchievementsModal() {
+            console.log('🏆 openAchievementsModal chamada');
+            const modal = document.getElementById('achievementsModal');
+            console.log('📋 Modal encontrado:', modal);
+            if (modal) {
+                console.log('✅ Abrindo modal de conquistas...');
+                modal.style.display = 'flex';
+                // TODO: Carregar conquistas do usuário
+            } else {
+                console.error('❌ Modal achievementsModal não encontrado no DOM');
+            }
+        }
+
+        function closeAchievementsModal() {
+            const modal = document.getElementById('achievementsModal');
             if (modal) {
                 modal.style.display = 'none';
             }
@@ -5911,7 +5974,7 @@
             }
             
             // Close static modals (hide with display: none)
-            const staticModals = ['postsReceivedModal', 'commentsReceivedModal', 'feedbacksReceivedModal', 'holofotesRecebidosModal', 'pessoasQueTeDestacaramModal', 'impactModal'];
+            const staticModals = ['postsReceivedModal', 'commentsReceivedModal', 'feedbacksReceivedModal', 'holofotesRecebidosModal', 'pessoasQueTeDestacaramModal', 'impactModal', 'achievementsModal'];
             staticModals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal) {
@@ -6783,6 +6846,14 @@
                     impactBtnAgain.removeEventListener('click', openImpactModal);
                     impactBtnAgain.addEventListener('click', openImpactModal);
                     console.log('🔄 Event listener do botão Ver Impacto Detalhado reconfigurado');
+                }
+                
+                // Botão Ver Suas Conquistas
+                const achievementsBtn = document.getElementById('achievementsBtn');
+                if (achievementsBtn) {
+                    achievementsBtn.removeEventListener('click', openAchievementsModal);
+                    achievementsBtn.addEventListener('click', openAchievementsModal);
+                    console.log('🔄 Event listener do botão Ver Suas Conquistas configurado');
                 }
             }, 100);
         }
