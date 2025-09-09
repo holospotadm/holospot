@@ -2975,19 +2975,11 @@
             if (userPoints) userPoints.textContent = `${data.total_points || 0} pontos`;
             
             // Progresso para próximo nível
-            console.log('🔍 Debug progress bar:', {
-                hasNextLevel: !!data.next_level,
-                progress: data.progress,
-                levelProgressBar: !!levelProgressBar
-            });
-            
             if (data.next_level) {
                 const progress = data.progress;
-                console.log('📊 Setting progress bar width:', `${progress.progress_percentage || 0}%`);
                 if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next - progress.points_in_current_level} para próximo nível`;
                 if (levelProgressBar) levelProgressBar.style.width = `${progress.progress_percentage || 0}%`;
             } else {
-                console.log('🏆 Max level reached, setting 100%');
                 if (pointsToNext) pointsToNext.textContent = 'Nível máximo atingido!';
                 if (levelProgressBar) levelProgressBar.style.width = '100%';
             }
