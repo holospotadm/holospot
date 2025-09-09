@@ -5155,6 +5155,20 @@
                 window.evolutionChartInstance.destroy();
             }
             
+            // Função para detectar mobile
+            function isMobileDevice() {
+                return window.innerWidth <= 768;
+            }
+            
+            // Função para gerar labels responsivos
+            function getWeekLabels(dates) {
+                const isMobile = isMobileDevice();
+                return dates.map(week => {
+                    const weekNumber = week.replace('Sem ', '');
+                    return isMobile ? `Sem ${weekNumber}` : `Semana ${weekNumber}`;
+                });
+            }
+            
             try {
                 console.log('📈 Carregando dados temporais reais...');
                 
@@ -5189,12 +5203,6 @@
                 // Agrupar dados por semana
                 const weeklyData = {};
                 const today = new Date();
-                
-                // Função para gerar labels responsivos
-                function getWeekLabel(weekNumber) {
-                    const isMobile = window.innerWidth <= 768;
-                    return isMobile ? `Sem ${weekNumber}` : `Semana ${weekNumber}`;
-                }
                 
                 // Inicializar 4 semanas
                 for (let i = 3; i >= 0; i--) {
@@ -5233,14 +5241,11 @@
                 }
                 
                 const dates = Object.keys(weeklyData);
-                const displayLabels = dates.map(week => {
-                    const weekNumber = week.replace('Sem ', '');
-                    return getWeekLabel(weekNumber);
-                });
+                const displayLabels = getWeekLabels(dates);
                 const postsData = dates.map(week => weeklyData[week].posts);
                 const holofotesData = dates.map(week => weeklyData[week].holofotes);
                 
-                console.log('📊 Dados temporais:', { dates, displayLabels, postsData, holofotesData });
+                console.log('📊 Dados temporais:', { dates, displayLabels, postsData, holofotesData, isMobile: isMobileDevice() });
                 
                 window.evolutionChartInstance = new Chart(ctx, {
                     type: 'line',
@@ -5314,19 +5319,16 @@
                 // Fallback para dados mock em caso de erro
                 const mockData = {
                     dates: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
-                    displayLabels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'].map(week => {
-                        const weekNumber = week.replace('Sem ', '');
-                        const isMobile = window.innerWidth <= 768;
-                        return isMobile ? `Sem ${weekNumber}` : `Semana ${weekNumber}`;
-                    }),
                     posts: [0, 0, 0, 0],
                     holofotes: [0, 0, 0, 0]
                 };
                 
+                const mockDisplayLabels = getWeekLabels(mockData.dates);
+                
                 window.evolutionChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: mockData.displayLabels,
+                        labels: mockDisplayLabels,
                         datasets: [{
                             label: 'Posts Criados',
                             data: mockData.posts,
@@ -5381,6 +5383,17 @@
                         }
                     }
                 });
+                
+                // Adicionar listener para recriar gráfico quando mudar de desktop/mobile
+                if (!window.evolutionResizeListener) {
+                    window.evolutionResizeListener = function() {
+                        clearTimeout(window.evolutionResizeTimeout);
+                        window.evolutionResizeTimeout = setTimeout(() => {
+                            createEvolutionChart();
+                        }, 250);
+                    };
+                    window.addEventListener('resize', window.evolutionResizeListener);
+                }
             }
         }
 
