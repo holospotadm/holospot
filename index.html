@@ -4871,39 +4871,18 @@
                 // Set para armazenar IDs únicos de pessoas que interagiram
                 const networkPeople = new Set();
                 
-                // 1. PESSOAS QUE EU DESTAQUEI (menções em posts)
+                // 1. PESSOAS QUE EU DESTAQUEI (usando mentioned_user_id)
                 const myPosts = posts.filter(post => post.user_id === currentUser.id);
                 myPosts.forEach(post => {
-                    if (post.celebrated_person_name && post.celebrated_person_name.includes('@')) {
-                        const mentions = post.celebrated_person_name.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (mentions) {
-                            mentions.forEach(mention => {
-                                const username = mention.substring(1);
-                                // Buscar ID do usuário pelo username (se disponível)
-                                const mentionedUser = mentionUsers.find(u => u.email && u.email.includes('@') && u.email.split('@')[0] === username);
-                                if (mentionedUser) {
-                                    networkPeople.add(mentionedUser.id);
-                                }
-                            });
-                        }
+                    if (post.mentioned_user_id) {
+                        networkPeople.add(post.mentioned_user_id);
                     }
                 });
                 
-                // 2. PESSOAS QUE ME DESTACARAM (posts que me mencionam)
+                // 2. PESSOAS QUE ME DESTACARAM (posts onde mentioned_user_id é meu ID)
                 posts.forEach(post => {
-                    if (post.user_id !== currentUser.id && post.celebrated_person_name && post.celebrated_person_name.includes('@')) {
-                        const mentions = post.celebrated_person_name.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (mentions) {
-                            const myUsername = currentUser.email && currentUser.email.includes('@') ? currentUser.email.split('@')[0] : '';
-                            if (myUsername) {
-                                mentions.forEach(mention => {
-                                    const username = mention.substring(1);
-                                    if (username === myUsername) {
-                                        networkPeople.add(post.user_id);
-                                    }
-                                });
-                            }
-                        }
+                    if (post.mentioned_user_id === currentUser.id && post.user_id !== currentUser.id) {
+                        networkPeople.add(post.user_id);
                     }
                 });
                 
@@ -4930,6 +4909,8 @@
                 
                 // 5. BUSCAR COMENTÁRIOS E FEEDBACKS DO BANCO (com timeout)
                 try {
+                    const myPostIds = myPosts.map(p => p.id);
+                    
                     const [commentsGiven, commentsReceived, feedbacksGiven, feedbacksReceived] = await Promise.all([
                         // Comentários que eu fiz
                         withTimeout(
@@ -4942,21 +4923,21 @@
                         withTimeout(
                             supabase.from('comments')
                                 .select('user_id')
-                                .in('post_id', myPosts.map(p => p.id)),
+                                .in('post_id', myPostIds),
                             3000
                         ),
-                        // Feedbacks que eu dei
+                        // Feedbacks que eu dei (onde fui mencionado)
                         withTimeout(
                             supabase.from('feedbacks')
                                 .select('post_id')
-                                .eq('user_id', currentUser.id),
+                                .eq('mentioned_user_id', currentUser.id),
                             3000
                         ),
                         // Feedbacks nos meus posts
                         withTimeout(
                             supabase.from('feedbacks')
                                 .select('user_id')
-                                .in('post_id', myPosts.map(p => p.id)),
+                                .in('post_id', myPostIds),
                             3000
                         )
                     ]);
@@ -4980,7 +4961,7 @@
                         });
                     }
                     
-                    // Processar feedbacks que eu dei
+                    // Processar feedbacks que eu dei (onde fui mencionado)
                     if (feedbacksGiven.data) {
                         const postIds = feedbacksGiven.data.map(f => f.post_id);
                         posts.forEach(post => {
