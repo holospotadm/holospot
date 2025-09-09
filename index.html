@@ -2180,9 +2180,6 @@
             }
         });
 
-        // Flag para evitar múltiplos event listeners
-        let impactButtonListenerAdded = false;
-
         function setupEventListeners() {
             try {
                 console.log('🎯 Configurando event listeners...');
@@ -6769,20 +6766,14 @@
             
             console.log('✅ Event listeners dos cards de estatísticas configurados');
             
-            // Botão Ver Impacto Detalhado - usando delegação de eventos com controle
-            if (!impactButtonListenerAdded) {
-                document.addEventListener('click', function(e) {
-                    if (e.target && e.target.id === 'impactBtn') {
-                        console.log('🎯 Clique detectado no botão Ver Impacto Detalhado');
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openImpactModal();
-                    }
-                });
-                impactButtonListenerAdded = true;
-                console.log('✅ Event listener configurado para botão Ver Impacto Detalhado (delegação com controle)');
+            // Botão Ver Impacto Detalhado - IGUAL AO SEUS POSTS
+            const impactBtn = document.getElementById('impactBtn');
+            if (impactBtn) {
+                impactBtn.removeEventListener('click', openImpactModal); // Remove listener anterior se existir
+                impactBtn.addEventListener('click', openImpactModal);
+                console.log('✅ Event listener configurado para botão Ver Impacto Detalhado');
             } else {
-                console.log('ℹ️ Event listener do botão Ver Impacto Detalhado já estava configurado');
+                console.warn('⚠️ Elemento impactBtn não encontrado');
             }
         }
 
