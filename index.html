@@ -5190,6 +5190,12 @@
                 const weeklyData = {};
                 const today = new Date();
                 
+                // Função para gerar labels responsivos
+                function getWeekLabel(weekNumber) {
+                    const isMobile = window.innerWidth <= 768;
+                    return isMobile ? `Sem ${weekNumber}` : `Semana ${weekNumber}`;
+                }
+                
                 // Inicializar 4 semanas
                 for (let i = 3; i >= 0; i--) {
                     const weekStart = new Date(today);
@@ -5227,15 +5233,19 @@
                 }
                 
                 const dates = Object.keys(weeklyData);
+                const displayLabels = dates.map(week => {
+                    const weekNumber = week.replace('Sem ', '');
+                    return getWeekLabel(weekNumber);
+                });
                 const postsData = dates.map(week => weeklyData[week].posts);
                 const holofotesData = dates.map(week => weeklyData[week].holofotes);
                 
-                console.log('📊 Dados temporais:', { dates, postsData, holofotesData });
+                console.log('📊 Dados temporais:', { dates, displayLabels, postsData, holofotesData });
                 
                 window.evolutionChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: dates,
+                        labels: displayLabels,
                         datasets: [{
                             label: 'Posts Criados',
                             data: postsData,
@@ -5278,7 +5288,14 @@
                             },
                             tooltip: {
                                 mode: 'index',
-                                intersect: false
+                                intersect: false,
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const weekNumber = dates[index].replace('Sem ', '');
+                                        return `Semana ${weekNumber}`;
+                                    }
+                                }
                             }
                         },
                         interaction: {
@@ -5297,6 +5314,11 @@
                 // Fallback para dados mock em caso de erro
                 const mockData = {
                     dates: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                    displayLabels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'].map(week => {
+                        const weekNumber = week.replace('Sem ', '');
+                        const isMobile = window.innerWidth <= 768;
+                        return isMobile ? `Sem ${weekNumber}` : `Semana ${weekNumber}`;
+                    }),
                     posts: [0, 0, 0, 0],
                     holofotes: [0, 0, 0, 0]
                 };
@@ -5304,7 +5326,7 @@
                 window.evolutionChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: mockData.dates,
+                        labels: mockData.displayLabels,
                         datasets: [{
                             label: 'Posts Criados',
                             data: mockData.posts,
@@ -5343,6 +5365,17 @@
                                 labels: {
                                     usePointStyle: true,
                                     padding: 20
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const weekNumber = mockData.dates[index].replace('Sem ', '');
+                                        return `Semana ${weekNumber}`;
+                                    }
                                 }
                             }
                         }
