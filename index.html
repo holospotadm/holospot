@@ -7179,9 +7179,9 @@
         
         // Chart.js style tooltip for network card
         document.addEventListener('DOMContentLoaded', function() {
-            const networkCard = document.getElementById('networkCard');
+            const networkSize = document.getElementById('networkSize');
             
-            if (networkCard) {
+            if (networkSize) {
                 // Create tooltip element
                 const tooltip = document.createElement('div');
                 tooltip.className = 'chart-tooltip';
@@ -7189,12 +7189,12 @@
                 document.body.appendChild(tooltip);
                 
                 // Mouse enter event
-                networkCard.addEventListener('mouseenter', function(e) {
+                networkSize.addEventListener('mouseenter', function(e) {
                     tooltip.style.opacity = '1';
                 });
                 
                 // Mouse move event
-                networkCard.addEventListener('mousemove', function(e) {
+                networkSize.addEventListener('mousemove', function(e) {
                     const x = e.clientX;
                     const y = e.clientY;
                     
@@ -7217,7 +7217,7 @@
                 });
                 
                 // Mouse leave event
-                networkCard.addEventListener('mouseleave', function(e) {
+                networkSize.addEventListener('mouseleave', function(e) {
                     tooltip.style.opacity = '0';
                 });
             }
