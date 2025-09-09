@@ -2119,6 +2119,9 @@
             try {
                 console.log('🚀 HoloSpot v8 iniciando...');
                 
+                // Inicializar estado de loading
+                window.isLoadingPosts = false;
+                
                 // Check if user is already logged in
                 console.log('🔍 Verificando sessão...');
                 const { data: { session }, error } = await supabase.auth.getSession();
@@ -3431,7 +3434,7 @@
         async function renderPosts() {
             const container = document.getElementById('postsContainer');
             
-            // Se ainda está carregando, mostrar loading
+            // Se ainda está carregando, mostrar loading (não verificar posts.length)
             if (window.isLoadingPosts) {
                 container.innerHTML = `
                     <div class="post" style="text-align: center; padding: 2rem;">
@@ -3442,6 +3445,7 @@
                 return;
             }
             
+            // Só mostrar mensagem de boas-vindas se NÃO está carregando E não há posts
             if (posts.length === 0) {
                 container.innerHTML = `
                     <div class="post">
