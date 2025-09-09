@@ -5195,42 +5195,52 @@
         function generatePersonalizedInsights(metrics) {
             const insights = [];
 
-            // Reciprocidade
-            if (metrics.reciprocity > 80) {
+            // Reciprocidade - 3 faixas
+            if (metrics.reciprocity >= 70) {
                 insights.push("🎉 Excelente! Você tem alta reciprocidade na sua rede!");
-            } else if (metrics.reciprocity < 30) {
+            } else if (metrics.reciprocity >= 40) {
+                insights.push("👍 Boa reciprocidade! Algumas pessoas retribuem seus destaques.");
+            } else {
                 insights.push("💡 Dica: Destaque mais pessoas para aumentar sua reciprocidade.");
             }
 
-            // Engajamento
-            if (metrics.engagement > 2.5) {
+            // Engajamento - 3 faixas
+            if (metrics.engagement >= 2.0) {
                 insights.push("🚀 Seus posts têm alto engajamento! Continue assim.");
-            } else if (metrics.engagement < 1.0) {
+            } else if (metrics.engagement >= 1.0) {
+                insights.push("📊 Engajamento moderado. Seus posts estão gerando algumas interações.");
+            } else {
                 insights.push("📈 Tente criar posts mais envolventes para aumentar interações.");
             }
 
-            // Impacto
-            if (metrics.impact > 2.0) {
+            // Impacto - 3 faixas
+            if (metrics.impact >= 2.0) {
                 insights.push("🌟 Você está impactando muitas pessoas diferentes!");
-            } else if (metrics.impact < 1.0) {
-                insights.push("🎯 Foque em criar conteúdo que ressoe com mais pessoas.");
+            } else if (metrics.impact >= 1.0) {
+                insights.push("🎯 Bom impacto! Você está alcançando pessoas diversas.");
+            } else {
+                insights.push("🌱 Foque em criar conteúdo que ressoe com mais pessoas.");
             }
 
-            // Alcance
-            if (metrics.reach > 70) {
+            // Alcance - 3 faixas
+            if (metrics.reach >= 60) {
                 insights.push("⚡ Excelente alcance! A maioria dos seus posts gera interação.");
-            } else if (metrics.reach < 30) {
-                insights.push("📊 Apenas alguns posts estão gerando interação. Analise o que funciona melhor.");
+            } else if (metrics.reach >= 30) {
+                insights.push("📈 Alcance moderado. Metade dos seus posts gera engajamento.");
+            } else {
+                insights.push("📊 Poucos posts estão gerando interação. Analise o que funciona melhor.");
             }
 
-            // Rede
-            if (metrics.network > 20) {
+            // Rede - 3 faixas
+            if (metrics.network >= 15) {
                 insights.push("🔗 Você tem uma rede de engajamento robusta!");
-            } else if (metrics.network < 5) {
-                insights.push("🌱 Sua rede está crescendo. Continue destacando e interagindo!");
+            } else if (metrics.network >= 5) {
+                insights.push("🌐 Sua rede está crescendo bem! Continue expandindo conexões.");
+            } else {
+                insights.push("🌱 Sua rede está no início. Continue destacando e interagindo!");
             }
 
-            // Altruísmo
+            // Altruísmo - sempre gera insight
             if (metrics.altruism.type === "giving") {
                 insights.push("💝 Você é muito altruísta! Dá mais do que recebe.");
             } else if (metrics.altruism.type === "received") {
@@ -5239,9 +5249,10 @@
                 insights.push("⚖️ Você tem um equilíbrio perfeito entre dar e receber!");
             }
 
-            // Se não há insights, adicionar um padrão
-            if (insights.length === 0) {
-                insights.push("📊 Continue usando o HoloSpot para gerar mais insights personalizados!");
+            // Garantir mínimo de 3 insights
+            if (insights.length < 3) {
+                insights.push("🎯 Continue usando o HoloSpot para desenvolver sua presença!");
+                insights.push("📊 Cada interação contribui para o crescimento da comunidade!");
             }
 
             return insights;
