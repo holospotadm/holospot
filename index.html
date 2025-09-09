@@ -4880,7 +4880,7 @@
                             mentions.forEach(mention => {
                                 const username = mention.substring(1);
                                 // Buscar ID do usuário pelo username (se disponível)
-                                const mentionedUser = mentionUsers.find(u => u.email.split('@')[0] === username);
+                                const mentionedUser = mentionUsers.find(u => u.email && u.email.includes('@') && u.email.split('@')[0] === username);
                                 if (mentionedUser) {
                                     networkPeople.add(mentionedUser.id);
                                 }
@@ -4894,13 +4894,15 @@
                     if (post.user_id !== currentUser.id && post.celebrated_person_name && post.celebrated_person_name.includes('@')) {
                         const mentions = post.celebrated_person_name.match(/@([a-zA-Z0-9._-]+)/g);
                         if (mentions) {
-                            const myUsername = currentUser.email.split('@')[0];
-                            mentions.forEach(mention => {
-                                const username = mention.substring(1);
-                                if (username === myUsername) {
-                                    networkPeople.add(post.user_id);
-                                }
-                            });
+                            const myUsername = currentUser.email && currentUser.email.includes('@') ? currentUser.email.split('@')[0] : '';
+                            if (myUsername) {
+                                mentions.forEach(mention => {
+                                    const username = mention.substring(1);
+                                    if (username === myUsername) {
+                                        networkPeople.add(post.user_id);
+                                    }
+                                });
+                            }
                         }
                     }
                 });
