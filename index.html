@@ -925,7 +925,7 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
@@ -1949,7 +1949,7 @@
 
             <!-- Botão para abrir modal de Impacto -->
             <div class="impact-button-container">
-                <button id="impactBtn" class="impact-btn" onclick="openImpactModal()">📊 Ver Impacto Detalhado</button>
+                <button id="impactBtn" class="impact-btn">📊 Ver Impacto Detalhado</button>
             </div>
         </div>
     </div>
@@ -6760,6 +6760,16 @@
             }
             
             console.log('✅ Event listeners dos cards de estatísticas configurados');
+            
+            // Botão Ver Impacto Detalhado
+            const impactBtn = document.getElementById('impactBtn');
+            if (impactBtn) {
+                impactBtn.removeEventListener('click', openImpactModal); // Remove listener anterior se existir
+                impactBtn.addEventListener('click', openImpactModal);
+                console.log('✅ Event listener configurado para botão Ver Impacto Detalhado');
+            } else {
+                console.warn('⚠️ Elemento impactBtn não encontrado');
+            }
         }
 
         // ===== FUNÇÕES DOS MODAIS DE MÉTRICAS RECEBIDAS =====
