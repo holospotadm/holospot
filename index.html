@@ -4859,12 +4859,158 @@
             }
         }
 
-        function calculateNetworkSize() {
-            const pessoasDestacadas = parseInt(document.getElementById('userPeopleHighlighted')?.textContent || '0');
-            const pessoasQueDestacaram = parseInt(document.getElementById('userPeopleWhoHighlighted')?.textContent || '0');
-            
-            // Simplificado inicialmente - futuramente implementar deduplicação
-            return pessoasDestacadas + pessoasQueDestacaram;
+        async function calculateNetworkSize() {
+            try {
+                if (!currentUser || !currentUser.id) {
+                    console.warn('⚠️ Usuário não identificado para calcular rede');
+                    return 0;
+                }
+                
+                console.log('🔗 Calculando rede de engajamento completa...');
+                
+                // Set para armazenar IDs únicos de pessoas que interagiram
+                const networkPeople = new Set();
+                
+                // 1. PESSOAS QUE EU DESTAQUEI (menções em posts)
+                const myPosts = posts.filter(post => post.user_id === currentUser.id);
+                myPosts.forEach(post => {
+                    if (post.celebrated_person_name && post.celebrated_person_name.includes('@')) {
+                        const mentions = post.celebrated_person_name.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (mentions) {
+                            mentions.forEach(mention => {
+                                const username = mention.substring(1);
+                                // Buscar ID do usuário pelo username (se disponível)
+                                const mentionedUser = mentionUsers.find(u => u.email.split('@')[0] === username);
+                                if (mentionedUser) {
+                                    networkPeople.add(mentionedUser.id);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                // 2. PESSOAS QUE ME DESTACARAM (posts que me mencionam)
+                posts.forEach(post => {
+                    if (post.user_id !== currentUser.id && post.celebrated_person_name && post.celebrated_person_name.includes('@')) {
+                        const mentions = post.celebrated_person_name.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (mentions) {
+                            const myUsername = currentUser.email.split('@')[0];
+                            mentions.forEach(mention => {
+                                const username = mention.substring(1);
+                                if (username === myUsername) {
+                                    networkPeople.add(post.user_id);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                // 3. PESSOAS QUE REAGIRAM AOS MEUS POSTS
+                myPosts.forEach(post => {
+                    if (post.reactions && Array.isArray(post.reactions)) {
+                        post.reactions.forEach(reaction => {
+                            if (reaction.user_id && reaction.user_id !== currentUser.id) {
+                                networkPeople.add(reaction.user_id);
+                            }
+                        });
+                    }
+                });
+                
+                // 4. PESSOAS EM CUJOS POSTS EU REAGI
+                posts.forEach(post => {
+                    if (post.user_id !== currentUser.id && post.reactions && Array.isArray(post.reactions)) {
+                        const myReaction = post.reactions.find(r => r.user_id === currentUser.id);
+                        if (myReaction) {
+                            networkPeople.add(post.user_id);
+                        }
+                    }
+                });
+                
+                // 5. BUSCAR COMENTÁRIOS E FEEDBACKS DO BANCO (com timeout)
+                try {
+                    const [commentsGiven, commentsReceived, feedbacksGiven, feedbacksReceived] = await Promise.all([
+                        // Comentários que eu fiz
+                        withTimeout(
+                            supabase.from('comments')
+                                .select('post_id')
+                                .eq('user_id', currentUser.id),
+                            3000
+                        ),
+                        // Comentários nos meus posts
+                        withTimeout(
+                            supabase.from('comments')
+                                .select('user_id')
+                                .in('post_id', myPosts.map(p => p.id)),
+                            3000
+                        ),
+                        // Feedbacks que eu dei
+                        withTimeout(
+                            supabase.from('feedbacks')
+                                .select('post_id')
+                                .eq('user_id', currentUser.id),
+                            3000
+                        ),
+                        // Feedbacks nos meus posts
+                        withTimeout(
+                            supabase.from('feedbacks')
+                                .select('user_id')
+                                .in('post_id', myPosts.map(p => p.id)),
+                            3000
+                        )
+                    ]);
+                    
+                    // Processar comentários que eu fiz
+                    if (commentsGiven.data) {
+                        const postIds = commentsGiven.data.map(c => c.post_id);
+                        posts.forEach(post => {
+                            if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
+                                networkPeople.add(post.user_id);
+                            }
+                        });
+                    }
+                    
+                    // Processar comentários nos meus posts
+                    if (commentsReceived.data) {
+                        commentsReceived.data.forEach(comment => {
+                            if (comment.user_id && comment.user_id !== currentUser.id) {
+                                networkPeople.add(comment.user_id);
+                            }
+                        });
+                    }
+                    
+                    // Processar feedbacks que eu dei
+                    if (feedbacksGiven.data) {
+                        const postIds = feedbacksGiven.data.map(f => f.post_id);
+                        posts.forEach(post => {
+                            if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
+                                networkPeople.add(post.user_id);
+                            }
+                        });
+                    }
+                    
+                    // Processar feedbacks nos meus posts
+                    if (feedbacksReceived.data) {
+                        feedbacksReceived.data.forEach(feedback => {
+                            if (feedback.user_id && feedback.user_id !== currentUser.id) {
+                                networkPeople.add(feedback.user_id);
+                            }
+                        });
+                    }
+                    
+                } catch (dbError) {
+                    console.warn('⚠️ Erro ao buscar comentários/feedbacks para rede:', dbError);
+                }
+                
+                const networkSize = networkPeople.size;
+                console.log(`🔗 Rede de engajamento calculada: ${networkSize} pessoas únicas`);
+                console.log('👥 IDs na rede:', Array.from(networkPeople));
+                
+                return networkSize;
+                
+            } catch (error) {
+                console.error('❌ Erro ao calcular rede de engajamento:', error);
+                return 0;
+            }
         }
 
         function calculateAltruismIndex() {
@@ -4933,7 +5079,7 @@
                 const engagement = calculateEngagementRate();
                 const impact = await calculateAverageImpact();
                 const reach = await calculateEffectiveReach();
-                const network = calculateNetworkSize();
+                const network = await calculateNetworkSize(); // Agora é async
                 const altruism = calculateAltruismIndex();
                 
                 // Atualizar valores na interface
