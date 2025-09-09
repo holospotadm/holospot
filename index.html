@@ -4631,26 +4631,16 @@
                 // Buscar posts que EU criei destacando outras pessoas
                 const { data: myPosts, error: myPostsError } = await supabase
                     .from('posts')
-                    .select('id, mentioned_user_id, celebrated_person_name, person_name')
-                    .eq('user_id', currentUser.id);
+                    .select('id, mentioned_user_id')
+                    .eq('user_id', currentUser.id)
+                    .not('mentioned_user_id', 'is', null);
 
                 if (myPostsError || !myPosts) {
                     console.log('⚠️ Erro ao buscar meus posts:', myPostsError);
                     return 0;
                 }
 
-                // Buscar posts onde EU fui mencionado/destacado
-                const { data: postsAboutMe, error: postsAboutMeError } = await supabase
-                    .from('posts')
-                    .select('id, user_id')
-                    .eq('mentioned_user_id', currentUser.id);
-
-                if (postsAboutMeError || !postsAboutMe) {
-                    console.log('⚠️ Erro ao buscar posts sobre mim:', postsAboutMeError);
-                    return 0;
-                }
-
-                // Pessoas que EU destaquei (usando mentioned_user_id)
+                // Pessoas que EU destaquei (únicas)
                 const peopleIHighlighted = new Set();
                 myPosts.forEach(post => {
                     if (post.mentioned_user_id) {
@@ -4658,24 +4648,32 @@
                     }
                 });
 
-                // Pessoas que ME destacaram
-                const peopleWhoHighlightedMe = new Set();
-                postsAboutMe.forEach(post => {
-                    if (post.user_id) {
-                        peopleWhoHighlightedMe.add(post.user_id);
+                if (peopleIHighlighted.size === 0) {
+                    console.log('📊 Nenhuma pessoa destacada ainda');
+                    return 0;
+                }
+
+                // Para cada pessoa que destaquei, verificar se ela ME destacou de volta
+                let reciprocalCount = 0;
+                
+                for (const personId of peopleIHighlighted) {
+                    // Verificar se esta pessoa ME destacou (criou post com mentioned_user_id = currentUser.id)
+                    const { data: reciprocalPosts, error: reciprocalError } = await supabase
+                        .from('posts')
+                        .select('id')
+                        .eq('user_id', personId)
+                        .eq('mentioned_user_id', currentUser.id);
+
+                    if (!reciprocalError && reciprocalPosts && reciprocalPosts.length > 0) {
+                        reciprocalCount++;
+                        console.log(`✅ Reciprocidade encontrada com usuário ${personId}`);
                     }
-                });
+                }
 
-                // Calcular reciprocidade REAL (pessoas que retribuíram)
-                const reciprocalPeople = [...peopleIHighlighted].filter(personId =>
-                    peopleWhoHighlightedMe.has(personId)
-                );
-
-                const reciprocityRate = peopleIHighlighted.size > 0 ?
-                    (reciprocalPeople.length / peopleIHighlighted.size) * 100 : 0;
+                const reciprocityRate = (reciprocalCount / peopleIHighlighted.size) * 100;
 
                 console.log(`🤝 Reciprocidade calculada: ${reciprocityRate.toFixed(1)}%`);
-                console.log(`📊 Destaquei ${peopleIHighlighted.size} pessoas, ${reciprocalPeople.length} retribuíram`);
+                console.log(`📊 Destaquei ${peopleIHighlighted.size} pessoas, ${reciprocalCount} retribuíram`);
 
                 return reciprocityRate;
             } catch (error) {
