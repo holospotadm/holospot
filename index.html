@@ -2557,30 +2557,27 @@
         function populateGamificationUI(data) {
             console.log('🎨 Preenchendo interface com dados:', data);
             
-            // Dados de pontos e nível
-            if (data.points) {
-                const points = data.points;
-                
-                // Atualizar elementos de nível
-                const userLevel = document.getElementById('userLevel');
-                const userLevelName = document.getElementById('userLevelName');
-                const userLevelIcon = document.getElementById('userLevelIcon');
-                const userPoints = document.getElementById('userPoints');
-                const pointsToNext = document.getElementById('pointsToNext');
-                const levelProgressBar = document.getElementById('levelProgressBar');
-                
-                if (userLevel) userLevel.textContent = `Nível ${points.level_id}`;
-                if (userLevelName) userLevelName.textContent = points.level_name;
-                if (userLevelIcon) userLevelIcon.textContent = points.level_icon;
-                if (userPoints) userPoints.textContent = `${points.total_points} pontos`;
-                
-                if (points.level_id >= 10) {
-                    if (pointsToNext) pointsToNext.textContent = 'Nível máximo!';
-                    if (levelProgressBar) levelProgressBar.style.width = '100%';
-                } else {
-                    if (pointsToNext) pointsToNext.textContent = `${points.points_to_next_level} para próximo nível`;
-                    if (levelProgressBar) levelProgressBar.style.width = `${points.progress_percentage || 0}%`;
-                }
+            // Atualizar elementos de nível (estrutura corrigida)
+            const userLevel = document.getElementById('userLevel');
+            const userLevelName = document.getElementById('userLevelName');
+            const userLevelIcon = document.getElementById('userLevelIcon');
+            const userPoints = document.getElementById('userPoints');
+            const pointsToNext = document.getElementById('pointsToNext');
+            const levelProgressBar = document.getElementById('levelProgressBar');
+            
+            if (userLevel) userLevel.textContent = `Nível ${data.current_level?.id || 1}`;
+            if (userLevelName) userLevelName.textContent = data.current_level?.name || 'Novato';
+            if (userLevelIcon) userLevelIcon.textContent = getLevelIcon(data.current_level?.id || 1);
+            if (userPoints) userPoints.textContent = `${data.total_points || 0} pontos`;
+            
+            // Progresso para próximo nível
+            if (data.next_level) {
+                const progress = data.progress;
+                if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next - progress.points_in_current_level} para próximo nível`;
+                if (levelProgressBar) levelProgressBar.style.width = `${progress.progress_percentage || 0}%`;
+            } else {
+                if (pointsToNext) pointsToNext.textContent = 'Nível máximo atingido!';
+                if (levelProgressBar) levelProgressBar.style.width = '100%';
             }
             
             // Dados de ranking
@@ -2616,9 +2613,9 @@
             
             // Atividade recente
             const recentActivity = document.getElementById('recentActivity');
-            if (data.recent_points && data.recent_points.length > 0) {
+            if (data.recent_activity && data.recent_activity.length > 0) {
                 if (recentActivity) {
-                    recentActivity.innerHTML = data.recent_points.map(activity => `
+                    recentActivity.innerHTML = data.recent_activity.map(activity => `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
                             <div>
                                 <div style="font-weight: 500; color: #333;">${getActionTypeLabel(activity.action_type)}</div>
@@ -2633,6 +2630,15 @@
                     recentActivity.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Nenhuma atividade recente</div>';
                 }
             }
+        }
+
+        // Função para obter ícone do nível
+        function getLevelIcon(levelId) {
+            const icons = {
+                1: '🌱', 2: '🌿', 3: '🌳', 4: '⭐', 5: '🔥',
+                6: '💎', 7: '👑', 8: '🚀', 9: '🏆', 10: '🎖️'
+            };
+            return icons[levelId] || '🌱';
         }
 
         // Funções auxiliares
