@@ -2101,10 +2101,68 @@
                 <button class="close-btn" onclick="closeAchievementsModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="achievementsContent" style="text-align: center; padding: 40px; color: #666;">
-                    <div style="font-size: 48px; margin-bottom: 16px;">🚧</div>
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Sistema de Conquistas em Desenvolvimento</div>
-                    <div style="font-size: 14px;">Em breve você poderá ver todas as suas conquistas e badges aqui!</div>
+                <div id="achievementsContent">
+                    <!-- Loading inicial -->
+                    <div id="achievementsLoading" style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 24px; margin-bottom: 16px;">⏳</div>
+                        <div>Carregando suas conquistas...</div>
+                    </div>
+                    
+                    <!-- Conteúdo real será carregado aqui -->
+                    <div id="achievementsData" style="display: none;">
+                        <!-- Seção de Pontos e Nível -->
+                        <div class="gamification-section">
+                            <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <span>🎯</span> Seu Progresso
+                            </h3>
+                            <div class="level-progress-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <div>
+                                        <div id="userLevel" style="font-size: 24px; font-weight: bold;">Nível 1</div>
+                                        <div id="userLevelName" style="opacity: 0.9;">Novato</div>
+                                    </div>
+                                    <div id="userLevelIcon" style="font-size: 48px;">🌱</div>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span id="userPoints">0 pontos</span>
+                                        <span id="pointsToNext">50 para próximo nível</span>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 8px;">
+                                        <div id="levelProgressBar" style="background: rgba(255,255,255,0.8); height: 100%; border-radius: 10px; width: 0%; transition: width 0.3s ease;"></div>
+                                    </div>
+                                </div>
+                                <div style="text-align: center; font-size: 14px; opacity: 0.9;">
+                                    Ranking: <span id="userRanking">#-</span> de <span id="totalUsers">-</span> usuários
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Seção de Badges -->
+                        <div class="gamification-section">
+                            <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <span>🏆</span> Suas Conquistas
+                            </h3>
+                            <div id="badgesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                                <!-- Badges serão carregados aqui -->
+                            </div>
+                            <div id="noBadges" style="text-align: center; padding: 40px; color: #666; display: none;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">🎯</div>
+                                <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Nenhuma conquista ainda</div>
+                                <div style="font-size: 14px;">Continue interagindo para desbloquear seus primeiros badges!</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Seção de Atividade Recente -->
+                        <div class="gamification-section">
+                            <h3 style="color: #333; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <span>📈</span> Atividade Recente
+                            </h3>
+                            <div id="recentActivity" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Atividades recentes serão carregadas aqui -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2428,7 +2486,7 @@
             if (modal) {
                 console.log('✅ Abrindo modal de conquistas...');
                 modal.style.display = 'flex';
-                // TODO: Carregar conquistas do usuário
+                loadUserGamificationData();
             } else {
                 console.error('❌ Modal achievementsModal não encontrado no DOM');
             }
@@ -2439,6 +2497,182 @@
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
+
+        // Carregar dados de gamificação do usuário
+        async function loadUserGamificationData() {
+            try {
+                console.log('🎮 Carregando dados de gamificação...');
+                
+                const loadingDiv = document.getElementById('achievementsLoading');
+                const dataDiv = document.getElementById('achievementsData');
+                
+                // Mostrar loading
+                if (loadingDiv) loadingDiv.style.display = 'block';
+                if (dataDiv) dataDiv.style.display = 'none';
+                
+                // Obter usuário atual
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    throw new Error('Usuário não autenticado');
+                }
+                
+                // Chamar função do backend para obter dados de gamificação
+                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                    p_user_id: user.id
+                });
+                
+                if (error) {
+                    console.error('❌ Erro ao carregar dados de gamificação:', error);
+                    throw error;
+                }
+                
+                console.log('🎯 Dados de gamificação recebidos:', data);
+                
+                // Esconder loading e mostrar dados
+                if (loadingDiv) loadingDiv.style.display = 'none';
+                if (dataDiv) dataDiv.style.display = 'block';
+                
+                // Preencher dados na interface
+                populateGamificationUI(data);
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar gamificação:', error);
+                
+                // Mostrar erro
+                const loadingDiv = document.getElementById('achievementsLoading');
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Erro ao carregar conquistas</div>
+                            <div style="font-size: 14px;">${error.message}</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Preencher interface com dados de gamificação
+        function populateGamificationUI(data) {
+            console.log('🎨 Preenchendo interface com dados:', data);
+            
+            // Dados de pontos e nível
+            if (data.points) {
+                const points = data.points;
+                
+                // Atualizar elementos de nível
+                const userLevel = document.getElementById('userLevel');
+                const userLevelName = document.getElementById('userLevelName');
+                const userLevelIcon = document.getElementById('userLevelIcon');
+                const userPoints = document.getElementById('userPoints');
+                const pointsToNext = document.getElementById('pointsToNext');
+                const levelProgressBar = document.getElementById('levelProgressBar');
+                
+                if (userLevel) userLevel.textContent = `Nível ${points.level_id}`;
+                if (userLevelName) userLevelName.textContent = points.level_name;
+                if (userLevelIcon) userLevelIcon.textContent = points.level_icon;
+                if (userPoints) userPoints.textContent = `${points.total_points} pontos`;
+                
+                if (points.level_id >= 10) {
+                    if (pointsToNext) pointsToNext.textContent = 'Nível máximo!';
+                    if (levelProgressBar) levelProgressBar.style.width = '100%';
+                } else {
+                    if (pointsToNext) pointsToNext.textContent = `${points.points_to_next_level} para próximo nível`;
+                    if (levelProgressBar) levelProgressBar.style.width = `${points.progress_percentage || 0}%`;
+                }
+            }
+            
+            // Dados de ranking
+            if (data.ranking) {
+                const userRanking = document.getElementById('userRanking');
+                const totalUsers = document.getElementById('totalUsers');
+                
+                if (userRanking) userRanking.textContent = `#${data.ranking.position}`;
+                if (totalUsers) totalUsers.textContent = data.ranking.total_users;
+            }
+            
+            // Badges
+            const badgesContainer = document.getElementById('badgesContainer');
+            const noBadges = document.getElementById('noBadges');
+            
+            if (data.badges && data.badges.length > 0) {
+                if (badgesContainer) {
+                    badgesContainer.innerHTML = data.badges.map(badge => `
+                        <div class="badge-card" style="background: white; border: 2px solid ${getBadgeRarityColor(badge.rarity)}; border-radius: 12px; padding: 15px; text-align: center; transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <div style="font-size: 32px; margin-bottom: 8px;">${badge.icon}</div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${badge.name}</div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${badge.description}</div>
+                            <div style="font-size: 10px; color: ${getBadgeRarityColor(badge.rarity)}; font-weight: bold; text-transform: uppercase;">${badge.rarity}</div>
+                            <div style="font-size: 10px; color: #999; margin-top: 4px;">${formatDate(badge.earned_at)}</div>
+                        </div>
+                    `).join('');
+                }
+                if (noBadges) noBadges.style.display = 'none';
+            } else {
+                if (badgesContainer) badgesContainer.innerHTML = '';
+                if (noBadges) noBadges.style.display = 'block';
+            }
+            
+            // Atividade recente
+            const recentActivity = document.getElementById('recentActivity');
+            if (data.recent_points && data.recent_points.length > 0) {
+                if (recentActivity) {
+                    recentActivity.innerHTML = data.recent_points.map(activity => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
+                            <div>
+                                <div style="font-weight: 500; color: #333;">${getActionTypeLabel(activity.action_type)}</div>
+                                <div style="font-size: 12px; color: #666;">${formatDate(activity.created_at)}</div>
+                            </div>
+                            <div style="color: #4CAF50; font-weight: bold;">+${activity.points_earned} pts</div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                if (recentActivity) {
+                    recentActivity.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Nenhuma atividade recente</div>';
+                }
+            }
+        }
+
+        // Funções auxiliares
+        function getBadgeRarityColor(rarity) {
+            const colors = {
+                'common': '#4CAF50',
+                'rare': '#2196F3', 
+                'epic': '#9C27B0',
+                'legendary': '#FF9800'
+            };
+            return colors[rarity] || '#666';
+        }
+
+        function getActionTypeLabel(actionType) {
+            const labels = {
+                'post_created': 'Post criado',
+                'holofote_given': 'Holofote dado',
+                'holofote_received': 'Holofote recebido',
+                'reaction_given': 'Reação dada',
+                'reaction_received': 'Reação recebida',
+                'comment_written': 'Comentário escrito',
+                'comment_received': 'Comentário recebido',
+                'feedback_given': 'Feedback dado',
+                'feedback_received': 'Feedback recebido',
+                'migration_posts': 'Posts migrados',
+                'migration_reactions': 'Reações migradas',
+                'migration_comments': 'Comentários migrados'
+            };
+            return labels[actionType] || actionType;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
         async function loadImpactDataInModal() {
