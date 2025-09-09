@@ -3056,8 +3056,8 @@
                 
                 try {
                     const [followingResult, followersResult] = await Promise.all([
-                        withTimeout(followingQuery, 10000),
-                        withTimeout(followersQuery, 10000)
+                        withTimeout(followingQuery, 5000),
+                        withTimeout(followersQuery, 5000)
                     ]);
                     
                     if (followingResult.error) throw followingResult.error;
@@ -3118,7 +3118,7 @@
                     .order('created_at', { ascending: false })
                     .limit(20);
                 
-                const { data, error } = await withTimeout(postsQuery, 10000);
+                const { data, error } = await withTimeout(postsQuery, 5000);
                 
                 if (error) {
                     console.error('❌ Erro ao carregar posts:', error);
@@ -3128,16 +3128,18 @@
                 console.log(`✅ ${data?.length || 0} posts reais carregados do banco`);
                 posts = data || [];
                 
-                // Processar dados de usuários para cada post
-                await processPostsUserData();
-                
-                // Carregar reações para cada post
-                await loadPostsReactions();
-                
-                // Finalizar loading
+                // Finalizar loading IMEDIATAMENTE após carregar posts
                 window.isLoadingPosts = false;
                 await renderPosts();
-                console.log('✅ Posts processados e renderizados');
+                console.log('✅ Posts carregados e renderizados');
+                
+                // Processar dados de usuários e reações em background (não bloqueia UI)
+                setTimeout(async () => {
+                    await processPostsUserData();
+                    await loadPostsReactions();
+                    await renderPosts(); // Re-renderizar com dados completos
+                    console.log('✅ Posts processados com dados completos');
+                }, 100);
                 
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar posts:', error);
@@ -4517,7 +4519,7 @@
                     .order('created_at', { ascending: false })
                     .limit(20);
                 
-                const { data, error } = await withTimeout(notificationsQuery, 10000);
+                const { data, error } = await withTimeout(notificationsQuery, 5000);
                 
                 if (error) {
                     console.error('❌ Erro ao carregar notificações:', error);
@@ -5763,7 +5765,7 @@
                     .select('id, name, email, avatar_url')
                     .limit(50);
                 
-                const { data: users, error } = await withTimeout(userQuery, 10000);
+                const { data: users, error } = await withTimeout(userQuery, 5000);
                 
                 if (users && !error) {
                     mentionUsers = users.map(user => ({
@@ -6292,9 +6294,16 @@
                 // Só carrega dados na primeira vez ou se não há dados
                 if (isInitialLoad || posts.length === 0) {
                     console.log('🔄 Carregamento inicial ou dados vazios, carregando tudo...');
+                    
+                    // Carregar dados do usuário primeiro (mais rápido)
                     await loadUserData();
-                    await loadPosts();
-                    await loadNotifications();
+                    
+                    // Carregar posts e notificações em paralelo (mais eficiente)
+                    await Promise.all([
+                        loadPosts(),
+                        loadNotifications()
+                    ]);
+                    
                     updateStats();
                     isInitialLoad = false;
                 } else {
