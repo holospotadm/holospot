@@ -6761,15 +6761,14 @@
             
             console.log('✅ Event listeners dos cards de estatísticas configurados');
             
-            // Botão Ver Impacto Detalhado
-            const impactBtn = document.getElementById('impactBtn');
-            if (impactBtn) {
-                impactBtn.removeEventListener('click', openImpactModal); // Remove listener anterior se existir
-                impactBtn.addEventListener('click', openImpactModal);
-                console.log('✅ Event listener configurado para botão Ver Impacto Detalhado');
-            } else {
-                console.warn('⚠️ Elemento impactBtn não encontrado');
-            }
+            // Botão Ver Impacto Detalhado - usando delegação de eventos
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'impactBtn') {
+                    console.log('🎯 Clique detectado no botão Ver Impacto Detalhado');
+                    openImpactModal();
+                }
+            });
+            console.log('✅ Event listener configurado para botão Ver Impacto Detalhado (delegação)');
         }
 
         // ===== FUNÇÕES DOS MODAIS DE MÉTRICAS RECEBIDAS =====
@@ -7617,7 +7616,7 @@
 
     <!-- Modal de Posts Criados -->
     <div id="postsModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
-        <div class="modal-container" onclick="event.stopPropagation()">
+        <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2>📝 Seus Posts</h2>
                 <button class="close-btn" onclick="closePostsModal()">&times;</button>
