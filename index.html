@@ -2032,7 +2032,7 @@
                             <span class="insight-icon">🔗</span>
                             <span class="insight-title">Rede de Engajamento</span>
                         </div>
-                        <div class="insight-value" id="networkSize" title="Tamanho da sua rede: pessoas diferentes que interagiram com você">6</div>
+                        <div class="insight-value" id="networkSize" onmouseover="showTooltip(event)" onmouseout="hideTooltip()">6</div>
                         <div class="insight-description">pessoas conectadas</div>
                     </div>
                 </div>
@@ -3278,6 +3278,43 @@
             }
             
             console.log('✅ Dados de usuários processados');
+        }
+
+        // Tooltip functions
+        function showTooltip(event) {
+            // Remove tooltip existente
+            hideTooltip();
+            
+            // Criar tooltip
+            const tooltip = document.createElement('div');
+            tooltip.id = 'customTooltip';
+            tooltip.innerHTML = 'Tamanho da sua rede: pessoas diferentes que interagiram com você';
+            tooltip.style.cssText = `
+                position: fixed;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                z-index: 10000;
+                pointer-events: none;
+                white-space: nowrap;
+                max-width: 250px;
+            `;
+            
+            document.body.appendChild(tooltip);
+            
+            // Posicionar tooltip
+            const rect = event.target.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width/2 - tooltip.offsetWidth/2) + 'px';
+            tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+        }
+        
+        function hideTooltip() {
+            const tooltip = document.getElementById('customTooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
         }
 
         // Função getFeedbackButtonForPost - VERSÃO REAL
