@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoloSpot - Colocando os holofotes nos outros</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.min.js"></script>
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKK75JRY5W"></script>
@@ -4842,6 +4842,11 @@
         // ===== FUNÇÕES DE VISUALIZAÇÃO CHART.JS =====
 
         function createReciprocityGauge(value) {
+            if (typeof Chart === 'undefined') {
+                console.warn('⚠️ Chart.js não carregado - pulando visualização');
+                return;
+            }
+            
             const canvas = document.getElementById('reciprocityChart');
             if (!canvas) return;
             
@@ -4888,6 +4893,11 @@
         }
 
         function createImpactChart(averageImpact, benchmark = 3.0) {
+            if (typeof Chart === 'undefined') {
+                console.warn('⚠️ Chart.js não carregado - pulando visualização');
+                return;
+            }
+            
             const canvas = document.getElementById('impactChart');
             if (!canvas) return;
             
@@ -4951,6 +4961,11 @@
         }
 
         function createReachChart(effective, ineffective) {
+            if (typeof Chart === 'undefined') {
+                console.warn('⚠️ Chart.js não carregado - pulando visualização');
+                return;
+            }
+            
             const canvas = document.getElementById('reachChart');
             if (!canvas) return;
             
@@ -4990,6 +5005,11 @@
         }
 
         function createEvolutionChart(data) {
+            if (typeof Chart === 'undefined') {
+                console.warn('⚠️ Chart.js não carregado - pulando visualização');
+                return;
+            }
+            
             const canvas = document.getElementById('evolutionChart');
             if (!canvas) return;
             
