@@ -1871,54 +1871,16 @@
             <div class="impact-button-container">
                 <button id="impactBtn" class="impact-btn" onclick="openImpactModal()">📊 Ver Impacto Detalhado</button>
             </div>
-
-            <div class="evolution-chart">
-                <h3 class="chart-title">🏆 Suas Conquistas</h3>
-                <div style="margin-bottom: 1rem;">
-                    <strong>Primeiro destaque</strong>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="firstHighlightProgress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text" id="firstHighlightText">0/1</div>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <strong>Inspirador da Comunidade</strong>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="inspirerProgress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text" id="inspirerText">0/50</div>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <strong>Meta Mensal: 20 destaques</strong>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="monthlyGoalProgress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text" id="monthlyGoalText">0/20</div>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <strong>Multiplicador de Holofotes</strong>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="multiplierProgress" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-text" id="multiplierText">1.0x</div>
-                </div>
+        </div>
+    </div>
+    <!-- Modal de Impacto -->
+    <div id="impactModal" class="modal-overlay modal-overlay--impact" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>📊 Dashboard de Insights Estratégicos</h2>
+                <button class="close-btn" onclick="closeImpactModal()">&times;</button>
             </div>
-
-            <!-- Botão para abrir modal de Feedbacks -->
-            <div class="impact-button-container">
-                </div>
-
-            <!-- Dica Personalizada movida do modal de impacto -->
-            <div class="evolution-chart">
-                <h3 class="chart-title">💡 Dica Personalizada</h3>
-                <p id="personalizedTip" style="color: #666; line-height: 1.6;">
-                    Continue destacando pessoas especiais! Cada post seu inspira outros a reconhecer o valor das pessoas ao seu redor.
-                </p>
-            </div>
-
-            <!-- NOVA SEÇÃO: Dashboard de Insights Estratégicos -->
-            <div class="insights-dashboard">
-                <h3 class="chart-title">📊 Dashboard de Insights Estratégicos</h3>
+            <div class="modal-body">
                 <div class="insights-grid">
                     <!-- Reciprocidade Real -->
                     <div class="insight-card">
@@ -1939,11 +1901,6 @@
                             <span class="insight-icon">🎯</span>
                             <span class="insight-title">Taxa de Engajamento</span>
                         </div>
-                        <div class="insight-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="engagementProgress" style="width: 0%; background: linear-gradient(135deg, #E55A2B 0%, #9C27B0 100%);"></div>
-                            </div>
-                        </div>
                         <div class="insight-value" id="engagementValue">0.0/post</div>
                         <div class="insight-description">Interações médias por post</div>
                     </div>
@@ -1956,7 +1913,6 @@
                         </div>
                         <div class="insight-chart">
                             <canvas id="impactChart" width="120" height="120"></canvas>
-                            <div class="chart-center-text" id="impactCenterText"></div>
                         </div>
                         <div class="insight-value" id="impactValue">0.0</div>
                         <div class="insight-description">pessoas diferentes/post</div>
@@ -2016,46 +1972,6 @@
                     <h3 class="chart-title">💡 Insights Personalizados</h3>
                     <div id="personalizedInsights" style="color: #666; line-height: 1.6;">
                         📊 Analisando seus dados...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal de Impacto -->
-    <div id="impactModal" class="modal-overlay modal-overlay--impact" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>📊 Seu Impacto</h2>
-                <button class="close-btn" onclick="closeImpactModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="modalTotalReachCount">0</div>
-                        <div class="stat-label">Pessoas Alcançadas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="modalTotalReactionsCount">0</div>
-                        <div class="stat-label">Total de Reações</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="modalAverageReactionsCount">0</div>
-                        <div class="stat-label">Média por Post</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="modalImpactGrowthCount">+0%</div>
-                        <div class="stat-label">Crescimento</div>
-                    </div>
-                </div>
-
-                <div class="evolution-chart">
-                    <h3 class="chart-title">📈 Sua Evolução</h3>
-                    <div style="margin-bottom: 1rem;">
-                        <strong>Engajamento da Comunidade</strong>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="modalEngagementProgress" style="width: 0%"></div>
-                        </div>
-                        <div class="progress-text" id="modalEngagementText">0%</div>
                     </div>
                 </div>
             </div>
@@ -4973,13 +4889,7 @@
             });
         }
 
-        function createEngagementBar(rate, benchmark = 2.0) {
-            const progressEl = document.getElementById('engagementProgress');
-            if (!progressEl) return;
-            
-            const percentage = Math.min((rate / benchmark) * 100, 100);
-            progressEl.style.width = `${percentage}%`;
-            
+        function updateEngagementValue(rate) {
             const valueEl = document.getElementById('engagementValue');
             if (valueEl) valueEl.textContent = `${rate.toFixed(1)}/post`;
         }
@@ -5038,18 +4948,6 @@
                 }
             });
 
-            // Adicionar texto central
-            const centerText = document.getElementById('impactCenterText');
-            if (centerText) {
-                centerText.innerHTML = `
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #E55A2B;">
-                        ${averageImpact}
-                    </div>
-                    <div style="font-size: 0.8rem; color: #666;">
-                        pessoas/post
-                    </div>
-                `;
-            }
         }
 
         function createReachChart(effective, ineffective) {
@@ -5395,10 +5293,6 @@
             
             // Engagement
             const engagementRate = postsCount > 0 ? Math.min((reactionsCount / postsCount) * 10, 100) : 0;
-            const engagementProgressEl = document.getElementById('engagementProgress');
-            if (engagementProgressEl) engagementProgressEl.style.width = engagementRate + '%';
-            const engagementTextEl = document.getElementById('engagementText');
-            if (engagementTextEl) engagementTextEl.textContent = Math.round(engagementRate) + '%';
         }
 
         function updatePersonalizedTip(postsCount, reactionsCount) {
