@@ -5,7 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoloSpot - Colocando os holofotes nos outros</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Fallback para Chart.js se o primeiro CDN falhar
+        if (typeof Chart === 'undefined') {
+            console.log('🔄 Tentando CDN alternativo para Chart.js...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/chart.js@4.4.0/dist/chart.min.js';
+            script.onload = function() {
+                console.log('✅ Chart.js carregado via CDN alternativo');
+            };
+            script.onerror = function() {
+                console.error('❌ Falha ao carregar Chart.js via CDN alternativo');
+            };
+            document.head.appendChild(script);
+        } else {
+            console.log('✅ Chart.js carregado com sucesso');
+        }
+    </script>
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKK75JRY5W"></script>
@@ -4679,30 +4696,55 @@
                 for (const post of userPosts) {
                     const pessoasUnicasDoPost = new Set();
 
-                    // Buscar reações do post
-                    const { data: reactions } = await supabase
-                        .from('reactions')
-                        .select('user_id')
-                        .eq('post_id', post.id);
+                    try {
+                        // Buscar reações do post
+                        const { data: reactions, error: reactionsError } = await supabase
+                            .from('reactions')
+                            .select('user_id')
+                            .eq('post_id', post.id);
 
-                    // Buscar comentários do post
-                    const { data: comments } = await supabase
-                        .from('comments')
-                        .select('user_id')
-                        .eq('post_id', post.id);
-
-                    // Buscar feedbacks do post
-                    const { data: feedbacks } = await supabase
-                        .from('feedbacks')
-                        .select('user_id')
-                        .eq('post_id', post.id);
-
-                    // Adicionar pessoas únicas que engajaram neste post
-                    [...(reactions || []), ...(comments || []), ...(feedbacks || [])].forEach(interaction => {
-                        if (interaction.user_id !== currentUser.id) { // Excluir o próprio usuário
-                            pessoasUnicasDoPost.add(interaction.user_id);
+                        if (!reactionsError && reactions) {
+                            reactions.forEach(reaction => {
+                                if (reaction.user_id !== currentUser.id) {
+                                    pessoasUnicasDoPost.add(reaction.user_id);
+                                }
+                            });
                         }
-                    });
+
+                        // Buscar comentários do post
+                        const { data: comments, error: commentsError } = await supabase
+                            .from('comments')
+                            .select('user_id')
+                            .eq('post_id', post.id);
+
+                        if (!commentsError && comments) {
+                            comments.forEach(comment => {
+                                if (comment.user_id !== currentUser.id) {
+                                    pessoasUnicasDoPost.add(comment.user_id);
+                                }
+                            });
+                        }
+
+                        // Buscar feedbacks do post (com tratamento de erro específico)
+                        const { data: feedbacks, error: feedbacksError } = await supabase
+                            .from('feedbacks')
+                            .select('user_id')
+                            .eq('post_id', post.id);
+
+                        if (!feedbacksError && feedbacks) {
+                            feedbacks.forEach(feedback => {
+                                if (feedback.user_id !== currentUser.id) {
+                                    pessoasUnicasDoPost.add(feedback.user_id);
+                                }
+                            });
+                        } else if (feedbacksError) {
+                            console.warn(`⚠️ Erro ao buscar feedbacks para post ${post.id}:`, feedbacksError.message);
+                        }
+
+                    } catch (postError) {
+                        console.warn(`⚠️ Erro ao processar post ${post.id}:`, postError);
+                        continue; // Pular este post e continuar com os outros
+                    }
 
                     totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
                 }
@@ -4781,6 +4823,20 @@
             try {
                 console.log('📊 Atualizando Dashboard de Insights...');
                 
+                // Aguardar Chart.js carregar se necessário
+                let attempts = 0;
+                while (typeof Chart === 'undefined' && attempts < 10) {
+                    console.log(`🔄 Aguardando Chart.js carregar... (tentativa ${attempts + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    attempts++;
+                }
+                
+                if (typeof Chart === 'undefined') {
+                    console.warn('⚠️ Chart.js não carregou após 5 segundos - continuando sem visualizações');
+                } else {
+                    console.log('✅ Chart.js carregado com sucesso');
+                }
+                
                 // Calcular todas as métricas
                 const reciprocity = await calculateTrueReciprocity();
                 const engagement = calculateEngagementRate();
@@ -4810,12 +4866,16 @@
                 if (altruismValueEl) altruismValueEl.textContent = altruism.value;
                 if (altruismMessageEl) altruismMessageEl.textContent = altruism.message;
                 
-                // Criar visualizações
-                createReciprocityGauge(reciprocity);
-                createEngagementBar(engagement, 2.0);
-                createImpactChart(parseFloat(impact), 3.0);
-                createReachChart(reach, 100 - reach);
-                createEvolutionChart(); // Gráfico temporal com dados mock
+                // Criar visualizações (apenas se Chart.js estiver disponível)
+                if (typeof Chart !== 'undefined') {
+                    createReciprocityGauge(reciprocity);
+                    createEngagementBar(engagement, 2.0);
+                    createImpactChart(parseFloat(impact), 3.0);
+                    createReachChart(reach, 100 - reach);
+                    createEvolutionChart(); // Gráfico temporal com dados mock
+                } else {
+                    console.warn('⚠️ Pulando visualizações Chart.js - biblioteca não disponível');
+                }
                 
                 // Gerar insights personalizados
                 const insights = generatePersonalizedInsights({
