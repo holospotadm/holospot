@@ -4733,21 +4733,23 @@
             const ratio = holofotesRecebidos / holofotesDados;
             
             if (ratio > 1.2) {
+                const multiplier = (holofotesRecebidos / holofotesDados).toFixed(1);
                 return {
-                    value: `${holofotesRecebidos}:${holofotesDados}`,
-                    message: "Muito reconhecido",
+                    value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
+                    message: `Você recebe ${multiplier}x mais do que dá`,
                     type: "received"
                 };
             } else if (ratio < 0.8) {
+                const multiplier = (holofotesDados / holofotesRecebidos).toFixed(1);
                 return {
-                    value: `${holofotesRecebidos}:${holofotesDados}`,
-                    message: "Muito altruísta",
+                    value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
+                    message: `Você dá ${multiplier}x mais do que recebe`,
                     type: "giving"
                 };
             } else {
                 return {
-                    value: `${holofotesRecebidos}:${holofotesDados}`,
-                    message: "Equilíbrio perfeito",
+                    value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
+                    message: "Você dá e recebe quase igualmente",
                     type: "balanced"
                 };
             }
@@ -5240,13 +5242,13 @@
                 insights.push("🌱 Sua rede está no início. Continue destacando e interagindo!");
             }
 
-            // Altruísmo - sempre gera insight
+            // Altruísmo - sempre gera insight com cálculo específico
             if (metrics.altruism.type === "giving") {
-                insights.push("💝 Você é muito altruísta! Dá mais do que recebe.");
+                insights.push(`💝 ${metrics.altruism.message}`);
             } else if (metrics.altruism.type === "received") {
-                insights.push("🏆 Você é muito reconhecido pela comunidade!");
+                insights.push(`🏆 ${metrics.altruism.message}`);
             } else {
-                insights.push("⚖️ Você tem um equilíbrio perfeito entre dar e receber!");
+                insights.push(`⚖️ ${metrics.altruism.message}`);
             }
 
             // Garantir mínimo de 3 insights
