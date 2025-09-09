@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoloSpot - Colocando os holofotes nos outros</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HKK75JRY5W"></script>
@@ -1455,6 +1456,151 @@
                 padding: 1.5rem;
             }
         }
+
+        /* Dashboard de Insights Estratégicos */
+        .insights-dashboard {
+            margin-top: 2rem;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .insight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .insight-icon {
+            font-size: 1.2rem;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .insight-chart {
+            position: relative;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .insight-progress {
+            margin: 1rem 0;
+        }
+
+        .insight-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #E55A2B;
+            margin: 0.5rem 0;
+        }
+
+        .insight-description {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-network {
+            margin: 1rem 0;
+        }
+
+        .network-size {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #E55A2B;
+        }
+
+        .network-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .insight-altruism {
+            margin: 1rem 0;
+        }
+
+        .altruism-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #E55A2B;
+        }
+
+        .altruism-message {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .insight-chart-large {
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive adjustments for insights */
+        @media (max-width: 768px) {
+            .insights-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .insight-card {
+                padding: 0.8rem;
+            }
+            
+            .insight-value {
+                font-size: 1.3rem;
+            }
+            
+            .network-size {
+                font-size: 1.6rem;
+            }
+            
+            .altruism-value {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1751,6 +1897,110 @@
                 <p id="personalizedTip" style="color: #666; line-height: 1.6;">
                     Continue destacando pessoas especiais! Cada post seu inspira outros a reconhecer o valor das pessoas ao seu redor.
                 </p>
+            </div>
+
+            <!-- NOVA SEÇÃO: Dashboard de Insights Estratégicos -->
+            <div class="insights-dashboard">
+                <h3 class="chart-title">📊 Dashboard de Insights Estratégicos</h3>
+                <div class="insights-grid">
+                    <!-- Reciprocidade Real -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">🤝</span>
+                            <span class="insight-title">Reciprocidade Real</span>
+                        </div>
+                        <div class="insight-chart">
+                            <canvas id="reciprocityChart" width="120" height="120"></canvas>
+                        </div>
+                        <div class="insight-value" id="reciprocityValue">0%</div>
+                        <div class="insight-description">% pessoas que retribuíram</div>
+                    </div>
+
+                    <!-- Taxa de Engajamento -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">🎯</span>
+                            <span class="insight-title">Taxa de Engajamento</span>
+                        </div>
+                        <div class="insight-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="engagementProgress" style="width: 0%; background: linear-gradient(135deg, #E55A2B 0%, #9C27B0 100%);"></div>
+                            </div>
+                        </div>
+                        <div class="insight-value" id="engagementValue">0.0/post</div>
+                        <div class="insight-description">Interações médias por post</div>
+                    </div>
+
+                    <!-- Impacto Médio -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">🌐</span>
+                            <span class="insight-title">Impacto Médio</span>
+                        </div>
+                        <div class="insight-chart">
+                            <canvas id="impactChart" width="120" height="120"></canvas>
+                            <div class="chart-center-text" id="impactCenterText"></div>
+                        </div>
+                        <div class="insight-value" id="impactValue">0.0</div>
+                        <div class="insight-description">pessoas diferentes/post</div>
+                    </div>
+
+                    <!-- Alcance Efetivo -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">⚡</span>
+                            <span class="insight-title">Alcance Efetivo</span>
+                        </div>
+                        <div class="insight-chart">
+                            <canvas id="reachChart" width="120" height="120"></canvas>
+                        </div>
+                        <div class="insight-value" id="reachValue">0%</div>
+                        <div class="insight-description">posts que geram interação</div>
+                    </div>
+
+                    <!-- Rede de Engajamento -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">🔗</span>
+                            <span class="insight-title">Rede de Engajamento</span>
+                        </div>
+                        <div class="insight-network">
+                            <div class="network-size" id="networkSize">0</div>
+                            <div class="network-label">pessoas conectadas</div>
+                        </div>
+                        <div class="insight-value" id="networkValue">Tamanho da rede</div>
+                        <div class="insight-description">pessoas únicas na sua rede</div>
+                    </div>
+
+                    <!-- Índice de Altruísmo -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">💝</span>
+                            <span class="insight-title">Índice de Altruísmo</span>
+                        </div>
+                        <div class="insight-altruism">
+                            <div class="altruism-value" id="altruismValue">0</div>
+                            <div class="altruism-message" id="altruismMessage">Calculando...</div>
+                        </div>
+                        <div class="insight-description">balanço dar vs receber</div>
+                    </div>
+                </div>
+
+                <!-- Evolução Temporal -->
+                <div class="evolution-chart">
+                    <h3 class="chart-title">📈 Evolução Temporal (Últimos 30 dias)</h3>
+                    <div class="insight-chart-large">
+                        <canvas id="evolutionChart" width="800" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Insights Personalizados -->
+                <div class="evolution-chart">
+                    <h3 class="chart-title">💡 Insights Personalizados</h3>
+                    <div id="personalizedInsights" style="color: #666; line-height: 1.6;">
+                        📊 Analisando seus dados...
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -4351,7 +4601,510 @@
             // Update simple metrics
             updateSimpleMetrics();
             
+            // Update Dashboard de Insights Estratégicos
+            updateDashboardInsights();
+        }
+
+        // ===== DASHBOARD DE INSIGHTS ESTRATÉGICOS =====
+
+        async function calculateTrueReciprocity() {
+            try {
+                // Buscar pessoas que EU destaquei
+                const myPosts = posts.filter(post => post.user_id === currentUser.id);
+                const peopleIHighlighted = new Set();
+                myPosts.forEach(post => {
+                    const personName = post.celebrated_person_name || post.person_name;
+                    if (personName && personName.includes('@')) {
+                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        if (usernameMatch) {
+                            usernameMatch.forEach(match => {
+                                peopleIHighlighted.add(match.substring(1));
+                            });
+                        }
+                    }
+                });
+
+                // Buscar pessoas que ME destacaram
+                const postsAboutMe = posts.filter(post => post.mentioned_user_id === currentUser.id);
+                const peopleWhoHighlightedMe = new Set();
+                
+                for (const post of postsAboutMe) {
+                    // Buscar username do autor do post
+                    const { data: authorProfile } = await supabase
+                        .from('profiles')
+                        .select('username')
+                        .eq('id', post.user_id)
+                        .single();
+                    
+                    if (authorProfile && authorProfile.username) {
+                        peopleWhoHighlightedMe.add(authorProfile.username);
+                    }
+                }
+
+                // Calcular reciprocidade REAL (pessoas que retribuíram)
+                const reciprocalPeople = [...peopleIHighlighted].filter(person =>
+                    peopleWhoHighlightedMe.has(person)
+                );
+
+                return peopleIHighlighted.size > 0 ?
+                    (reciprocalPeople.length / peopleIHighlighted.size) * 100 : 0;
+            } catch (error) {
+                console.error('Erro ao calcular reciprocidade:', error);
+                return 0;
+            }
+        }
+
+        function calculateEngagementRate() {
+            const reacoes = parseInt(document.getElementById('userReactionsReceived')?.textContent || '0');
+            const comentarios = parseInt(document.getElementById('userCommentsReceived')?.textContent || '0');
+            const feedbacks = parseInt(document.getElementById('userFeedbacksReceived')?.textContent || '0');
+            const posts = parseInt(document.getElementById('userPostsCount')?.textContent || '0');
             
+            return posts > 0 ? (reacoes + comentarios + feedbacks) / posts : 0;
+        }
+
+        async function calculateAverageImpact() {
+            try {
+                // Buscar todos os posts do usuário
+                const { data: userPosts, error } = await supabase
+                    .from('posts')
+                    .select('id')
+                    .eq('user_id', currentUser.id);
+
+                if (error || !userPosts || userPosts.length === 0) return 0;
+
+                let totalPessoasQueEngajaram = 0;
+
+                // Para cada post, contar pessoas ÚNICAS que engajaram
+                for (const post of userPosts) {
+                    const pessoasUnicasDoPost = new Set();
+
+                    // Buscar reações do post
+                    const { data: reactions } = await supabase
+                        .from('reactions')
+                        .select('user_id')
+                        .eq('post_id', post.id);
+
+                    // Buscar comentários do post
+                    const { data: comments } = await supabase
+                        .from('comments')
+                        .select('user_id')
+                        .eq('post_id', post.id);
+
+                    // Buscar feedbacks do post
+                    const { data: feedbacks } = await supabase
+                        .from('feedbacks')
+                        .select('user_id')
+                        .eq('post_id', post.id);
+
+                    // Adicionar pessoas únicas que engajaram neste post
+                    [...(reactions || []), ...(comments || []), ...(feedbacks || [])].forEach(interaction => {
+                        if (interaction.user_id !== currentUser.id) { // Excluir o próprio usuário
+                            pessoasUnicasDoPost.add(interaction.user_id);
+                        }
+                    });
+
+                    totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
+                }
+
+                // Média de pessoas que engajaram por post
+                return (totalPessoasQueEngajaram / userPosts.length).toFixed(1);
+            } catch (error) {
+                console.error('Erro ao calcular impacto médio:', error);
+                return 0;
+            }
+        }
+
+        async function calculateEffectiveReach() {
+            try {
+                // Buscar posts do usuário com contagem de interações
+                const userPosts = posts.filter(p => p.user_id === currentUser.id);
+                
+                let postsWithInteraction = 0;
+                
+                for (const post of userPosts) {
+                    // Verificar se o post tem alguma interação
+                    const hasReactions = post.reactions && post.reactions.length > 0;
+                    const hasComments = post.comments && post.comments.length > 0;
+                    const hasFeedbacks = post.feedbacks && post.feedbacks.length > 0;
+                    
+                    if (hasReactions || hasComments || hasFeedbacks) {
+                        postsWithInteraction++;
+                    }
+                }
+
+                return userPosts.length > 0 ? (postsWithInteraction / userPosts.length) * 100 : 0;
+            } catch (error) {
+                console.error('Erro ao calcular alcance efetivo:', error);
+                return 0;
+            }
+        }
+
+        function calculateNetworkSize() {
+            const pessoasDestacadas = parseInt(document.getElementById('userPeopleHighlighted')?.textContent || '0');
+            const pessoasQueDestacaram = parseInt(document.getElementById('userPeopleWhoHighlighted')?.textContent || '0');
+            
+            // Simplificado inicialmente - futuramente implementar deduplicação
+            return pessoasDestacadas + pessoasQueDestacaram;
+        }
+
+        function calculateAltruismIndex() {
+            const holofotesRecebidos = parseInt(document.getElementById('userHolofotesReceived')?.textContent || '0');
+            const holofotesDados = parseInt(document.getElementById('userPostsCount')?.textContent || '0');
+            
+            if (holofotesDados === 0) return { value: 0, message: "Sem dados", type: "balanced" };
+            
+            const ratio = holofotesRecebidos / holofotesDados;
+            
+            if (ratio > 1.2) {
+                return {
+                    value: ((ratio - 1) * 100).toFixed(0),
+                    message: "Muito reconhecido",
+                    type: "received"
+                };
+            } else if (ratio < 0.8) {
+                return {
+                    value: ((1 - ratio) * 100).toFixed(0),
+                    message: "Muito altruísta",
+                    type: "giving"
+                };
+            } else {
+                return {
+                    value: 100,
+                    message: "Equilíbrio perfeito",
+                    type: "balanced"
+                };
+            }
+        }
+
+        async function updateDashboardInsights() {
+            try {
+                console.log('📊 Atualizando Dashboard de Insights...');
+                
+                // Calcular todas as métricas
+                const reciprocity = await calculateTrueReciprocity();
+                const engagement = calculateEngagementRate();
+                const impact = await calculateAverageImpact();
+                const reach = await calculateEffectiveReach();
+                const network = calculateNetworkSize();
+                const altruism = calculateAltruismIndex();
+                
+                // Atualizar valores na interface
+                const reciprocityValueEl = document.getElementById('reciprocityValue');
+                if (reciprocityValueEl) reciprocityValueEl.textContent = `${reciprocity.toFixed(0)}%`;
+                
+                const engagementValueEl = document.getElementById('engagementValue');
+                if (engagementValueEl) engagementValueEl.textContent = `${engagement.toFixed(1)}/post`;
+                
+                const impactValueEl = document.getElementById('impactValue');
+                if (impactValueEl) impactValueEl.textContent = impact;
+                
+                const reachValueEl = document.getElementById('reachValue');
+                if (reachValueEl) reachValueEl.textContent = `${reach.toFixed(0)}%`;
+                
+                const networkValueEl = document.getElementById('networkSize');
+                if (networkValueEl) networkValueEl.textContent = network;
+                
+                const altruismValueEl = document.getElementById('altruismValue');
+                const altruismMessageEl = document.getElementById('altruismMessage');
+                if (altruismValueEl) altruismValueEl.textContent = altruism.value;
+                if (altruismMessageEl) altruismMessageEl.textContent = altruism.message;
+                
+                // Criar visualizações
+                createReciprocityGauge(reciprocity);
+                createEngagementBar(engagement, 2.0);
+                createImpactChart(parseFloat(impact), 3.0);
+                createReachChart(reach, 100 - reach);
+                createEvolutionChart(); // Gráfico temporal com dados mock
+                
+                // Gerar insights personalizados
+                const insights = generatePersonalizedInsights({
+                    reciprocity,
+                    engagement,
+                    impact: parseFloat(impact),
+                    reach,
+                    network,
+                    altruism
+                });
+                
+                const insightsEl = document.getElementById('personalizedInsights');
+                if (insightsEl) {
+                    insightsEl.innerHTML = insights.map(insight => `• ${insight}`).join('<br>');
+                }
+                
+                console.log('✅ Dashboard de Insights atualizado');
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar Dashboard de Insights:', error);
+            }
+        }
+
+        // ===== FUNÇÕES DE VISUALIZAÇÃO CHART.JS =====
+
+        function createReciprocityGauge(value) {
+            const canvas = document.getElementById('reciprocityChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destruir chart existente se houver
+            if (window.reciprocityChartInstance) {
+                window.reciprocityChartInstance.destroy();
+            }
+            
+            window.reciprocityChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [value, 100 - value],
+                        backgroundColor: [
+                            value < 50 ? '#ff4444' : value < 100 ? '#ffaa00' : '#44ff44',
+                            '#f0f0f0'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function createEngagementBar(rate, benchmark = 2.0) {
+            const progressEl = document.getElementById('engagementProgress');
+            if (!progressEl) return;
+            
+            const percentage = Math.min((rate / benchmark) * 100, 100);
+            progressEl.style.width = `${percentage}%`;
+            
+            const valueEl = document.getElementById('engagementValue');
+            if (valueEl) valueEl.textContent = `${rate.toFixed(1)}/post`;
+        }
+
+        function createImpactChart(averageImpact, benchmark = 3.0) {
+            const canvas = document.getElementById('impactChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destruir chart existente se houver
+            if (window.impactChartInstance) {
+                window.impactChartInstance.destroy();
+            }
+            
+            // Calcular percentual baseado no benchmark
+            const percentage = Math.min((averageImpact / benchmark) * 100, 100);
+            const remaining = 100 - percentage;
+
+            window.impactChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pessoas Engajadas', 'Potencial'],
+                    datasets: [{
+                        data: [percentage, remaining],
+                        backgroundColor: [
+                            averageImpact < 1 ? '#ff4444' :
+                            averageImpact < 2 ? '#ffaa00' : '#44ff44',
+                            '#f0f0f0'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataIndex === 0) {
+                                        return `${averageImpact} pessoas/post`;
+                                    }
+                                    return 'Potencial de crescimento';
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Adicionar texto central
+            const centerText = document.getElementById('impactCenterText');
+            if (centerText) {
+                centerText.innerHTML = `
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #E55A2B;">
+                        ${averageImpact}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #666;">
+                        pessoas/post
+                    </div>
+                `;
+            }
+        }
+
+        function createReachChart(effective, ineffective) {
+            const canvas = document.getElementById('reachChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destruir chart existente se houver
+            if (window.reachChartInstance) {
+                window.reachChartInstance.destroy();
+            }
+            
+            window.reachChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Com Interação', 'Sem Interação'],
+                    datasets: [{
+                        data: [effective, ineffective],
+                        backgroundColor: ['#E55A2B', '#f0f0f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function createEvolutionChart(data) {
+            const canvas = document.getElementById('evolutionChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destruir chart existente se houver
+            if (window.evolutionChartInstance) {
+                window.evolutionChartInstance.destroy();
+            }
+            
+            // Dados mock para demonstração - futuramente usar dados reais
+            const mockData = {
+                dates: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                posts: [2, 5, 3, 7],
+                holofotes: [1, 3, 4, 6]
+            };
+            
+            window.evolutionChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: mockData.dates,
+                    datasets: [{
+                        label: 'Posts Criados',
+                        data: mockData.posts,
+                        borderColor: '#E55A2B',
+                        backgroundColor: 'rgba(229, 90, 43, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Holofotes Recebidos',
+                        data: mockData.holofotes,
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        function generatePersonalizedInsights(metrics) {
+            const insights = [];
+
+            // Reciprocidade
+            if (metrics.reciprocity > 80) {
+                insights.push("🎉 Excelente! Você tem alta reciprocidade na sua rede!");
+            } else if (metrics.reciprocity < 30) {
+                insights.push("💡 Dica: Destaque mais pessoas para aumentar sua reciprocidade.");
+            }
+
+            // Engajamento
+            if (metrics.engagement > 2.5) {
+                insights.push("🚀 Seus posts têm alto engajamento! Continue assim.");
+            } else if (metrics.engagement < 1.0) {
+                insights.push("📈 Tente criar posts mais envolventes para aumentar interações.");
+            }
+
+            // Impacto
+            if (metrics.impact > 2.0) {
+                insights.push("🌟 Você está impactando muitas pessoas diferentes!");
+            } else if (metrics.impact < 1.0) {
+                insights.push("🎯 Foque em criar conteúdo que ressoe com mais pessoas.");
+            }
+
+            // Alcance
+            if (metrics.reach > 70) {
+                insights.push("⚡ Excelente alcance! A maioria dos seus posts gera interação.");
+            } else if (metrics.reach < 30) {
+                insights.push("📊 Apenas alguns posts estão gerando interação. Analise o que funciona melhor.");
+            }
+
+            // Rede
+            if (metrics.network > 20) {
+                insights.push("🔗 Você tem uma rede de engajamento robusta!");
+            } else if (metrics.network < 5) {
+                insights.push("🌱 Sua rede está crescendo. Continue destacando e interagindo!");
+            }
+
+            // Altruísmo
+            if (metrics.altruism.type === "giving") {
+                insights.push("💝 Você é muito altruísta! Dá mais do que recebe.");
+            } else if (metrics.altruism.type === "received") {
+                insights.push("🏆 Você é muito reconhecido pela comunidade!");
+            } else {
+                insights.push("⚖️ Você tem um equilíbrio perfeito entre dar e receber!");
+            }
+
+            // Se não há insights, adicionar um padrão
+            if (insights.length === 0) {
+                insights.push("📊 Continue usando o HoloSpot para gerar mais insights personalizados!");
+            }
+
+            return insights;
         }
 
         function updateProgressBars(postsCount, reactionsCount) {
