@@ -1395,7 +1395,7 @@
         }
 
         .impact-btn {
-            background: linear-gradient(135deg, #E55A2B, #8B5CF6);
+            background: linear-gradient(135deg, #FFD700, #E55A2B, #8B5CF6);
             color: white;
             border: none;
             padding: 1rem 2rem;
@@ -1404,12 +1404,12 @@
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(229, 90, 43, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
 
         .impact-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(229, 90, 43, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
         }
 
         /* Modal de Impacto - Using unified modal-overlay */
@@ -4852,6 +4852,11 @@
             
             const ctx = canvas.getContext('2d');
             
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
+            gradient.addColorStop(0, '#E55A2B'); // Orange
+            gradient.addColorStop(1, '#8B5CF6'); // Purple
+            
             // Destruir chart existente se houver
             if (window.reciprocityChartInstance) {
                 window.reciprocityChartInstance.destroy();
@@ -4863,7 +4868,7 @@
                     datasets: [{
                         data: [value, 100 - value],
                         backgroundColor: [
-                            '#E55A2B', // Orange
+                            gradient, // Orange to Purple gradient
                             '#f0f0f0'
                         ],
                         borderWidth: 0
@@ -4897,6 +4902,11 @@
             
             const ctx = canvas.getContext('2d');
             
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
+            gradient.addColorStop(0, '#E55A2B'); // Orange
+            gradient.addColorStop(1, '#8B5CF6'); // Purple
+            
             // Destruir chart existente se houver
             if (window.impactChartInstance) {
                 window.impactChartInstance.destroy();
@@ -4913,7 +4923,7 @@
                     datasets: [{
                         data: [percentage, remaining],
                         backgroundColor: [
-                            '#8B5CF6', // Purple
+                            gradient, // Orange to Purple gradient
                             '#f0f0f0'
                         ],
                         borderWidth: 0
@@ -4952,6 +4962,11 @@
             
             const ctx = canvas.getContext('2d');
             
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
+            gradient.addColorStop(0, '#E55A2B'); // Orange
+            gradient.addColorStop(1, '#8B5CF6'); // Purple
+            
             // Destruir chart existente se houver
             if (window.reachChartInstance) {
                 window.reachChartInstance.destroy();
@@ -4963,7 +4978,7 @@
                     labels: ['Com Interação', 'Sem Interação'],
                     datasets: [{
                         data: [effective, ineffective],
-                        backgroundColor: ['#E55A2B', '#f0f0f0'], // Orange (consistent with gradient)
+                        backgroundColor: [gradient, '#f0f0f0'], // Orange to Purple gradient
                         borderWidth: 0
                     }]
                 },
