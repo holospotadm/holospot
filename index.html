@@ -1949,9 +1949,6 @@
                             <span class="insight-icon">🌐</span>
                             <span class="insight-title">Impacto Médio</span>
                         </div>
-                        <div class="insight-chart">
-                            <canvas id="impactChart" width="120" height="120"></canvas>
-                        </div>
                         <div class="insight-value" id="impactValue">0.0</div>
                         <div class="insight-description">pessoas diferentes/post</div>
                     </div>
@@ -4810,7 +4807,7 @@
                 if (typeof Chart !== 'undefined') {
                     createReciprocityGauge(reciprocity);
                     updateEngagementValue(engagement);
-                    createImpactChart(parseFloat(impact), 3.0);
+                    // Impact now shows only number, no chart needed
                     createReachChart(reach, 100 - reach);
                     createEvolutionChart(); // Gráfico temporal com dados mock
                 } else {
@@ -4889,66 +4886,6 @@
         function updateEngagementValue(rate) {
             const valueEl = document.getElementById('engagementValue');
             if (valueEl) valueEl.textContent = `${rate.toFixed(1)}/post`;
-        }
-
-        function createImpactChart(averageImpact, benchmark = 3.0) {
-            if (typeof Chart === 'undefined') {
-                console.warn('⚠️ Chart.js não carregado - pulando visualização');
-                return;
-            }
-            
-            const canvas = document.getElementById('impactChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            
-            // Create linear gradient positioned to follow arc direction (bottom to top)
-            const gradient = ctx.createLinearGradient(60, 120, 60, 0);
-            gradient.addColorStop(0, '#ff6600'); // 100% Orange at bottom (start)
-            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at top (end)
-            
-            // Destruir chart existente se houver
-            if (window.impactChartInstance) {
-                window.impactChartInstance.destroy();
-            }
-            
-            // Calcular percentual baseado no benchmark
-            const percentage = Math.min((averageImpact / benchmark) * 100, 100);
-            const remaining = 100 - percentage;
-
-            window.impactChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Pessoas Engajadas', 'Potencial'],
-                    datasets: [{
-                        data: [percentage, remaining],
-                        backgroundColor: [
-                            gradient, // Orange to Purple gradient
-                            '#f0f0f0'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    cutout: '70%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    if (context.dataIndex === 0) {
-                                        return `${averageImpact} pessoas/post`;
-                                    }
-                                    return 'Potencial de crescimento';
-                                }
-                            }
-                        }
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
         }
 
         function createReachChart(effective, ineffective) {
