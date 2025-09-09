@@ -4852,11 +4852,10 @@
             
             const ctx = canvas.getContext('2d');
             
-            // Create gradient with more orange visibility
-            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
-            gradient.addColorStop(0, '#ff6600'); // Orange (same as streak)
-            gradient.addColorStop(0.6, '#ff6600'); // Keep orange longer
-            gradient.addColorStop(1, '#9c27b0'); // Purple (same as streak)
+            // Create radial gradient for better color distribution in doughnut
+            const gradient = ctx.createRadialGradient(60, 60, 0, 60, 60, 60);
+            gradient.addColorStop(0, '#ff6600'); // 100% Orange at center
+            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at edge
             
             // Destruir chart existente se houver
             if (window.reciprocityChartInstance) {
@@ -4903,11 +4902,10 @@
             
             const ctx = canvas.getContext('2d');
             
-            // Create gradient with more orange visibility
-            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
-            gradient.addColorStop(0, '#ff6600'); // Orange (same as streak)
-            gradient.addColorStop(0.6, '#ff6600'); // Keep orange longer
-            gradient.addColorStop(1, '#9c27b0'); // Purple (same as streak)
+            // Create radial gradient for better color distribution in doughnut
+            const gradient = ctx.createRadialGradient(60, 60, 0, 60, 60, 60);
+            gradient.addColorStop(0, '#ff6600'); // 100% Orange at center
+            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at edge
             
             // Destruir chart existente se houver
             if (window.impactChartInstance) {
@@ -4964,11 +4962,10 @@
             
             const ctx = canvas.getContext('2d');
             
-            // Create gradient with more orange visibility
-            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
-            gradient.addColorStop(0, '#ff6600'); // Orange (same as streak)
-            gradient.addColorStop(0.6, '#ff6600'); // Keep orange longer
-            gradient.addColorStop(1, '#9c27b0'); // Purple (same as streak)
+            // Create radial gradient for better color distribution in doughnut
+            const gradient = ctx.createRadialGradient(60, 60, 0, 60, 60, 60);
+            gradient.addColorStop(0, '#ff6600'); // 100% Orange at center
+            gradient.addColorStop(1, '#9c27b0'); // 100% Purple at edge
             
             // Destruir chart existente se houver
             if (window.reachChartInstance) {
