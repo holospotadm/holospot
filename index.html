@@ -7195,21 +7195,20 @@
                 
                 // Mouse move event
                 networkSize.addEventListener('mousemove', function(e) {
-                    const x = e.clientX;
-                    const y = e.clientY;
+                    const rect = networkSize.getBoundingClientRect();
                     
-                    // Position tooltip exactly on cursor
-                    let tooltipX = x;
-                    let tooltipY = y;
+                    // Position tooltip exactly on the number element
+                    let tooltipX = rect.left;
+                    let tooltipY = rect.top - tooltip.offsetHeight - 5;
                     
                     // Adjust if tooltip would go off right edge
                     if (tooltipX + tooltip.offsetWidth > window.innerWidth) {
-                        tooltipX = x - tooltip.offsetWidth;
+                        tooltipX = rect.right - tooltip.offsetWidth;
                     }
                     
                     // Adjust if tooltip would go off top edge
                     if (tooltipY < 0) {
-                        tooltipY = y + 10;
+                        tooltipY = rect.bottom + 5;
                     }
                     
                     tooltip.style.left = tooltipX + 'px';
