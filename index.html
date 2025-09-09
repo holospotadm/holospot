@@ -1901,11 +1901,12 @@
                             <span class="insight-icon">💝</span>
                             <span class="insight-title">Índice de Altruísmo</span>
                         </div>
-                        <div class="insight-altruism">
-                            <div class="altruism-value" id="altruismValue">0</div>
-                            <div class="altruism-message" id="altruismMessage" style="font-style: italic;">Calculando...</div>
+                        <div class="insight-chart">
+                            <canvas id="altruismChart" width="120" height="120"></canvas>
                         </div>
+                        <div class="insight-value" id="altruismValue">0:0</div>
                         <div class="insight-description">balanço dar vs receber</div>
+                        <div class="insight-message" id="altruismMessage" style="font-style: italic; font-size: 0.9em; color: #666; margin-top: 0.5rem;"></div>
                     </div>
                 </div>
 
@@ -4809,6 +4810,7 @@
                     updateEngagementValue(engagement);
                     // Impact now shows only number, no chart needed
                     createReachChart(reach, 100 - reach);
+                    createAltruismChart(altruism.given, altruism.received);
                     createEvolutionChart(); // Gráfico temporal com dados mock
                 } else {
                     console.warn('⚠️ Pulando visualizações Chart.js - biblioteca não disponível');
@@ -4886,6 +4888,62 @@
         function updateEngagementValue(rate) {
             const valueEl = document.getElementById('engagementValue');
             if (valueEl) valueEl.textContent = `${rate.toFixed(1)}/post`;
+        }
+
+        function createAltruismChart(given, received) {
+            if (typeof Chart === 'undefined') {
+                console.warn('⚠️ Chart.js não carregado - pulando visualização');
+                return;
+            }
+            
+            const canvas = document.getElementById('altruismChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destruir chart existente se houver
+            if (window.altruismChartInstance) {
+                window.altruismChartInstance.destroy();
+            }
+            
+            window.altruismChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dados', 'Recebidos'],
+                    datasets: [{
+                        data: [given, received],
+                        backgroundColor: [
+                            '#ff8c00', // Orange (same as evolution chart)
+                            '#9c27b0'  // Purple (same as evolution chart)
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            display: false
+                        },
+                        x: {
+                            display: false
+                        }
+                    }
+                }
+            });
         }
 
         function createReachChart(effective, ineffective) {
