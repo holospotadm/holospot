@@ -2296,36 +2296,22 @@
 
         async function loadImpactDataInModal() {
             try {
-                console.log('📊 Carregando dados de impacto no modal...');
+                console.log('📊 Carregando Dashboard de Insights no modal...');
                 
-                // Carregar posts do usuário
-                const { data: userPosts, error: postsError } = await supabase
-                    .from('posts')
-                    .select('*')
-                    .eq('user_id', currentUser.id);
-
-                if (postsError) throw postsError;
-
-                // Calcular estatísticas
-                const totalPosts = userPosts.length;
-                const totalReactions = userPosts.reduce((sum, post) => sum + (post.reactions_count || 0), 0);
-                const averageReactions = totalPosts > 0 ? Math.round(totalReactions / totalPosts) : 0;
-                const totalReach = totalPosts * 10; // Estimativa simples
-
-                // Atualizar elementos do modal
-                document.getElementById('modalTotalReachCount').textContent = totalReach;
-                document.getElementById('modalTotalReactionsCount').textContent = totalReactions;
-                document.getElementById('modalAverageReactionsCount').textContent = averageReactions;
-                document.getElementById('modalImpactGrowthCount').textContent = '+15%';
-
-                // Atualizar barra de progresso de engajamento
-                const engagementProgress = Math.min((averageReactions / 10) * 100, 100);
-                document.getElementById('modalEngagementProgress').style.width = `${engagementProgress}%`;
-                document.getElementById('modalEngagementText').textContent = `${Math.round(engagementProgress)}%`;
-
-                console.log('✅ Dados de impacto carregados no modal');
+                // Aguardar Chart.js carregar se necessário
+                let attempts = 0;
+                while (typeof Chart === 'undefined' && attempts < 10) {
+                    console.log(`🔄 Aguardando Chart.js carregar... (tentativa ${attempts + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    attempts++;
+                }
+                
+                // Atualizar Dashboard de Insights no modal
+                await updateDashboardInsights();
+                
+                console.log('✅ Dashboard de Insights carregado no modal');
             } catch (error) {
-                console.error('❌ Erro ao carregar dados de impacto:', error);
+                console.error('❌ Erro ao carregar Dashboard de Insights:', error);
             }
         }
 
@@ -4817,7 +4803,7 @@
                 // Criar visualizações (apenas se Chart.js estiver disponível)
                 if (typeof Chart !== 'undefined') {
                     createReciprocityGauge(reciprocity);
-                    createEngagementBar(engagement, 2.0);
+                    updateEngagementValue(engagement);
                     createImpactChart(parseFloat(impact), 3.0);
                     createReachChart(reach, 100 - reach);
                     createEvolutionChart(); // Gráfico temporal com dados mock
