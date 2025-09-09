@@ -4742,81 +4742,115 @@
             }
         }
 
-        function calculateEngagementRate() {
-            const reacoes = parseInt(document.getElementById('userReactionsReceived')?.textContent || '0');
-            const comentarios = parseInt(document.getElementById('userCommentsReceived')?.textContent || '0');
-            const feedbacks = parseInt(document.getElementById('userFeedbacksReceived')?.textContent || '0');
-            const posts = parseInt(document.getElementById('userPostsCount')?.textContent || '0');
-            
-            return posts > 0 ? (reacoes + comentarios + feedbacks) / posts : 0;
+        async function calculateEngagementRate() {
+            try {
+                if (!currentUser || !currentUser.id) return 0;
+                
+                // Buscar posts do usuário
+                const myPosts = posts.filter(post => post.user_id === currentUser.id);
+                if (myPosts.length === 0) return 0;
+                
+                let totalInteractions = 0;
+                
+                // Contar interações de cada post
+                for (const post of myPosts) {
+                    // Reações
+                    if (post.reactions && Array.isArray(post.reactions)) {
+                        totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
+                    }
+                    
+                    // Comentários (buscar do banco)
+                    try {
+                        const { data: comments } = await withTimeout(
+                            supabase.from('comments')
+                                .select('id')
+                                .eq('post_id', post.id)
+                                .neq('user_id', currentUser.id),
+                            2000
+                        );
+                        if (comments) totalInteractions += comments.length;
+                    } catch (e) {
+                        console.warn('Erro ao buscar comentários para engajamento:', e);
+                    }
+                    
+                    // Feedbacks (buscar do banco)
+                    try {
+                        const { data: feedbacks } = await withTimeout(
+                            supabase.from('feedbacks')
+                                .select('id')
+                                .eq('post_id', post.id),
+                            2000
+                        );
+                        if (feedbacks) totalInteractions += feedbacks.length;
+                    } catch (e) {
+                        console.warn('Erro ao buscar feedbacks para engajamento:', e);
+                    }
+                }
+                
+                return totalInteractions / myPosts.length;
+                
+            } catch (error) {
+                console.error('Erro ao calcular taxa de engajamento:', error);
+                return 0;
+            }
         }
 
         async function calculateAverageImpact() {
             try {
-                // Buscar todos os posts do usuário
-                const { data: userPosts, error } = await supabase
-                    .from('posts')
-                    .select('id')
-                    .eq('user_id', currentUser.id);
-
-                if (error || !userPosts || userPosts.length === 0) return 0;
+                if (!currentUser || !currentUser.id) return 0;
+                
+                // Buscar posts do usuário
+                const myPosts = posts.filter(post => post.user_id === currentUser.id);
+                if (myPosts.length === 0) return 0;
 
                 let totalPessoasQueEngajaram = 0;
 
                 // Para cada post, contar pessoas ÚNICAS que engajaram
-                for (const post of userPosts) {
+                for (const post of myPosts) {
                     const pessoasUnicasDoPost = new Set();
 
                     try {
-                        // Buscar reações do post
-                        const { data: reactions, error: reactionsError } = await supabase
-                            .from('reactions')
-                            .select('user_id')
-                            .eq('post_id', post.id);
-
-                        if (!reactionsError && reactions) {
-                            reactions.forEach(reaction => {
-                                if (reaction.user_id !== currentUser.id) {
+                        // Reações (já carregadas nos posts)
+                        if (post.reactions && Array.isArray(post.reactions)) {
+                            post.reactions.forEach(reaction => {
+                                if (reaction.user_id && reaction.user_id !== currentUser.id) {
                                     pessoasUnicasDoPost.add(reaction.user_id);
                                 }
                             });
                         }
 
-                        // Buscar comentários do post
-                        const { data: comments, error: commentsError } = await supabase
-                            .from('comments')
-                            .select('user_id')
-                            .eq('post_id', post.id);
-
-                        if (!commentsError && comments) {
+                        // Comentários (buscar do banco)
+                        const { data: comments } = await withTimeout(
+                            supabase.from('comments')
+                                .select('user_id')
+                                .eq('post_id', post.id)
+                                .neq('user_id', currentUser.id),
+                            2000
+                        );
+                        
+                        if (comments) {
                             comments.forEach(comment => {
-                                if (comment.user_id !== currentUser.id) {
+                                if (comment.user_id) {
                                     pessoasUnicasDoPost.add(comment.user_id);
                                 }
                             });
                         }
 
-                        // Buscar feedbacks do post (removido user_id que não existe na tabela)
-                        // Nota: A tabela feedbacks não possui coluna user_id, então não incluímos nos cálculos
-                        console.log(`ℹ️ Pulando feedbacks para post ${post.id} - tabela não possui user_id`);
+                        // Feedbacks (buscar do banco usando mentioned_user_id)
+                        const { data: feedbacks } = await withTimeout(
+                            supabase.from('feedbacks')
+                                .select('mentioned_user_id')
+                                .eq('post_id', post.id),
+                            2000
+                        );
                         
-                        // Se futuramente a tabela feedbacks tiver user_id, descomente:
-                        /*
-                        const { data: feedbacks, error: feedbacksError } = await supabase
-                            .from('feedbacks')
-                            .select('user_id')
-                            .eq('post_id', post.id);
-
-                        if (!feedbacksError && feedbacks) {
+                        if (feedbacks) {
                             feedbacks.forEach(feedback => {
-                                if (feedback.user_id !== currentUser.id) {
-                                    pessoasUnicasDoPost.add(feedback.user_id);
+                                if (feedback.mentioned_user_id && feedback.mentioned_user_id !== currentUser.id) {
+                                    pessoasUnicasDoPost.add(feedback.mentioned_user_id);
                                 }
                             });
-                        } else if (feedbacksError) {
-                            console.warn(`⚠️ Erro ao buscar feedbacks para post ${post.id}:`, feedbacksError.message);
                         }
-                        */
 
                     } catch (postError) {
                         console.warn(`⚠️ Erro ao processar post ${post.id}:`, postError);
@@ -4827,7 +4861,8 @@
                 }
 
                 // Média de pessoas que engajaram por post
-                return (totalPessoasQueEngajaram / userPosts.length).toFixed(1);
+                return Math.round(totalPessoasQueEngajaram / myPosts.length);
+                
             } catch (error) {
                 console.error('Erro ao calcular impacto médio:', error);
                 return 0;
@@ -5076,10 +5111,10 @@
                 
                 // Calcular todas as métricas
                 const reciprocity = await calculateTrueReciprocity();
-                const engagement = calculateEngagementRate();
+                const engagement = await calculateEngagementRate(); // Agora é async
                 const impact = await calculateAverageImpact();
                 const reach = await calculateEffectiveReach();
-                const network = await calculateNetworkSize(); // Agora é async
+                const network = await calculateNetworkSize();
                 const altruism = calculateAltruismIndex();
                 
                 // Atualizar valores na interface
