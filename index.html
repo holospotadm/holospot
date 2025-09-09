@@ -7185,7 +7185,7 @@
                 // Create tooltip element
                 const tooltip = document.createElement('div');
                 tooltip.className = 'chart-tooltip';
-                tooltip.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px;">Rede de Engajamento</div><div>Tamanho da sua rede: pessoas diferentes que já interagiram com você</div>';
+                tooltip.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px;">Rede de Engajamento</div><div>Pessoas diferentes que<br>interagiram com você</div>';
                 document.body.appendChild(tooltip);
                 
                 // Mouse enter event
@@ -7199,18 +7199,18 @@
                     const x = e.clientX;
                     const y = e.clientY;
                     
-                    // Position tooltip near cursor but avoid going off screen
-                    let tooltipX = x + 10;
-                    let tooltipY = y - 10;
+                    // Position tooltip closer to cursor
+                    let tooltipX = x + 5;
+                    let tooltipY = y - 5;
                     
                     // Adjust if tooltip would go off right edge
                     if (tooltipX + tooltip.offsetWidth > window.innerWidth) {
-                        tooltipX = x - tooltip.offsetWidth - 10;
+                        tooltipX = x - tooltip.offsetWidth - 5;
                     }
                     
                     // Adjust if tooltip would go off top edge
                     if (tooltipY < 0) {
-                        tooltipY = y + 20;
+                        tooltipY = y + 15;
                     }
                     
                     tooltip.style.left = tooltipX + 'px';
