@@ -6775,6 +6775,16 @@
             } else {
                 console.warn('⚠️ Elemento impactBtn não encontrado');
             }
+            
+            // RECONFIGURAR BOTÃO DE IMPACTO SEMPRE QUE OS CARDS SÃO RECONFIGURADOS
+            setTimeout(() => {
+                const impactBtnAgain = document.getElementById('impactBtn');
+                if (impactBtnAgain) {
+                    impactBtnAgain.removeEventListener('click', openImpactModal);
+                    impactBtnAgain.addEventListener('click', openImpactModal);
+                    console.log('🔄 Event listener do botão Ver Impacto Detalhado reconfigurado');
+                }
+            }, 100);
         }
 
         // ===== FUNÇÕES DOS MODAIS DE MÉTRICAS RECEBIDAS =====
