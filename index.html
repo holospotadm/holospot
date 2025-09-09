@@ -4911,73 +4911,78 @@
                 try {
                     const myPostIds = myPosts.map(p => p.id);
                     
-                    const [commentsGiven, commentsReceived, feedbacksGiven, feedbacksReceived] = await Promise.all([
-                        // Comentários que eu fiz
-                        withTimeout(
-                            supabase.from('comments')
-                                .select('post_id')
-                                .eq('user_id', currentUser.id),
-                            3000
-                        ),
-                        // Comentários nos meus posts
-                        withTimeout(
-                            supabase.from('comments')
-                                .select('user_id')
-                                .in('post_id', myPostIds),
-                            3000
-                        ),
-                        // Feedbacks que eu dei (onde fui mencionado)
-                        withTimeout(
-                            supabase.from('feedbacks')
-                                .select('post_id')
-                                .eq('mentioned_user_id', currentUser.id),
-                            3000
-                        ),
-                        // Feedbacks nos meus posts
-                        withTimeout(
-                            supabase.from('feedbacks')
-                                .select('user_id')
-                                .in('post_id', myPostIds),
-                            3000
-                        )
-                    ]);
-                    
-                    // Processar comentários que eu fiz
-                    if (commentsGiven.data) {
-                        const postIds = commentsGiven.data.map(c => c.post_id);
-                        posts.forEach(post => {
-                            if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
-                                networkPeople.add(post.user_id);
-                            }
-                        });
-                    }
-                    
-                    // Processar comentários nos meus posts
-                    if (commentsReceived.data) {
-                        commentsReceived.data.forEach(comment => {
-                            if (comment.user_id && comment.user_id !== currentUser.id) {
-                                networkPeople.add(comment.user_id);
-                            }
-                        });
-                    }
-                    
-                    // Processar feedbacks que eu dei (onde fui mencionado)
-                    if (feedbacksGiven.data) {
-                        const postIds = feedbacksGiven.data.map(f => f.post_id);
-                        posts.forEach(post => {
-                            if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
-                                networkPeople.add(post.user_id);
-                            }
-                        });
-                    }
-                    
-                    // Processar feedbacks nos meus posts
-                    if (feedbacksReceived.data) {
-                        feedbacksReceived.data.forEach(feedback => {
-                            if (feedback.user_id && feedback.user_id !== currentUser.id) {
-                                networkPeople.add(feedback.user_id);
-                            }
-                        });
+                    // Só fazer queries se houver posts
+                    if (myPostIds.length > 0) {
+                        const [commentsGiven, commentsReceived, feedbacksGiven, feedbacksReceived] = await Promise.all([
+                            // Comentários que eu fiz
+                            withTimeout(
+                                supabase.from('comments')
+                                    .select('post_id')
+                                    .eq('user_id', currentUser.id),
+                                3000
+                            ),
+                            // Comentários nos meus posts
+                            withTimeout(
+                                supabase.from('comments')
+                                    .select('user_id')
+                                    .in('post_id', myPostIds),
+                                3000
+                            ),
+                            // Feedbacks que eu dei (onde fui mencionado)
+                            withTimeout(
+                                supabase.from('feedbacks')
+                                    .select('post_id')
+                                    .eq('mentioned_user_id', currentUser.id),
+                                3000
+                            ),
+                            // Feedbacks nos meus posts
+                            withTimeout(
+                                supabase.from('feedbacks')
+                                    .select('user_id')
+                                    .in('post_id', myPostIds),
+                                3000
+                            )
+                        ]);
+                        
+                        // Processar comentários que eu fiz
+                        if (commentsGiven.data) {
+                            const postIds = commentsGiven.data.map(c => c.post_id);
+                            posts.forEach(post => {
+                                if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
+                                    networkPeople.add(post.user_id);
+                                }
+                            });
+                        }
+                        
+                        // Processar comentários nos meus posts
+                        if (commentsReceived.data) {
+                            commentsReceived.data.forEach(comment => {
+                                if (comment.user_id && comment.user_id !== currentUser.id) {
+                                    networkPeople.add(comment.user_id);
+                                }
+                            });
+                        }
+                        
+                        // Processar feedbacks que eu dei (onde fui mencionado)
+                        if (feedbacksGiven.data) {
+                            const postIds = feedbacksGiven.data.map(f => f.post_id);
+                            posts.forEach(post => {
+                                if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
+                                    networkPeople.add(post.user_id);
+                                }
+                            });
+                        }
+                        
+                        // Processar feedbacks nos meus posts
+                        if (feedbacksReceived.data) {
+                            feedbacksReceived.data.forEach(feedback => {
+                                if (feedback.user_id && feedback.user_id !== currentUser.id) {
+                                    networkPeople.add(feedback.user_id);
+                                }
+                            });
+                        }
+                    } else {
+                        console.log('📝 Nenhum post próprio encontrado, pulando queries de comentários/feedbacks');
                     }
                     
                 } catch (dbError) {
@@ -4987,6 +4992,14 @@
                 const networkSize = networkPeople.size;
                 console.log(`🔗 Rede de engajamento calculada: ${networkSize} pessoas únicas`);
                 console.log('👥 IDs na rede:', Array.from(networkPeople));
+                
+                // Log detalhado para debug
+                console.log('📊 Detalhamento da rede:');
+                console.log(`   📝 Meus posts: ${myPosts.length}`);
+                console.log(`   🎯 Pessoas que destaquei: ${myPosts.filter(p => p.mentioned_user_id).length}`);
+                console.log(`   🏆 Posts que me destacaram: ${posts.filter(p => p.mentioned_user_id === currentUser.id).length}`);
+                console.log(`   👍 Posts meus com reações: ${myPosts.filter(p => p.reactions && p.reactions.length > 0).length}`);
+                console.log(`   💬 Posts de outros onde reagi: ${posts.filter(p => p.user_id !== currentUser.id && p.reactions && p.reactions.find(r => r.user_id === currentUser.id)).length}`);
                 
                 return networkSize;
                 
