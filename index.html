@@ -4730,7 +4730,13 @@
             const holofotesRecebidos = parseInt(document.getElementById('userHolofotesReceived')?.textContent || '0');
             const holofotesDados = parseInt(document.getElementById('userPostsCount')?.textContent || '0');
             
-            if (holofotesDados === 0) return { value: "0:0", message: "Sem dados", type: "balanced" };
+            if (holofotesDados === 0) return { 
+                value: "0:0", 
+                message: "Sem dados", 
+                type: "balanced",
+                given: 0,
+                received: 0
+            };
             
             const ratio = holofotesRecebidos / holofotesDados;
             
@@ -4739,20 +4745,26 @@
                 return {
                     value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
                     message: `Você recebe ${multiplier}x mais do que dá`,
-                    type: "received"
+                    type: "received",
+                    given: holofotesDados,
+                    received: holofotesRecebidos
                 };
             } else if (ratio < 0.8) {
                 const multiplier = (holofotesDados / holofotesRecebidos).toFixed(1);
                 return {
                     value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
                     message: `Você dá ${multiplier}x mais do que recebe`,
-                    type: "giving"
+                    type: "giving",
+                    given: holofotesDados,
+                    received: holofotesRecebidos
                 };
             } else {
                 return {
                     value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
                     message: "Você dá e recebe quase igualmente",
-                    type: "balanced"
+                    type: "balanced",
+                    given: holofotesDados,
+                    received: holofotesRecebidos
                 };
             }
         }
