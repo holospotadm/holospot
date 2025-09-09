@@ -2180,6 +2180,9 @@
             }
         });
 
+        // Flag para evitar múltiplos event listeners
+        let impactButtonListenerAdded = false;
+
         function setupEventListeners() {
             try {
                 console.log('🎯 Configurando event listeners...');
@@ -2359,10 +2362,15 @@
 
         // Funções do Modal de Impacto
         function openImpactModal() {
+            console.log('🚀 openImpactModal chamada');
             const modal = document.getElementById('impactModal');
+            console.log('📋 Modal encontrado:', modal);
             if (modal) {
+                console.log('✅ Abrindo modal de impacto...');
                 modal.style.display = 'flex';
                 loadImpactDataInModal();
+            } else {
+                console.error('❌ Modal impactModal não encontrado no DOM');
             }
         }
 
@@ -6761,14 +6769,21 @@
             
             console.log('✅ Event listeners dos cards de estatísticas configurados');
             
-            // Botão Ver Impacto Detalhado - usando delegação de eventos
-            document.addEventListener('click', function(e) {
-                if (e.target && e.target.id === 'impactBtn') {
-                    console.log('🎯 Clique detectado no botão Ver Impacto Detalhado');
-                    openImpactModal();
-                }
-            });
-            console.log('✅ Event listener configurado para botão Ver Impacto Detalhado (delegação)');
+            // Botão Ver Impacto Detalhado - usando delegação de eventos com controle
+            if (!impactButtonListenerAdded) {
+                document.addEventListener('click', function(e) {
+                    if (e.target && e.target.id === 'impactBtn') {
+                        console.log('🎯 Clique detectado no botão Ver Impacto Detalhado');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openImpactModal();
+                    }
+                });
+                impactButtonListenerAdded = true;
+                console.log('✅ Event listener configurado para botão Ver Impacto Detalhado (delegação com controle)');
+            } else {
+                console.log('ℹ️ Event listener do botão Ver Impacto Detalhado já estava configurado');
+            }
         }
 
         // ===== FUNÇÕES DOS MODAIS DE MÉTRICAS RECEBIDAS =====
