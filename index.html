@@ -930,7 +930,7 @@
         }
 
         .insight-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #333;
         }
@@ -1501,6 +1501,7 @@
         .insight-card.compact {
             padding: 0.8rem;
             min-height: auto;
+            text-align: center;
         }
 
         .insight-card:hover {
@@ -1962,7 +1963,7 @@
                             <span class="insight-title">Impacto Médio</span>
                         </div>
                         <div class="insight-value" id="impactValue">0.0</div>
-                        <div class="insight-description">pessoas diferentes/post</div>
+                        <div class="insight-description">pessoas diferentes alcançadas por post</div>
                     </div>
 
                     <!-- Rede de Engajamento -->
@@ -4812,7 +4813,7 @@
                 if (engagementValueEl) engagementValueEl.textContent = `${engagement.toFixed(1)}/post`;
                 
                 const impactValueEl = document.getElementById('impactValue');
-                if (impactValueEl) impactValueEl.textContent = impact;
+                if (impactValueEl) impactValueEl.textContent = `${impact}/post`;
                 
                 const reachValueEl = document.getElementById('reachValue');
                 if (reachValueEl) reachValueEl.textContent = `${reach.toFixed(0)}%`;
