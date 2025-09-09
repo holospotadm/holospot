@@ -929,10 +929,13 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
-        .chart-title {
-            font-size: 1.2rem;
+        .insight-title {
+            font-size: 1.1rem;
             font-weight: 600;
             color: #333;
+        }
+
+        .streak-container {
             margin-bottom: 1rem;
         }
 
@@ -1491,8 +1494,13 @@
             border-radius: 12px;
             padding: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .insight-card.compact {
+            padding: 0.8rem;
+            min-height: auto;
         }
 
         .insight-card:hover {
@@ -1938,7 +1946,7 @@
 
                 <div class="insights-grid">
                     <!-- Taxa de Engajamento -->
-                    <div class="insight-card">
+                    <div class="insight-card compact">
                         <div class="insight-header">
                             <span class="insight-icon">🎯</span>
                             <span class="insight-title">Taxa de Engajamento</span>
@@ -1948,7 +1956,7 @@
                     </div>
 
                     <!-- Impacto Médio -->
-                    <div class="insight-card">
+                    <div class="insight-card compact">
                         <div class="insight-header">
                             <span class="insight-icon">🌐</span>
                             <span class="insight-title">Impacto Médio</span>
@@ -1958,7 +1966,7 @@
                     </div>
 
                     <!-- Rede de Engajamento -->
-                    <div class="insight-card">
+                    <div class="insight-card compact">
                         <div class="insight-header">
                             <span class="insight-icon">🔗</span>
                             <span class="insight-title">Rede de Engajamento</span>
@@ -1967,8 +1975,6 @@
                             <div class="network-size" id="networkSize">0</div>
                             <div class="network-label">pessoas conectadas</div>
                         </div>
-                        <div class="insight-value" id="networkValue">Tamanho da rede</div>
-                        <div class="insight-description">pessoas únicas na sua rede</div>
                     </div>
                 </div>
 
@@ -4879,6 +4885,7 @@
             window.reciprocityChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
+                    labels: ['Retribuídos', 'Não retribuídos'],
                     datasets: [{
                         data: [value, 100 - value],
                         backgroundColor: [
@@ -4892,7 +4899,18 @@
                     cutout: '70%',
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: false }
+                        tooltip: {
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                title: function() {
+                                    return 'Holofotes';
+                                },
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
                     },
                     responsive: true,
                     maintainAspectRatio: false
@@ -4941,7 +4959,12 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
                             callbacks: {
+                                title: function() {
+                                    return 'Holofotes';
+                                },
                                 label: function(context) {
                                     return context.label + ': ' + context.parsed.y;
                                 }
@@ -4997,7 +5020,12 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
                             callbacks: {
+                                title: function() {
+                                    return 'Posts';
+                                },
                                 label: function(context) {
                                     return context.label + ': ' + context.parsed.toFixed(1) + '%';
                                 }
