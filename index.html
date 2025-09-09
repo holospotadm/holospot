@@ -2742,10 +2742,39 @@
                 }
             }
             
-            // Ordenar por progresso (mais próximo primeiro)
-            return progressBadges
-                .sort((a, b) => b.progress - a.progress)
-                .slice(0, 10); // Máximo 10 badges
+            // Definir ordem de dificuldade dos tipos (mais simples primeiro)
+            const difficultyOrder = {
+                'posts_count': 1,           // Mais simples - criar posts
+                'reactions_given': 2,       // Simples - dar reações
+                'comments_written': 3,      // Médio - escrever comentários
+                'unique_people_highlighted': 4  // Mais difícil - destacar pessoas diferentes
+            };
+            
+            // Agrupar por tipo de condição
+            const grouped = progressBadges.reduce((groups, badge) => {
+                const type = badge.condition_type;
+                if (!groups[type]) {
+                    groups[type] = [];
+                }
+                groups[type].push(badge);
+                return groups;
+            }, {});
+            
+            // Ordenar dentro de cada grupo (mais próximo primeiro) e entre grupos (mais simples primeiro)
+            const sortedBadges = [];
+            
+            // Ordenar grupos por dificuldade
+            const sortedGroupKeys = Object.keys(grouped).sort((a, b) => {
+                return (difficultyOrder[a] || 999) - (difficultyOrder[b] || 999);
+            });
+            
+            // Para cada grupo, ordenar por progresso descendente e adicionar ao resultado
+            sortedGroupKeys.forEach(groupKey => {
+                const groupBadges = grouped[groupKey].sort((a, b) => b.progress - a.progress);
+                sortedBadges.push(...groupBadges);
+            });
+            
+            return sortedBadges.slice(0, 10); // Máximo 10 badges
         }
 
         async function calculateSingleBadgeProgress(userId, badge) {
@@ -3010,16 +3039,16 @@
         // Função para obter ícone do nível
         function getLevelIcon(levelId) {
             const icons = {
-                1: '🌱', // Novato
-                2: '🔍', // Iniciante
-                3: '💬', // Ativo
-                4: '⭐', // Engajado
-                5: '🎯', // Influente
-                6: '👑', // Líder
-                7: '🧠', // Especialista
-                8: '🚀', // Mestre
-                9: '🏆', // Lenda
-                10: '💎' // Hall da Fama
+                1: '🌱', // Novato - crescimento inicial
+                2: '🔍', // Iniciante - explorando/descobrindo
+                3: '⚡', // Ativo - energia/atividade
+                4: '🤝', // Engajado - conexão/engajamento
+                5: '📢', // Influente - voz/influência
+                6: '🎖️', // Líder - liderança/conquista
+                7: '🔬', // Especialista - expertise/conhecimento
+                8: '🎓', // Mestre - maestria/educação
+                9: '🏆', // Lenda - troféu/lenda
+                10: '💎' // Hall da Fama - precioso/raro
             };
             return icons[levelId] || '🌱';
         }
