@@ -4626,45 +4626,58 @@
 
         async function calculateTrueReciprocity() {
             try {
-                // Buscar pessoas que EU destaquei
-                const myPosts = posts.filter(post => post.user_id === currentUser.id);
+                console.log('🤝 Calculando reciprocidade real...');
+                
+                // Buscar posts que EU criei destacando outras pessoas
+                const { data: myPosts, error: myPostsError } = await supabase
+                    .from('posts')
+                    .select('id, mentioned_user_id, celebrated_person_name, person_name')
+                    .eq('user_id', currentUser.id);
+
+                if (myPostsError || !myPosts) {
+                    console.log('⚠️ Erro ao buscar meus posts:', myPostsError);
+                    return 0;
+                }
+
+                // Buscar posts onde EU fui mencionado/destacado
+                const { data: postsAboutMe, error: postsAboutMeError } = await supabase
+                    .from('posts')
+                    .select('id, user_id')
+                    .eq('mentioned_user_id', currentUser.id);
+
+                if (postsAboutMeError || !postsAboutMe) {
+                    console.log('⚠️ Erro ao buscar posts sobre mim:', postsAboutMeError);
+                    return 0;
+                }
+
+                // Pessoas que EU destaquei (usando mentioned_user_id)
                 const peopleIHighlighted = new Set();
                 myPosts.forEach(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.includes('@')) {
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (usernameMatch) {
-                            usernameMatch.forEach(match => {
-                                peopleIHighlighted.add(match.substring(1));
-                            });
-                        }
+                    if (post.mentioned_user_id) {
+                        peopleIHighlighted.add(post.mentioned_user_id);
                     }
                 });
 
-                // Buscar pessoas que ME destacaram
-                const postsAboutMe = posts.filter(post => post.mentioned_user_id === currentUser.id);
+                // Pessoas que ME destacaram
                 const peopleWhoHighlightedMe = new Set();
-                
-                for (const post of postsAboutMe) {
-                    // Buscar username do autor do post
-                    const { data: authorProfile } = await supabase
-                        .from('profiles')
-                        .select('username')
-                        .eq('id', post.user_id)
-                        .single();
-                    
-                    if (authorProfile && authorProfile.username) {
-                        peopleWhoHighlightedMe.add(authorProfile.username);
+                postsAboutMe.forEach(post => {
+                    if (post.user_id) {
+                        peopleWhoHighlightedMe.add(post.user_id);
                     }
-                }
+                });
 
                 // Calcular reciprocidade REAL (pessoas que retribuíram)
-                const reciprocalPeople = [...peopleIHighlighted].filter(person =>
-                    peopleWhoHighlightedMe.has(person)
+                const reciprocalPeople = [...peopleIHighlighted].filter(personId =>
+                    peopleWhoHighlightedMe.has(personId)
                 );
 
-                return peopleIHighlighted.size > 0 ?
+                const reciprocityRate = peopleIHighlighted.size > 0 ?
                     (reciprocalPeople.length / peopleIHighlighted.size) * 100 : 0;
+
+                console.log(`🤝 Reciprocidade calculada: ${reciprocityRate.toFixed(1)}%`);
+                console.log(`📊 Destaquei ${peopleIHighlighted.size} pessoas, ${reciprocalPeople.length} retribuíram`);
+
+                return reciprocityRate;
             } catch (error) {
                 console.error('Erro ao calcular reciprocidade:', error);
                 return 0;
