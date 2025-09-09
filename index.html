@@ -1395,7 +1395,7 @@
         }
 
         .impact-btn {
-            background: linear-gradient(135deg, #FFB700, #E55A2B);
+            background: linear-gradient(135deg, #E55A2B, #8B5CF6);
             color: white;
             border: none;
             padding: 1rem 2rem;
@@ -1404,12 +1404,12 @@
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 183, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(229, 90, 43, 0.3);
         }
 
         .impact-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 183, 0, 0.4);
+            box-shadow: 0 6px 20px rgba(229, 90, 43, 0.4);
         }
 
         /* Modal de Impacto - Using unified modal-overlay */
@@ -1877,7 +1877,7 @@
     <div id="impactModal" class="modal-overlay modal-overlay--impact" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
-                <h2>📊 Dashboard de Insights Estratégicos</h2>
+                <h2>📊 Impacto Detalhado</h2>
                 <button class="close-btn" onclick="closeImpactModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -1911,7 +1911,7 @@
 
                 <!-- Evolução Temporal -->
                 <div class="evolution-chart">
-                    <h3 class="chart-title">📈 Evolução Temporal (Últimos 30 dias)</h3>
+                    <h3 class="chart-title">📈 Evolução (Últimos 30 dias)</h3>
                     <div class="insight-chart-large">
                         <canvas id="evolutionChart" width="800" height="300"></canvas>
                     </div>
@@ -4863,7 +4863,7 @@
                     datasets: [{
                         data: [value, 100 - value],
                         backgroundColor: [
-                            value < 50 ? '#ff4444' : value < 100 ? '#ffaa00' : '#44ff44',
+                            '#E55A2B', // Orange
                             '#f0f0f0'
                         ],
                         borderWidth: 0
@@ -4913,8 +4913,7 @@
                     datasets: [{
                         data: [percentage, remaining],
                         backgroundColor: [
-                            averageImpact < 1 ? '#ff4444' :
-                            averageImpact < 2 ? '#ffaa00' : '#44ff44',
+                            '#8B5CF6', // Purple
                             '#f0f0f0'
                         ],
                         borderWidth: 0
@@ -4964,7 +4963,7 @@
                     labels: ['Com Interação', 'Sem Interação'],
                     datasets: [{
                         data: [effective, ineffective],
-                        backgroundColor: ['#E55A2B', '#f0f0f0'],
+                        backgroundColor: ['#E55A2B', '#f0f0f0'], // Orange (consistent with gradient)
                         borderWidth: 0
                     }]
                 },
