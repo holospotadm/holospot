@@ -1421,9 +1421,9 @@
         .modal-container {
             background: white;
             border-radius: 20px;
-            max-width: 90vw;
+            max-width: 95vw;
             max-height: 90vh;
-            width: 600px;
+            width: 900px;
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             animation: modalSlideIn 0.3s ease-out;
@@ -1481,7 +1481,7 @@
 
         .insights-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin: 1rem 0;
         }
@@ -1594,7 +1594,6 @@
             padding: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
         /* Responsive adjustments for insights */
         @media (max-width: 768px) {
             .insights-grid {
@@ -1609,7 +1608,13 @@
             .insight-value {
                 font-size: 1.3rem;
             }
-            
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .insights-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }    
             .network-size {
                 font-size: 1.6rem;
             }
@@ -1908,6 +1913,19 @@
                         <div class="insight-description">balanço dar vs receber</div>
                         <div class="insight-message" id="altruismMessage" style="font-style: italic; font-size: 0.9em; color: #666; margin-top: 0.5rem;"></div>
                     </div>
+
+                    <!-- Alcance Efetivo -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-icon">⚡</span>
+                            <span class="insight-title">Alcance Efetivo</span>
+                        </div>
+                        <div class="insight-chart">
+                            <canvas id="reachChart" width="120" height="120"></canvas>
+                        </div>
+                        <div class="insight-value" id="reachValue">0%</div>
+                        <div class="insight-description">posts que geram interação</div>
+                    </div>
                 </div>
 
                 <!-- Evolução Temporal -->
@@ -1929,21 +1947,6 @@
                         <div class="insight-description">Interações médias por post</div>
                     </div>
 
-                    <!-- Alcance Efetivo -->
-                    <div class="insight-card">
-                        <div class="insight-header">
-                            <span class="insight-icon">⚡</span>
-                            <span class="insight-title">Alcance Efetivo</span>
-                        </div>
-                        <div class="insight-chart">
-                            <canvas id="reachChart" width="120" height="120"></canvas>
-                        </div>
-                        <div class="insight-value" id="reachValue">0%</div>
-                        <div class="insight-description">posts que geram interação</div>
-                    </div>
-                </div>
-
-                <div class="insights-grid">
                     <!-- Impacto Médio -->
                     <div class="insight-card">
                         <div class="insight-header">
