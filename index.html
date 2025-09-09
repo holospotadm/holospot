@@ -4728,25 +4728,25 @@
             const holofotesRecebidos = parseInt(document.getElementById('userHolofotesReceived')?.textContent || '0');
             const holofotesDados = parseInt(document.getElementById('userPostsCount')?.textContent || '0');
             
-            if (holofotesDados === 0) return { value: 0, message: "Sem dados", type: "balanced" };
+            if (holofotesDados === 0) return { value: "0:0", message: "Sem dados", type: "balanced" };
             
             const ratio = holofotesRecebidos / holofotesDados;
             
             if (ratio > 1.2) {
                 return {
-                    value: ((ratio - 1) * 100).toFixed(0),
+                    value: `${holofotesRecebidos}:${holofotesDados}`,
                     message: "Muito reconhecido",
                     type: "received"
                 };
             } else if (ratio < 0.8) {
                 return {
-                    value: ((1 - ratio) * 100).toFixed(0),
+                    value: `${holofotesRecebidos}:${holofotesDados}`,
                     message: "Muito altruísta",
                     type: "giving"
                 };
             } else {
                 return {
-                    value: 100,
+                    value: `${holofotesRecebidos}:${holofotesDados}`,
                     message: "Equilíbrio perfeito",
                     type: "balanced"
                 };
