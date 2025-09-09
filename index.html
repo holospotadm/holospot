@@ -4626,7 +4626,7 @@
 
         async function calculateTrueReciprocity() {
             try {
-                console.log('🤝 Calculando reciprocidade real...');
+                console.log('🤝 Calculando reciprocidade real (algoritmo correto)...');
                 
                 // Buscar TODOS os posts que EU criei destacando outras pessoas
                 const { data: myPosts, error: myPostsError } = await supabase
@@ -4645,36 +4645,52 @@
                     return 0;
                 }
 
-                console.log(`📊 Total de posts que criei destacando pessoas: ${myPosts.length}`);
+                // Contar menções A→B (eu para cada pessoa)
+                const mentionsAtoB = {};
+                myPosts.forEach(post => {
+                    const personId = post.mentioned_user_id;
+                    mentionsAtoB[personId] = (mentionsAtoB[personId] || 0) + 1;
+                });
 
-                // Para cada post que criei destacando alguém, verificar se essa pessoa ME destacou de volta
-                let reciprocalPostsCount = 0;
-                
-                for (const myPost of myPosts) {
-                    const personIHighlighted = myPost.mentioned_user_id;
-                    
-                    // Verificar se esta pessoa ME destacou (criou pelo menos 1 post com mentioned_user_id = currentUser.id)
+                console.log('📊 Menções que EU fiz (A→B):', mentionsAtoB);
+
+                // Para cada pessoa que mencionei, contar menções B→A (ela para mim)
+                const mentionsBtoA = {};
+                let numerator = 0; // Σ min(x_AB, y_BA)
+                let denominator = 0; // Σ x_AB
+
+                for (const [personId, countAtoB] of Object.entries(mentionsAtoB)) {
+                    // Contar quantas vezes esta pessoa ME mencionou
                     const { data: reciprocalPosts, error: reciprocalError } = await supabase
                         .from('posts')
                         .select('id')
-                        .eq('user_id', personIHighlighted)
-                        .eq('mentioned_user_id', currentUser.id)
-                        .limit(1); // Só precisa de 1 para confirmar reciprocidade
+                        .eq('user_id', personId)
+                        .eq('mentioned_user_id', currentUser.id);
 
-                    if (!reciprocalError && reciprocalPosts && reciprocalPosts.length > 0) {
-                        reciprocalPostsCount++;
-                        console.log(`✅ Post ${myPost.id} teve reciprocidade da pessoa ${personIHighlighted}`);
-                    } else {
-                        console.log(`❌ Post ${myPost.id} NÃO teve reciprocidade da pessoa ${personIHighlighted}`);
-                    }
+                    const countBtoA = (!reciprocalError && reciprocalPosts) ? reciprocalPosts.length : 0;
+                    mentionsBtoA[personId] = countBtoA;
+
+                    // Aplicar fórmula: r(A,B) = min(x,y) / max(x,y)
+                    const minCount = Math.min(countAtoB, countBtoA);
+                    const maxCount = Math.max(countAtoB, countBtoA);
+                    const pairReciprocity = maxCount > 0 ? (minCount / maxCount) * 100 : 0;
+
+                    console.log(`👥 Par (eu→${personId}): ${countAtoB} menções, (${personId}→eu): ${countBtoA} menções, reciprocidade: ${pairReciprocity.toFixed(1)}%`);
+
+                    // Acumular para índice geral
+                    numerator += minCount;
+                    denominator += countAtoB;
                 }
 
-                const reciprocityRate = (reciprocalPostsCount / myPosts.length) * 100;
+                console.log('📊 Menções que recebi (B→A):', mentionsBtoA);
 
-                console.log(`🤝 Reciprocidade calculada: ${reciprocityRate.toFixed(1)}%`);
-                console.log(`📊 ${reciprocalPostsCount} posts retribuídos de ${myPosts.length} posts criados`);
+                // Calcular índice geral: numerador / denominador
+                const generalIndex = denominator > 0 ? (numerator / denominator) * 100 : 0;
 
-                return reciprocityRate;
+                console.log(`🧮 Cálculo final: ${numerator}/${denominator} = ${generalIndex.toFixed(1)}%`);
+                console.log(`🤝 Reciprocidade geral calculada: ${generalIndex.toFixed(1)}%`);
+
+                return generalIndex;
             } catch (error) {
                 console.error('Erro ao calcular reciprocidade:', error);
                 return 0;
