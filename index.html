@@ -3446,16 +3446,9 @@
                 return;
             }
             
-            // Só mostrar mensagem de boas-vindas se NÃO está carregando E não há posts
+            // Se não há posts, mostrar container vazio (sem mensagem)
             if (posts.length === 0) {
-                container.innerHTML = `
-                    <div class="post">
-                        <h3 style="text-align: center; color: #e65100; margin-bottom: 1rem;">Bem-vindo ao HoloSpot!</h3>
-                        <p style="text-align: center; color: #666;">
-                            Seja o primeiro a destacar alguém especial! Vá para a aba "<img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 14px; height: 14px; margin: 0 2px; vertical-align: middle;"> Destacar" e comece a espalhar reconhecimento.
-                        </p>
-                    </div>
-                `;
+                container.innerHTML = '';
                 return;
             }
 
