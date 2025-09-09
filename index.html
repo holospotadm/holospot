@@ -4628,7 +4628,7 @@
             try {
                 console.log('🤝 Calculando reciprocidade real...');
                 
-                // Buscar posts que EU criei destacando outras pessoas
+                // Buscar TODOS os posts que EU criei destacando outras pessoas
                 const { data: myPosts, error: myPostsError } = await supabase
                     .from('posts')
                     .select('id, mentioned_user_id')
@@ -4640,40 +4640,39 @@
                     return 0;
                 }
 
-                // Pessoas que EU destaquei (únicas)
-                const peopleIHighlighted = new Set();
-                myPosts.forEach(post => {
-                    if (post.mentioned_user_id) {
-                        peopleIHighlighted.add(post.mentioned_user_id);
-                    }
-                });
-
-                if (peopleIHighlighted.size === 0) {
-                    console.log('📊 Nenhuma pessoa destacada ainda');
+                if (myPosts.length === 0) {
+                    console.log('📊 Nenhum post destacando pessoas ainda');
                     return 0;
                 }
 
-                // Para cada pessoa que destaquei, verificar se ela ME destacou de volta
-                let reciprocalCount = 0;
+                console.log(`📊 Total de posts que criei destacando pessoas: ${myPosts.length}`);
+
+                // Para cada post que criei destacando alguém, verificar se essa pessoa ME destacou de volta
+                let reciprocalPostsCount = 0;
                 
-                for (const personId of peopleIHighlighted) {
-                    // Verificar se esta pessoa ME destacou (criou post com mentioned_user_id = currentUser.id)
+                for (const myPost of myPosts) {
+                    const personIHighlighted = myPost.mentioned_user_id;
+                    
+                    // Verificar se esta pessoa ME destacou (criou pelo menos 1 post com mentioned_user_id = currentUser.id)
                     const { data: reciprocalPosts, error: reciprocalError } = await supabase
                         .from('posts')
                         .select('id')
-                        .eq('user_id', personId)
-                        .eq('mentioned_user_id', currentUser.id);
+                        .eq('user_id', personIHighlighted)
+                        .eq('mentioned_user_id', currentUser.id)
+                        .limit(1); // Só precisa de 1 para confirmar reciprocidade
 
                     if (!reciprocalError && reciprocalPosts && reciprocalPosts.length > 0) {
-                        reciprocalCount++;
-                        console.log(`✅ Reciprocidade encontrada com usuário ${personId}`);
+                        reciprocalPostsCount++;
+                        console.log(`✅ Post ${myPost.id} teve reciprocidade da pessoa ${personIHighlighted}`);
+                    } else {
+                        console.log(`❌ Post ${myPost.id} NÃO teve reciprocidade da pessoa ${personIHighlighted}`);
                     }
                 }
 
-                const reciprocityRate = (reciprocalCount / peopleIHighlighted.size) * 100;
+                const reciprocityRate = (reciprocalPostsCount / myPosts.length) * 100;
 
                 console.log(`🤝 Reciprocidade calculada: ${reciprocityRate.toFixed(1)}%`);
-                console.log(`📊 Destaquei ${peopleIHighlighted.size} pessoas, ${reciprocalCount} retribuíram`);
+                console.log(`📊 ${reciprocalPostsCount} posts retribuídos de ${myPosts.length} posts criados`);
 
                 return reciprocityRate;
             } catch (error) {
