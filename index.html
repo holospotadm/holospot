@@ -2175,7 +2175,7 @@
 
     <!-- Modal de Níveis -->
     <div id="levelsModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;">
+        <div class="modal-content" style="max-width: 500px; width: 90%; max-height: 75vh;">
             <div class="modal-header">
                 <h2 style="margin: 0; color: white;">📊 Níveis do HoloSpot</h2>
                 <button class="modal-close" onclick="closeLevelsModal()">&times;</button>
@@ -2183,7 +2183,7 @@
             <div class="modal-body">
                 <div id="levelsContent">
                     <div style="margin-bottom: 20px; text-align: center; color: #666;">
-                        <p>Progrida através dos níveis ganhando pontos com suas atividades!</p>
+                        <p>Avance através dos níveis ganhando pontos com suas atividades!</p>
                     </div>
                     <div id="levelsContainer" style="display: flex; flex-direction: column; gap: 15px;">
                         <!-- Níveis serão carregados aqui -->
@@ -2195,7 +2195,7 @@
 
     <!-- Modal de Conquistas em Andamento -->
     <div id="progressModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 700px; width: 95%; max-height: 80vh;">
+        <div class="modal-content" style="max-width: 550px; width: 90%; max-height: 75vh;">
             <div class="modal-header">
                 <h2 style="margin: 0; color: white;">🎯 Conquistas em Andamento</h2>
                 <button class="modal-close" onclick="closeProgressModal()">&times;</button>
@@ -2618,7 +2618,7 @@
                 levelCard.style.cssText = `
                     display: flex;
                     align-items: center;
-                    padding: 15px;
+                    padding: 12px;
                     border: 2px solid #e0e0e0;
                     border-radius: 12px;
                     background: linear-gradient(135deg, ${level.color}20 0%, ${level.color}10 100%);
@@ -2636,15 +2636,15 @@
                 }
 
                 levelCard.innerHTML = `
-                    <div style="font-size: 32px; margin-right: 15px;">${level.icon}</div>
+                    <div style="font-size: 28px; margin-right: 12px;">${level.icon}</div>
                     <div style="flex: 1;">
-                        <div style="font-weight: bold; font-size: 18px; color: #333; margin-bottom: 5px;">
+                        <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 4px;">
                             Nível ${level.id} - ${level.name}
                         </div>
-                        <div style="color: #666; font-size: 14px; margin-bottom: 5px;">
+                        <div style="color: #666; font-size: 13px; margin-bottom: 4px;">
                             ${level.benefits}
                         </div>
-                        <div style="color: ${level.color}; font-weight: bold; font-size: 14px;">
+                        <div style="color: ${level.color}; font-weight: bold; font-size: 13px;">
                             ${pointsText}
                         </div>
                     </div>
@@ -2862,33 +2862,33 @@
 
                 const badgeCard = document.createElement('div');
                 badgeCard.style.cssText = `
-                    padding: 20px;
+                    padding: 16px;
                     border: 2px solid ${rarityColors[badge.rarity] || '#e0e0e0'};
                     border-radius: 12px;
                     background: linear-gradient(135deg, ${rarityColors[badge.rarity] || '#f5f5f5'}20 0%, ${rarityColors[badge.rarity] || '#f5f5f5'}10 100%);
                 `;
 
                 badgeCard.innerHTML = `
-                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                        <div style="font-size: 32px; margin-right: 15px;">${badge.icon}</div>
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="font-size: 28px; margin-right: 12px;">${badge.icon}</div>
                         <div style="flex: 1;">
-                            <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 5px;">
+                            <div style="font-weight: bold; font-size: 15px; color: #333; margin-bottom: 4px;">
                                 ${badge.name}
                             </div>
-                            <div style="color: #666; font-size: 14px;">
+                            <div style="color: #666; font-size: 13px;">
                                 ${badge.description}
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 12px; color: ${rarityColors[badge.rarity] || '#666'}; text-transform: capitalize; font-weight: 500;">
+                            <div style="font-size: 11px; color: ${rarityColors[badge.rarity] || '#666'}; text-transform: capitalize; font-weight: 500;">
                                 ${badge.rarity}
                             </div>
                         </div>
                     </div>
-                    <div style="margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #666;">
+                    <div style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; color: #666;">
                             <span>${badge.description_progress}</span>
-                            <span style="font-weight: bold; color: ${rarityColors[badge.rarity] || '#666'}; font-size: 16px;">${badge.progress}%</span>
+                            <span style="font-weight: bold; color: ${rarityColors[badge.rarity] || '#666'}; font-size: 15px;">${badge.progress}%</span>
                         </div>
                         <div style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
                             <div style="background: ${rarityColors[badge.rarity] || '#666'}; height: 100%; border-radius: 10px; width: ${badge.progress}%; transition: width 0.3s ease;"></div>
