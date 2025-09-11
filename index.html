@@ -3287,70 +3287,13 @@
             
             // Atividade recente
             const recentActivity = document.getElementById('recentActivity');
-            let activityData = mappedData.recent_activity;
-            
-            // Se não há atividades específicas, gerar baseado nas estatísticas
-            if (!activityData && mappedData.stats) {
-                activityData = [];
-                const stats = mappedData.stats;
-                
-                // Gerar atividades baseadas nas estatísticas (mais recentes primeiro)
-                if (stats.posts_created > 0) {
-                    activityData.push({
-                        action_type: 'post_created',
-                        points_earned: stats.posts_created * 10,
-                        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 dia atrás
-                        description: `${stats.posts_created} posts criados`
-                    });
-                }
-                
-                if (stats.feedbacks_given > 0) {
-                    activityData.push({
-                        action_type: 'feedback_given',
-                        points_earned: stats.feedbacks_given * 5,
-                        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 dias atrás
-                        description: `${stats.feedbacks_given} feedbacks dados`
-                    });
-                }
-                
-                if (stats.reactions_given > 0) {
-                    activityData.push({
-                        action_type: 'reaction_given',
-                        points_earned: stats.reactions_given * 2,
-                        created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 dias atrás
-                        description: `${stats.reactions_given} reações dadas`
-                    });
-                }
-                
-                if (stats.comments_given > 0) {
-                    activityData.push({
-                        action_type: 'comment_given',
-                        points_earned: stats.comments_given * 3,
-                        created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 dias atrás
-                        description: `${stats.comments_given} comentários escritos`
-                    });
-                }
-                
-                if (stats.streak_days > 0) {
-                    activityData.push({
-                        action_type: 'streak_bonus',
-                        points_earned: stats.streak_days * 5,
-                        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 dias atrás
-                        description: `Streak de ${stats.streak_days} dias`
-                    });
-                }
-                
-                // Limitar a 5 atividades mais recentes
-                activityData = activityData.slice(0, 5);
-            }
-            
-            if (activityData && activityData.length > 0) {
-                console.log('✅ Renderizando', activityData.length, 'atividades recentes (baseadas em stats)');
+            if (mappedData.recent_activity && mappedData.recent_activity.length > 0) {
+                console.log('✅ Renderizando', mappedData.recent_activity.length, 'atividades recentes');
                 if (recentActivity) {
-                    recentActivity.innerHTML = activityData.map(activity => `
+                    recentActivity.innerHTML = mappedData.recent_activity.map(activity => `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
                             <div>
-                                <div style="font-weight: 500; color: #333;">${activity.description || getActionTypeLabel(activity.action_type)}</div>
+                                <div style="font-weight: 500; color: #333;">${getActionTypeLabel(activity.action_type)}</div>
                                 <div style="font-size: 12px; color: #666;">${formatDate(activity.created_at)}</div>
                             </div>
                             <div style="color: #4CAF50; font-weight: bold;">+${activity.points_earned} pts</div>
@@ -3358,6 +3301,7 @@
                     `).join('');
                 }
             } else {
+                console.log('⚠️ Nenhuma atividade recente encontrada');
                 if (recentActivity) {
                     recentActivity.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Nenhuma atividade recente</div>';
                 }
