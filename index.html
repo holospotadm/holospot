@@ -5651,39 +5651,39 @@
                 if (myPosts.length === 0) return 0;
                 
                 let totalInteractions = 0;
+                const myPostIds = myPosts.map(p => p.id);
                 
-                // Contar interações de cada post
-                for (const post of myPosts) {
-                    // Reações
-                    if (post.reactions && Array.isArray(post.reactions)) {
-                        totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
+                try {
+                    // OTIMIZAÇÃO: Carregar todos os comments e feedbacks em lote
+                    const [commentsResult, feedbacksResult] = await Promise.all([
+                        supabase.from('comments')
+                            .select('post_id')
+                            .in('post_id', myPostIds)
+                            .neq('user_id', currentUser.id),
+                        supabase.from('feedbacks')
+                            .select('post_id')
+                            .in('post_id', myPostIds)
+                    ]);
+                    
+                    const commentsCount = commentsResult.data ? commentsResult.data.length : 0;
+                    const feedbacksCount = feedbacksResult.data ? feedbacksResult.data.length : 0;
+                    
+                    // Contar reações de cada post
+                    for (const post of myPosts) {
+                        if (post.reactions && Array.isArray(post.reactions)) {
+                            totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
+                        }
                     }
                     
-                    // Comentários (buscar do banco)
-                    try {
-                        const { data: comments } = await withTimeout(
-                            supabase.from('comments')
-                                .select('id')
-                                .eq('post_id', post.id)
-                                .neq('user_id', currentUser.id),
-                            2000
-                        );
-                        if (comments) totalInteractions += comments.length;
-                    } catch (e) {
-                        console.warn('Erro ao buscar comentários para engajamento:', e);
-                    }
+                    totalInteractions += commentsCount + feedbacksCount;
                     
-                    // Feedbacks (buscar do banco)
-                    try {
-                        const { data: feedbacks } = await withTimeout(
-                            supabase.from('feedbacks')
-                                .select('id')
-                                .eq('post_id', post.id),
-                            2000
-                        );
-                        if (feedbacks) totalInteractions += feedbacks.length;
-                    } catch (e) {
-                        console.warn('Erro ao buscar feedbacks para engajamento:', e);
+                } catch (error) {
+                    console.warn('Erro ao buscar interações em lote:', error);
+                    // Fallback: contar apenas reações
+                    for (const post of myPosts) {
+                        if (post.reactions && Array.isArray(post.reactions)) {
+                            totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
+                        }
                     }
                 }
                 
@@ -5704,12 +5704,27 @@
                 if (myPosts.length === 0) return 0;
 
                 let totalPessoasQueEngajaram = 0;
+                const myPostIds = myPosts.map(p => p.id);
 
-                // Para cada post, contar pessoas ÚNICAS que engajaram
-                for (const post of myPosts) {
-                    const pessoasUnicasDoPost = new Set();
+                try {
+                    // OTIMIZAÇÃO: Carregar todos os comments e feedbacks em lote
+                    const [commentsResult, feedbacksResult] = await Promise.all([
+                        supabase.from('comments')
+                            .select('user_id, post_id')
+                            .in('post_id', myPostIds)
+                            .neq('user_id', currentUser.id),
+                        supabase.from('feedbacks')
+                            .select('mentioned_user_id, post_id')
+                            .in('post_id', myPostIds)
+                    ]);
 
-                    try {
+                    const allComments = commentsResult.data || [];
+                    const allFeedbacks = feedbacksResult.data || [];
+
+                    // Para cada post, contar pessoas ÚNICAS que engajaram
+                    for (const post of myPosts) {
+                        const pessoasUnicasDoPost = new Set();
+
                         // Reações (já carregadas nos posts)
                         if (post.reactions && Array.isArray(post.reactions)) {
                             post.reactions.forEach(reaction => {
@@ -5719,45 +5734,41 @@
                             });
                         }
 
-                        // Comentários (buscar do banco)
-                        const { data: comments } = await withTimeout(
-                            supabase.from('comments')
-                                .select('user_id')
-                                .eq('post_id', post.id)
-                                .neq('user_id', currentUser.id),
-                            2000
-                        );
-                        
-                        if (comments) {
-                            comments.forEach(comment => {
+                        // Comentários (usar dados em lote)
+                        allComments
+                            .filter(comment => comment.post_id === post.id)
+                            .forEach(comment => {
                                 if (comment.user_id) {
                                     pessoasUnicasDoPost.add(comment.user_id);
                                 }
                             });
-                        }
 
-                        // Feedbacks (buscar do banco usando mentioned_user_id)
-                        const { data: feedbacks } = await withTimeout(
-                            supabase.from('feedbacks')
-                                .select('mentioned_user_id')
-                                .eq('post_id', post.id),
-                            2000
-                        );
-                        
-                        if (feedbacks) {
-                            feedbacks.forEach(feedback => {
+                        // Feedbacks (usar dados em lote)
+                        allFeedbacks
+                            .filter(feedback => feedback.post_id === post.id)
+                            .forEach(feedback => {
                                 if (feedback.mentioned_user_id && feedback.mentioned_user_id !== currentUser.id) {
                                     pessoasUnicasDoPost.add(feedback.mentioned_user_id);
                                 }
                             });
-                        }
 
-                    } catch (postError) {
-                        console.warn(`⚠️ Erro ao processar post ${post.id}:`, postError);
-                        continue; // Pular este post e continuar com os outros
+                        totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
                     }
 
-                    totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
+                } catch (error) {
+                    console.warn('Erro ao buscar engajamento em lote:', error);
+                    // Fallback: contar apenas reações
+                    for (const post of myPosts) {
+                        const pessoasUnicasDoPost = new Set();
+                        if (post.reactions && Array.isArray(post.reactions)) {
+                            post.reactions.forEach(reaction => {
+                                if (reaction.user_id && reaction.user_id !== currentUser.id) {
+                                    pessoasUnicasDoPost.add(reaction.user_id);
+                                }
+                            });
+                        }
+                        totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
+                    }
                 }
 
                 // Média de pessoas que engajaram por post
