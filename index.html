@@ -7259,6 +7259,8 @@
         async function loadPeopleHighlightedInModal() {
             try {
                 console.log('👥 Carregando pessoas destacadas no modal...');
+                console.log('🔍 Current user ID:', currentUser.id);
+                console.log('🔍 Total posts carregados:', posts?.length || 0);
                 
                 if (!currentUser || !currentUser.id) {
                     console.error('❌ currentUser não está definido em loadPeopleHighlightedInModal');
@@ -7270,7 +7272,39 @@
                     throw new Error('Dados de posts não disponíveis');
                 }
                 
+                // Debug: mostrar TODOS os posts e seus user_ids
+                console.log('🔍 TODOS os posts disponíveis:');
+                posts.forEach((post, index) => {
+                    console.log(`Post ${index + 1}:`, {
+                        id: post.id,
+                        user_id: post.user_id,
+                        mentioned_user_id: post.mentioned_user_id,
+                        author: post.user_data?.name || 'Unknown',
+                        isCurrentUser: post.user_id === currentUser.id
+                    });
+                });
+                
                 const userPosts = posts.filter(post => post.user_id === currentUser.id);
+                console.log('🔍 Posts filtrados para o usuário atual:', userPosts.length);
+                
+                // Se não encontrou posts, verificar se há posts com email similar
+                if (userPosts.length === 0) {
+                    console.log('⚠️ Nenhum post encontrado para user_id. Verificando por email...');
+                    const userEmail = currentUser.email;
+                    const postsByEmail = posts.filter(post => 
+                        post.user_data?.email === userEmail || 
+                        post.user_data?.email?.includes(userEmail?.split('@')[0])
+                    );
+                    console.log('🔍 Posts encontrados por email:', postsByEmail.length);
+                    postsByEmail.forEach(post => {
+                        console.log('📧 Post por email:', {
+                            id: post.id,
+                            user_id: post.user_id,
+                            email: post.user_data?.email,
+                            mentioned_user_id: post.mentioned_user_id
+                        });
+                    });
+                }
                 const peopleHighlighted = new Set();
                 const peopleDetails = [];
                 
