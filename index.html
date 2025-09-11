@@ -7277,116 +7277,159 @@
                 console.log('📋 Posts do usuário para análise:', userPosts.length);
                 console.log('📋 Detalhes dos posts:', userPosts.map(p => ({
                     id: p.id,
+                    mentioned_user_id: p.mentioned_user_id,
                     celebrated_person_name: p.celebrated_person_name,
                     person_name: p.person_name,
                     content: p.content?.substring(0, 100) + '...'
                 })));
                 
-                // Extrair pessoas mencionadas com @username (incluindo pontos e underscores)
+                // Extrair pessoas mencionadas usando mentioned_user_id (mais confiável)
                 userPosts.forEach(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    console.log(`🔍 Analisando post ${post.id}: personName = "${personName}"`);
-                    
-                    if (personName && personName.includes('@')) {
-                        // Regex melhorada para capturar usernames com pontos, underscores e hífens
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        console.log(`📝 Matches encontrados para "${personName}":`, usernameMatch);
+                    if (post.mentioned_user_id) {
+                        console.log(`🔍 Post ${post.id} menciona user_id: ${post.mentioned_user_id}`);
                         
-                        if (usernameMatch) {
-                            usernameMatch.forEach(match => {
-                                const username = match.substring(1); // Remove o @
-                                console.log(`👤 Username extraído: "${username}"`);
-                                
-                                if (username && !peopleHighlighted.has(username)) {
-                                    peopleHighlighted.add(username);
-                                    peopleDetails.push({
-                                        username: username,
-                                        displayName: personName,
-                                        postCount: userPosts.filter(p => 
-                                            (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
-                                        ).length
-                                    });
-                                    console.log(`✅ Adicionado: @${username}`);
-                                } else {
-                                    console.log(`⚠️ Username já existe ou inválido: "${username}"`);
-                                }
+                        if (!peopleHighlighted.has(post.mentioned_user_id)) {
+                            peopleHighlighted.add(post.mentioned_user_id);
+                            
+                            // Contar quantos posts mencionam esta pessoa
+                            const postCount = userPosts.filter(p => p.mentioned_user_id === post.mentioned_user_id).length;
+                            
+                            peopleDetails.push({
+                                userId: post.mentioned_user_id,
+                                displayName: post.celebrated_person_name || post.person_name || 'Usuário',
+                                postCount: postCount
                             });
+                            console.log(`✅ Adicionado user_id: ${post.mentioned_user_id} (${postCount} posts)`);
                         }
                     } else {
-                        console.log(`❌ PersonName não contém @ ou está vazio: "${personName}"`);
+                        // Fallback: tentar extrair @username se não tiver mentioned_user_id
+                        const personName = post.celebrated_person_name || post.person_name;
+                        console.log(`🔍 Fallback - Analisando post ${post.id}: personName = "${personName}"`);
+                        
+                        if (personName && personName.includes('@')) {
+                            const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                            console.log(`📝 Matches encontrados para "${personName}":`, usernameMatch);
+                            
+                            if (usernameMatch) {
+                                usernameMatch.forEach(match => {
+                                    const username = match.substring(1);
+                                    console.log(`👤 Username extraído (fallback): "${username}"`);
+                                    
+                                    if (username && !peopleHighlighted.has(username)) {
+                                        peopleHighlighted.add(username);
+                                        peopleDetails.push({
+                                            username: username,
+                                            displayName: personName,
+                                            postCount: userPosts.filter(p => 
+                                                (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
+                                            ).length
+                                        });
+                                        console.log(`✅ Adicionado (fallback): @${username}`);
+                                    }
+                                });
+                            }
+                        }
                     }
                 });
 
-                console.log('🔍 Usernames encontrados:', peopleDetails.map(p => p.username));
+                console.log('🔍 Pessoas encontradas:', peopleDetails.map(p => p.userId || p.username));
 
                 // Buscar dados REAIS dos usuários mencionados na tabela profiles
                 if (peopleDetails.length > 0) {
-                    const usernames = peopleDetails.map(p => p.username);
-                    console.log('🔍 Buscando perfis reais para:', usernames);
+                    // Separar pessoas com userId (mais confiável) das com username (fallback)
+                    const peopleWithIds = peopleDetails.filter(p => p.userId);
+                    const peopleWithUsernames = peopleDetails.filter(p => p.username);
                     
-                    // Buscar todos os profiles para filtrar manualmente
-                    console.log('🔍 Buscando todos os profiles para filtrar por username...');
-                    const { data: allProfiles, error: allError } = await supabase
-                        .from('profiles')
-                        .select('*');
-                    
-                    console.log('📊 Todos os perfis encontrados:', allProfiles?.length || 0);
-                    console.log('❌ Erro na busca geral:', allError);
+                    console.log('🔍 Pessoas com user_id:', peopleWithIds.map(p => p.userId));
+                    console.log('🔍 Pessoas com username (fallback):', peopleWithUsernames.map(p => p.username));
                     
                     let realUsers = [];
                     
-                    if (!allError && allProfiles) {
-                        // Filtrar manualmente baseado no username
-                        realUsers = allProfiles.filter(profile => {
-                            return usernames.some(username => {
-                                // Verificar em diferentes campos possíveis
-                                const email = profile.email || '';
-                                const name = profile.name || '';
-                                const displayName = profile.display_name || '';
-                                const username_field = profile.username || '';
-                                
-                                // Extrair username do email (parte antes do @)
-                                const emailUsername = email.split('@')[0] || '';
-                                
-                                return emailUsername.toLowerCase() === username.toLowerCase() ||
-                                       username_field.toLowerCase() === username.toLowerCase() ||
-                                       email.toLowerCase().includes(username.toLowerCase()) || 
-                                       name.toLowerCase().includes(username.toLowerCase()) ||
-                                       displayName.toLowerCase().includes(username.toLowerCase());
-                            });
-                        });
+                    // Buscar por IDs (mais eficiente e confiável)
+                    if (peopleWithIds.length > 0) {
+                        const userIds = peopleWithIds.map(p => p.userId);
+                        console.log('🔍 Buscando perfis por IDs:', userIds);
                         
-                        console.log('✅ Perfis filtrados por username:', realUsers);
+                        const { data: usersByIds, error: idsError } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .in('id', userIds);
+                        
+                        if (!idsError && usersByIds) {
+                            realUsers = realUsers.concat(usersByIds);
+                            console.log('✅ Perfis encontrados por ID:', usersByIds);
+                        } else {
+                            console.error('❌ Erro ao buscar por IDs:', idsError);
+                        }
+                    }
+                    
+                    // Buscar por usernames (fallback) se necessário
+                    if (peopleWithUsernames.length > 0) {
+                        console.log('🔍 Buscando perfis por username (fallback)...');
+                        const { data: allProfiles, error: allError } = await supabase
+                            .from('profiles')
+                            .select('*');
+                        
+                        if (!allError && allProfiles) {
+                            const usernames = peopleWithUsernames.map(p => p.username);
+                            const usersByUsername = allProfiles.filter(profile => {
+                                return usernames.some(username => {
+                                    const email = profile.email || '';
+                                    const name = profile.name || '';
+                                    const displayName = profile.display_name || '';
+                                    const username_field = profile.username || '';
+                                    const emailUsername = email.split('@')[0] || '';
+                                    
+                                    return emailUsername.toLowerCase() === username.toLowerCase() ||
+                                           username_field.toLowerCase() === username.toLowerCase() ||
+                                           email.toLowerCase().includes(username.toLowerCase()) || 
+                                           name.toLowerCase().includes(username.toLowerCase()) ||
+                                           displayName.toLowerCase().includes(username.toLowerCase());
+                                });
+                            });
+                            
+                            realUsers = realUsers.concat(usersByUsername);
+                            console.log('✅ Perfis encontrados por username:', usersByUsername);
+                        }
                     }
 
                     if (realUsers && realUsers.length > 0) {
                         // Combinar dados reais com os dados extraídos
                         peopleDetails.forEach(person => {
-                            const realUser = realUsers.find(u => {
-                                const email = u.email || '';
-                                const name = u.name || '';
-                                const displayName = u.display_name || '';
-                                const username_field = u.username || '';
-                                const emailUsername = email.split('@')[0] || '';
-                                
-                                return emailUsername.toLowerCase() === person.username.toLowerCase() ||
-                                       username_field.toLowerCase() === person.username.toLowerCase() ||
-                                       email.toLowerCase().includes(person.username.toLowerCase()) || 
-                                       name.toLowerCase().includes(person.username.toLowerCase()) ||
-                                       displayName.toLowerCase().includes(person.username.toLowerCase());
-                            });
+                            let realUser = null;
+                            
+                            if (person.userId) {
+                                // Buscar por ID (mais confiável)
+                                realUser = realUsers.find(u => u.id === person.userId);
+                            } else if (person.username) {
+                                // Buscar por username (fallback)
+                                realUser = realUsers.find(u => {
+                                    const email = u.email || '';
+                                    const name = u.name || '';
+                                    const displayName = u.display_name || '';
+                                    const username_field = u.username || '';
+                                    const emailUsername = email.split('@')[0] || '';
+                                    
+                                    return emailUsername.toLowerCase() === person.username.toLowerCase() ||
+                                           username_field.toLowerCase() === person.username.toLowerCase() ||
+                                           email.toLowerCase().includes(person.username.toLowerCase()) || 
+                                           name.toLowerCase().includes(person.username.toLowerCase()) ||
+                                           displayName.toLowerCase().includes(person.username.toLowerCase());
+                                });
+                            }
                             
                             if (realUser) {
-                                person.userId = realUser.id;
+                                person.realUserId = realUser.id;
                                 person.realName = realUser.name || realUser.display_name;
                                 person.avatarUrl = realUser.avatar_url;
-                                console.log(`✅ Dados REAIS encontrados para @${person.username}:`, {
+                                person.realUsername = realUser.email?.split('@')[0] || realUser.username || person.username;
+                                console.log(`✅ Dados REAIS encontrados para ${person.userId || person.username}:`, {
                                     id: realUser.id,
                                     name: realUser.name,
                                     avatar: realUser.avatar_url
                                 });
                             } else {
-                                console.log(`⚠️ Perfil REAL não encontrado para @${person.username}`);
+                                console.log(`⚠️ Perfil REAL não encontrado para ${person.userId || person.username}`);
                             }
                         });
                     }
@@ -7411,16 +7454,18 @@
                         const avatarHtml = person.avatarUrl && person.avatarUrl.trim() !== '' 
                             ? `<img src="${person.avatarUrl}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 1rem;" onerror="console.log('❌ Erro ao carregar avatar:', '${person.avatarUrl}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
-                                ${person.username.charAt(0).toUpperCase()}
+                                ${(person.realName || person.realUsername || person.username || 'U').charAt(0).toUpperCase()}
                                </div>`
                             : `<div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 1rem;">
-                                ${person.username.charAt(0).toUpperCase()}
+                                ${(person.realName || person.realUsername || person.username || 'U').charAt(0).toUpperCase()}
                                </div>`;
                         
                         // Usar nome real se disponível, senão username
                         const displayName = person.realName && person.realName.trim() !== '' 
                             ? person.realName 
-                            : person.username;
+                            : (person.realUsername || person.username || 'Usuário');
+                        
+                        const usernameDisplay = person.realUsername || person.username || 'usuario';
                         
                         return `
                             <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;">
@@ -7430,7 +7475,7 @@
                                         ${displayName}
                                     </div>
                                     <div style="font-size: 0.9rem; color: #666;">
-                                        @${person.username}
+                                        @${usernameDisplay}
                                     </div>
                                     <div style="font-size: 0.8rem; color: #999; margin-top: 0.3rem;">
                                         ${person.postCount} ${person.postCount === 1 ? 'destaque' : 'destaques'}
