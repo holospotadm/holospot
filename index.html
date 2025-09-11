@@ -7274,15 +7274,29 @@
                 const peopleHighlighted = new Set();
                 const peopleDetails = [];
                 
+                console.log('📋 Posts do usuário para análise:', userPosts.length);
+                console.log('📋 Detalhes dos posts:', userPosts.map(p => ({
+                    id: p.id,
+                    celebrated_person_name: p.celebrated_person_name,
+                    person_name: p.person_name,
+                    content: p.content?.substring(0, 100) + '...'
+                })));
+                
                 // Extrair pessoas mencionadas com @username (incluindo pontos e underscores)
                 userPosts.forEach(post => {
                     const personName = post.celebrated_person_name || post.person_name;
+                    console.log(`🔍 Analisando post ${post.id}: personName = "${personName}"`);
+                    
                     if (personName && personName.includes('@')) {
                         // Regex melhorada para capturar usernames com pontos, underscores e hífens
                         const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                        console.log(`📝 Matches encontrados para "${personName}":`, usernameMatch);
+                        
                         if (usernameMatch) {
                             usernameMatch.forEach(match => {
                                 const username = match.substring(1); // Remove o @
+                                console.log(`👤 Username extraído: "${username}"`);
+                                
                                 if (username && !peopleHighlighted.has(username)) {
                                     peopleHighlighted.add(username);
                                     peopleDetails.push({
@@ -7292,9 +7306,14 @@
                                             (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
                                         ).length
                                     });
+                                    console.log(`✅ Adicionado: @${username}`);
+                                } else {
+                                    console.log(`⚠️ Username já existe ou inválido: "${username}"`);
                                 }
                             });
                         }
+                    } else {
+                        console.log(`❌ PersonName não contém @ ou está vazio: "${personName}"`);
                     }
                 });
 
