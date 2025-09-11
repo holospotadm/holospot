@@ -32,15 +32,16 @@ $$ LANGUAGE plpgsql;
 -- Verificar se há outros triggers problemáticos
 -- Listar todos os triggers que podem estar causando problemas
 SELECT 
-    schemaname,
-    tablename,
-    triggername,
+    n.nspname as schema_name,
+    c.relname as table_name,
+    t.tgname as trigger_name,
     'Trigger verificado' as status
 FROM pg_trigger t
 JOIN pg_class c ON t.tgrelid = c.oid
 JOIN pg_namespace n ON c.relnamespace = n.oid
 WHERE n.nspname = 'public' 
-AND c.relname IN ('posts', 'feedbacks', 'comments', 'reactions');
+AND c.relname IN ('posts', 'feedbacks', 'comments', 'reactions')
+AND NOT t.tgisinternal;
 
 -- Testar criação de post após correção
 SELECT 'Trigger de feedback corrigido - criação de posts deve funcionar agora' as resultado;
