@@ -3967,6 +3967,51 @@
         async function processPostsUserData() {
             console.log('👥 Processando dados de usuários...');
             
+            // Coletar todos os user_ids únicos (exceto o usuário atual)
+            const uniqueUserIds = [...new Set(
+                posts
+                    .filter(post => post.user_id !== currentUser.id)
+                    .map(post => post.user_id)
+            )];
+            
+            console.log(`🔍 Buscando ${uniqueUserIds.length} perfis únicos em lote...`);
+            
+            // Cache para armazenar dados dos usuários
+            const userDataCache = new Map();
+            
+            // Buscar todos os perfis em uma única consulta
+            if (uniqueUserIds.length > 0) {
+                try {
+                    const usersQuery = supabase
+                        .from('profiles')
+                        .select('id, name, email, avatar_url')
+                        .in('id', uniqueUserIds);
+                    
+                    const { data: usersData, error: usersError } = await withTimeout(usersQuery, 5000);
+                    
+                    if (usersData && !usersError) {
+                        // Armazenar no cache
+                        usersData.forEach(user => {
+                            const realName = user.name || user.email || 'Usuário';
+                            const realAvatar = user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(realName)}&background=667eea&color=fff`;
+                            
+                            userDataCache.set(user.id, {
+                                name: realName,
+                                email: user.email,
+                                avatar_url: realAvatar
+                            });
+                        });
+                        
+                        console.log(`✅ ${usersData.length} perfis carregados em lote`);
+                    } else {
+                        console.error('❌ Erro ao buscar perfis em lote:', usersError);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro crítico ao buscar perfis:', error);
+                }
+            }
+            
+            // Aplicar dados aos posts
             for (let post of posts) {
                 try {
                     if (post.user_id === currentUser.id) {
@@ -3977,38 +4022,15 @@
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         };
                     } else {
-                        // Outros usuários - buscar dados reais da tabela profiles
-                        console.log(`🔍 Buscando dados reais do usuário: ${post.user_id}`);
+                        // Outros usuários - usar cache
+                        const cachedUserData = userDataCache.get(post.user_id);
                         
-                        try {
-                            const userQuery = supabase
-                                .from('profiles')
-                                .select('name, email, avatar_url')
-                                .eq('id', post.user_id)
-                                .single();
+                        if (cachedUserData) {
+                            post.user_data = cachedUserData;
+                        } else {
+                            // Fallback se não encontrou no cache
+                            console.warn(`⚠️ Usuário ${post.user_id} não encontrado no cache, usando fallback`);
                             
-                            const { data: userData, error: userError } = await withTimeout(userQuery, 1500);
-                            
-                            if (userData && !userError) {
-                                // Dados reais encontrados
-                                const realName = userData.name || userData.email || 'Usuário';
-                                const realAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(realName)}&background=667eea&color=fff`;
-                                
-                                post.user_data = {
-                                    name: realName,
-                                    email: userData.email,
-                                    avatar_url: realAvatar
-                                };
-                                
-                                console.log(`✅ Dados reais encontrados: ${realName}`);
-                            } else {
-                                throw new Error('Usuário não encontrado na tabela profiles');
-                            }
-                            
-                        } catch (profileError) {
-                            console.warn(`⚠️ Erro ao buscar perfil, usando fallback para ${post.user_id}:`, profileError.message);
-                            
-                            // Fallback com nomes fictícios baseados no ID
                             const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
                             const nameIndex = post.user_id.charCodeAt(0) % names.length;
                             const userName = names[nameIndex];
@@ -4035,7 +4057,7 @@
                 }
             }
             
-            console.log('✅ Dados de usuários processados');
+            console.log('✅ Dados de usuários processados com otimização em lote');
         }
 
         // Tooltip functions
