@@ -7292,14 +7292,21 @@
 
         // Listen for auth state changes
         let isInitialLoad = true;
+        let isAppAlreadyShown = false; // Evitar recarregamento ao mudar aba
+        
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
-                showApp();
                 
-                // Mostrar loading imediatamente
-                window.isLoadingPosts = true;
-                await renderPosts();
+                // Só mostrar app se ainda não foi mostrado (evita limpar tela ao mudar aba)
+                if (!isAppAlreadyShown) {
+                    showApp();
+                    isAppAlreadyShown = true;
+                    
+                    // Mostrar loading imediatamente
+                    window.isLoadingPosts = true;
+                    await renderPosts();
+                }
                 
                 // Só carrega dados na primeira vez ou se não há dados
                 if (isInitialLoad || posts.length === 0) {
@@ -7323,6 +7330,7 @@
                 currentUser = null;
                 showLogin();
                 isInitialLoad = true; // Reset para próximo login
+                isAppAlreadyShown = false; // Reset para próximo login
             }
          });
         
