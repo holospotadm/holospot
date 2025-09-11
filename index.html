@@ -4445,9 +4445,9 @@
 
             container.innerHTML = postsHtml.join('');
             
-            // Atualizar contadores de comentários após renderizar
+            // 🚀 OTIMIZAÇÃO: Usar cache ao invés de consultas individuais
             setTimeout(() => {
-                updateAllCommentsCounters();
+                updateAllCommentsCountersFromCache();
             }, 100);
         }
 
@@ -7167,6 +7167,41 @@
         }
 
         // Função para atualizar contadores de comentários após carregar posts
+        // 🚀 OTIMIZAÇÃO: Atualizar contadores usando cache (sem consultas individuais)
+        function updateAllCommentsCountersFromCache() {
+            try {
+                console.log('💬 Atualizando contadores de comentários usando cache...');
+                
+                const postElements = document.querySelectorAll('[id^="comments-"]');
+                for (const element of postElements) {
+                    const postId = element.id.replace('comments-', '');
+                    const commentsCount = getCommentsCountFromCache(postId);
+                    
+                    // Atualizar elemento visual
+                    element.innerHTML = `💬 ${commentsCount}`;
+                    element.style.background = commentsCount > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5';
+                    element.style.color = commentsCount > 0 ? 'white' : '#666';
+                    element.style.textShadow = 'none';
+                    element.style.cursor = 'pointer';
+                    element.onclick = () => openCommentsModal(postId);
+                    
+                    // Hover effects
+                    element.onmouseover = () => {
+                        element.style.transform = 'scale(1.05)';
+                        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    };
+                    element.onmouseout = () => {
+                        element.style.transform = 'scale(1)';
+                        element.style.boxShadow = 'none';
+                    };
+                }
+                
+                console.log(`✅ ${postElements.length} contadores de comentários atualizados usando cache`);
+            } catch (error) {
+                console.warn('⚠️ Erro ao atualizar contadores de comentários do cache:', error.message);
+            }
+        }
+        
         async function updateAllCommentsCounters() {
             try {
                 const postElements = document.querySelectorAll('[id^="comments-"]');
