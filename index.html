@@ -8504,12 +8504,122 @@
                     feedbacksRecebidos: feedbacksReceivedResult.count || 0
                 });
                 
+                // 🔥 ATUALIZAR SISTEMA DE STREAK COM BONUS RETROATIVO
+                try {
+                    console.log('🔥 Atualizando sistema de streak...');
+                    const { data: streakResult, error: streakError } = await supabase.rpc('update_user_streak', {
+                        p_user_id: currentUser.id
+                    });
+                    
+                    if (streakError) {
+                        console.error('❌ Erro ao atualizar streak:', streakError);
+                    } else if (streakResult) {
+                        console.log('✅ Streak atualizado:', streakResult);
+                        
+                        // Verificar se atingiu um milestone e ganhou bonus
+                        if (streakResult.milestone_reached && streakResult.bonus_points > 0) {
+                            showStreakBonus(streakResult);
+                        }
+                        
+                        // Atualizar display do streak com valor do backend
+                        if (streakResult.current_streak !== undefined) {
+                            currentStreak = streakResult.current_streak;
+                            document.getElementById('userStreak').textContent = currentStreak;
+                            
+                            // Atualizar barras de progresso do streak
+                            updateStreakProgressBars(currentStreak);
+                        }
+                    }
+                } catch (streakError) {
+                    console.error('❌ Erro no sistema de streak:', streakError);
+                }
+                
                 // Reconfigurar event listeners após atualizar métricas
                 setupStatCardListeners();
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas reais:', error);
                 // Em caso de erro, manter valores existentes
             }
+        }
+
+        // 🔥 FUNÇÃO PARA MOSTRAR BONUS DE STREAK
+        function showStreakBonus(streakData) {
+            const { completed_milestone, bonus_points, points_period } = streakData;
+            
+            if (!completed_milestone || !bonus_points) return;
+            
+            // Criar notificação visual elegante
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                max-width: 400px;
+                animation: streakBonusAppear 0.5s ease-out;
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">🔥</div>
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">
+                    STREAK ${completed_milestone} DIAS COMPLETADO!
+                </div>
+                <div style="font-size: 16px; margin-bottom: 15px; opacity: 0.9;">
+                    Pontos dos últimos ${completed_milestone} dias: ${points_period}
+                </div>
+                <div style="font-size: 20px; font-weight: bold; color: #ffeb3b;">
+                    BONUS: +${bonus_points} pts! 🎉
+                </div>
+                <div style="font-size: 14px; margin-top: 15px; opacity: 0.8;">
+                    Continue assim para o próximo milestone!
+                </div>
+            `;
+            
+            // Adicionar CSS da animação se não existir
+            if (!document.getElementById('streakBonusCSS')) {
+                const style = document.createElement('style');
+                style.id = 'streakBonusCSS';
+                style.textContent = `
+                    @keyframes streakBonusAppear {
+                        0% { 
+                            opacity: 0; 
+                            transform: translate(-50%, -50%) scale(0.5); 
+                        }
+                        100% { 
+                            opacity: 1; 
+                            transform: translate(-50%, -50%) scale(1); 
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Remover após 5 segundos
+            setTimeout(() => {
+                notification.style.animation = 'streakBonusAppear 0.3s ease-in reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+            
+            // Log para debug
+            console.log('🎉 STREAK BONUS MOSTRADO:', {
+                milestone: completed_milestone,
+                bonus: bonus_points,
+                period_points: points_period
+            });
         }
 
         // Modal functions for received metrics
