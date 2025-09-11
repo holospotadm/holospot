@@ -3363,6 +3363,27 @@
                     }
                 }
 
+                // OTIMIZAÇÃO: Carregar comments e feedbacks em lote
+                console.log('🔍 Carregando comments e feedbacks em lote...');
+                let allComments = [];
+                let allFeedbacks = [];
+                
+                if (postIds.length > 0) {
+                    try {
+                        const [commentsResult, feedbacksResult] = await Promise.all([
+                            supabase.from('comments').select('id, post_id').in('post_id', postIds),
+                            supabase.from('feedbacks').select('id, post_id').in('post_id', postIds)
+                        ]);
+                        
+                        allComments = commentsResult.data || [];
+                        allFeedbacks = feedbacksResult.data || [];
+                        
+                        console.log(`✅ Carregados ${allComments.length} comments e ${allFeedbacks.length} feedbacks em lote`);
+                    } catch (error) {
+                        console.error('❌ Erro ao carregar comments/feedbacks em lote:', error);
+                    }
+                }
+
                 // Usar o mesmo código do renderPosts do início
                 const postsHtml = [];
                 for (const post of userPosts) {
@@ -3392,29 +3413,10 @@
                         'admiracao': 'Admiração', 'admiration': 'Admiração'
                     };
                     
-                    // Contar feedbacks para este post
-                    let feedbacksCount = 0;
-                    try {
-                        const { data: feedbacksData } = await supabase
-                            .from('feedbacks')
-                            .select('id')
-                            .eq('post_id', post.id);
-                        feedbacksCount = feedbacksData ? feedbacksData.length : 0;
-                    } catch (error) {
-                        console.log('Erro ao contar feedbacks:', error);
-                    }
+                    // OTIMIZAÇÃO: Usar dados em lote ao invés de consultas individuais
+                    const feedbacksCount = allFeedbacks.filter(f => f.post_id === post.id).length;
+                    const commentsCount = allComments.filter(c => c.post_id === post.id).length;
                     
-                    // Contar comentários para este post
-                    let commentsCount = 0;
-                    try {
-                        const { data: commentsData } = await supabase
-                            .from('comments')
-                            .select('id')
-                            .eq('post_id', post.id);
-                        commentsCount = commentsData ? commentsData.length : 0;
-                    } catch (error) {
-                        console.log('Erro ao contar comentários:', error);
-                    }
                     const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
                     const postHtml = `
