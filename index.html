@@ -3204,14 +3204,37 @@
             const levelProgressBar = document.getElementById('levelProgressBar');
             
             // Mapear dados do backend para o formato esperado pelo frontend
+            const currentLevel = data.level;
+            const totalPoints = data.total_points || 0;
+            
+            // Calcular progresso baseado nos dados reais do backend
+            let progressData = null;
+            let nextLevelExists = false;
+            
+            if (currentLevel && currentLevel.points_to_next !== undefined) {
+                const pointsInCurrentLevel = totalPoints - (currentLevel.min_points || 0);
+                const pointsNeededForCurrentLevel = (currentLevel.max_points || 0) - (currentLevel.min_points || 0);
+                const progressPercentage = pointsNeededForCurrentLevel > 0 ? 
+                    Math.min((pointsInCurrentLevel / pointsNeededForCurrentLevel) * 100, 100) : 0;
+                
+                progressData = {
+                    points_needed_for_next: currentLevel.points_to_next,
+                    points_in_current_level: pointsInCurrentLevel,
+                    progress_percentage: progressPercentage
+                };
+                
+                nextLevelExists = currentLevel.points_to_next > 0;
+            }
+            
             const mappedData = {
-                current_level: data.level || data.current_level,
-                next_level: data.next_level,
-                progress: data.progress,
-                total_points: data.total_points,
+                current_level: currentLevel,
+                next_level: nextLevelExists ? { exists: true } : null,
+                progress: progressData,
+                total_points: totalPoints,
                 ranking: data.ranking || (data.stats ? data.stats.ranking : null),
                 badges: data.badges,
-                recent_activity: data.recent_activity || (data.stats ? data.stats.recent_activities : null)
+                recent_activity: data.recent_activity || (data.stats ? data.stats.recent_activities : null),
+                stats: data.stats
             };
             
             console.log('🔍 Dados mapeados:', mappedData);
@@ -3222,9 +3245,9 @@
             if (userPoints) userPoints.textContent = `${mappedData.total_points || 0} pontos`;
             
             // Progresso para próximo nível
-            if (mappedData.next_level) {
+            if (mappedData.next_level && mappedData.progress) {
                 const progress = mappedData.progress;
-                if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next - progress.points_in_current_level} para próximo nível`;
+                if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next} para próximo nível`;
                 if (levelProgressBar) levelProgressBar.style.width = `${progress.progress_percentage || 0}%`;
             } else {
                 if (pointsToNext) pointsToNext.textContent = 'Nível máximo atingido!';
