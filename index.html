@@ -6250,26 +6250,41 @@
             });
         }
 
+        // Variável para controlar criação de chart
+        let isCreatingChart = false;
+        
         async function createEvolutionChart() {
             if (typeof Chart === 'undefined') {
                 console.warn('⚠️ Chart.js não carregado - pulando visualização');
                 return;
             }
             
-            const canvas = document.getElementById('evolutionChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            
-            // Destruir chart existente se houver
-            if (window.evolutionChartInstance) {
-                window.evolutionChartInstance.destroy();
-                window.evolutionChartInstance = null;
-                console.log('🗑️ Chart anterior destruído');
-                
-                // Pequeno delay para garantir que a destruição seja completa
-                await new Promise(resolve => setTimeout(resolve, 50));
+            // 🚀 DEBOUNCE: Evitar múltiplas chamadas simultâneas
+            if (isCreatingChart) {
+                console.log('⏳ Chart já está sendo criado, ignorando chamada duplicada');
+                return;
             }
+            
+            isCreatingChart = true;
+            
+            try {
+                const canvas = document.getElementById('evolutionChart');
+                if (!canvas) {
+                    isCreatingChart = false;
+                    return;
+                }
+                
+                const ctx = canvas.getContext('2d');
+                
+                // Destruir chart existente se houver
+                if (window.evolutionChartInstance) {
+                    window.evolutionChartInstance.destroy();
+                    window.evolutionChartInstance = null;
+                    console.log('🗑️ Chart anterior destruído');
+                    
+                    // Delay para garantir que a destruição seja completa
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
             
             // Função para detectar mobile
             function isMobileDevice() {
@@ -6510,6 +6525,9 @@
                     };
                     window.addEventListener('resize', window.evolutionResizeListener);
                 }
+            } finally {
+                // 🚀 SEMPRE resetar flag, mesmo em caso de erro
+                isCreatingChart = false;
             }
         }
 
