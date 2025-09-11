@@ -3878,6 +3878,7 @@
                     await processPostsUserData();
                     await loadPostsReactions();
                     await loadAllFeedbacksInBatch(); // OTIMIZAÇÃO: Carregar feedbacks em lote
+                    await loadAllCommentsInBatch(); // OTIMIZAÇÃO: Carregar comentários em lote
                     await renderPosts(); // Re-renderizar com dados completos
                     console.log('✅ Posts processados com dados completos');
                 }, 100);
@@ -4105,9 +4106,10 @@
             }
         }
 
-        // Cache global para feedbacks e perfis
+        // Cache global para feedbacks, perfis e comentários
         let feedbacksCache = new Map();
         let profilesCache = new Map();
+        let commentsCache = new Map();
         
         // Funções de invalidação e atualização em tempo real
         function invalidateFeedbackCache(postId = null) {
@@ -4126,6 +4128,21 @@
             }
             feedbacksCache.get(postId).push(feedback);
             console.log(`✅ Feedback adicionado ao cache para post ${postId}`);
+        }
+        
+        function invalidateCommentsCache(postId = null) {
+            if (postId) {
+                commentsCache.delete(postId);
+                console.log(`🔄 Cache de comentários invalidado para post ${postId}`);
+            } else {
+                commentsCache.clear();
+                console.log('🔄 Cache completo de comentários invalidado');
+            }
+        }
+        
+        function getCommentsCountFromCache(postId) {
+            const comments = commentsCache.get(postId) || [];
+            return comments.length;
         }
         
         async function updateMetricsRealTime() {
@@ -4186,6 +4203,38 @@
                 }
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar feedbacks:', error);
+            }
+        }
+        
+        // Função para carregar todos os comentários em lote
+        async function loadAllCommentsInBatch() {
+            if (posts.length === 0) return;
+            
+            const postIds = posts.map(p => p.id);
+            console.log('🔍 Carregando todos os comentários em lote...');
+            
+            try {
+                const { data: allComments, error } = await supabase
+                    .from('comments')
+                    .select('post_id, id')
+                    .in('post_id', postIds);
+                
+                if (!error && allComments) {
+                    // Organizar comentários por post_id
+                    commentsCache.clear();
+                    allComments.forEach(comment => {
+                        if (!commentsCache.has(comment.post_id)) {
+                            commentsCache.set(comment.post_id, []);
+                        }
+                        commentsCache.get(comment.post_id).push(comment);
+                    });
+                    
+                    console.log(`✅ ${allComments.length} comentários carregados em lote`);
+                } else {
+                    console.error('❌ Erro ao carregar comentários em lote:', error);
+                }
+            } catch (error) {
+                console.error('❌ Erro crítico ao carregar comentários:', error);
             }
         }
         
@@ -7740,20 +7789,32 @@
         // Função para carregar contadores de um post específico
         async function loadPostCounts(postId) {
             try {
-                // Buscar contadores de reações, comentários e feedbacks
-                const [reactionsResult, commentsResult, feedbacksResult] = await Promise.all([
-                    supabase.from('reactions').select('type', { count: 'exact' }).eq('post_id', postId),
-                    supabase.from('comments').select('id', { count: 'exact' }).eq('post_id', postId),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('post_id', postId)
-                ]);
-
-                // Contar reações por tipo
-                const reactionCounts = { heart: 0, gratitude: 0, inspiration: 0 };
-                reactionsResult.data?.forEach(reaction => {
-                    if (reaction.type === 'heart') reactionCounts.heart++;
-                    else if (reaction.type === 'gratitude') reactionCounts.gratitude++;
-                    else if (reaction.type === 'inspiration') reactionCounts.inspiration++;
-                });
+                // 🚀 OTIMIZAÇÃO: Usar cache ao invés de consultas individuais
+                
+                // Buscar reações do cache (se disponível) ou fazer consulta
+                let reactionCounts = { heart: 0, gratitude: 0, inspiration: 0 };
+                const post = posts.find(p => p.id === postId);
+                if (post && post.reactions) {
+                    post.reactions.forEach(reaction => {
+                        if (reaction.type === 'touched') reactionCounts.heart++;
+                        else if (reaction.type === 'grateful') reactionCounts.gratitude++;
+                        else if (reaction.type === 'inspired') reactionCounts.inspiration++;
+                    });
+                } else {
+                    // Fallback: consulta individual apenas se não tiver no cache
+                    const reactionsResult = await supabase.from('reactions').select('type').eq('post_id', postId);
+                    reactionsResult.data?.forEach(reaction => {
+                        if (reaction.type === 'touched') reactionCounts.heart++;
+                        else if (reaction.type === 'grateful') reactionCounts.gratitude++;
+                        else if (reaction.type === 'inspired') reactionCounts.inspiration++;
+                    });
+                }
+                
+                // Usar cache para comentários
+                const commentsCount = getCommentsCountFromCache(postId);
+                
+                // Usar cache para feedbacks
+                const feedbacksCount = (feedbacksCache.get(postId) || []).length;
 
                 // Atualizar elementos na interface
                 const heartElement = document.getElementById(`heart-count-${postId}`);
@@ -7765,8 +7826,8 @@
                 if (heartElement) heartElement.textContent = reactionCounts.heart;
                 if (gratitudeElement) gratitudeElement.textContent = reactionCounts.gratitude;
                 if (inspirationElement) inspirationElement.textContent = reactionCounts.inspiration;
-                if (commentElement) commentElement.textContent = commentsResult.count || 0;
-                if (feedbackElement) feedbackElement.textContent = feedbacksResult.count || 0;
+                if (commentElement) commentElement.textContent = commentsCount;
+                if (feedbackElement) feedbackElement.textContent = feedbacksCount;
 
             } catch (error) {
                 console.error('❌ Erro ao carregar contadores do post:', error);
