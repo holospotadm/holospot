@@ -7977,24 +7977,37 @@
                 // Atualizar contador de Posts Criados
                 document.getElementById('userPostsCount').textContent = userPosts?.length || 0;
                 
-                // 2. Pessoas Destacadas (contar corretamente com regex melhorada)
+                // 2. Pessoas Destacadas (usar mentioned_user_id + fallback para @username)
                 const uniquePeople = new Set();
                 
+                console.log('📊 Calculando pessoas destacadas para o card...');
+                
                 userPosts.forEach(post => {
-                    const personName = post.celebrated_person_name || post.person_name;
-                    if (personName && personName.includes('@')) {
-                        // Regex melhorada para capturar usernames com pontos, underscores e hífens
-                        const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
-                        if (usernameMatch) {
-                            usernameMatch.forEach(match => {
-                                const username = match.substring(1); // Remove o @
-                                if (username) {
-                                    uniquePeople.add(username);
-                                }
-                            });
+                    if (post.mentioned_user_id) {
+                        // Usar mentioned_user_id (mais confiável)
+                        uniquePeople.add(post.mentioned_user_id);
+                        console.log(`✅ Card: Adicionado via mentioned_user_id: ${post.mentioned_user_id}`);
+                    } else {
+                        // Fallback: extrair @username se não tiver mentioned_user_id
+                        const personName = post.celebrated_person_name || post.person_name;
+                        if (personName && personName.includes('@')) {
+                            // Regex melhorada para capturar usernames com pontos, underscores e hífens
+                            const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
+                            if (usernameMatch) {
+                                usernameMatch.forEach(match => {
+                                    const username = match.substring(1); // Remove o @
+                                    if (username) {
+                                        uniquePeople.add(`@${username}`); // Prefixar com @ para diferenciar de IDs
+                                        console.log(`✅ Card: Adicionado via @username: ${username}`);
+                                    }
+                                });
+                            }
                         }
                     }
                 });
+                
+                console.log('📊 Total pessoas destacadas (card):', uniquePeople.size);
+                console.log('📊 Lista pessoas destacadas (card):', Array.from(uniquePeople));
                 
                 document.getElementById('userPeopleHighlighted').textContent = uniquePeople.size;
 
