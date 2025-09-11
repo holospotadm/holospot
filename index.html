@@ -6525,8 +6525,6 @@
                     };
                     window.addEventListener('resize', window.evolutionResizeListener);
                 }
-            } catch (error) {
-                console.error('❌ Erro ao criar gráfico de evolução:', error);
             } finally {
                 // 🚀 SEMPRE resetar flag, mesmo em caso de erro
                 isCreatingChart = false;
