@@ -3877,6 +3877,7 @@
                 setTimeout(async () => {
                     await processPostsUserData();
                     await loadPostsReactions();
+                    await loadAllFeedbacksInBatch(); // OTIMIZAÇÃO: Carregar feedbacks em lote
                     await renderPosts(); // Re-renderizar com dados completos
                     console.log('✅ Posts processados com dados completos');
                 }, 100);
@@ -4104,50 +4105,94 @@
             }
         }
 
-        // Função getFeedbackButtonForPost - VERSÃO REAL
-        async function getFeedbackButtonForPost(post) {
+        // Cache global para feedbacks e perfis
+        let feedbacksCache = new Map();
+        let profilesCache = new Map();
+        
+        // Função para carregar todos os feedbacks em lote
+        async function loadAllFeedbacksInBatch() {
+            if (posts.length === 0) return;
+            
+            const postIds = posts.map(p => p.id);
+            console.log('🔍 Carregando todos os feedbacks em lote...');
+            
             try {
-                // Buscar TODOS os feedbacks para este post (não apenas do usuário atual)
                 const { data: allFeedbacks, error } = await supabase
                     .from('feedbacks')
-                    .select('feedback_text, mentioned_user_id, created_at')
-                    .eq('post_id', post.id)
+                    .select('post_id, feedback_text, mentioned_user_id, created_at')
+                    .in('post_id', postIds)
                     .order('created_at', { ascending: true });
                 
-                if (error) {
-                    console.error('❌ Erro ao carregar feedbacks:', error);
-                    return ''; // Em caso de erro, não mostrar nada
+                if (!error && allFeedbacks) {
+                    // Organizar feedbacks por post_id
+                    feedbacksCache.clear();
+                    allFeedbacks.forEach(feedback => {
+                        if (!feedbacksCache.has(feedback.post_id)) {
+                            feedbacksCache.set(feedback.post_id, []);
+                        }
+                        feedbacksCache.get(feedback.post_id).push(feedback);
+                    });
+                    
+                    console.log(`✅ ${allFeedbacks.length} feedbacks carregados em lote`);
+                    
+                    // Carregar perfis dos usuários que deram feedback
+                    const userIds = [...new Set(allFeedbacks.map(f => f.mentioned_user_id))];
+                    if (userIds.length > 0) {
+                        await loadProfilesInBatch(userIds);
+                    }
+                } else {
+                    console.error('❌ Erro ao carregar feedbacks em lote:', error);
                 }
+            } catch (error) {
+                console.error('❌ Erro crítico ao carregar feedbacks:', error);
+            }
+        }
+        
+        // Função para carregar perfis em lote
+        async function loadProfilesInBatch(userIds) {
+            console.log(`🔍 Carregando ${userIds.length} perfis em lote...`);
+            
+            try {
+                const { data: profiles, error } = await supabase
+                    .from('profiles')
+                    .select('id, name, email')
+                    .in('id', userIds);
+                
+                if (!error && profiles) {
+                    profiles.forEach(profile => {
+                        profilesCache.set(profile.id, profile);
+                    });
+                    
+                    console.log(`✅ ${profiles.length} perfis carregados em lote`);
+                } else {
+                    console.error('❌ Erro ao carregar perfis em lote:', error);
+                }
+            } catch (error) {
+                console.error('❌ Erro crítico ao carregar perfis:', error);
+            }
+        }
+
+        // Função getFeedbackButtonForPost - VERSÃO OTIMIZADA
+        async function getFeedbackButtonForPost(post) {
+            try {
+                // Usar cache ao invés de consulta individual
+                const allFeedbacks = feedbacksCache.get(post.id) || [];
                 
                 let feedbacksHtml = '';
                 let userHasFeedback = false;
                 
                 // Mostrar todos os feedbacks existentes
-                if (allFeedbacks && allFeedbacks.length > 0) {
+                if (allFeedbacks.length > 0) {
                     for (const feedback of allFeedbacks) {
                         // Verificar se este feedback é do usuário atual
                         if (feedback.mentioned_user_id === currentUser.id) {
                             userHasFeedback = true;
                         }
                         
-                        // Buscar dados do usuário que deu o feedback
-                        let feedbackUserName = 'Usuário';
-                        let feedbackUsername = 'usuario';
-                        
-                        try {
-                            const { data: feedbackUser } = await supabase
-                                .from('profiles')
-                                .select('name, email')
-                                .eq('id', feedback.mentioned_user_id)
-                                .single();
-                            
-                            if (feedbackUser) {
-                                feedbackUserName = feedbackUser.name || feedbackUser.email?.split('@')[0] || 'Usuário';
-                                feedbackUsername = feedbackUser.email?.split('@')[0] || 'usuario';
-                            }
-                        } catch (userError) {
-                            console.warn('⚠️ Erro ao buscar dados do usuário do feedback');
-                        }
+                        // Usar cache para dados do usuário
+                        const feedbackUser = profilesCache.get(feedback.mentioned_user_id);
+                        const feedbackUserName = feedbackUser?.name || feedbackUser?.email?.split('@')[0] || 'Usuário';
+                        const feedbackUsername = feedbackUser?.email?.split('@')[0] || 'usuario';
                         
                         feedbacksHtml += `
                             <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
