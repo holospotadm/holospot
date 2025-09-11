@@ -6316,12 +6316,11 @@
                             .eq('user_id', currentUser.id)
                             .gte('created_at', fourWeeksAgo.toISOString());
                         
-                        // Buscar posts sobre o usuário (holofotes recebidos) nas últimas 4 semanas
+                        // Buscar holofotes recebidos (posts que mencionaram o usuário) nas últimas 4 semanas
                         const { data: holofotsData, error: holofotesError } = await supabase
                             .from('posts')
                             .select('created_at')
-                            .ilike('content', `%${currentUser.name}%`)
-                            .neq('user_id', currentUser.id)
+                            .eq('mentioned_user_id', currentUser.id)
                             .gte('created_at', fourWeeksAgo.toISOString());
                         
                         if (!postsError && !holofotesError) {
