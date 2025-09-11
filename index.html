@@ -8524,7 +8524,12 @@
                         // Atualizar display do streak com valor do backend
                         if (streakResult.current_streak !== undefined) {
                             currentStreak = streakResult.current_streak;
-                            document.getElementById('userStreak').textContent = currentStreak;
+                            
+                            // Verificar se elemento existe antes de atualizar
+                            const userStreakElement = document.getElementById('userStreak');
+                            if (userStreakElement) {
+                                userStreakElement.textContent = currentStreak;
+                            }
                             
                             // Atualizar barras de progresso do streak
                             updateStreakProgressBars(currentStreak);
