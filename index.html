@@ -6525,15 +6525,10 @@
                     };
                     window.addEventListener('resize', window.evolutionResizeListener);
                 }
-                
-                console.log('✅ Gráfico de evolução criado com sucesso');
-                
-            } catch (error) {
-                console.error('❌ Erro geral na criação do gráfico:', error);
-            } finally {
-                // 🚀 SEMPRE resetar flag, mesmo em caso de erro
-                isCreatingChart = false;
             }
+            
+            // 🚀 SEMPRE resetar flag, mesmo em caso de erro
+            isCreatingChart = false;
         }
 
         function generatePersonalizedInsights(metrics) {
