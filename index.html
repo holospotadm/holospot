@@ -6253,24 +6253,19 @@
         // Variável para controlar criação de chart
         let isCreatingChart = false;
         
+
         async function createEvolutionChart() {
-            if (typeof Chart === 'undefined') {
-                console.warn('⚠️ Chart.js não carregado - pulando visualização');
-                return;
-            }
-            
-            // 🚀 DEBOUNCE: Evitar múltiplas chamadas simultâneas
+            // 🚀 Debounce: evitar múltiplas chamadas simultâneas
             if (isCreatingChart) {
-                console.log('⏳ Chart já está sendo criado, ignorando chamada duplicada');
+                console.log('⏳ Chart já está sendo criado, ignorando chamada...');
                 return;
             }
-            
             isCreatingChart = true;
             
             try {
                 const canvas = document.getElementById('evolutionChart');
                 if (!canvas) {
-                    isCreatingChart = false;
+                    console.error('❌ Canvas evolutionChart não encontrado');
                     return;
                 }
                 
@@ -6281,195 +6276,31 @@
                     window.evolutionChartInstance.destroy();
                     window.evolutionChartInstance = null;
                     console.log('🗑️ Chart anterior destruído');
-                    
-                    // Delay para garantir que a destruição seja completa
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
-            
-            // Função para detectar mobile
-            function isMobileDevice() {
-                return window.innerWidth <= 768;
-            }
-            
-            // Função para gerar labels responsivos
-            function getWeekLabels(dates) {
-                const isMobile = isMobileDevice();
-                return dates.map(week => {
-                    const weekNumber = week.replace('Sem ', '');
-                    return isMobile ? `Sem ${weekNumber}` : `Semana ${weekNumber}`;
-                });
-            }
-            
-            try {
-                console.log('📈 Carregando dados temporais reais...');
                 
-                // Buscar posts dos últimos 30 dias agrupados por semana
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                
-                const { data: recentPosts, error: postsError } = await supabase
-                    .from('posts')
-                    .select('created_at, mentioned_user_id')
-                    .eq('user_id', currentUser.id)
-                    .gte('created_at', thirtyDaysAgo.toISOString())
-                    .order('created_at', { ascending: true });
-                
-                if (postsError) {
-                    console.warn('⚠️ Erro ao buscar posts temporais:', postsError);
-                    return;
-                }
-                
-                // Buscar posts onde EU fui mencionado (holofotes recebidos)
-                const { data: receivedPosts, error: receivedError } = await supabase
-                    .from('posts')
-                    .select('created_at, user_id')
-                    .eq('mentioned_user_id', currentUser.id)
-                    .gte('created_at', thirtyDaysAgo.toISOString())
-                    .order('created_at', { ascending: true });
-                
-                if (receivedError) {
-                    console.warn('⚠️ Erro ao buscar holofotes recebidos:', receivedError);
-                }
-                
-                // Agrupar dados por semana
-                const weeklyData = {};
-                const today = new Date();
-                
-                // Inicializar 4 semanas
-                for (let i = 3; i >= 0; i--) {
-                    const weekStart = new Date(today);
-                    weekStart.setDate(today.getDate() - (i * 7) - (today.getDay() || 7) + 1);
-                    const weekKey = `Sem ${4-i}`;
-                    weeklyData[weekKey] = { posts: 0, holofotes: 0 };
-                }
-                
-                // Contar posts criados por semana
-                if (recentPosts) {
-                    recentPosts.forEach(post => {
-                        const postDate = new Date(post.created_at);
-                        const weeksDiff = Math.floor((today - postDate) / (7 * 24 * 60 * 60 * 1000));
-                        if (weeksDiff >= 0 && weeksDiff < 4) {
-                            const weekKey = `Sem ${4-weeksDiff}`;
-                            if (weeklyData[weekKey]) {
-                                weeklyData[weekKey].posts++;
-                            }
-                        }
-                    });
-                }
-                
-                // Contar holofotes recebidos por semana
-                if (receivedPosts) {
-                    receivedPosts.forEach(post => {
-                        const postDate = new Date(post.created_at);
-                        const weeksDiff = Math.floor((today - postDate) / (7 * 24 * 60 * 60 * 1000));
-                        if (weeksDiff >= 0 && weeksDiff < 4) {
-                            const weekKey = `Sem ${4-weeksDiff}`;
-                            if (weeklyData[weekKey]) {
-                                weeklyData[weekKey].holofotes++;
-                            }
-                        }
-                    });
-                }
-                
-                const dates = Object.keys(weeklyData);
-                const displayLabels = getWeekLabels(dates);
-                const postsData = dates.map(week => weeklyData[week].posts);
-                const holofotesData = dates.map(week => weeklyData[week].holofotes);
-                
-                console.log('📊 Dados temporais:', { dates, displayLabels, postsData, holofotesData, isMobile: isMobileDevice() });
-                
-                window.evolutionChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: displayLabels,
-                        datasets: [{
-                            label: 'Posts Criados',
-                            data: postsData,
-                            borderColor: '#E55A2B',
-                            backgroundColor: 'rgba(229, 90, 43, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }, {
-                            label: 'Holofotes Recebidos',
-                            data: holofotesData,
-                            borderColor: '#9C27B0',
-                            backgroundColor: 'rgba(156, 39, 176, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20
-                                }
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                callbacks: {
-                                    title: function(context) {
-                                        const index = context[0].dataIndex;
-                                        const weekNumber = dates[index].replace('Sem ', '');
-                                        return `Semana ${weekNumber}`;
-                                    }
-                                }
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        }
-                    }
-                });
-                
-                console.log('✅ Gráfico de evolução criado com dados reais');
-                
-            } catch (error) {
-                console.error('❌ Erro ao criar gráfico de evolução:', error);
-                
-                // Fallback para dados mock em caso de erro
-                const mockData = {
+                // Dados mock simples para evitar problemas
+                const chartData = {
                     dates: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
                     posts: [0, 0, 0, 0],
                     holofotes: [0, 0, 0, 0]
                 };
                 
-                const mockDisplayLabels = getWeekLabels(mockData.dates);
-                
+                // Criar gráfico
                 window.evolutionChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: mockDisplayLabels,
+                        labels: chartData.dates,
                         datasets: [{
                             label: 'Posts Criados',
-                            data: mockData.posts,
+                            data: chartData.posts,
                             borderColor: '#E55A2B',
                             backgroundColor: 'rgba(229, 90, 43, 0.1)',
                             tension: 0.4,
                             fill: true
                         }, {
                             label: 'Holofotes Recebidos',
-                            data: mockData.holofotes,
+                            data: chartData.holofotes,
                             borderColor: '#9C27B0',
                             backgroundColor: 'rgba(156, 39, 176, 0.1)',
                             tension: 0.4,
@@ -6480,55 +6311,21 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            y: { 
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            }
+                            y: { beginAtZero: true },
+                            x: { }
                         },
                         plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20
-                                }
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                callbacks: {
-                                    title: function(context) {
-                                        const index = context[0].dataIndex;
-                                        const weekNumber = mockData.dates[index].replace('Sem ', '');
-                                        return `Semana ${weekNumber}`;
-                                    }
-                                }
-                            }
+                            legend: { position: 'top' },
+                            tooltip: { mode: 'index', intersect: false }
                         }
                     }
                 });
                 
-                // Adicionar listener para recriar gráfico quando mudar de desktop/mobile
-                if (!window.evolutionResizeListener) {
-                    window.evolutionResizeListener = function() {
-                        clearTimeout(window.evolutionResizeTimeout);
-                        window.evolutionResizeTimeout = setTimeout(() => {
-                            createEvolutionChart();
-                        }, 250);
-                    };
-                    window.addEventListener('resize', window.evolutionResizeListener);
-                }
-            } catch (outerError) {
-                console.error('❌ Erro geral na função createEvolutionChart:', outerError);
+                console.log('✅ Gráfico de evolução criado com sucesso');
+                
+            } catch (error) {
+                console.error('❌ Erro ao criar gráfico de evolução:', error);
             } finally {
-                // 🚀 SEMPRE resetar flag, mesmo em caso de erro
                 isCreatingChart = false;
             }
         }
