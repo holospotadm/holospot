@@ -6525,10 +6525,10 @@
                     };
                     window.addEventListener('resize', window.evolutionResizeListener);
                 }
+            } finally {
+                // 🚀 SEMPRE resetar flag, mesmo em caso de erro
+                isCreatingChart = false;
             }
-            
-            // 🚀 SEMPRE resetar flag, mesmo em caso de erro
-            isCreatingChart = false;
         }
 
         function generatePersonalizedInsights(metrics) {
