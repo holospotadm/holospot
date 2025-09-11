@@ -6639,13 +6639,13 @@
 
         function closeModal() {
             // Close dynamic modals (remove from DOM) - MAS NÃO OS MODAIS DE IMPACTO E CONQUISTAS
-            const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal):not(#achievementsModal)');
+            const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal):not(#achievementsModal):not(#levelsModal):not(#progressModal)');
             if (dynamicModal) {
                 dynamicModal.remove();
             }
             
             // Close static modals (hide with display: none)
-            const staticModals = ['postsReceivedModal', 'commentsReceivedModal', 'feedbacksReceivedModal', 'holofotesRecebidosModal', 'pessoasQueTeDestacaramModal', 'impactModal', 'achievementsModal'];
+            const staticModals = ['postsReceivedModal', 'commentsReceivedModal', 'feedbacksReceivedModal', 'holofotesRecebidosModal', 'pessoasQueTeDestacaramModal', 'impactModal', 'achievementsModal', 'levelsModal', 'progressModal'];
             staticModals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal) {
