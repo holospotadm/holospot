@@ -6297,12 +6297,75 @@
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 
-                // Dados mock simples para evitar problemas
-                const chartData = {
+                // 🚀 BUSCAR DADOS REAIS ao invés de mock
+                let chartData = {
                     dates: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
                     posts: [0, 0, 0, 0],
                     holofotes: [0, 0, 0, 0]
                 };
+                
+                try {
+                    if (currentUser && currentUser.id) {
+                        // Buscar posts do usuário nas últimas 4 semanas
+                        const fourWeeksAgo = new Date();
+                        fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+                        
+                        const { data: userPosts, error: postsError } = await supabase
+                            .from('posts')
+                            .select('created_at')
+                            .eq('user_id', currentUser.id)
+                            .gte('created_at', fourWeeksAgo.toISOString());
+                        
+                        // Buscar posts sobre o usuário (holofotes recebidos) nas últimas 4 semanas
+                        const { data: holofotsData, error: holofotesError } = await supabase
+                            .from('posts')
+                            .select('created_at')
+                            .ilike('content', `%${currentUser.name}%`)
+                            .neq('user_id', currentUser.id)
+                            .gte('created_at', fourWeeksAgo.toISOString());
+                        
+                        if (!postsError && !holofotesError) {
+                            // Organizar dados por semana
+                            const weeks = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+                            const postsPerWeek = [0, 0, 0, 0];
+                            const holofotesPerWeek = [0, 0, 0, 0];
+                            
+                            // Contar posts por semana
+                            if (userPosts) {
+                                userPosts.forEach(post => {
+                                    const postDate = new Date(post.created_at);
+                                    const weekIndex = Math.floor((Date.now() - postDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+                                    if (weekIndex >= 0 && weekIndex < 4) {
+                                        postsPerWeek[3 - weekIndex]++; // Inverter ordem (mais recente à direita)
+                                    }
+                                });
+                            }
+                            
+                            // Contar holofotes por semana
+                            if (holofotsData) {
+                                holofotsData.forEach(post => {
+                                    const postDate = new Date(post.created_at);
+                                    const weekIndex = Math.floor((Date.now() - postDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+                                    if (weekIndex >= 0 && weekIndex < 4) {
+                                        holofotesPerWeek[3 - weekIndex]++; // Inverter ordem (mais recente à direita)
+                                    }
+                                });
+                            }
+                            
+                            chartData = {
+                                dates: weeks,
+                                posts: postsPerWeek,
+                                holofotes: holofotesPerWeek
+                            };
+                            
+                            console.log('✅ Dados reais carregados para gráfico de evolução:', chartData);
+                        } else {
+                            console.warn('⚠️ Erro ao buscar dados, usando mock:', postsError || holofotesError);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Erro ao buscar dados do gráfico, usando mock:', error);
+                }
                 
                 // Criar gráfico
                 window.evolutionChartInstance = new Chart(ctx, {
