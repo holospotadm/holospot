@@ -1,15 +1,15 @@
 -- =====================================================
--- INVESTIGAR TABELA posts_with_reactions
+-- INVESTIGAR TABELA posts_with_reactions - ESTRUTURA PRIMEIRO
 -- =====================================================
 
--- 1. VERIFICAR ESTRUTURA DA TABELA
+-- 1. VERIFICAR ESTRUTURA DA TABELA (EXECUTAR PRIMEIRO)
 SELECT column_name, data_type, is_nullable, column_default
 FROM information_schema.columns 
 WHERE table_name = 'posts_with_reactions' 
 AND table_schema = 'public'
 ORDER BY ordinal_position;
 
--- 2. VERIFICAR REGISTROS RECENTES
+-- 2. VERIFICAR REGISTROS RECENTES (EXECUTAR APÓS VER ESTRUTURA)
 SELECT *
 FROM public.posts_with_reactions
 ORDER BY created_at DESC
@@ -46,22 +46,6 @@ FROM information_schema.routines
 WHERE routine_schema = 'public'
 AND routine_definition ILIKE '%posts_with_reactions%';
 
--- 6. VERIFICAR SE PODE SER USADA PARA CONTROLE DE PONTUAÇÃO
-SELECT 
-    'ANÁLISE PARA CONTROLE DE PONTUAÇÃO' as analise,
-    COUNT(*) as total_registros,
-    COUNT(DISTINCT post_id) as posts_unicos,
-    COUNT(DISTINCT user_id) as usuarios_unicos
-FROM public.posts_with_reactions
-WHERE created_at > NOW() - INTERVAL '1 day';
-
--- 7. VERIFICAR RELAÇÃO COM REAÇÕES
-SELECT 
-    pwr.*,
-    r.type as reaction_type,
-    r.user_id as reaction_user_id
-FROM public.posts_with_reactions pwr
-LEFT JOIN public.reactions r ON r.post_id = pwr.post_id
-ORDER BY pwr.created_at DESC
-LIMIT 5;
+-- EXECUTAR APENAS AS QUERIES ACIMA PRIMEIRO
+-- Depois que soubermos a estrutura, podemos fazer queries mais específicas
 
