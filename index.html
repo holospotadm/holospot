@@ -6525,6 +6525,8 @@
                     };
                     window.addEventListener('resize', window.evolutionResizeListener);
                 }
+            } catch (outerError) {
+                console.error('❌ Erro geral na função createEvolutionChart:', outerError);
             } finally {
                 // 🚀 SEMPRE resetar flag, mesmo em caso de erro
                 isCreatingChart = false;
