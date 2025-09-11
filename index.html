@@ -7305,62 +7305,39 @@
                     const usernames = peopleDetails.map(p => p.username);
                     console.log('🔍 Buscando perfis reais para:', usernames);
                     
-                    // Primeiro, vamos descobrir a estrutura da tabela profiles
-                    console.log('🔍 Verificando estrutura da tabela profiles...');
-                    const { data: sampleProfile, error: sampleError } = await supabase
+                    // Buscar todos os profiles para filtrar manualmente
+                    console.log('🔍 Buscando todos os profiles para filtrar por username...');
+                    const { data: allProfiles, error: allError } = await supabase
                         .from('profiles')
-                        .select('*')
-                        .limit(1);
+                        .select('*');
                     
-                    console.log('📋 Estrutura da tabela profiles:', sampleProfile);
-                    console.log('❌ Erro na amostra:', sampleError);
+                    console.log('📊 Todos os perfis encontrados:', allProfiles?.length || 0);
+                    console.log('❌ Erro na busca geral:', allError);
                     
-                    // Tentar diferentes possibilidades de campo username
-                    let realUsers = null;
-                    let error = null;
+                    let realUsers = [];
                     
-                    // Tentar com 'email' (comum em auth)
-                    try {
-                        const result = await supabase
-                            .from('profiles')
-                            .select('id, email, name, avatar_url')
-                            .filter('email', 'in', `(${usernames.map(u => u + '@example.com').join(',')})`);
-                        
-                        if (!result.error) {
-                            realUsers = result.data;
-                            console.log('✅ Encontrado usando campo email:', realUsers);
-                        }
-                    } catch (e) {
-                        console.log('❌ Tentativa com email falhou:', e);
-                    }
-                    
-                    // Se não funcionou com email, tentar buscar todos os profiles e filtrar manualmente
-                    if (!realUsers || realUsers.length === 0) {
-                        console.log('🔍 Tentando buscar todos os profiles para filtrar manualmente...');
-                        const { data: allProfiles, error: allError } = await supabase
-                            .from('profiles')
-                            .select('*');
-                        
-                        console.log('📊 Todos os perfis encontrados:', allProfiles);
-                        console.log('❌ Erro na busca geral:', allError);
-                        
-                        if (!allError && allProfiles) {
-                            // Filtrar manualmente baseado em qualquer campo que contenha o username
-                            realUsers = allProfiles.filter(profile => {
-                                return usernames.some(username => {
-                                    // Verificar em diferentes campos possíveis
-                                    const email = profile.email || '';
-                                    const name = profile.name || '';
-                                    const displayName = profile.display_name || '';
-                                    
-                                    return email.includes(username) || 
-                                           name.toLowerCase().includes(username.toLowerCase()) ||
-                                           displayName.toLowerCase().includes(username.toLowerCase());
-                                });
+                    if (!allError && allProfiles) {
+                        // Filtrar manualmente baseado no username
+                        realUsers = allProfiles.filter(profile => {
+                            return usernames.some(username => {
+                                // Verificar em diferentes campos possíveis
+                                const email = profile.email || '';
+                                const name = profile.name || '';
+                                const displayName = profile.display_name || '';
+                                const username_field = profile.username || '';
+                                
+                                // Extrair username do email (parte antes do @)
+                                const emailUsername = email.split('@')[0] || '';
+                                
+                                return emailUsername.toLowerCase() === username.toLowerCase() ||
+                                       username_field.toLowerCase() === username.toLowerCase() ||
+                                       email.toLowerCase().includes(username.toLowerCase()) || 
+                                       name.toLowerCase().includes(username.toLowerCase()) ||
+                                       displayName.toLowerCase().includes(username.toLowerCase());
                             });
-                            
-                            console.log('✅ Perfis filtrados manualmente:', realUsers);
-                        }
+                        });
+                        
+                        console.log('✅ Perfis filtrados por username:', realUsers);
                     }
 
                     if (realUsers && realUsers.length > 0) {
@@ -7370,8 +7347,12 @@
                                 const email = u.email || '';
                                 const name = u.name || '';
                                 const displayName = u.display_name || '';
+                                const username_field = u.username || '';
+                                const emailUsername = email.split('@')[0] || '';
                                 
-                                return email.includes(person.username) || 
+                                return emailUsername.toLowerCase() === person.username.toLowerCase() ||
+                                       username_field.toLowerCase() === person.username.toLowerCase() ||
+                                       email.toLowerCase().includes(person.username.toLowerCase()) || 
                                        name.toLowerCase().includes(person.username.toLowerCase()) ||
                                        displayName.toLowerCase().includes(person.username.toLowerCase());
                             });
