@@ -2301,8 +2301,69 @@
         let selectedPhotoFile = null;
         let selectedHighlightType = null;
 
+        // 🚀 SISTEMA DE CACHE INTELIGENTE
+        let feedbacksCache = new Map(); // Cache global para feedbacks
+        let commentsCache = new Map();  // Cache global para comentários  
+        let profilesCache = new Map();  // Cache global para perfis de usuários
+        let reactionsCache = new Map(); // Cache global para reações
+
         // Sistema de Menções
         let mentionUsers = [];
+        
+        // 🚀 FUNÇÕES DE CACHE INTELIGENTE
+        
+        // Adicionar feedback ao cache em tempo real
+        function addFeedbackToCache(postId, feedback) {
+            if (!feedbacksCache.has(postId)) {
+                feedbacksCache.set(postId, []);
+            }
+            feedbacksCache.get(postId).push(feedback);
+            console.log('✅ Feedback adicionado ao cache:', postId);
+        }
+        
+        // Invalidar cache de feedbacks quando necessário
+        function invalidateFeedbackCache(postId = null) {
+            if (postId) {
+                feedbacksCache.delete(postId);
+                console.log('🔄 Cache de feedback invalidado para post:', postId);
+            } else {
+                feedbacksCache.clear();
+                console.log('🔄 Cache completo de feedbacks invalidado');
+            }
+        }
+        
+        // Adicionar comentário ao cache em tempo real
+        function addCommentToCache(postId, comment) {
+            if (!commentsCache.has(postId)) {
+                commentsCache.set(postId, []);
+            }
+            commentsCache.get(postId).push(comment);
+            console.log('✅ Comentário adicionado ao cache:', postId);
+        }
+        
+        // Invalidar cache de comentários quando necessário
+        function invalidateCommentCache(postId = null) {
+            if (postId) {
+                commentsCache.delete(postId);
+                console.log('🔄 Cache de comentário invalidado para post:', postId);
+            } else {
+                commentsCache.clear();
+                console.log('🔄 Cache completo de comentários invalidado');
+            }
+        }
+        
+        // Atualizar métricas em tempo real
+        function updateMetricsRealTime() {
+            // Atualizar contadores sem recarregar página
+            updateStats();
+            console.log('📊 Métricas atualizadas em tempo real');
+        }
+        
+        // Re-renderizar posts em tempo real
+        function reRenderPostsRealTime() {
+            renderPosts();
+            console.log('🔄 Posts re-renderizados em tempo real');
+        }
         let currentMentionQuery = '';
         let selectedMentionIndex = -1;
         let mentionStartPos = -1;
@@ -5651,40 +5712,21 @@
                 if (myPosts.length === 0) return 0;
                 
                 let totalInteractions = 0;
-                const myPostIds = myPosts.map(p => p.id);
                 
-                try {
-                    // OTIMIZAÇÃO: Carregar todos os comments e feedbacks em lote
-                    const [commentsResult, feedbacksResult] = await Promise.all([
-                        supabase.from('comments')
-                            .select('post_id')
-                            .in('post_id', myPostIds)
-                            .neq('user_id', currentUser.id),
-                        supabase.from('feedbacks')
-                            .select('post_id')
-                            .in('post_id', myPostIds)
-                    ]);
-                    
-                    const commentsCount = commentsResult.data ? commentsResult.data.length : 0;
-                    const feedbacksCount = feedbacksResult.data ? feedbacksResult.data.length : 0;
-                    
-                    // Contar reações de cada post
-                    for (const post of myPosts) {
-                        if (post.reactions && Array.isArray(post.reactions)) {
-                            totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
-                        }
+                // 🚀 USAR CACHE INTELIGENTE ao invés de requests diretos
+                for (const post of myPosts) {
+                    // Reações (já carregadas nos posts)
+                    if (post.reactions && Array.isArray(post.reactions)) {
+                        totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
                     }
                     
-                    totalInteractions += commentsCount + feedbacksCount;
+                    // Comentários (usar cache)
+                    const cachedComments = commentsCache.get(post.id) || [];
+                    totalInteractions += cachedComments.length;
                     
-                } catch (error) {
-                    console.warn('Erro ao buscar interações em lote:', error);
-                    // Fallback: contar apenas reações
-                    for (const post of myPosts) {
-                        if (post.reactions && Array.isArray(post.reactions)) {
-                            totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
-                        }
-                    }
+                    // Feedbacks (usar cache)
+                    const cachedFeedbacks = feedbacksCache.get(post.id) || [];
+                    totalInteractions += cachedFeedbacks.length;
                 }
                 
                 return totalInteractions / myPosts.length;
@@ -5704,71 +5746,37 @@
                 if (myPosts.length === 0) return 0;
 
                 let totalPessoasQueEngajaram = 0;
-                const myPostIds = myPosts.map(p => p.id);
 
-                try {
-                    // OTIMIZAÇÃO: Carregar todos os comments e feedbacks em lote
-                    const [commentsResult, feedbacksResult] = await Promise.all([
-                        supabase.from('comments')
-                            .select('user_id, post_id')
-                            .in('post_id', myPostIds)
-                            .neq('user_id', currentUser.id),
-                        supabase.from('feedbacks')
-                            .select('mentioned_user_id, post_id')
-                            .in('post_id', myPostIds)
-                    ]);
+                // 🚀 USAR CACHE INTELIGENTE ao invés de requests diretos
+                for (const post of myPosts) {
+                    const pessoasUnicasDoPost = new Set();
 
-                    const allComments = commentsResult.data || [];
-                    const allFeedbacks = feedbacksResult.data || [];
-
-                    // Para cada post, contar pessoas ÚNICAS que engajaram
-                    for (const post of myPosts) {
-                        const pessoasUnicasDoPost = new Set();
-
-                        // Reações (já carregadas nos posts)
-                        if (post.reactions && Array.isArray(post.reactions)) {
-                            post.reactions.forEach(reaction => {
-                                if (reaction.user_id && reaction.user_id !== currentUser.id) {
-                                    pessoasUnicasDoPost.add(reaction.user_id);
-                                }
-                            });
-                        }
-
-                        // Comentários (usar dados em lote)
-                        allComments
-                            .filter(comment => comment.post_id === post.id)
-                            .forEach(comment => {
-                                if (comment.user_id) {
-                                    pessoasUnicasDoPost.add(comment.user_id);
-                                }
-                            });
-
-                        // Feedbacks (usar dados em lote)
-                        allFeedbacks
-                            .filter(feedback => feedback.post_id === post.id)
-                            .forEach(feedback => {
-                                if (feedback.mentioned_user_id && feedback.mentioned_user_id !== currentUser.id) {
-                                    pessoasUnicasDoPost.add(feedback.mentioned_user_id);
-                                }
-                            });
-
-                        totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
+                    // Reações (já carregadas nos posts)
+                    if (post.reactions && Array.isArray(post.reactions)) {
+                        post.reactions.forEach(reaction => {
+                            if (reaction.user_id && reaction.user_id !== currentUser.id) {
+                                pessoasUnicasDoPost.add(reaction.user_id);
+                            }
+                        });
                     }
 
-                } catch (error) {
-                    console.warn('Erro ao buscar engajamento em lote:', error);
-                    // Fallback: contar apenas reações
-                    for (const post of myPosts) {
-                        const pessoasUnicasDoPost = new Set();
-                        if (post.reactions && Array.isArray(post.reactions)) {
-                            post.reactions.forEach(reaction => {
-                                if (reaction.user_id && reaction.user_id !== currentUser.id) {
-                                    pessoasUnicasDoPost.add(reaction.user_id);
-                                }
-                            });
+                    // Comentários (usar cache)
+                    const cachedComments = commentsCache.get(post.id) || [];
+                    cachedComments.forEach(comment => {
+                        if (comment.user_id && comment.user_id !== currentUser.id) {
+                            pessoasUnicasDoPost.add(comment.user_id);
                         }
-                        totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
-                    }
+                    });
+
+                    // Feedbacks (usar cache)
+                    const cachedFeedbacks = feedbacksCache.get(post.id) || [];
+                    cachedFeedbacks.forEach(feedback => {
+                        if (feedback.mentioned_user_id && feedback.mentioned_user_id !== currentUser.id) {
+                            pessoasUnicasDoPost.add(feedback.mentioned_user_id);
+                        }
+                    });
+
+                    totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
                 }
 
                 // Média de pessoas que engajaram por post
