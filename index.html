@@ -5219,46 +5219,46 @@
                     searchTerm = personName.substring(1); // Remove @
                 }
                 
-                // Buscar por email exato (incluindo domínios reais dos usuários)
-                const emailPatterns = [
-                    `${searchTerm}@gmail.com`,
-                    `${searchTerm}@hotmail.com`,
-                    `${searchTerm}@outlook.com`,
-                    `${searchTerm}@yahoo.com`,
-                    `${searchTerm}@b11c.com`,
-                    `${searchTerm}@vockan.com`
-                ];
+                // OTIMIZADO: Buscar apenas por nome primeiro (mais eficiente)
+                try {
+                    const { data: nameData, error: nameError } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .ilike('name', `%${searchTerm}%`)
+                        .limit(1);
+                    
+                    if (nameData && nameData.length > 0 && !nameError) {
+                        console.log('✅ Usuário encontrado por nome:', searchTerm, 'ID:', nameData[0].id);
+                        return nameData[0].id;
+                    }
+                } catch (nameSearchError) {
+                    // Silenciar erro de busca por nome
+                    console.log('⚠️ Busca por nome falhou silenciosamente');
+                }
                 
-                for (const email of emailPatterns) {
+                // FALLBACK: Tentar apenas gmail.com (mais comum)
+                try {
+                    const email = `${searchTerm}@gmail.com`;
                     const { data, error } = await supabase
                         .from('profiles')
                         .select('id')
                         .eq('email', email)
-                        .single();
+                        .limit(1);
                     
-                    if (data && !error) {
-                        console.log('✅ Usuário encontrado por email:', email, 'ID:', data.id);
-                        return data.id;
+                    if (data && data.length > 0 && !error) {
+                        console.log('✅ Usuário encontrado por email:', email, 'ID:', data[0].id);
+                        return data[0].id;
                     }
-                }
-                
-                // Buscar por nome (fallback)
-                const { data: nameData, error: nameError } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .ilike('name', `%${searchTerm}%`)
-                    .single();
-                
-                if (nameData && !nameError) {
-                    console.log('✅ Usuário encontrado por nome:', searchTerm, 'ID:', nameData.id);
-                    return nameData.id;
+                } catch (emailSearchError) {
+                    // Silenciar erro de busca por email
+                    console.log('⚠️ Busca por email falhou silenciosamente');
                 }
                 
                 console.log('⚠️ Usuário não encontrado:', personName);
                 return null;
                 
             } catch (error) {
-                console.error('❌ Erro ao buscar ID do usuário:', error);
+                console.log('⚠️ Erro ao buscar ID do usuário (silenciado):', error.message);
                 return null;
             }
         }
@@ -5407,7 +5407,7 @@
                 
                 // Switch to home tab and re-render
                 switchTab('inicio');
-                // renderPosts(); // Removido - não chamar durante loading
+                await renderPosts(); // CORRIGIDO: Renderizar posts imediatamente
                 updateStats();
                 
                 // Atualizar métricas do perfil em tempo real
