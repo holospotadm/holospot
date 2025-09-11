@@ -1775,7 +1775,7 @@
             </div>
 
             <!-- Logo (centro no desktop) -->
-            <div class="logo">
+            <div class="logo" id="mainLogo" style="cursor: pointer; transition: all 0.2s ease;">
                 <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
             </div>
 
@@ -2456,6 +2456,15 @@
                     console.warn('⚠️ Logout button não encontrado');
                 }
                 
+                // Logo clicável para refresh
+                const mainLogo = document.getElementById('mainLogo');
+                if (mainLogo) {
+                    mainLogo.addEventListener('click', handleLogoRefresh);
+                    console.log('✅ Logo refresh listener configurado');
+                } else {
+                    console.warn('⚠️ Logo principal não encontrado');
+                }
+                
                 // Tab navigation
                 const navTabs = document.querySelectorAll('.nav-tab');
                 if (navTabs.length > 0) {
@@ -2501,9 +2510,105 @@
                 // Event listeners já configurados via onclick no HTML
                 console.log('✅ Event listeners configurados via onclick no HTML');
                 
+                // Configurar pull-to-refresh para mobile
+                setupPullToRefresh();
+                
             } catch (error) {
                 console.error('❌ Erro ao configurar event listeners:', error);
             }
+        }
+
+        function setupPullToRefresh() {
+            let startY = 0;
+            let currentY = 0;
+            let pullDistance = 0;
+            let isPulling = false;
+            let isRefreshing = false;
+            
+            const threshold = 80; // Distância mínima para ativar refresh
+            const maxPull = 120; // Distância máxima de pull
+            
+            // Detectar início do touch
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0 && !isRefreshing) {
+                    startY = e.touches[0].clientY;
+                    isPulling = false;
+                }
+            }, { passive: true });
+            
+            // Detectar movimento do touch
+            document.addEventListener('touchmove', (e) => {
+                if (startY > 0 && window.scrollY === 0 && !isRefreshing) {
+                    currentY = e.touches[0].clientY;
+                    pullDistance = Math.min(currentY - startY, maxPull);
+                    
+                    if (pullDistance > 10) {
+                        isPulling = true;
+                        
+                        // Feedback visual
+                        const header = document.querySelector('.header');
+                        if (header && pullDistance > 0) {
+                            const opacity = Math.min(pullDistance / threshold, 1);
+                            header.style.transform = `translateY(${pullDistance * 0.5}px)`;
+                            header.style.opacity = 0.5 + (opacity * 0.5);
+                        }
+                        
+                        // Prevenir scroll padrão quando puxando
+                        if (pullDistance > 20) {
+                            e.preventDefault();
+                        }
+                    }
+                }
+            }, { passive: false });
+            
+            // Detectar fim do touch
+            document.addEventListener('touchend', async () => {
+                if (isPulling && pullDistance > threshold && !isRefreshing) {
+                    isRefreshing = true;
+                    console.log('📱 Pull-to-refresh ativado');
+                    
+                    // Feedback visual de refresh
+                    const header = document.querySelector('.header');
+                    if (header) {
+                        header.style.transform = 'translateY(20px)';
+                        header.style.transition = 'all 0.3s ease';
+                    }
+                    
+                    try {
+                        // Executar refresh
+                        await handleLogoRefresh();
+                    } catch (error) {
+                        console.error('❌ Erro no pull-to-refresh:', error);
+                    }
+                    
+                    // Restaurar visual
+                    setTimeout(() => {
+                        if (header) {
+                            header.style.transform = '';
+                            header.style.opacity = '';
+                            header.style.transition = '';
+                        }
+                        isRefreshing = false;
+                    }, 500);
+                }
+                
+                // Reset
+                startY = 0;
+                currentY = 0;
+                pullDistance = 0;
+                isPulling = false;
+                
+                // Restaurar header se não está refreshing
+                if (!isRefreshing) {
+                    const header = document.querySelector('.header');
+                    if (header) {
+                        header.style.transform = '';
+                        header.style.opacity = '';
+                    }
+                }
+            }, { passive: true });
+            
+            console.log('✅ Pull-to-refresh configurado para mobile');
         }
 
         function selectHighlightType(type) {
@@ -2548,6 +2653,54 @@
                 console.log('✅ Logout realizado com sucesso');
             } catch (error) {
                 console.error('❌ Erro no logout:', error);
+            }
+        }
+
+        async function handleLogoRefresh() {
+            try {
+                console.log('🔄 Refresh completo iniciado pelo logo...');
+                
+                // Mostrar loading visual
+                const mainLogo = document.getElementById('mainLogo');
+                if (mainLogo) {
+                    mainLogo.style.opacity = '0.5';
+                    mainLogo.style.transform = 'scale(0.95)';
+                }
+                
+                // Limpar caches
+                feedbacksCache.clear();
+                commentsCache.clear();
+                profilesCache.clear();
+                reactionsCache.clear();
+                
+                // Recarregar todos os dados
+                await Promise.all([
+                    loadPosts(),
+                    loadUserData(),
+                    loadNotifications()
+                ]);
+                
+                // Atualizar interface
+                await renderPosts();
+                updateStats();
+                
+                // Restaurar visual do logo
+                if (mainLogo) {
+                    mainLogo.style.opacity = '1';
+                    mainLogo.style.transform = 'scale(1)';
+                }
+                
+                console.log('✅ Refresh completo finalizado');
+                
+            } catch (error) {
+                console.error('❌ Erro no refresh:', error);
+                
+                // Restaurar visual do logo mesmo com erro
+                const mainLogo = document.getElementById('mainLogo');
+                if (mainLogo) {
+                    mainLogo.style.opacity = '1';
+                    mainLogo.style.transform = 'scale(1)';
+                }
             }
         }
 
