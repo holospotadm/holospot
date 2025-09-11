@@ -19,8 +19,7 @@ WHERE tablename = 'points_history';
 SELECT 
     schemaname,
     tablename,
-    rowsecurity,
-    forcerowsecurity
+    rowsecurity
 FROM pg_tables 
 WHERE tablename IN ('points_history', 'reactions');
 
