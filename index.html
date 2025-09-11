@@ -6264,6 +6264,11 @@
             // Destruir chart existente se houver
             if (window.evolutionChartInstance) {
                 window.evolutionChartInstance.destroy();
+                window.evolutionChartInstance = null;
+                console.log('🗑️ Chart anterior destruído');
+                
+                // Pequeno delay para garantir que a destruição seja completa
+                await new Promise(resolve => setTimeout(resolve, 50));
             }
             
             // Função para detectar mobile
