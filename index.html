@@ -4109,6 +4109,47 @@
         let feedbacksCache = new Map();
         let profilesCache = new Map();
         
+        // Funções de invalidação e atualização em tempo real
+        function invalidateFeedbackCache(postId = null) {
+            if (postId) {
+                feedbacksCache.delete(postId);
+                console.log(`🔄 Cache de feedbacks invalidado para post ${postId}`);
+            } else {
+                feedbacksCache.clear();
+                console.log('🔄 Cache completo de feedbacks invalidado');
+            }
+        }
+        
+        function addFeedbackToCache(postId, feedback) {
+            if (!feedbacksCache.has(postId)) {
+                feedbacksCache.set(postId, []);
+            }
+            feedbacksCache.get(postId).push(feedback);
+            console.log(`✅ Feedback adicionado ao cache para post ${postId}`);
+        }
+        
+        async function updateMetricsRealTime() {
+            console.log('📊 Atualizando métricas em tempo real...');
+            try {
+                // Atualizar apenas as métricas sem recarregar tudo
+                await updateStats();
+                console.log('✅ Métricas atualizadas em tempo real');
+            } catch (error) {
+                console.error('❌ Erro ao atualizar métricas:', error);
+            }
+        }
+        
+        async function reRenderPostsRealTime() {
+            console.log('🎨 Re-renderizando posts em tempo real...');
+            try {
+                // Re-renderizar apenas os posts sem recarregar dados
+                await renderPosts();
+                console.log('✅ Posts re-renderizados em tempo real');
+            } catch (error) {
+                console.error('❌ Erro ao re-renderizar posts:', error);
+            }
+        }
+        
         // Função para carregar todos os feedbacks em lote
         async function loadAllFeedbacksInBatch() {
             if (posts.length === 0) return;
@@ -4749,14 +4790,13 @@
                     }
                 }
                 
-                // Sempre re-renderizar posts e atualizar estatísticas
+                // 🚀 TEMPO REAL: Atualizar interface imediatamente após reação
                 try {
-                    if (!window.isLoadingPosts) {
-                        await renderPosts();
-                        console.log('✅ Posts re-renderizados');
-                    }
+                    await updateMetricsRealTime();
+                    await reRenderPostsRealTime();
+                    console.log('✅ Interface atualizada em tempo real após reação');
                 } catch (renderError) {
-                    console.error('❌ Erro ao re-renderizar posts:', renderError);
+                    console.error('❌ Erro ao atualizar interface em tempo real:', renderError);
                 }
                 
                 try {
@@ -4910,14 +4950,20 @@
                     if (error) throw error;
                     console.log('✅ Feedback salvo no banco');
                     
-                    // Atualizar métricas imediatamente após salvar no banco
-                    setTimeout(() => {
-                        if (typeof updateSimpleMetrics === 'function') {
-                            updateSimpleMetrics();
-                            
-                            
-                            console.log('✅ Métricas do perfil atualizadas após feedback (imediato)');
-                        }
+                    // 🚀 CACHE INTELIGENTE: Adicionar feedback ao cache local
+                    const newFeedback = {
+                        post_id: postId,
+                        feedback_text: feedbackText,
+                        mentioned_user_id: currentUser.id,
+                        created_at: new Date().toISOString()
+                    };
+                    addFeedbackToCache(postId, newFeedback);
+                    
+                    // 🚀 TEMPO REAL: Atualizar métricas e interface imediatamente
+                    setTimeout(async () => {
+                        await updateMetricsRealTime();
+                        await reRenderPostsRealTime();
+                        console.log('✅ Interface atualizada em tempo real após feedback');
                     }, 100);
                     
                 } catch (dbError) {
@@ -4941,11 +4987,8 @@
                     console.warn('⚠️ Erro ao criar notificação de feedback:', notifError.message);
                 }
                 
-                // Fechar modal e atualizar interface
+                // Fechar modal (interface já foi atualizada em tempo real)
                 closeFeedbackModal();
-                if (!window.isLoadingPosts) {
-                    await renderPosts();
-                }
                 
                 alert('Feedback enviado com sucesso! O autor do post foi notificado.');
                 console.log('✅ Feedback enviado com sucesso');
