@@ -3854,8 +3854,7 @@
                 const postsQuery = supabase
                     .from('posts')
                     .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(20);
+                    .order('created_at', { ascending: false });
                 
                 const { data, error } = await withTimeout(postsQuery, 5000);
                 
