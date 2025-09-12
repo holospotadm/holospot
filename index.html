@@ -7396,9 +7396,9 @@
             const text = textarea.value;
             const cursorPos = textarea.selectionStart;
             
-            // Procurar por @ antes do cursor
+            // Procurar por @ antes do cursor - incluindo pontos nos usernames
             const beforeCursor = text.substring(0, cursorPos);
-            const atMatch = beforeCursor.match(/@(\w*)$/);
+            const atMatch = beforeCursor.match(/@([\w.]*)$/); // Adiciona ponto na regex
             
             if (atMatch) {
                 console.log('🎯 @ detectado, query:', atMatch[1]);
