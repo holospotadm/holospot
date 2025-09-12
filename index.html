@@ -1932,7 +1932,7 @@
             <div class="evolution-chart">
                 <h3 class="chart-title">🔥 Streak de Engajamento</h3>
                 <div style="margin-bottom: 1rem; margin-top: 1.5rem;">
-                    <strong>Dias consecutivos ativo</strong>
+                    <strong>Dias consecutivos ativo: <span id="userStreak">0</span> dias</strong>
                     
                     <!-- Barra 7 dias -->
                     <div class="progress-bar" style="margin-top: 0.5rem;">
@@ -6661,6 +6661,39 @@
             
             // Engagement
             const engagementRate = postsCount > 0 ? Math.min((reactionsCount / postsCount) * 10, 100) : 0;
+        }
+
+        // Função para atualizar barras de progresso do streak
+        function updateStreakProgressBars(currentStreak) {
+            console.log('🔥 Atualizando barras de progresso do streak:', currentStreak);
+            
+            // Barra 7 dias
+            const progress7 = Math.min(currentStreak / 7 * 100, 100);
+            const progressEl7 = document.getElementById('engagementStreakProgress7');
+            if (progressEl7) progressEl7.style.width = progress7 + '%';
+            const textEl7 = document.getElementById('engagementStreakText7');
+            if (textEl7) textEl7.textContent = `${Math.min(currentStreak, 7)}/7`;
+            
+            // Barra 30 dias
+            const progress30 = Math.min(currentStreak / 30 * 100, 100);
+            const progressEl30 = document.getElementById('engagementStreakProgress30');
+            if (progressEl30) progressEl30.style.width = progress30 + '%';
+            const textEl30 = document.getElementById('engagementStreakText30');
+            if (textEl30) textEl30.textContent = `${Math.min(currentStreak, 30)}/30`;
+            
+            // Barra 182 dias
+            const progress182 = Math.min(currentStreak / 182 * 100, 100);
+            const progressEl182 = document.getElementById('engagementStreakProgress182');
+            if (progressEl182) progressEl182.style.width = progress182 + '%';
+            const textEl182 = document.getElementById('engagementStreakText182');
+            if (textEl182) textEl182.textContent = `${Math.min(currentStreak, 182)}/182`;
+            
+            // Barra 365 dias
+            const progress365 = Math.min(currentStreak / 365 * 100, 100);
+            const progressEl365 = document.getElementById('engagementStreakProgress365');
+            if (progressEl365) progressEl365.style.width = progress365 + '%';
+            const textEl365 = document.getElementById('engagementStreakText365');
+            if (textEl365) textEl365.textContent = `${Math.min(currentStreak, 365)}/365`;
         }
 
         function updatePersonalizedTip(postsCount, reactionsCount) {
