@@ -7421,9 +7421,14 @@
                     return false;
                 }
                 
-                // Filtrar por query
-                return user.name.toLowerCase().includes(query) || 
-                       user.username.toLowerCase().includes(query);
+                // Filtrar por query - busca mais flexível para usernames com pontos
+                const queryLower = query.toLowerCase();
+                const nameLower = user.name.toLowerCase();
+                const usernameLower = user.username.toLowerCase();
+                
+                return nameLower.includes(queryLower) || 
+                       usernameLower.includes(queryLower) ||
+                       usernameLower.startsWith(queryLower); // Adiciona busca por início do username
             }).slice(0, 5); // Máximo 5 resultados
             
             if (filteredUsers.length === 0) {
@@ -7515,9 +7520,14 @@
                     return false;
                 }
                 
-                // Filtrar por query
-                return user.name.toLowerCase().includes(currentMentionQuery) || 
-                       user.username.toLowerCase().includes(currentMentionQuery);
+                // Filtrar por query - busca mais flexível para usernames com pontos
+                const queryLower = currentMentionQuery.toLowerCase();
+                const nameLower = user.name.toLowerCase();
+                const usernameLower = user.username.toLowerCase();
+                
+                return nameLower.includes(queryLower) || 
+                       usernameLower.includes(queryLower) ||
+                       usernameLower.startsWith(queryLower); // Adiciona busca por início do username
             }).slice(0, 5);
             
             if (index >= filteredUsers.length) return;
