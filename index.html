@@ -8556,6 +8556,8 @@
                 });
                 
                 // 🔥 ATUALIZAR SISTEMA DE STREAK COM BONUS RETROATIVO
+                // TEMPORARIAMENTE DESABILITADO ATÉ EXECUTAR streak_system_safe_implementation.sql
+                /*
                 try {
                     console.log('🔥 Atualizando sistema de streak...');
                     const { data: streakResult, error: streakError } = await supabase.rpc('update_user_streak', {
@@ -8589,6 +8591,7 @@
                 } catch (streakError) {
                     console.error('❌ Erro no sistema de streak:', streakError);
                 }
+                */
                 
                 // Reconfigurar event listeners após atualizar métricas
                 setupStatCardListeners();
