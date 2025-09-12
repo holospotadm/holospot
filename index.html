@@ -5420,7 +5420,23 @@
                     searchTerm = personName.substring(1); // Remove @
                 }
                 
-                // BUSCAR POR NOME
+                // BUSCAR POR USERNAME PRIMEIRO (mais preciso)
+                try {
+                    const { data: usernameData, error: usernameError } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('username', searchTerm)
+                        .limit(1);
+                    
+                    if (usernameData && usernameData.length > 0 && !usernameError) {
+                        console.log('✅ Usuário encontrado por username:', searchTerm, 'ID:', usernameData[0].id);
+                        return usernameData[0].id;
+                    }
+                } catch (usernameSearchError) {
+                    console.log('⚠️ Busca por username falhou');
+                }
+                
+                // FALLBACK: BUSCAR POR NOME
                 try {
                     const { data: nameData, error: nameError } = await supabase
                         .from('profiles')
