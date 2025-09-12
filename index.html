@@ -3316,6 +3316,8 @@
                 'post': 'Post criado',
                 'comment': 'Comentário escrito', 
                 'reaction': 'Reação dada',
+                'feedback_given': 'Feedback recebido', // Eu fui destacado
+                'feedback_received': 'Feedback dado', // Eu escrevi
                 
                 // Tipos antigos (manter compatibilidade)
                 'post_created': 'Post criado',
@@ -3325,8 +3327,8 @@
                 'reaction_received': 'Reação recebida',
                 'comment_written': 'Comentário escrito',
                 'comment_received': 'Comentário recebido',
-                'feedback_given': 'Feedback dado',
-                'feedback_received': 'Feedback recebido',
+                'feedback_given': 'Feedback recebido',
+                'feedback_received': 'Feedback dado',
                 'migration_posts': 'Posts migrados',
                 'migration_reactions': 'Reações migradas',
                 'migration_comments': 'Comentários migrados'
@@ -8556,8 +8558,6 @@
                 });
                 
                 // 🔥 ATUALIZAR SISTEMA DE STREAK COM BONUS RETROATIVO
-                // TEMPORARIAMENTE DESABILITADO ATÉ EXECUTAR streak_system_safe_implementation.sql
-                /*
                 try {
                     console.log('🔥 Atualizando sistema de streak...');
                     const { data: streakResult, error: streakError } = await supabase.rpc('update_user_streak', {
@@ -8591,7 +8591,6 @@
                 } catch (streakError) {
                     console.error('❌ Erro no sistema de streak:', streakError);
                 }
-                */
                 
                 // Reconfigurar event listeners após atualizar métricas
                 setupStatCardListeners();
