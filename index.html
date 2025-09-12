@@ -7305,12 +7305,15 @@
         // 🚀 OTIMIZAÇÃO: Atualizar contadores usando cache (sem consultas individuais)
         function updateAllCommentsCountersFromCache() {
             try {
-                console.log('💬 Atualizando contadores de comentários usando cache...');
+                console.log('💬 Atualizando contadores de comentários usando dados dos posts...');
                 
                 const postElements = document.querySelectorAll('[id^="comments-"]');
                 for (const element of postElements) {
                     const postId = element.id.replace('comments-', '');
-                    const commentsCount = getCommentsCountFromCache(postId);
+                    
+                    // 🔧 CORREÇÃO: Usar comments_count dos posts em vez do cache
+                    const post = posts.find(p => p.id === postId);
+                    const commentsCount = post ? (post.comments_count || 0) : getCommentsCountFromCache(postId);
                     
                     // Atualizar elemento visual
                     element.innerHTML = `💬 ${commentsCount}`;
@@ -7331,9 +7334,9 @@
                     };
                 }
                 
-                console.log(`✅ ${postElements.length} contadores de comentários atualizados usando cache`);
+                console.log(`✅ ${postElements.length} contadores de comentários atualizados usando dados dos posts`);
             } catch (error) {
-                console.warn('⚠️ Erro ao atualizar contadores de comentários do cache:', error.message);
+                console.warn('⚠️ Erro ao atualizar contadores de comentários:', error.message);
             }
         }
         
