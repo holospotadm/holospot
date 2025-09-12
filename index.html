@@ -2731,6 +2731,12 @@
                 document.getElementById('userUsername').textContent = '@' + (currentUser.email?.split('@')[0] || 'usuario');
                 document.getElementById('userAvatar').src = currentUser.user_metadata.avatar_url || '';
                 console.log('✅ Usuário logado:', currentUser.email);
+                
+                // Carregar dados de gamificação no carregamento inicial
+                console.log('🎮 Carregando dados de gamificação no início...');
+                loadUserGamificationData().catch(error => {
+                    console.error('❌ Erro ao carregar gamificação inicial:', error);
+                });
             }
             
             // Inicializar sistema de menções
