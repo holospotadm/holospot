@@ -3206,6 +3206,13 @@
             // Usar dados diretamente como vêm da função SQL (sem remapeamento)
             console.log('🔍 Dados diretos da SQL:', data);
             
+            // Atualizar streak display
+            const userStreakElement = document.getElementById('userStreak');
+            if (userStreakElement && data.stats && data.stats.streak_days !== undefined) {
+                userStreakElement.textContent = data.stats.streak_days;
+                console.log(`🔥 Streak atualizado na UI: ${data.stats.streak_days} dias`);
+            }
+            
             if (userLevel) userLevel.textContent = `Nível ${data.current_level?.id || 1}`;
             if (userLevelName) userLevelName.textContent = data.current_level?.name || 'Novato';
             if (userLevelIcon) userLevelIcon.textContent = getLevelIcon(data.current_level?.id || 1);
@@ -3305,6 +3312,12 @@
 
         function getActionTypeLabel(actionType) {
             const labels = {
+                // Novos tipos que vêm da SQL
+                'post': 'Post criado',
+                'comment': 'Comentário escrito', 
+                'reaction': 'Reação dada',
+                
+                // Tipos antigos (manter compatibilidade)
                 'post_created': 'Post criado',
                 'holofote_given': 'Holofote dado',
                 'holofote_received': 'Holofote recebido',
