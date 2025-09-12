@@ -6982,23 +6982,22 @@
         // Sistema de Menções - Função para carregar usuários
         async function loadMentionUsers() {
             try {
-                console.log('👥 Carregando usuários para menções...');
+                console.log('👥 Carregando usuários para sistema de menções...');
                 
-                const userQuery = supabase
+                const { data: users, error } = await supabase
                     .from('profiles')
-                    .select('id, name, email, avatar_url')
-                    .limit(50);
-                
-                const { data: users, error } = await withTimeout(userQuery, 5000);
+                    .select('id, name, email, avatar_url, username')
+                    .order('name');
                 
                 if (users && !error) {
                     mentionUsers = users.map(user => ({
                         id: user.id,
                         name: user.name || user.email || 'Usuário',
-                        username: user.email ? user.email.split('@')[0] : 'usuario',
+                        username: user.username || (user.email ? user.email.split('@')[0] : 'usuario'),
                         avatar: user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || 'Usuario')}&background=667eea&color=fff`
                     }));
                     console.log(`✅ ${mentionUsers.length} usuários carregados para menções`);
+                    console.log('📋 Usernames disponíveis:', mentionUsers.map(u => u.username));
                 } else {
                     console.warn('⚠️ Erro ao carregar usuários, mantendo array vazio');
                     mentionUsers = [];
