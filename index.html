@@ -3203,15 +3203,51 @@
             const pointsToNext = document.getElementById('pointsToNext');
             const levelProgressBar = document.getElementById('levelProgressBar');
             
-            if (userLevel) userLevel.textContent = `Nível ${data.current_level?.id || 1}`;
-            if (userLevelName) userLevelName.textContent = data.current_level?.name || 'Novato';
-            if (userLevelIcon) userLevelIcon.textContent = getLevelIcon(data.current_level?.id || 1);
-            if (userPoints) userPoints.textContent = `${data.total_points || 0} pontos`;
+            // Mapear dados do backend para o formato esperado pelo frontend
+            const currentLevel = data.level;
+            const totalPoints = data.total_points || 0;
+            
+            // Calcular progresso baseado nos dados reais do backend
+            let progressData = null;
+            let nextLevelExists = false;
+            
+            if (currentLevel && currentLevel.points_to_next !== undefined) {
+                const pointsInCurrentLevel = totalPoints - (currentLevel.min_points || 0);
+                const pointsNeededForCurrentLevel = (currentLevel.max_points || 0) - (currentLevel.min_points || 0);
+                const progressPercentage = pointsNeededForCurrentLevel > 0 ? 
+                    Math.min((pointsInCurrentLevel / pointsNeededForCurrentLevel) * 100, 100) : 0;
+                
+                progressData = {
+                    points_needed_for_next: currentLevel.points_to_next,
+                    points_in_current_level: pointsInCurrentLevel,
+                    progress_percentage: progressPercentage
+                };
+                
+                nextLevelExists = currentLevel.points_to_next > 0;
+            }
+            
+            const mappedData = {
+                current_level: currentLevel,
+                next_level: nextLevelExists ? { exists: true } : null,
+                progress: progressData,
+                total_points: totalPoints,
+                ranking: data.ranking || (data.stats ? data.stats.ranking : null),
+                badges: data.badges,
+                recent_activity: data.recent_activity || (data.stats ? data.stats.recent_activities : null),
+                stats: data.stats
+            };
+            
+            console.log('🔍 Dados mapeados:', mappedData);
+            
+            if (userLevel) userLevel.textContent = `Nível ${mappedData.current_level?.id || 1}`;
+            if (userLevelName) userLevelName.textContent = mappedData.current_level?.name || 'Novato';
+            if (userLevelIcon) userLevelIcon.textContent = getLevelIcon(mappedData.current_level?.id || 1);
+            if (userPoints) userPoints.textContent = `${mappedData.total_points || 0} pontos`;
             
             // Progresso para próximo nível
-            if (data.next_level) {
-                const progress = data.progress;
-                if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next - progress.points_in_current_level} para próximo nível`;
+            if (mappedData.next_level && mappedData.progress) {
+                const progress = mappedData.progress;
+                if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next} para próximo nível`;
                 if (levelProgressBar) levelProgressBar.style.width = `${progress.progress_percentage || 0}%`;
             } else {
                 if (pointsToNext) pointsToNext.textContent = 'Nível máximo atingido!';
@@ -3219,21 +3255,21 @@
             }
             
             // Dados de ranking
-            if (data.ranking) {
+            if (mappedData.ranking) {
                 const userRanking = document.getElementById('userRanking');
                 const totalUsers = document.getElementById('totalUsers');
                 
-                if (userRanking) userRanking.textContent = `#${data.ranking.position}`;
-                if (totalUsers) totalUsers.textContent = data.ranking.total_users;
+                if (userRanking) userRanking.textContent = `#${mappedData.ranking.position}`;
+                if (totalUsers) totalUsers.textContent = mappedData.ranking.total_users;
             }
             
             // Badges
             const badgesContainer = document.getElementById('badgesContainer');
             const noBadges = document.getElementById('noBadges');
             
-            if (data.badges && data.badges.length > 0) {
+            if (mappedData.badges && mappedData.badges.length > 0) {
                 if (badgesContainer) {
-                    badgesContainer.innerHTML = data.badges.map(badge => `
+                    badgesContainer.innerHTML = mappedData.badges.map(badge => `
                         <div class="badge-card" style="background: white; border: 2px solid ${getBadgeRarityColor(badge.rarity)}; border-radius: 12px; padding: 15px; text-align: center; transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                             <div style="font-size: 32px; margin-bottom: 8px;">${badge.icon}</div>
                             <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${badge.name}</div>
@@ -3251,9 +3287,10 @@
             
             // Atividade recente
             const recentActivity = document.getElementById('recentActivity');
-            if (data.recent_activity && data.recent_activity.length > 0) {
+            if (mappedData.recent_activity && mappedData.recent_activity.length > 0) {
+                console.log('✅ Renderizando', mappedData.recent_activity.length, 'atividades recentes');
                 if (recentActivity) {
-                    recentActivity.innerHTML = data.recent_activity.map(activity => `
+                    recentActivity.innerHTML = mappedData.recent_activity.map(activity => `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
                             <div>
                                 <div style="font-weight: 500; color: #333;">${getActionTypeLabel(activity.action_type)}</div>
@@ -3264,6 +3301,7 @@
                     `).join('');
                 }
             } else {
+                console.log('⚠️ Nenhuma atividade recente encontrada');
                 if (recentActivity) {
                     recentActivity.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Nenhuma atividade recente</div>';
                 }
