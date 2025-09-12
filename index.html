@@ -3225,10 +3225,11 @@
             if (userPoints) userPoints.textContent = `${data.total_points || 0} pontos`;
             
             // Progresso para próximo nível
-            if (data.next_level && data.progress) {
-                const progress = data.progress;
-                if (pointsToNext) pointsToNext.textContent = `${progress.points_needed_for_next} para próximo nível`;
-                if (levelProgressBar) levelProgressBar.style.width = `${progress.progress_percentage || 0}%`;
+            if (data.next_level && data.progress !== null) {
+                const progressPercentage = data.progress;
+                const pointsNeeded = data.next_level.min_points - data.total_points;
+                if (pointsToNext) pointsToNext.textContent = `${pointsNeeded} para próximo nível`;
+                if (levelProgressBar) levelProgressBar.style.width = `${progressPercentage}%`;
             } else {
                 if (pointsToNext) pointsToNext.textContent = 'Nível máximo atingido!';
                 if (levelProgressBar) levelProgressBar.style.width = '100%';
