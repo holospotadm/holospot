@@ -5030,11 +5030,21 @@
                     try {
                         // Só tentar deletar do banco se não for ID local
                         if (!existingReaction.id.toString().startsWith('local-')) {
-                            await supabase
+                            const { error: deleteError } = await supabase
                                 .from('reactions')
                                 .delete()
                                 .eq('id', existingReaction.id);
-                            console.log('✅ Reação removida do banco');
+                            
+                            if (deleteError) {
+                                // Ignorar erro 404 (reação já não existe)
+                                if (deleteError.code === 'PGRST116' || deleteError.message.includes('404')) {
+                                    console.log('✅ Reação já não existia no banco');
+                                } else {
+                                    console.error('❌ Erro ao remover reação do banco:', deleteError);
+                                }
+                            } else {
+                                console.log('✅ Reação removida do banco');
+                            }
                         } else {
                             console.log('✅ Reação local removida (não estava no banco)');
                         }
