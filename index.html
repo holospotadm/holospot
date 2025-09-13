@@ -3274,7 +3274,7 @@
                     recentActivity.innerHTML = data.recent_activity.map(activity => `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
                             <div>
-                                <div style="font-weight: 500; color: #333;">${getActionTypeLabel(activity.action_type)}</div>
+                                <div style="font-weight: 500; color: #333;">${getActionTypeLabel(activity.action_type, activity)}</div>
                                 <div style="font-size: 12px; color: #666;">${formatDate(activity.created_at)}</div>
                             </div>
                             <div style="color: #4CAF50; font-weight: bold;">+${activity.points_earned} pts</div>
@@ -3317,7 +3317,12 @@
             return colors[rarity] || '#666';
         }
 
-        function getActionTypeLabel(actionType) {
+        function getActionTypeLabel(actionType, activity = null) {
+            // Caso especial para badges - mostrar raridade em inglês minúsculo
+            if (actionType === 'badge_earned' && activity && activity.reaction_type) {
+                return `Conquista de Emblema (${activity.reaction_type})`;
+            }
+            
             const labels = {
                 // Novos tipos que vêm da SQL
                 'post': 'Post criado',
@@ -3325,6 +3330,7 @@
                 'reaction': 'Reação dada',
                 'feedback_given': 'Feedback dado', // Eu dei feedback
                 'feedback_received': 'Feedback recebido', // Eu recebi feedback
+                'badge_earned': 'Conquista de Emblema', // Fallback caso não tenha raridade
                 
                 // Tipos antigos (manter compatibilidade)
                 'post_created': 'Post criado',
