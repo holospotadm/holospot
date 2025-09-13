@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Tooltip</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFB700 0%, #E55A2B 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .test-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .insight-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
+            margin: 20px 0;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            font-size: 1.2rem;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .insight-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FFB700;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-description {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Chart.js style tooltip */
+        .tooltip-container {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .simple-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10000;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            min-width: 200px;
+        }
+        
+        .simple-tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+        }
+        
+        .tooltip-container:hover .simple-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .test-info {
+            margin-bottom: 30px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Teste de Tooltip</h1>
+        <p class="test-info">Passe o mouse sobre o número "6" para ver o tooltip</p>
+        
+        <!-- Rede de Engajamento -->
+        <div class="insight-card">
+            <div class="insight-header">
+                <span class="insight-icon">🔗</span>
+                <span class="insight-title">Rede de Engajamento</span>
+            </div>
+            <div class="insight-value tooltip-container" id="networkSize">6
+                <span class="simple-tooltip">Tamanho da sua rede: pessoas diferentes que interagiram com você</span>
+            </div>
+            <div class="insight-description">pessoas conectadas</div>
+        </div>
+    </div>
+
+    <script>
+        // Debug tooltip functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipContainer = document.querySelector('.tooltip-container');
+            const tooltip = document.querySelector('.simple-tooltip');
+            
+            console.log('Tooltip container:', tooltipContainer);
+            console.log('Tooltip element:', tooltip);
+            
+            if (tooltipContainer) {
+                tooltipContainer.addEventListener('mouseenter', function() {
+                    console.log('Mouse entered tooltip container');
+                    if (tooltip) {
+                        tooltip.style.visibility = 'visible';
+                        tooltip.style.opacity = '1';
+                        console.log('Tooltip should be visible now');
+                    }
+                });
+                
+                tooltipContainer.addEventListener('mouseleave', function() {
+                    console.log('Mouse left tooltip container');
+                    if (tooltip) {
+                        tooltip.style.visibility = 'hidden';
+                        tooltip.style.opacity = '0';
+                        console.log('Tooltip should be hidden now');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
