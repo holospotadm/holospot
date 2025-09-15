@@ -4748,12 +4748,8 @@
                     console.log('✅ Usuário adicionado à lista local de seguindo');
                     
                     // Tentar criar notificação
-                    try {
-                        await createNotification(userId, 'follow', `${currentUser.user_metadata.name || currentUser.email} começou a te seguir!`);
-                        console.log('✅ Notificação de follow criada');
-                    } catch (notifError) {
-                        console.warn('⚠️ Erro ao criar notificação de follow:', notifError.message);
-                    }
+                    // 🔧 NOTIFICAÇÃO REMOVIDA: Agora é criada automaticamente pelo trigger SQL
+                    console.log('✅ Notificação de follow será criada automaticamente pelo trigger SQL');
                 }
                 
                 // Sempre atualizar contadores e interface
@@ -5288,18 +5284,8 @@
                 // Marcar como feedback dado localmente
                 post.feedback_given = true;
                 
-                // Tentar criar notificação para o autor do post
-                try {
-                    const userName = currentUser.user_metadata?.name || currentUser.email || 'Alguém';
-                    await createNotification(
-                        post.user_id,
-                        'feedback',
-                        `${userName} deu feedback sobre o post que você fez destacando-o!`
-                    );
-                    console.log('✅ Notificação de feedback criada');
-                } catch (notifError) {
-                    console.warn('⚠️ Erro ao criar notificação de feedback:', notifError.message);
-                }
+                // 🔧 NOTIFICAÇÃO REMOVIDA: Agora é criada automaticamente pelo trigger SQL
+                console.log('✅ Notificação de feedback será criada automaticamente pelo trigger SQL');
                 
                 // Fechar modal (interface já foi atualizada em tempo real)
                 closeFeedbackModal();
@@ -7220,40 +7206,9 @@
                 // 🔧 CORREÇÃO: Atualizar cache imediatamente após salvar
                 addCommentToCache(postId, savedComment);
                 
-                // Criar notificação para o autor do post
+                // 🔧 NOTIFICAÇÃO REMOVIDA: Agora é criada automaticamente pelo trigger SQL
                 try {
-                    // Buscar dados do post para pegar o autor
-                    const { data: post } = await supabase
-                        .from('posts')
-                        .select('user_id')
-                        .eq('id', postId)
-                        .single();
-                    
-                    if (post && post.user_id !== currentUser.id) {
-                        const userName = currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário';
-                        const userEmail = currentUser.email || '';
-                        const username = userEmail ? userEmail.split('@')[0] : 'usuario';
-                        
-                        const notificationData = {
-                            user_id: post.user_id,
-                            type: 'comment',
-                            message: `${userName} (@${username}) comentou no seu post!`,
-                            created_at: new Date().toISOString(),
-                            read: false
-                        };
-                        
-                        console.log('🔔 Criando notificação:', notificationData);
-                        
-                        const { error: notifError } = await supabase
-                            .from('notifications')
-                            .insert([notificationData]);
-                        
-                        if (notifError) {
-                            console.warn('⚠️ Erro ao criar notificação:', notifError.message);
-                        } else {
-                            console.log('✅ Notificação criada no banco');
-                        }
-                    }
+                    console.log('✅ Notificação de comentário será criada automaticamente pelo trigger SQL');
                 } catch (notifError) {
                     console.warn('⚠️ Erro ao criar notificação de comentário:', notifError.message);
                 }
