@@ -5096,22 +5096,10 @@
                         post.reactions.push(newReaction);
                         console.log('✅ Reação adicionada localmente');
                         
-                        // Tentar criar notificação para o autor do post
+                        // 🔧 NOTIFICAÇÃO REMOVIDA: Agora é criada automaticamente pelo trigger SQL
+                        // Evita duplicação entre frontend e backend
                         if (post.user_id !== currentUser.id) {
-                            try {
-                                const reactionEmoji = { touched: '❤️', grateful: '🙏', inspired: '✨' }[type];
-                                const userName = currentUser.user_metadata?.name || currentUser.email || 'Alguém';
-                                const personName = post.celebrated_person_name || post.person_name || 'uma pessoa especial';
-                                
-                                await createNotification(
-                                    post.user_id, 
-                                    'reaction', 
-                                    `${userName} reagiu ${reactionEmoji} ao seu post sobre ${personName}`
-                                );
-                                console.log('✅ Notificação de reação criada');
-                            } catch (notifError) {
-                                console.warn('⚠️ Erro ao criar notificação de reação:', notifError.message);
-                            }
+                            console.log('✅ Notificação de reação será criada automaticamente pelo trigger SQL');
                         }
                     }
                 }
