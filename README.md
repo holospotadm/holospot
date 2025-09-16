@@ -133,6 +133,15 @@ function handleNotifications() { ... }
 
 ## 🚨 **REGRAS IMPORTANTES - NUNCA IGNORE!**
 
+### **🔄 Workflow para Alterações SQL (CRÍTICO):**
+1. **📝 Modifique** o arquivo SQL apropriado em `sql/`
+2. **💾 Commit no GitHub** PRIMEIRO (sempre!)
+3. **📤 Envie o código** para o usuário executar no Supabase
+4. **✅ Confirme** que foi executado com sucesso
+5. **📋 Atualize** documentação se necessário
+
+**⚠️ NUNCA execute SQL no Supabase sem commitar no GitHub primeiro!**
+
 ### **Estrutura das Tabelas (CRÍTICO):**
 - **`feedbacks.author_id`** = autor do POST (não quem deu feedback)
 - **`feedbacks.mentioned_user_id`** = quem deu o feedback
@@ -181,22 +190,52 @@ function handleNotifications() { ... }
 
 ## 🛠️ **WORKFLOW RECOMENDADO**
 
-### **Para Qualquer Alteração:**
+### **Para Alterações no Frontend (index.html):**
 1. **📖 Leia a documentação** relevante primeiro
-2. **🔍 Localize** o arquivo correto (frontend ou backend)
+2. **🔍 Localize** a seção correta no `index.html`
 3. **✏️ Faça a alteração** específica
-4. **🧪 Teste** a funcionalidade
+4. **🧪 Teste** no browser
 5. **📝 Documente** a mudança
 6. **💾 Commit** com mensagem descritiva
 
-### **Exemplo de Fluxo:**
+### **Para Alterações no Backend (SQL):**
+1. **📖 Leia a documentação** relevante primeiro
+2. **🔍 Localize** o arquivo correto em `sql/`
+3. **✏️ Faça a alteração** específica
+4. **📝 Documente** a mudança
+5. **💾 Commit no GitHub** PRIMEIRO
+6. **📤 Envie o código SQL** para o usuário executar no Supabase
+7. **✅ Confirme** que foi executado com sucesso
+
+### **Exemplo de Fluxo SQL:**
 ```bash
 # 1. Entender o que precisa ser alterado
-# 2. Localizar arquivo correto
+# 2. Localizar arquivo correto (ex: sql/functions/02_gamification_functions.sql)
 # 3. Fazer alteração
-# 4. Testar
+# 4. Documentar
 git add .
 git commit -m "feat: add new badge for streak milestone"
+git push origin main
+
+# 5. Enviar para usuário executar:
+# "Execute este código no Supabase SQL Editor:"
+# [código SQL aqui]
+```
+
+### **⚠️ REGRA CRÍTICA PARA SQL:**
+**SEMPRE commite no GitHub ANTES de executar no Supabase!**
+- ✅ **GitHub primeiro** - Mantém versionamento
+- ✅ **Supabase depois** - Aplica as mudanças
+- ✅ **Confirma execução** - Garante sincronização
+
+### **Exemplo de Fluxo Frontend:**
+```bash
+# 1. Entender o que precisa ser alterado
+# 2. Localizar seção no index.html
+# 3. Fazer alteração
+# 4. Testar no browser
+git add .
+git commit -m "feat: improve notification display"
 git push origin main
 ```
 
