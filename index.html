@@ -3328,6 +3328,26 @@
                 return `Conquista de Emblema (${activity.reaction_type})`;
             }
             
+            // Caso especial para streak bonus - mostrar dias do milestone
+            if (actionType === 'streak_bonus_retroactive' && activity && activity.reference_type) {
+                const match = activity.reference_type.match(/milestone_(\d+)/);
+                if (match) {
+                    const days = match[1];
+                    return `Bônus de Streak - ${days} dias`;
+                }
+                return 'Bônus de Streak';
+            }
+            
+            // Caso especial para streak bonus correction - mostrar dias do milestone
+            if (actionType === 'streak_bonus_correction' && activity && activity.reference_type) {
+                const match = activity.reference_type.match(/milestone_(\d+)/);
+                if (match) {
+                    const days = match[1];
+                    return `Correção de Bônus de Streak - ${days} dias`;
+                }
+                return 'Correção de Bônus de Streak';
+            }
+            
             const labels = {
                 // Novos tipos que vêm da SQL
                 'post': 'Post criado',
@@ -3336,7 +3356,8 @@
                 'feedback_given': 'Feedback dado', // Eu dei feedback
                 'feedback_received': 'Feedback recebido', // Eu recebi feedback
                 'badge_earned': 'Conquista de Emblema', // Fallback caso não tenha raridade
-                'streak_bonus_retroactive': 'Bônus de Streak', // Bônus retroativo de streak
+                'streak_bonus_retroactive': 'Bônus de Streak', // Fallback caso não tenha reference_type
+                'streak_bonus_correction': 'Correção de Bônus de Streak', // Nova correção
                 
                 // Tipos antigos (manter compatibilidade)
                 'post_created': 'Post criado',
