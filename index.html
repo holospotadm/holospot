@@ -5113,6 +5113,14 @@
                     updateStats();
                     console.log('✅ Estatísticas atualizadas');
                     
+                    // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
+                    try {
+                        await loadNotifications();
+                        console.log('✅ Notificações atualizadas após reação');
+                    } catch (notifError) {
+                        console.warn('⚠️ Erro ao atualizar notificações:', notifError);
+                    }
+                    
                     // Atualizar métricas do perfil em tempo real
                     if (typeof updateSimpleMetrics === 'function') {
                         setTimeout(() => {
@@ -5286,6 +5294,14 @@
                 
                 // 🔧 NOTIFICAÇÃO REMOVIDA: Agora é criada automaticamente pelo trigger SQL
                 console.log('✅ Notificação de feedback será criada automaticamente pelo trigger SQL');
+                
+                // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
+                try {
+                    await loadNotifications();
+                    console.log('✅ Notificações atualizadas após feedback');
+                } catch (error) {
+                    console.warn('⚠️ Erro ao atualizar notificações:', error);
+                }
                 
                 // Fechar modal (interface já foi atualizada em tempo real)
                 closeFeedbackModal();
@@ -5615,6 +5631,14 @@
                 switchTab('inicio');
                 await renderPosts(); // CORRIGIDO: Renderizar posts imediatamente
                 updateStats();
+                
+                // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
+                try {
+                    await loadNotifications();
+                    console.log('✅ Notificações atualizadas após criar post');
+                } catch (error) {
+                    console.warn('⚠️ Erro ao atualizar notificações:', error);
+                }
                 
                 // Atualizar métricas do perfil em tempo real
                 if (typeof updateSimpleMetrics === 'function') {
@@ -7269,6 +7293,14 @@
                         console.log('✅ Métricas do perfil atualizadas após comentário');
                     }
                 }, 500);
+                
+                // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
+                try {
+                    await loadNotifications();
+                    console.log('✅ Notificações atualizadas após comentário');
+                } catch (error) {
+                    console.warn('⚠️ Erro ao atualizar notificações:', error);
+                }
                 
                 console.log('✅ Comentário enviado com sucesso');
                 
