@@ -1932,7 +1932,7 @@
             <div class="evolution-chart">
                 <h3 class="chart-title">🔥 Streak de Engajamento</h3>
                 <div style="margin-bottom: 1rem; margin-top: 1.5rem;">
-                    <strong>Dias consecutivos ativo: <span id="userStreak">0</span> dias</strong>
+                    <strong>Dias consecutivos ativo: <span id="userStreakDisplay">0 dias</span></strong>
                     
                     <!-- Barra 7 dias -->
                     <div class="progress-bar" style="margin-top: 0.5rem;">
@@ -3213,10 +3213,15 @@
             console.log('🔍 Dados diretos da SQL:', data);
             
             // Atualizar streak display
-            const userStreakElement = document.getElementById('userStreak');
+            const userStreakElement = document.getElementById('userStreakDisplay');
             if (userStreakElement && data.stats && data.stats.streak_days !== undefined) {
-                userStreakElement.textContent = data.stats.streak_days;
-                console.log(`🔥 Streak atualizado na UI: ${data.stats.streak_days} dias`);
+                const streakDays = data.stats.streak_days;
+                if (streakDays === 1) {
+                    userStreakElement.textContent = '1 dia';
+                } else {
+                    userStreakElement.textContent = streakDays + ' dias';
+                }
+                console.log(`🔥 Streak atualizado na UI: ${streakDays} ${streakDays === 1 ? 'dia' : 'dias'}`);
             }
             
             if (userLevel) userLevel.textContent = `Nível ${data.current_level?.id || 1}`;
@@ -8625,9 +8630,13 @@
                             currentStreak = streakResult.current_streak;
                             
                             // Verificar se elemento existe antes de atualizar
-                            const userStreakElement = document.getElementById('userStreak');
+                            const userStreakElement = document.getElementById('userStreakDisplay');
                             if (userStreakElement) {
-                                userStreakElement.textContent = currentStreak;
+                                if (currentStreak === 1) {
+                                    userStreakElement.textContent = '1 dia';
+                                } else {
+                                    userStreakElement.textContent = currentStreak + ' dias';
+                                }
                             }
                             
                             // As barras de progresso já são atualizadas pelo código existente
