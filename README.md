@@ -120,7 +120,7 @@ function handleNotifications() { ... }
 - **`follows`** - Relacionamentos sociais
 
 ### **Gamification (Sistema de Pontos):**
-- **`badges`** - 20 conquistas disponíveis
+- **`badges`** - 23 conquistas disponíveis
 - **`levels`** - 10 níveis de progressão
 - **`user_points`** - Pontuação de cada usuário
 - **`user_badges`** - Badges conquistados
@@ -145,11 +145,11 @@ function handleNotifications() { ... }
 - **Comments:** 5 pontos base
 - **Reactions:** 2 pontos base
 - **Feedbacks:** 15 pontos base
-- **Bônus por raridade de badge:** common(0), uncommon(+5), rare(+10), epic(+25), legendary(+50)
+- **Bônus por raridade de badge:** common(+5), rare(+10), epic(+25), legendary(+50)
 
 ### **Badges e Levels:**
-- **20 badges** organizados por categoria (milestone, engagement, social, special)
-- **10 levels** de Novato (0-99 pontos) a Imortal (10.000+ pontos)
+- **23 badges** organizados por categoria (milestone, engagement, social, special)
+- **10 levels** de Novato (0-99 pontos) a Hall da Fama (32.000+ pontos)
 - **Verificação automática** via triggers
 
 ## 🔍 **COMO DIAGNOSTICAR PROBLEMAS**
@@ -208,7 +208,7 @@ git push origin main
 - Sistema de pontuação automático
 
 ### **Gamificação Completa:**
-- **20 badges** automáticos por conquistas
+- **23 badges** automáticos por conquistas
 - **10 levels** de progressão
 - **Sistema de streaks** com multiplicadores
 - **Pontuação** por todas as ações
@@ -252,7 +252,7 @@ Este projeto está **100% funcional** e **completamente documentado**:
 - ✅ **23 triggers** organizados
 - ✅ **18 funções** mapeadas
 - ✅ **60 policies RLS** configuradas
-- ✅ **20 badges + 10 levels** funcionais
+- ✅ **23 badges + 10 levels** funcionais
 
 ## 📞 **Suporte e Recursos**
 
