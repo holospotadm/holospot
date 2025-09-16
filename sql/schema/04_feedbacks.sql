@@ -12,17 +12,17 @@ CREATE TABLE IF NOT EXISTS public.feedbacks (
     -- Timestamp de criação (obrigatório)
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     
-    -- Referência ao post (com default gen_random_uuid)
-    post_id UUID DEFAULT gen_random_uuid(),
+    -- Referência ao post (FK para posts)
+    post_id UUID DEFAULT gen_random_uuid() REFERENCES public.posts(id) ON DELETE CASCADE ON UPDATE CASCADE,
     
-    -- Referência ao autor do feedback (com default gen_random_uuid)
-    author_id UUID DEFAULT gen_random_uuid(),
+    -- Referência ao autor do feedback (FK para profiles)
+    author_id UUID DEFAULT gen_random_uuid() REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE,
     
     -- Texto do feedback
     feedback_text TEXT,
     
-    -- Usuário mencionado no feedback
-    mentioned_user_id UUID
+    -- Usuário mencionado no feedback (FK para profiles)
+    mentioned_user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- ============================================================================

@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS public.user_points (
     -- Total de pontos acumulados
     total_points INTEGER DEFAULT 0,
     
-    -- Nível atual do usuário
-    level_id INTEGER DEFAULT 1,
+    -- Nível atual do usuário (FK para levels)
+    level_id INTEGER DEFAULT 1 REFERENCES public.levels(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     
     -- Pontos necessários para o próximo nível
     points_to_next_level INTEGER DEFAULT 50,
