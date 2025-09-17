@@ -5483,10 +5483,9 @@ DECLARE
     v_result JSON;
 BEGIN
     -- Marcar todas as notificações não lidas como lidas
+    -- CORREÇÃO: Removido 'read_at = NOW()' pois o campo não existe na tabela
     UPDATE public.notifications 
-    SET 
-        read = true,
-        read_at = NOW()
+    SET read = true
     WHERE user_id = p_user_id 
       AND read = false;
     
@@ -5509,6 +5508,7 @@ BEGIN
     RETURN v_result;
     
 EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'ERRO ao marcar notificações como lidas: %', SQLERRM;
     RETURN json_build_object(
         'success', false,
         'error', SQLERRM,
