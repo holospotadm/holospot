@@ -195,6 +195,8 @@ $function$
 CREATE OR REPLACE FUNCTION public.apply_streak_bonus_retroactive(p_user_id uuid)
  RETURNS void
  LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
 AS $function$
 DECLARE
     v_current_streak INTEGER;
@@ -605,6 +607,8 @@ $function$
 CREATE OR REPLACE FUNCTION public.calculate_user_streak(p_user_id uuid)
  RETURNS integer
  LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
 AS $function$
 DECLARE
     v_streak INTEGER := 0;
@@ -5297,6 +5301,8 @@ $function$
 CREATE OR REPLACE FUNCTION public.update_user_streak(p_user_id uuid)
  RETURNS void
  LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
 AS $function$
 DECLARE
     v_new_streak INTEGER;
