@@ -4193,6 +4193,7 @@
                     await loadAllFeedbacksInBatch(); // OTIMIZAÇÃO: Carregar feedbacks em lote
                     await loadAllCommentsInBatch(); // OTIMIZAÇÃO: Carregar comentários em lote
                     await renderPosts(); // Re-renderizar com dados completos
+                    processPostsForUsernames(); // Processar @username nos posts
                     console.log('✅ Posts processados com dados completos');
                 }, 100);
                 
@@ -5732,8 +5733,8 @@
                 
                 alert('✨ Post criado com sucesso!');
                 
-                // Atualizar display do streak após criar post
-                updateStreakDisplay();
+                // Atualizar dados de gamificação (incluindo streak) após criar post
+                loadUserGamificationData();
                 
             } catch (error) {
                 console.error('❌ Erro ao criar post:', error);
@@ -5789,6 +5790,7 @@
                 
                 updateNotificationBadge();
                 renderNotifications();
+                processNotificationsForUsernames(); // Processar @username nas notificações
                 console.log('✅ Notificações processadas e renderizadas');
                 
             } catch (error) {
@@ -5835,13 +5837,37 @@
             const unreadCount = notifications.filter(n => !n.read).length;
             
             dropdown.innerHTML = `
-                ${notifications.map(notification => `
-                    <div class="notification-item ${!notification.read ? 'unread' : ''}" 
-                         onclick="markNotificationAsRead('${notification.id}')">
-                        <strong>${notification.message}</strong><br>
-                        <small>${formatDate(notification.created_at)}</small>
-                    </div>
-                `).join('')}
+                ${notifications.map(notification => {
+                    // Verificar se é notificação relacionada a post
+                    const isPostRelated = notification.type && ['comment', 'reaction', 'mention', 'feedback'].includes(notification.type);
+                    const hasPostReference = notification.group_data && notification.group_data.post_id;
+                    
+                    // Se for relacionada a post, adicionar funcionalidade de clique
+                    if (isPostRelated && hasPostReference) {
+                        return `
+                            <div class="notification-item ${!notification.read ? 'unread' : ''}" 
+                                 style="cursor: pointer; transition: background-color 0.2s ease;"
+                                 onclick="openPostFromNotification('${notification.id}', '${notification.group_data.post_id}')"
+                                 onmouseover="this.style.backgroundColor='#f8f9fa'"
+                                 onmouseout="this.style.backgroundColor='transparent'">
+                                <strong>${notification.message}</strong><br>
+                                <small>${formatDate(notification.created_at)}</small>
+                                <div style="font-size: 12px; color: #007bff; margin-top: 4px;">
+                                    👆 Clique para ver o post
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Notificação normal (sem link para post)
+                        return `
+                            <div class="notification-item ${!notification.read ? 'unread' : ''}" 
+                                 onclick="markNotificationAsRead('${notification.id}')">
+                                <strong>${notification.message}</strong><br>
+                                <small>${formatDate(notification.created_at)}</small>
+                            </div>
+                        `;
+                    }
+                }).join('')}
                 ${unreadCount > 0 ? `
                     <div style="padding: 0.5rem;">
                         <button id="markAllReadBtn" class="mark-all-read-btn">
@@ -5887,40 +5913,6 @@
                 
             } catch (error) {
                 console.error('❌ Erro ao marcar notificação como lida:', error);
-            }
-        }
-
-        // Função para atualizar o display do streak após interações
-        async function updateStreakDisplay() {
-            try {
-                console.log('🔄 Atualizando display do streak...');
-                
-                // Buscar dados atualizados do streak
-                const { data: streakData, error } = await supabase
-                    .from('user_streaks')
-                    .select('current_streak')
-                    .eq('user_id', currentUser.id)
-                    .single();
-                
-                if (error) {
-                    console.warn('⚠️ Erro ao buscar streak atualizado:', error);
-                    return;
-                }
-                
-                // Atualizar elemento na interface
-                const userStreakElement = document.getElementById('userStreakDisplay');
-                if (userStreakElement && streakData) {
-                    const streakDays = streakData.current_streak || 0;
-                    if (streakDays === 1) {
-                        userStreakElement.textContent = '1 dia';
-                    } else {
-                        userStreakElement.textContent = streakDays + ' dias';
-                    }
-                    console.log('✅ Streak display atualizado:', streakDays, 'dias');
-                }
-                
-            } catch (error) {
-                console.error('❌ Erro ao atualizar display do streak:', error);
             }
         }
 
@@ -5996,6 +5988,885 @@
                     markAllBtn.textContent = `Marcar todas como lidas (${unreadCount})`;
                 }
             }
+        }
+
+        // ===== FUNCIONALIDADE: MODAL DE POST AO CLICAR EM NOTIFICAÇÃO =====
+        
+        async function openPostFromNotification(notificationId, postId) {
+            try {
+                console.log('🔗 Abrindo post a partir de notificação:', { notificationId, postId });
+                
+                // 1. Marcar notificação como lida
+                await markNotificationAsRead(notificationId);
+                
+                // 2. Buscar dados completos do post
+                const postData = await fetchPostDetails(postId);
+                
+                if (!postData) {
+                    console.error('❌ Post não encontrado:', postId);
+                    showToast('Post não encontrado');
+                    return;
+                }
+                
+                // 3. Determinar tipo de modal baseado no contexto
+                const modalType = determineModalType(postData);
+                
+                // 4. Abrir modal apropriado
+                showPostModal(postData, modalType);
+                
+            } catch (error) {
+                console.error('❌ Erro ao abrir post a partir de notificação:', error);
+                showToast('Erro ao carregar post');
+            }
+        }
+
+        async function fetchPostDetails(postId) {
+            try {
+                console.log('🔍 Buscando detalhes do post:', postId);
+                
+                // Buscar post com dados relacionados
+                const { data: post, error } = await supabase
+                    .from('posts')
+                    .select(`
+                        *,
+                        author:profiles!posts_user_id_fkey(id, username, avatar_url, name),
+                        mentioned_user:profiles!posts_mentioned_user_id_fkey(id, username, avatar_url, name)
+                    `)
+                    .eq('id', postId)
+                    .single();
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar post:', error);
+                    return null;
+                }
+                
+                // Buscar reações do post
+                const { data: reactions } = await supabase
+                    .from('reactions')
+                    .select(`
+                        *,
+                        user:profiles!reactions_user_id_fkey(id, username, avatar_url, name)
+                    `)
+                    .eq('post_id', postId);
+                
+                // Buscar comentários do post
+                const { data: comments } = await supabase
+                    .from('comments')
+                    .select(`
+                        *,
+                        author:profiles!comments_user_id_fkey(id, username, avatar_url, name)
+                    `)
+                    .eq('post_id', postId)
+                    .order('created_at', { ascending: true });
+                
+                // Buscar feedbacks do post
+                const { data: feedbacks } = await supabase
+                    .from('feedbacks')
+                    .select(`
+                        *,
+                        author:profiles!feedbacks_author_id_fkey(id, username, avatar_url, name),
+                        mentioned_user:profiles!feedbacks_mentioned_user_id_fkey(id, username, avatar_url, name)
+                    `)
+                    .eq('post_id', postId);
+                
+                // Montar objeto completo do post
+                const completePost = {
+                    ...post,
+                    reactions: reactions || [],
+                    comments: comments || [],
+                    feedbacks: feedbacks || [],
+                    user_data: post.author || {
+                        name: 'Usuário',
+                        username: 'usuario',
+                        avatar_url: ''
+                    }
+                };
+                
+                console.log('✅ Detalhes do post carregados:', completePost);
+                return completePost;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar detalhes do post:', error);
+                return null;
+            }
+        }
+
+        function determineModalType(postData) {
+            if (!currentUser) return 'other_post';
+            
+            if (postData.user_id === currentUser.id) {
+                return 'own_post'; // Post próprio - estilo "Seus Posts"
+            } else if (postData.mentioned_user_id === currentUser.id) {
+                return 'received_holofote'; // Holofote recebido - estilo "Holofotes Recebidos"
+            } else {
+                return 'other_post'; // Post de terceiro (comentário/reação)
+            }
+        }
+
+        function showPostModal(postData, modalType) {
+            console.log('📱 Abrindo modal de post:', { modalType, postId: postData.id });
+            
+            // Criar ou obter modal
+            let modal = document.getElementById('singlePostModal');
+            if (!modal) {
+                modal = createSinglePostModal();
+            }
+            
+            // Configurar título baseado no tipo
+            const titles = {
+                'own_post': 'Seu Post',
+                'received_holofote': 'Holofote Recebido',
+                'other_post': 'Post'
+            };
+            
+            const modalTitle = modal.querySelector('.modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = titles[modalType] || 'Post';
+            }
+            
+            // Renderizar post único
+            renderSinglePost(postData, modal);
+            
+            // Mostrar modal
+            modal.style.display = 'flex';
+            
+            console.log('✅ Modal de post aberto com sucesso');
+        }
+
+        function createSinglePostModal() {
+            const modal = document.createElement('div');
+            modal.id = 'singlePostModal';
+            modal.className = 'modal';
+            modal.style.cssText = `
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="
+                    background: white;
+                    border-radius: 12px;
+                    width: 90%;
+                    max-width: 600px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                ">
+                    <div class="modal-header" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 1.5rem;
+                        border-bottom: 1px solid #eee;
+                        position: sticky;
+                        top: 0;
+                        background: white;
+                        z-index: 10;
+                    ">
+                        <h2 class="modal-title" style="margin: 0; color: #333;">Post</h2>
+                        <span class="close" style="
+                            font-size: 28px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            color: #999;
+                            line-height: 1;
+                        " onclick="closeSinglePostModal()">&times;</span>
+                    </div>
+                    <div class="modal-body" style="padding: 0;">
+                        <div id="singlePostContent"></div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Fechar modal ao clicar fora
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeSinglePostModal();
+                }
+            });
+            
+            return modal;
+        }
+
+        function renderSinglePost(postData, modal) {
+            const container = modal.querySelector('#singlePostContent');
+            if (!container) return;
+            
+            const typeEmojis = {
+                'gratidao': '🙏', 'gratitude': '🙏',
+                'memoria': '💭', 'memory': '💭',
+                'conquista': '🏆', 'achievement': '🏆',
+                'inspiracao': '✨', 'inspiration': '✨',
+                'apoio': '🤝', 'support': '🤝',
+                'admiracao': '🌟', 'admiration': '🌟'
+            };
+
+            const typeNames = {
+                'gratidao': 'Gratidão', 'gratitude': 'Gratidão',
+                'memoria': 'Memória', 'memory': 'Memória',
+                'conquista': 'Conquista', 'achievement': 'Conquista',
+                'inspiracao': 'Inspiração', 'inspiration': 'Inspiração',
+                'apoio': 'Apoio', 'support': 'Apoio',
+                'admiracao': 'Admiração', 'admiration': 'Admiração'
+            };
+            
+            // Usar dados do autor ou fallback
+            const authorName = postData.user_data?.name || postData.author?.name || 'Usuário';
+            const authorUsername = postData.user_data?.username || postData.author?.username || 'usuario';
+            const authorAvatar = postData.user_data?.avatar_url || postData.author?.avatar_url || '';
+            
+            // Contar reações por tipo
+            const touchedCount = postData.reactions?.filter(r => r.type === 'touched').length || 0;
+            const gratefulCount = postData.reactions?.filter(r => r.type === 'grateful').length || 0;
+            const inspiredCount = postData.reactions?.filter(r => r.type === 'inspired').length || 0;
+            
+            // Verificar se usuário atual já reagiu
+            const userReactions = postData.reactions?.filter(r => r.user_id === currentUser?.id) || [];
+            const userTouched = userReactions.some(r => r.type === 'touched');
+            const userGrateful = userReactions.some(r => r.type === 'grateful');
+            const userInspired = userReactions.some(r => r.type === 'inspired');
+            
+            container.innerHTML = `
+                <div class="post" style="margin: 0; border: none; box-shadow: none;">
+                    <div class="post-header" style="padding: 1.5rem 1.5rem 0 1.5rem;">
+                        <img class="post-avatar" src="${authorAvatar}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <div class="post-author">
+                            <div class="post-author-name" style="font-weight: 600; color: #333;">${authorName}</div>
+                            <div class="post-author-meta" style="color: #666; font-size: 14px;">
+                                <span class="post-author-username">@${authorUsername}</span>
+                                <span class="post-time-separator"> • </span>
+                                <span class="post-time">${formatDateShort(postData.created_at)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="post-content" style="padding: 1rem 1.5rem;">
+                        <div class="post-person" style="font-weight: 600; color: #e55a2b; margin-bottom: 0.5rem;">
+                            Holofotes para: ${postData.celebrated_person_name || postData.person_name || 'Alguém especial'}
+                        </div>
+                        ${postData.type || postData.highlight_type ? `
+                            <div class="post-type" style="color: #666; font-size: 14px; margin-bottom: 0.5rem;">
+                                ${typeEmojis[postData.type || postData.highlight_type] || '✨'} ${typeNames[postData.type || postData.highlight_type] || 'Destaque'}
+                            </div>
+                        ` : ''}
+                        <div class="post-story" style="line-height: 1.5; color: #333; margin-bottom: 1rem;">
+                            ${postData.content || postData.story || ''}
+                        </div>
+                        ${postData.photo_url ? `
+                            <img class="post-image" src="${postData.photo_url}" alt="Foto do post" style="
+                                width: 100%;
+                                border-radius: 8px;
+                                margin-bottom: 1rem;
+                                max-height: 400px;
+                                object-fit: cover;
+                            ">
+                        ` : ''}
+                    </div>
+                    
+                    <div class="post-reactions" style="padding: 0 1.5rem; display: flex; gap: 10px; margin-bottom: 1rem;">
+                        <button class="reaction-btn" onclick="toggleReaction('${postData.id}', 'touched')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 8px 12px;
+                            background: ${userTouched ? 'linear-gradient(135deg, #ff6b6b, #ee5a52)' : '#f5f5f5'};
+                            color: ${userTouched ? 'white' : '#666'};
+                            border: none;
+                            border-radius: 20px;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">
+                            ❤️ ${touchedCount}
+                        </button>
+                        <button class="reaction-btn" onclick="toggleReaction('${postData.id}', 'grateful')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 8px 12px;
+                            background: ${userGrateful ? 'linear-gradient(135deg, #ffa726, #ff9800)' : '#f5f5f5'};
+                            color: ${userGrateful ? 'white' : '#666'};
+                            border: none;
+                            border-radius: 20px;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">
+                            🙏 ${gratefulCount}
+                        </button>
+                        <button class="reaction-btn" onclick="toggleReaction('${postData.id}', 'inspired')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 8px 12px;
+                            background: ${userInspired ? 'linear-gradient(135deg, #42a5f5, #2196f3)' : '#f5f5f5'};
+                            color: ${userInspired ? 'white' : '#666'};
+                            border: none;
+                            border-radius: 20px;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">
+                            ✨ ${inspiredCount}
+                        </button>
+                    </div>
+                    
+                    <div class="post-footer" style="padding: 0 1.5rem 1.5rem 1.5rem; display: flex; gap: 15px;">
+                        <span class="comments-display" onclick="openCommentsModal('${postData.id}')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 8px 12px;
+                            background: ${postData.comments?.length > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5'};
+                            color: ${postData.comments?.length > 0 ? 'white' : '#666'};
+                            border-radius: 20px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 600;
+                            transition: all 0.2s ease;
+                        ">
+                            💬 ${postData.comments?.length || 0}
+                        </span>
+                        <span class="feedback-display" onclick="openPostFeedbackModal('${postData.id}')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 8px 12px;
+                            background: ${postData.feedbacks?.length > 0 ? 'linear-gradient(135deg, #e55a2b, #ffb700)' : '#f5f5f5'};
+                            color: ${postData.feedbacks?.length > 0 ? 'white' : '#666'};
+                            border-radius: 20px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 600;
+                            transition: all 0.2s ease;
+                        ">
+                            🔄 ${postData.feedbacks?.length || 0}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeSinglePostModal() {
+            const modal = document.getElementById('singlePostModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function showToast(message) {
+            // Criar toast se não existir
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #333;
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                document.body.appendChild(toast);
+            }
+            
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        // ===== FUNCIONALIDADE: @USERNAME CLICÁVEL COM MODAL DE PERFIL =====
+        
+        function linkifyUsernames(text) {
+            if (!text) return text;
+            
+            const usernameRegex = /@([a-zA-Z0-9._-]+)/g;
+            
+            return text.replace(usernameRegex, (match, username) => {
+                return `<span class="username-link" data-username="${username}" onclick="openUserProfile('${username}')" style="
+                    color: #007bff;
+                    cursor: pointer;
+                    text-decoration: none;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
+                    border-radius: 3px;
+                    padding: 1px 3px;
+                " onmouseover="this.style.textDecoration='underline'; this.style.color='#0056b3'; this.style.backgroundColor='rgba(0, 123, 255, 0.1)';" onmouseout="this.style.textDecoration='none'; this.style.color='#007bff'; this.style.backgroundColor='transparent';">${match}</span>`;
+            });
+        }
+
+        function processAllTextContent() {
+            console.log('🔗 Processando @username em todos os textos...');
+            
+            // Posts - conteúdo principal
+            document.querySelectorAll('.post-story, .post-content').forEach(element => {
+                if (element.dataset.processed !== 'true') {
+                    const originalText = element.textContent;
+                    element.innerHTML = linkifyUsernames(originalText);
+                    element.dataset.processed = 'true';
+                }
+            });
+            
+            // Comentários
+            document.querySelectorAll('.comment-content, .comment-text').forEach(element => {
+                if (element.dataset.processed !== 'true') {
+                    const originalText = element.textContent;
+                    element.innerHTML = linkifyUsernames(originalText);
+                    element.dataset.processed = 'true';
+                }
+            });
+            
+            // Notificações
+            document.querySelectorAll('.notification-message, .notification-item strong').forEach(element => {
+                if (element.dataset.processed !== 'true') {
+                    const originalText = element.textContent;
+                    element.innerHTML = linkifyUsernames(originalText);
+                    element.dataset.processed = 'true';
+                }
+            });
+            
+            // Feedbacks
+            document.querySelectorAll('.feedback-content, .feedback-text').forEach(element => {
+                if (element.dataset.processed !== 'true') {
+                    const originalText = element.textContent;
+                    element.innerHTML = linkifyUsernames(originalText);
+                    element.dataset.processed = 'true';
+                }
+            });
+            
+            console.log('✅ @username processados em todos os textos');
+        }
+
+        async function openUserProfile(username) {
+            try {
+                console.log('👤 Abrindo perfil do usuário:', username);
+                
+                const userData = await fetchUserProfileData(username);
+                
+                if (!userData) {
+                    console.error('❌ Usuário não encontrado:', username);
+                    showToast('Usuário não encontrado');
+                    return;
+                }
+                
+                const stats = await fetchUserStats(userData.id);
+                showUserProfileModal(userData, stats);
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar perfil:', error);
+                showToast('Erro ao carregar perfil do usuário');
+            }
+        }
+
+        async function fetchUserProfileData(username) {
+            try {
+                console.log('🔍 Buscando dados do usuário:', username);
+                
+                // Primeiro, tentar buscar por email (username@domain)
+                let { data: user, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .ilike('email', `${username}%`)
+                    .single();
+                
+                // Se não encontrar, tentar buscar por nome que contenha o username
+                if (error || !user) {
+                    const { data: userByName, error: nameError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .ilike('name', `%${username}%`)
+                        .limit(1)
+                        .single();
+                    
+                    if (!nameError && userByName) {
+                        user = userByName;
+                        error = null;
+                    }
+                }
+                
+                if (error || !user) {
+                    console.error('❌ Usuário não encontrado:', error);
+                    return null;
+                }
+                
+                console.log('✅ Dados do usuário encontrados:', user);
+                return user;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados do usuário:', error);
+                return null;
+            }
+        }
+
+        async function fetchUserStats(userId) {
+            try {
+                console.log('📊 Buscando estatísticas do usuário:', userId);
+                
+                const [
+                    postsResult,
+                    holofotesResult,
+                    commentsResult,
+                    feedbacksResult,
+                    reactionsResult
+                ] = await Promise.all([
+                    // Posts criados
+                    supabase.from('posts').select('id').eq('user_id', userId),
+                    // Holofotes recebidos
+                    supabase.from('posts').select('id').eq('mentioned_user_id', userId),
+                    // Comentários feitos
+                    supabase.from('comments').select('id').eq('user_id', userId),
+                    // Feedbacks dados
+                    supabase.from('feedbacks').select('id').eq('mentioned_user_id', userId),
+                    // Reações dadas
+                    supabase.from('reactions').select('id').eq('user_id', userId)
+                ]);
+                
+                const stats = {
+                    posts: postsResult.data?.length || 0,
+                    holofotes: holofotesResult.data?.length || 0,
+                    comments: commentsResult.data?.length || 0,
+                    feedbacks: feedbacksResult.data?.length || 0,
+                    reactions: reactionsResult.data?.length || 0
+                };
+                
+                console.log('✅ Estatísticas do usuário:', stats);
+                return stats;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar estatísticas:', error);
+                return {
+                    posts: 0,
+                    holofotes: 0,
+                    comments: 0,
+                    feedbacks: 0,
+                    reactions: 0
+                };
+            }
+        }
+
+        function showUserProfileModal(userData, stats) {
+            console.log('📱 Abrindo modal de perfil:', userData.name);
+            
+            let modal = document.getElementById('userProfileModal');
+            if (!modal) {
+                modal = createUserProfileModal();
+            }
+            
+            populateUserProfileModal(modal, userData, stats);
+            modal.style.display = 'flex';
+            
+            console.log('✅ Modal de perfil aberto com sucesso');
+        }
+
+        function createUserProfileModal() {
+            const modal = document.createElement('div');
+            modal.id = 'userProfileModal';
+            modal.className = 'modal';
+            modal.style.cssText = `
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="
+                    background: white;
+                    border-radius: 12px;
+                    width: 90%;
+                    max-width: 500px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                ">
+                    <div class="modal-header" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 1.5rem;
+                        border-bottom: 1px solid #eee;
+                        position: sticky;
+                        top: 0;
+                        background: white;
+                        z-index: 10;
+                    ">
+                        <h2 class="modal-title" style="margin: 0; color: #333;">Perfil do Usuário</h2>
+                        <span class="close" style="
+                            font-size: 28px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            color: #999;
+                            line-height: 1;
+                        " onclick="closeUserProfileModal()">&times;</span>
+                    </div>
+                    <div class="modal-body" style="padding: 1.5rem;">
+                        <div class="profile-header" style="
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 2rem;
+                        ">
+                            <img class="profile-avatar" src="" alt="Avatar" style="
+                                width: 80px;
+                                height: 80px;
+                                border-radius: 50%;
+                                object-fit: cover;
+                                margin-right: 1rem;
+                                border: 3px solid #e55a2b;
+                            ">
+                            <div class="profile-info">
+                                <h3 class="profile-name" style="
+                                    margin: 0 0 0.5rem 0;
+                                    color: #333;
+                                    font-size: 1.5rem;
+                                "></h3>
+                                <p class="profile-username" style="
+                                    margin: 0;
+                                    color: #666;
+                                    font-size: 1rem;
+                                "></p>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-stats" style="
+                            display: grid;
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 15px;
+                        ">
+                            <div class="stat-card" onclick="openUserPostsListModal()" style="
+                                background: linear-gradient(135deg, #e55a2b, #ffb700);
+                                color: white;
+                                padding: 20px;
+                                border-radius: 12px;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: transform 0.2s ease;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                outline: none;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <div class="stat-number" id="userPostsCount" style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                ">0</div>
+                                <div class="stat-label" style="
+                                    font-size: 14px;
+                                    opacity: 0.9;
+                                ">Posts Criados</div>
+                            </div>
+                            
+                            <div class="stat-card" onclick="openUserHolofotesListModal()" style="
+                                background: linear-gradient(135deg, #2196f3, #1976d2);
+                                color: white;
+                                padding: 20px;
+                                border-radius: 12px;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: transform 0.2s ease;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                outline: none;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <div class="stat-number" id="userHolofotesCount" style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                ">0</div>
+                                <div class="stat-label" style="
+                                    font-size: 14px;
+                                    opacity: 0.9;
+                                ">Holofotes Recebidos</div>
+                            </div>
+                            
+                            <div class="stat-card" onclick="openUserCommentsListModal()" style="
+                                background: linear-gradient(135deg, #4caf50, #388e3c);
+                                color: white;
+                                padding: 20px;
+                                border-radius: 12px;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: transform 0.2s ease;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                outline: none;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <div class="stat-number" id="userCommentsCount" style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                ">0</div>
+                                <div class="stat-label" style="
+                                    font-size: 14px;
+                                    opacity: 0.9;
+                                ">Comentários</div>
+                            </div>
+                            
+                            <div class="stat-card" onclick="openUserReactionsListModal()" style="
+                                background: linear-gradient(135deg, #ff9800, #f57c00);
+                                color: white;
+                                padding: 20px;
+                                border-radius: 12px;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: transform 0.2s ease;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                outline: none;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <div class="stat-number" id="userReactionsCount" style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                ">0</div>
+                                <div class="stat-label" style="
+                                    font-size: 14px;
+                                    opacity: 0.9;
+                                ">Reações Dadas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeUserProfileModal();
+                }
+            });
+            
+            return modal;
+        }
+
+        function populateUserProfileModal(modal, userData, stats) {
+            // Avatar
+            const avatar = modal.querySelector('.profile-avatar');
+            avatar.src = userData.avatar_url || '';
+            avatar.onerror = function() {
+                this.style.display = 'none';
+                const initial = document.createElement('div');
+                initial.style.cssText = `
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #e55a2b, #ffb700);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 32px;
+                    font-weight: bold;
+                    border: 3px solid #e55a2b;
+                `;
+                initial.textContent = (userData.name || 'U').charAt(0).toUpperCase();
+                this.parentNode.insertBefore(initial, this);
+            };
+            
+            // Nome
+            const name = modal.querySelector('.profile-name');
+            name.textContent = userData.name || 'Usuário';
+            
+            // Username (email)
+            const username = modal.querySelector('.profile-username');
+            const emailUsername = userData.email ? userData.email.split('@')[0] : 'usuario';
+            username.textContent = `@${emailUsername}`;
+            
+            // Estatísticas
+            modal.querySelector('#userPostsCount').textContent = stats.posts;
+            modal.querySelector('#userHolofotesCount').textContent = stats.holofotes;
+            modal.querySelector('#userCommentsCount').textContent = stats.comments;
+            modal.querySelector('#userReactionsCount').textContent = stats.reactions;
+            
+            // Armazenar dados do usuário no modal para uso posterior
+            modal.dataset.userId = userData.id;
+            modal.dataset.userName = userData.name || 'Usuário';
+            modal.dataset.userEmail = userData.email || '';
+        }
+
+        function closeUserProfileModal() {
+            const modal = document.getElementById('userProfileModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function openUserPostsListModal() {
+            const modal = document.getElementById('userProfileModal');
+            const userName = modal?.dataset.userName;
+            
+            if (userName) {
+                console.log('📝 Abrindo lista de posts do usuário:', userName);
+                showToast(`Posts de ${userName} - Funcionalidade em desenvolvimento`);
+            }
+        }
+
+        function openUserHolofotesListModal() {
+            const modal = document.getElementById('userProfileModal');
+            const userName = modal?.dataset.userName;
+            
+            if (userName) {
+                console.log('🏆 Abrindo lista de holofotes do usuário:', userName);
+                showToast(`Holofotes de ${userName} - Funcionalidade em desenvolvimento`);
+            }
+        }
+
+        function openUserCommentsListModal() {
+            const modal = document.getElementById('userProfileModal');
+            const userName = modal?.dataset.userName;
+            
+            if (userName) {
+                console.log('💬 Abrindo lista de comentários do usuário:', userName);
+                showToast(`Comentários de ${userName} - Funcionalidade em desenvolvimento`);
+            }
+        }
+
+        function openUserReactionsListModal() {
+            const modal = document.getElementById('userProfileModal');
+            const userName = modal?.dataset.userName;
+            
+            if (userName) {
+                console.log('👍 Abrindo lista de reações do usuário:', userName);
+                showToast(`Reações de ${userName} - Funcionalidade em desenvolvimento`);
+            }
+        }
+
+        function processPostsForUsernames() {
+            setTimeout(() => {
+                processAllTextContent();
+            }, 500);
+        }
+
+        function processCommentsForUsernames() {
+            setTimeout(() => {
+                processAllTextContent();
+            }, 100);
+        }
+
+        function processNotificationsForUsernames() {
+            setTimeout(() => {
+                processAllTextContent();
+            }, 100);
         }
 
         function toggleNotifications() {
@@ -7369,6 +8240,9 @@
                 `;
                 
                 document.body.appendChild(modal);
+                
+                // Processar @username nos comentários
+                processCommentsForUsernames();
                 
                 // Focar no textarea
                 setTimeout(() => {
