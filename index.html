@@ -6416,8 +6416,8 @@
         function processAllTextContent() {
             console.log('🔗 Processando @username em todos os textos...');
             
-            // Posts - conteúdo principal
-            document.querySelectorAll('.post-story, .post-content').forEach(element => {
+            // Posts - conteúdo principal (apenas .post-story, não .post-content que contém estrutura HTML)
+            document.querySelectorAll('.post-story').forEach(element => {
                 if (element.dataset.processed !== 'true') {
                     const originalText = element.textContent;
                     element.innerHTML = linkifyUsernames(originalText);
