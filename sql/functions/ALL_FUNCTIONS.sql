@@ -4194,17 +4194,19 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Não notificar se é o próprio usuário
-    IF post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username de quem deu feedback
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Criar notificação (feedbacks sempre passam - threshold 0)
     PERFORM create_notification_smart(
         post_owner_id,
-        NEW.user_id,
+        NEW.author_id,
         'feedback',
         COALESCE(username_from, 'Alguém') || ' deu feedback sobre o post que você fez destacando-o!',
         2 -- Prioridade média
@@ -5380,15 +5382,16 @@ CREATE OR REPLACE FUNCTION public.update_user_streak_trigger()
 AS $function$
 BEGIN
     -- Atualizar streak do usuário que fez a atividade
-    PERFORM update_user_streak(NEW.user_id);
-    
-    -- Para feedbacks, também atualizar streak do usuário mencionado
-    -- CORREÇÃO: Só tentar acessar mentioned_user_id se for tabela feedbacks
+    -- CORREÇÃO: Para feedbacks, usar NEW.author_id em vez de NEW.user_id
     IF TG_TABLE_NAME = 'feedbacks' THEN
-        -- Verificar se mentioned_user_id existe e não é nulo
+        PERFORM update_user_streak(NEW.author_id);
+        -- Para feedbacks, também atualizar streak do usuário mencionado
         IF NEW.mentioned_user_id IS NOT NULL THEN
             PERFORM update_user_streak(NEW.mentioned_user_id);
         END IF;
+    ELSE
+        -- Para outras tabelas (posts, comments, reactions), usar NEW.user_id
+        PERFORM update_user_streak(NEW.user_id);
     END IF;
     
     RETURN NEW;
