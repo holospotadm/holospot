@@ -1,231 +1,94 @@
-# 🔧 FUNCTIONS - Sistema de Funções do HoloSpot
+# 🔧 FUNÇÕES DO HOLOSPOT
 
-## 📋 Visão Geral
+## 📊 **ESTATÍSTICAS**
+- **Total:** 116 funções
+- **Extração:** 2025-09-17 02:21:37
+- **Fonte:** Banco Supabase (produção)
 
-Este diretório contém todas as **18 funções** utilizadas pelos triggers do sistema HoloSpot, organizadas por categoria e funcionalidade. Todas as funções são **SECURITY INVOKER** e escritas em **PL/pgSQL**.
+## 📁 **ORGANIZAÇÃO POR CATEGORIA**
 
-## 📊 Estatísticas
+### 🎮 **Gamification (7 funções)**
+**Arquivo:** `gamification_functions.sql`
 
-- **Total de Funções:** 18
-- **Segurança:** 18 SECURITY INVOKER (0 DEFINER)
-- **Linguagem:** 18 PL/pgSQL (0 SQL puro)
-- **Tipo:** 18 TRIGGER functions
-- **Volatilidade:** 18 VOLATILE
+Funções relacionadas ao sistema de gamificação:
+- Cálculo de níveis
+- Ranking global
+- Dados de gamificação
+- Pontos e progressão
 
-## 📁 Organização dos Arquivos
+### 🔔 **Notifications (9 funções)**
+**Arquivo:** `notifications_functions.sql`
 
-### **01_audit_functions.sql** - Funções de Auditoria
-- **1 função** para manutenção de campos `updated_at`
-- **Função:** `update_updated_at_column()`
-- **Uso:** Triggers de auditoria em `badges` e `user_points`
+Sistema completo de notificações:
+- Criação de notificações
+- Agrupamento inteligente
+- Anti-spam
+- Limpeza automática
 
-### **02_gamification_functions.sql** - Funções de Gamificação
-- **1 função** para verificação automática de badges
-- **Função:** `auto_check_badges_with_bonus_after_action()`
-- **Uso:** Todos os triggers de gamificação (5 triggers)
+### 🔥 **Streak (4 funções)**
+**Arquivo:** `streak_functions.sql`
 
-### **03_notification_functions.sql** - Funções de Notificação
-- **7 funções** especializadas por tipo de notificação
-- **Sistema anti-spam** com janelas de tempo
-- **Mensagens padronizadas** sem exclamações desnecessárias
+Sistema de streaks de engajamento:
+- Cálculo de streaks
+- Atualização automática
+- Dados de streak
+- Milestones
 
-### **04_security_functions.sql** - Funções de Segurança
-- **7 funções** para operações seguras e pontuação
-- **Sistema integrado** de gerenciamento de pontos
-- **Validações** e prevenção de fraudes
+### 🏆 **Badges (5 funções)**
+**Arquivo:** `badges_functions.sql`
 
-### **05_utility_functions.sql** - Funções Utilitárias
-- **1 função** para geração automática de username
-- **Função:** `generate_username_from_email()`
-- **Uso:** Trigger utilitário em `profiles`
+Sistema de emblemas e conquistas:
+- Verificação automática
+- Notificações de badges
+- Bônus de pontos
+- Concessão de emblemas
 
-## 📈 Funções por Categoria
+### 🛠️ **Utility (2 funções)**
+**Arquivo:** `utility_functions.sql`
 
-| Categoria | Quantidade | Principais Responsabilidades |
-|-----------|------------|------------------------------|
-| **NOTIFICATION** | 7 | Criação automática de notificações |
-| **SECURITY** | 7 | Operações seguras e pontuação |
-| **GAMIFICATION** | 1 | Verificação automática de badges |
-| **AUDIT** | 1 | Manutenção de timestamps |
-| **UTILITY** | 1 | Geração de username |
+Funções auxiliares do sistema:
+- Atualização de timestamps
+- Geração de usernames
 
-## 🔄 Fluxo de Dependências
+### 🧪 **Testing (1 função)**
+**Arquivo:** `testing_functions.sql`
 
-### **Funções Principais (Implementadas)**
-```
-update_updated_at_column()
-├── Usada por: update_badges_updated_at
-└── Usada por: update_user_points_updated_at
+Funções de teste e debug:
+- Criação de dados de teste
 
-auto_check_badges_with_bonus_after_action()
-├── Usada por: auto_badge_check_bonus_posts
-├── Usada por: auto_badge_check_bonus_comments
-├── Usada por: auto_badge_check_bonus_reactions
-├── Usada por: auto_badge_check_bonus_feedbacks
-└── Usada por: auto_badge_check_bonus_user_points
+## 🔍 **FUNÇÕES PRINCIPAIS**
 
-generate_username_from_email()
-└── Usada por: trigger_generate_username
-```
+### **Sistema de Pontos:**
+- `update_user_total_points()` - Atualiza pontos totais
+- `add_points_secure()` - Adiciona pontos com segurança
+- `calculate_user_level()` - Calcula nível baseado em pontos
 
-### **Funções Dependentes (Devem Existir)**
-```
-check_and_grant_badges_with_bonus()
-├── Chamada por: auto_check_badges_with_bonus_after_action()
-└── Responsável pela lógica específica de badges
+### **Sistema de Notificações:**
+- `create_single_notification()` - Cria notificação única
+- `handle_level_up_notification()` - Notifica level-up
+- `auto_group_recent_notifications()` - Agrupa notificações
 
-create_single_notification()
-├── Chamada por: handle_comment_notification_only()
-├── Chamada por: handle_reaction_simple()
-└── Chamada por: handle_badge_notification_only()
+### **Sistema de Streak:**
+- `calculate_user_streak()` - Calcula streak atual
+- `update_user_streak()` - Atualiza streak do usuário
+- `apply_streak_bonus_retroactive()` - Aplica bônus retroativo
 
-notify_streak_milestone_correct()
-└── Chamada por: handle_streak_notification_only()
+### **Sistema de Badges:**
+- `auto_check_badges_with_bonus_after_action()` - Verifica badges automaticamente
+- `check_and_grant_badges_with_bonus()` - Concede badges com bônus
 
-update_user_total_points()
-├── Chamada por: handle_post_insert_secure()
-├── Chamada por: handle_comment_insert_secure()
-├── Chamada por: handle_feedback_insert_secure()
-└── Chamada por: handle_reaction_points_simple()
+## ⚠️ **FUNÇÕES CRÍTICAS**
 
-add_points_secure()
-├── Chamada por: handle_reaction_insert_secure()
-└── Responsável por adicionar pontos com validações
+Estas funções são essenciais para o funcionamento do sistema:
 
-delete_comment_points_secure()
-├── Chamada por: handle_comment_delete_secure()
-└── Remove pontos de comentários (SECURITY DEFINER)
+1. **`update_user_total_points()`** - Atualiza pontos e levels
+2. **`handle_level_up_notification()`** - Notificações de level-up
+3. **`update_user_streak_trigger()`** - Atualização automática de streaks
+4. **`auto_check_badges_with_bonus_after_action()`** - Sistema de badges
 
-delete_reaction_points_secure()
-├── Chamada por: handle_reaction_delete_secure()
-└── Remove pontos de reações (SECURITY DEFINER)
+## 🔄 **SINCRONIZAÇÃO**
 
-recalculate_user_points_secure()
-├── Chamada por: handle_comment_delete_secure()
-├── Chamada por: handle_reaction_delete_secure()
-└── Recalcula totais de usuários (SECURITY DEFINER)
-```
-
-## 🎯 Sistema de Pontuação
-
-### **Valores de Pontos por Ação**
-| Ação | Quem Ganha | Pontos | Função Responsável |
-|------|------------|--------|-------------------|
-| **Criar Post** | Autor | +10 | `handle_post_insert_secure` |
-| **Ser Mencionado** | Mencionado | +5 | `handle_post_insert_secure` |
-| **Criar Comentário** | Autor | +5 | `handle_comment_insert_secure` |
-| **Receber Comentário** | Autor Post | +3 | `handle_comment_insert_secure` |
-| **Dar Reação** | Quem Reage | +3 | `handle_reaction_*_secure` |
-| **Receber Reação** | Autor Post | +2 | `handle_reaction_*_secure` |
-| **Dar Feedback** | Quem Dá | +8 | `handle_feedback_insert_secure` |
-| **Receber Feedback** | Quem Recebe | +5 | `handle_feedback_insert_secure` |
-
-### **Tipos de Ação no Histórico**
-- `post_created` - Criação de posts
-- `mentioned_in_post` - Menção em posts
-- `comment_created` - Criação de comentários
-- `comment_received` - Recebimento de comentários
-- `reaction_given` - Reações dadas
-- `reaction_received` - Reações recebidas
-- `feedback_given` - Feedbacks dados
-- `feedback_received` - Feedbacks recebidos
-
-## 🔔 Sistema de Notificações
-
-### **Tipos e Janelas Anti-Spam**
-| Tipo | Janela | Prioridade | Função Responsável |
-|------|--------|------------|-------------------|
-| **mention** | 1 hora | 3 (alta) | `handle_holofote_notification` |
-| **comment** | 6 horas | 2 (média) | `handle_comment_notification_*` |
-| **reaction** | imediato | 1 (baixa) | `handle_reaction_simple` |
-| **feedback** | 24 horas | 2 (média) | `handle_feedback_notification_correto` |
-| **follow** | 24 horas | 2 (média) | `handle_follow_notification_correto` |
-| **badge_earned** | imediato | 3 (alta) | `handle_badge_notification_only` |
-| **streak** | imediato | 3 (alta) | `handle_streak_notification_only` |
-
-### **Mensagens Padronizadas**
-- ✅ **Sem exclamações** desnecessárias
-- ✅ **Linguagem natural** e amigável
-- ✅ **Informações específicas** quando relevante
-- ✅ **Emojis apropriados** por contexto
-
-## 🚀 Deployment
-
-### **Ordem de Criação**
-1. **Funções Independentes** (audit, utility)
-2. **Funções de Segurança** (com dependências DEFINER)
-3. **Funções de Notificação** (com dependências auxiliares)
-4. **Funções de Gamificação** (com dependências de badges)
-5. **Triggers** (após todas as funções)
-
-### **Dependências Externas Necessárias**
-```sql
--- Funções SECURITY DEFINER (devem ser criadas primeiro)
-CREATE FUNCTION check_and_grant_badges_with_bonus(UUID) RETURNS TEXT;
-CREATE FUNCTION create_single_notification(UUID, UUID, TEXT, TEXT, INTEGER) RETURNS VOID;
-CREATE FUNCTION notify_streak_milestone_correct(UUID, INTEGER, INTEGER) RETURNS VOID;
-CREATE FUNCTION update_user_total_points(UUID) RETURNS VOID;
-CREATE FUNCTION add_points_secure(UUID, INTEGER, TEXT, UUID, TEXT, UUID, TEXT) RETURNS VOID;
-CREATE FUNCTION delete_comment_points_secure(UUID) RETURNS VOID;
-CREATE FUNCTION delete_reaction_points_secure(UUID) RETURNS VOID;
-CREATE FUNCTION recalculate_user_points_secure(UUID) RETURNS VOID;
-```
-
-### **Verificação de Deployment**
-```sql
--- Verificar funções criadas
-SELECT proname, prosecdef, provolatile, lanname
-FROM pg_proc p
-JOIN pg_language l ON p.prolang = l.oid
-JOIN pg_namespace n ON p.pronamespace = n.oid
-WHERE n.nspname = 'public'
-AND proname IN (
-    'update_updated_at_column',
-    'auto_check_badges_with_bonus_after_action',
-    'handle_holofote_notification',
-    'handle_comment_notification_correto',
-    'handle_comment_notification_only',
-    'handle_reaction_simple',
-    'handle_feedback_notification_correto',
-    'handle_follow_notification_correto',
-    'handle_badge_notification_only',
-    'handle_streak_notification_only',
-    'handle_post_insert_secure',
-    'handle_comment_insert_secure',
-    'handle_comment_delete_secure',
-    'handle_reaction_insert_secure',
-    'handle_reaction_delete_secure',
-    'handle_reaction_points_simple',
-    'handle_feedback_insert_secure',
-    'generate_username_from_email'
-)
-ORDER BY proname;
-```
-
-## 🔧 Manutenção
-
-### **Monitoramento**
-- Verificar logs de erro das funções
-- Monitorar performance das operações
-- Validar integridade dos pontos
-- Acompanhar criação de notificações
-
-### **Troubleshooting**
-- Funções com muitas execuções podem impactar performance
-- Verificar se funções dependentes existem
-- Monitorar locks em operações concorrentes
-- Validar dados de entrada
-
-### **Atualizações**
-- Sempre testar em ambiente de desenvolvimento
-- Fazer backup antes de modificações
-- Documentar mudanças no CHANGELOG
-- Verificar compatibilidade com triggers
-
----
-
-**📅 Última Atualização:** Setembro 2025  
-**🔄 Status:** Todas as funções extraídas e organizadas  
-**📊 Cobertura:** 18/18 funções dos triggers (100%)  
-**🎯 Próximo:** Extrair funções dependentes e policies RLS
+**Status:** ✅ Sincronizado com banco real
+**Última verificação:** 2025-09-17 02:21:37
+**Próxima verificação:** Recomendada em 1 semana
 
