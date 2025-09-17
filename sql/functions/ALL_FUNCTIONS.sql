@@ -2559,12 +2559,14 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Mensagem
     message_text := COALESCE(username_from, 'HoloSpot') || ' comentou no seu post!';
@@ -2595,12 +2597,14 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Mensagem
     message_text := COALESCE(username_from, 'HoloSpot') || ' comentou no seu post!';
@@ -2637,7 +2641,8 @@ BEGIN
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Montar mensagem
     message_text := COALESCE(username_from, 'HoloSpot') || ' comentou no seu post!';
@@ -2882,19 +2887,22 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Mensagem
     message_text := COALESCE(username_from, 'HoloSpot') || ' deu feedback sobre o post que você fez destacando-o!';
     
     -- Criar com anti-duplicação absoluta
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
     PERFORM create_notification_no_duplicates(
-        post_owner_id, NEW.user_id, 'feedback', message_text, 2
+        post_owner_id, NEW.author_id, 'feedback', message_text, 2
     );
     
     RETURN NEW;
@@ -3548,12 +3556,14 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Emoji
     reaction_emoji := CASE NEW.type
@@ -3597,7 +3607,8 @@ BEGIN
     WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
@@ -3653,12 +3664,14 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Emoji
     reaction_emoji := CASE NEW.type
@@ -3704,7 +3717,8 @@ BEGIN
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Emoji da reação
     reaction_emoji := CASE NEW.type
@@ -3823,12 +3837,14 @@ BEGIN
     SELECT user_id INTO post_owner_id FROM public.posts WHERE id = NEW.post_id;
     
     -- Verificações básicas
-    IF post_owner_id IS NULL OR post_owner_id = NEW.user_id THEN
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    IF post_owner_id IS NULL OR post_owner_id = NEW.author_id THEN
         RETURN NEW;
     END IF;
     
     -- Buscar username
-    SELECT username INTO username_from FROM public.profiles WHERE id = NEW.user_id;
+    -- CORREÇÃO: Mudado NEW.user_id para NEW.author_id
+    SELECT COALESCE(username, 'Usuario') INTO username_from FROM public.profiles WHERE id = NEW.author_id;
     
     -- Emoji
     reaction_emoji := CASE NEW.type

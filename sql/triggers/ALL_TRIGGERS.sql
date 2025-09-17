@@ -51,10 +51,12 @@ CREATE TRIGGER comment_insert_secure_trigger AFTER INSERT ON public.comments FOR
 
 CREATE TRIGGER comment_notification_correto_trigger AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_notification_correto();
 
--- TRIGGER 10: comment_notify_only_trigger
+-- TRIGGER 10: comment_notify_only_trigger (REMOVIDO - CAUSAVA DUPLICATAS)
 -- ============================================================================
+-- Este trigger foi removido pois causava notificações duplicadas
+-- Mantido apenas comment_notification_correto_trigger
 
-CREATE TRIGGER comment_notify_only_trigger AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_notification_only();
+-- CREATE TRIGGER comment_notify_only_trigger AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_notification_only();
 
 -- TRIGGER 11: feedback_insert_secure_trigger
 -- ============================================================================
