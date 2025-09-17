@@ -5206,6 +5206,9 @@
                 
                 console.log('✅ Interface atualizada após reação');
                 
+                // Atualizar display do streak após reação
+                updateStreakDisplay();
+                
             } catch (error) {
                 console.error('❌ Erro crítico ao reagir:', error);
                 console.error('❌ Stack trace:', error.stack);
@@ -5729,6 +5732,9 @@
                 
                 alert('✨ Post criado com sucesso!');
                 
+                // Atualizar display do streak após criar post
+                updateStreakDisplay();
+                
             } catch (error) {
                 console.error('❌ Erro ao criar post:', error);
                 alert('Erro ao criar post: ' + error.message);
@@ -5881,6 +5887,40 @@
                 
             } catch (error) {
                 console.error('❌ Erro ao marcar notificação como lida:', error);
+            }
+        }
+
+        // Função para atualizar o display do streak após interações
+        async function updateStreakDisplay() {
+            try {
+                console.log('🔄 Atualizando display do streak...');
+                
+                // Buscar dados atualizados do streak
+                const { data: streakData, error } = await supabase
+                    .from('user_streaks')
+                    .select('current_streak')
+                    .eq('user_id', currentUser.id)
+                    .single();
+                
+                if (error) {
+                    console.warn('⚠️ Erro ao buscar streak atualizado:', error);
+                    return;
+                }
+                
+                // Atualizar elemento na interface
+                const userStreakElement = document.getElementById('userStreakDisplay');
+                if (userStreakElement && streakData) {
+                    const streakDays = streakData.current_streak || 0;
+                    if (streakDays === 1) {
+                        userStreakElement.textContent = '1 dia';
+                    } else {
+                        userStreakElement.textContent = streakDays + ' dias';
+                    }
+                    console.log('✅ Streak display atualizado:', streakDays, 'dias');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar display do streak:', error);
             }
         }
 
@@ -7440,6 +7480,9 @@
                     
                     // Atualizar métricas do usuário
                     updateSimpleMetrics();
+                    
+                    // Atualizar display do streak após comentar
+                    updateStreakDisplay();
                 }
                 
                 // Limpar textarea
