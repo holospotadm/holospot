@@ -1,7 +1,7 @@
 -- ============================================================================
--- TODAS AS FUNÇÕES - EXTRAÇÃO MANUAL LINHA POR LINHA
+-- SCHEMA COMPLETO DAS TABELAS - HOLOSPOT
 -- ============================================================================
--- Total extraído: 0 funções
--- Método: Processamento manual garantido
+-- Extraído do banco real em: 2025-09-17 02:21:37
+-- Total de tabelas: 14
 -- ============================================================================
 
