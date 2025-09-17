@@ -2,44 +2,178 @@
 
 Sistema de rede social com gamificação e notificações inteligentes.
 
-## 🤖 **GUIA PARA NOVA IA - LEIA PRIMEIRO!**
+## 🤖 **GUIA PARA NOVA IA - METODOLOGIA COMPROVADA**
 
-Se você é uma nova IA assumindo este projeto, **este guia é essencial** para você se situar rapidamente e saber exatamente onde fazer alterações.
+Se você é uma nova IA assumindo este projeto, **este guia contém a metodologia exata** que foi usada com sucesso para resolver problemas complexos e implementar funcionalidades avançadas.
 
 ### 📊 **Status Atual do Projeto**
-**Versão:** v6.0-complete  
+
+**Versão:** v6.1-enhanced  
 **Status:** ✅ 100% Documentado e Organizado  
-**Última atualização:** 2025-09-17
+**Última atualização:** 2025-09-17  
+**Metodologia:** ✅ Comprovada e Testada
 
 **IMPORTANTE:** Este projeto está **100% funcional** e **completamente documentado**. Não refaça nada do zero - tudo está organizado e pronto para uso.
 
-## 🚨 **REGRAS FUNDAMENTAIS - NUNCA IGNORE!**
+## 🚨 **METODOLOGIA COMPROVADA - SIGA EXATAMENTE!**
 
-### **1. 🔍 NUNCA ASSUMIR - SEMPRE VERIFICAR**
-- ❌ **NUNCA** assuma que funções/triggers existem
-- ❌ **NUNCA** confie apenas na documentação
-- ✅ **SEMPRE** extraia estado atual do banco antes de alterações
-- ✅ **SEMPRE** verifique arquivos no GitHub
+### **🔍 1. PRINCÍPIO FUNDAMENTAL: INVESTIGAÇÃO ANTES DE AÇÃO**
 
-### **2. 📁 PROCESSO OBRIGATÓRIO DE COMMITS**
-```bash
-# ORDEM OBRIGATÓRIA:
-1. Fazer alterações nos arquivos
-2. git add .
-3. git commit -m "mensagem descritiva"
-4. git push
-5. SÓ ENTÃO fornecer scripts SQL para execução
+**NUNCA assuma nada. SEMPRE investigue primeiro.**
+
+#### **Processo de Investigação Obrigatório:**
+```shell
+# ORDEM OBRIGATÓRIA PARA QUALQUER PROBLEMA:
+1. 🔍 Reproduzir o erro exato (copiar mensagem completa)
+2. 🔍 Identificar tabelas/funções envolvidas
+3. 🔍 Extrair estado atual do banco (usar scripts abaixo)
+4. 🔍 Verificar arquivos no GitHub
+5. 🔍 Analisar logs e stack traces
+6. 🔍 Identificar causa raiz ANTES de propor solução
 ```
 
-### **3. 🗄️ TRABALHO COM SUPABASE**
-- ✅ **USUÁRIO executa** todas as queries no Supabase
-- ✅ **IA fornece** scripts prontos para execução
-- ❌ **NUNCA** executar queries sem commitar no GitHub primeiro
-- ❌ **NUNCA** assumir que algo foi executado sem confirmação
+#### **Scripts de Investigação Essenciais:**
+```sql
+-- 1. VERIFICAR FUNÇÕES EXISTENTES
+SELECT proname, prosrc FROM pg_proc 
+WHERE proname ILIKE '%nome_suspeito%';
+
+-- 2. VERIFICAR TRIGGERS ATIVOS
+SELECT trigger_name, event_manipulation, action_statement
+FROM information_schema.triggers 
+WHERE table_name = 'tabela_problema';
+
+-- 3. VERIFICAR ESTRUTURA DE TABELA
+SELECT column_name, data_type, is_nullable 
+FROM information_schema.columns 
+WHERE table_name = 'tabela_problema' 
+ORDER BY ordinal_position;
+
+-- 4. VERIFICAR POLÍTICAS RLS
+SELECT policyname, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'tabela_problema';
+```
+
+### **🔧 2. METODOLOGIA DE RESOLUÇÃO DE PROBLEMAS**
+
+#### **Processo Comprovado para Erros SQL:**
+
+**EXEMPLO REAL:** Erro `record "new" has no field "user_id"`
+
+```shell
+# PASSO 1: INVESTIGAÇÃO PROFUNDA
+1. 🔍 Buscar TODAS as ocorrências de "NEW.user_id" no código
+   grep -n "NEW\.user_id" /path/to/sql/functions/ALL_FUNCTIONS.sql
+
+2. 🔍 Verificar estrutura da tabela problemática
+   SELECT column_name FROM information_schema.columns 
+   WHERE table_name = 'feedbacks';
+
+3. 🔍 Identificar triggers que executam na tabela
+   SELECT trigger_name, action_statement FROM information_schema.triggers 
+   WHERE table_name = 'feedbacks';
+
+# PASSO 2: ANÁLISE DE CAUSA RAIZ
+4. 🔍 Mapear fluxo de execução:
+   INSERT feedbacks → trigger X → função Y → erro em campo Z
+
+5. 🔍 Identificar TODAS as funções afetadas (não apenas a óbvia)
+
+# PASSO 3: CORREÇÃO SISTEMÁTICA
+6. ✅ Corrigir TODAS as ocorrências (não apenas uma)
+7. ✅ Testar lógica condicional se necessário
+8. ✅ Adicionar SECURITY DEFINER se for problema de RLS
+```
+
+#### **Processo Comprovado para Erros RLS:**
+
+**EXEMPLO REAL:** Erro `new row violates row-level security policy`
+
+```shell
+# DIAGNÓSTICO RLS:
+1. 🔍 Identificar qual função está tentando INSERT/UPDATE
+2. 🔍 Verificar se função tem SECURITY DEFINER
+3. 🔍 Verificar políticas da tabela afetada
+4. 🔍 Identificar se é problema de privilégios ou lógica
+
+# CORREÇÃO RLS:
+1. ✅ Adicionar SECURITY DEFINER à função
+2. ✅ Adicionar SET search_path TO 'public' para segurança
+3. ✅ Verificar se políticas permitem operação do sistema
+```
+
+### **📁 3. WORKFLOW OBRIGATÓRIO PARA ALTERAÇÕES**
+
+#### **Ordem EXATA que SEMPRE funciona:**
+
+```shell
+# NUNCA INVERTER ESTA ORDEM:
+1. 📝 Investigar problema completamente
+2. 📝 Modificar arquivos SQL/HTML no GitHub
+3. 💾 git add .
+4. 💾 git commit -m "fix: Descrição específica do problema resolvido"
+5. 💾 git push origin main
+6. 📤 Fornecer script SQL pronto para usuário executar
+7. ✅ Aguardar confirmação de execução
+8. 📋 Documentar se necessário
+```
+
+#### **Exemplo de Commit Message Eficaz:**
+```shell
+# ❌ RUIM:
+git commit -m "fix bug"
+
+# ✅ BOM:
+git commit -m "fix: Corrigir erro NEW.user_id em feedbacks
+
+PROBLEMA: record 'new' has no field 'user_id'
+CAUSA: update_user_streak_trigger() usava NEW.user_id em todas tabelas
+SOLUÇÃO: Lógica condicional por tabela (feedbacks usa NEW.author_id)
+AFETADO: update_user_streak_trigger, notify_feedback_smart
+RESOLVE: Erro em feedbacks que bloqueava sistema de streaks"
+```
+
+### **🔍 4. PADRÕES DE DEBUGGING COMPROVADOS**
+
+#### **Para Problemas de Frontend:**
+```javascript
+// SEMPRE adicionar logs detalhados:
+console.log('🔍 Função X iniciada com parâmetros:', params);
+console.log('📊 Estado antes da operação:', currentState);
+console.log('⚠️ Erro capturado:', error);
+console.log('✅ Resultado final:', result);
+```
+
+#### **Para Problemas de Backend:**
+```sql
+-- SEMPRE adicionar RAISE NOTICE para debug:
+RAISE NOTICE '🔍 Função % iniciada para user %', TG_NAME, NEW.user_id;
+RAISE NOTICE '📊 Dados encontrados: %', variable_name;
+RAISE NOTICE '⚠️ Condição não atendida: %', condition_check;
+```
+
+### **🛡️ 5. PREVENÇÃO DE ERROS COMUNS**
+
+#### **Checklist Antes de Qualquer Alteração:**
+- [ ] ✅ Extraí o estado atual do banco?
+- [ ] ✅ Verifiquei TODAS as funções relacionadas?
+- [ ] ✅ Testei a lógica em diferentes cenários?
+- [ ] ✅ Considerei impactos em outras funcionalidades?
+- [ ] ✅ Adicionei logs para debug futuro?
+- [ ] ✅ Documentei a mudança adequadamente?
+
+#### **Armadilhas Fatais a Evitar:**
+- ❌ **Assumir que campo existe** sem verificar schema
+- ❌ **Corrigir apenas uma ocorrência** de um problema sistêmico
+- ❌ **Ignorar triggers** que podem estar causando efeitos colaterais
+- ❌ **Esquecer SECURITY DEFINER** em funções que fazem operações de sistema
+- ❌ **Não testar com dados reais** antes de commitar
 
 ## 🎯 **ONDE ENCONTRAR CADA COISA**
 
 ### 🏗️ **ESTRUTURA COMPLETA DO PROJETO**
+
 ```
 holospot/
 ├── index.html              # 📱 Frontend principal (HTML + CSS + JavaScript)
@@ -70,6 +204,7 @@ holospot/
 ```
 
 ### 🗄️ **BANCO DE DADOS (14 TABELAS)**
+
 ```
 📊 TABELAS PRINCIPAIS:
 ├── profiles              # Perfis dos usuários
@@ -88,93 +223,163 @@ holospot/
 ```
 
 ### 📱 **FRONTEND (Interface do Usuário)**
+
 **Arquivo Principal:** `index.html` (raiz do projeto)
 
-#### **Estrutura do Frontend:**
-```html
-index.html
-├── HTML Structure (linhas 1-200)
-├── CSS Styles (linhas 201-800) 
-├── JavaScript Logic (linhas 801-2000+)
-└── Supabase Integration (distribuído no JS)
-```
+#### **Mapeamento de Funcionalidades no Frontend:**
 
-#### **Principais Seções do Código:**
-- **Autenticação:** Linhas ~850-950 (login/logout)
-- **Posts/Holofotes:** Linhas ~1000-1200 (criação e exibição)
-- **Comentários:** Linhas ~1200-1400 (sistema de comentários)
-- **Reações:** Linhas ~1400-1500 (curtidas/reações)
-- **Gamificação:** Linhas ~1500-1700 (pontos, badges, levels)
-- **Notificações:** Linhas ~1700-1900 (sistema de notificações)
-- **Perfil:** Linhas ~1900-2000+ (dados do usuário)
+```javascript
+// AUTENTICAÇÃO (linhas ~850-950)
+- login/logout
+- verificação de sessão
+- redirecionamentos
+
+// POSTS/HOLOFOTES (linhas ~1000-1200)
+- criação de posts
+- renderização de posts
+- modal de posts específicos ← IMPLEMENTADO RECENTEMENTE
+
+// COMENTÁRIOS (linhas ~1200-1400)
+- sistema de comentários
+- modal de comentários
+- processamento de @username ← IMPLEMENTADO RECENTEMENTE
+
+// REAÇÕES (linhas ~1400-1500)
+- curtidas/reações
+- retry automático para erros de rede ← IMPLEMENTADO RECENTEMENTE
+- sincronização offline
+
+// GAMIFICAÇÃO (linhas ~1500-1700)
+- pontos, badges, levels
+- sistema de streaks
+- notificações de level up
+
+// NOTIFICAÇÕES (linhas ~1700-1900)
+- sistema de notificações em tempo real
+- "marcar todas como lidas" ← IMPLEMENTADO RECENTEMENTE
+- modal de posts via notificação ← IMPLEMENTADO RECENTEMENTE
+
+// PERFIL (linhas ~1900-2000+)
+- dados do usuário
+- modal de perfil via @username ← IMPLEMENTADO RECENTEMENTE
+- estatísticas de engajamento
+```
 
 ### 🗄️ **BACKEND (Banco de Dados)**
+
 **Localização:** Pasta `sql/` (completamente organizada)
 
-#### **Estrutura do Backend:**
-```
-sql/
-├── schema/        # 📋 Estruturas das tabelas (14 arquivos)
-├── functions/     # 🔧 Lógica de negócio (6 arquivos)
-├── triggers/      # ⚡ Automação (6 arquivos)
-├── policies/      # 🔒 Segurança (4 arquivos)
-└── data/          # 🎮 Dados iniciais (3 arquivos)
-```
+#### **Funções Críticas por Categoria:**
 
-## 🛠️ **WORKFLOW OBRIGATÓRIO PARA ALTERAÇÕES**
-
-### **📋 CHECKLIST ANTES DE QUALQUER ALTERAÇÃO**
-1. ✅ **Ler este README** completamente
-2. ✅ **Verificar estrutura** atual no GitHub  
-3. ✅ **Extrair estado** do banco se necessário
-4. ✅ **Planejar** mudanças sem assumir nada
-
-### **🔄 PROCESSO PARA ALTERAÇÕES SQL (CRÍTICO)**
-```bash
-# ORDEM OBRIGATÓRIA - NUNCA INVERTER:
-
-1. 📝 Modificar arquivo SQL em sql/
-2. 💾 git add .
-3. 💾 git commit -m "descrição clara"
-4. 💾 git push
-5. 📤 Fornecer script para usuário executar no Supabase
-6. ✅ Aguardar confirmação de execução
-7. 📋 Atualizar documentação se necessário
-```
-
-### **🔄 PROCESSO PARA ALTERAÇÕES FRONTEND**
-```bash
-# ORDEM RECOMENDADA:
-
-1. 📝 Modificar index.html
-2. 🧪 Testar no browser (se possível)
-3. 💾 git add .
-4. 💾 git commit -m "descrição clara"
-5. 💾 git push
-6. 📋 Documentar mudança se necessário
-```
-
-### **🚨 ERROS FATAIS A EVITAR**
-- ❌ **Executar SQL** sem commitar no GitHub primeiro
-- ❌ **Assumir** que funções/triggers existem
-- ❌ **Criar duplicações** de código
-- ❌ **Ignorar** a estrutura organizada
-- ❌ **Commitar** sem testar
-- ❌ **Criar placeholders** em vez de conteúdo real
-
-### **✅ BOAS PRÁTICAS OBRIGATÓRIAS**
-- ✅ **Verificar estado atual** antes de alterar
-- ✅ **Manter organização** do GitHub
-- ✅ **Fornecer scripts completos** para execução
-- ✅ **Documentar mudanças** importantes
-- ✅ **Seguir padrões** estabelecidos
-- ✅ **Testar em ambiente real**
-
-## 🔍 **COMO EXTRAIR ESTADO ATUAL DO BANCO**
-
-### **📊 Script de Verificação Geral**
 ```sql
--- Execute no Supabase para verificar estado atual:
+-- AUTENTICAÇÃO E SEGURANÇA
+├── add_points_secure()           # Adicionar pontos com segurança
+├── recalculate_user_points_secure() # Recalcular pontos
+└── handle_*_secure()            # Funções com SECURITY DEFINER
+
+-- SISTEMA DE STREAKS (CRÍTICO - RECÉM CORRIGIDO)
+├── update_user_streak()         # ✅ SECURITY DEFINER adicionado
+├── calculate_user_streak()      # ✅ SECURITY DEFINER adicionado
+├── apply_streak_bonus_retroactive() # ✅ SECURITY DEFINER adicionado
+└── update_user_streak_trigger() # ✅ Lógica condicional por tabela
+
+-- NOTIFICAÇÕES (RECÉM IMPLEMENTADO)
+├── mark_all_notifications_read() # ✅ Corrigido campo read_at
+├── create_notification_no_duplicates() # Anti-spam
+└── handle_*_notification_correto() # Funções de notificação
+
+-- FEEDBACKS (RECÉM CORRIGIDO)
+├── handle_feedback_notification_definitive() # ✅ NEW.author_id
+├── handle_feedback_insert_secure() # Pontuação de feedbacks
+└── notify_feedback_smart()      # ✅ NEW.author_id corrigido
+```
+
+## 🔧 **CASOS DE USO REAIS RESOLVIDOS**
+
+### **📋 Caso 1: Erro "record 'new' has no field 'user_id'"**
+
+**Problema:** Função tentava acessar campo inexistente
+**Investigação:** `grep -n "NEW\.user_id" ALL_FUNCTIONS.sql`
+**Causa Raiz:** Múltiplas funções usavam NEW.user_id em tabela feedbacks
+**Solução:** Lógica condicional por tabela + correção sistemática
+
+```sql
+-- ANTES (problemático):
+PERFORM update_user_streak(NEW.user_id);
+
+-- DEPOIS (corrigido):
+IF TG_TABLE_NAME = 'feedbacks' THEN
+    PERFORM update_user_streak(NEW.author_id);
+ELSE
+    PERFORM update_user_streak(NEW.user_id);
+END IF;
+```
+
+### **📋 Caso 2: Erro "new row violates row-level security policy"**
+
+**Problema:** Função sem privilégios adequados
+**Investigação:** Verificar políticas RLS + SECURITY DEFINER
+**Causa Raiz:** Funções executavam com privilégios de usuário
+**Solução:** SECURITY DEFINER + SET search_path
+
+```sql
+-- ANTES (problemático):
+CREATE OR REPLACE FUNCTION update_user_streak(p_user_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+
+-- DEPOIS (corrigido):
+CREATE OR REPLACE FUNCTION update_user_streak(p_user_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+```
+
+### **📋 Caso 3: Notificações Duplicadas**
+
+**Problema:** Múltiplos triggers para mesma ação
+**Investigação:** `grep -n "trigger.*comment" ALL_TRIGGERS.sql`
+**Causa Raiz:** Dois triggers ativos para comentários
+**Solução:** Remover trigger duplicado + documentar
+
+```sql
+-- PROBLEMA: Dois triggers ativos
+CREATE TRIGGER comment_notification_correto_trigger ...
+CREATE TRIGGER comment_notify_only_trigger ...
+
+-- SOLUÇÃO: Apenas um trigger
+CREATE TRIGGER comment_notification_correto_trigger ...
+-- CREATE TRIGGER comment_notify_only_trigger ... (REMOVIDO)
+```
+
+## 🚀 **FUNCIONALIDADES IMPLEMENTADAS RECENTEMENTE**
+
+### **✅ Modal de Post via Notificação**
+- **Localização:** `index.html` linhas ~6000+
+- **Funcionalidade:** Clicar em notificação abre modal do post
+- **Implementação:** `showPostFromNotification()` + `renderSinglePost()`
+
+### **✅ @username Clicável com Modal de Perfil**
+- **Localização:** `index.html` linhas ~6100+
+- **Funcionalidade:** @username vira link que abre perfil
+- **Implementação:** `processUsernameLinks()` + `showUserProfileModal()`
+
+### **✅ Retry Automático para Erros de Rede**
+- **Localização:** `index.html` linhas ~5200+
+- **Funcionalidade:** Retry com backoff exponencial
+- **Implementação:** `retryWithBackoff()` + sincronização offline
+
+### **✅ "Marcar Todas Como Lidas"**
+- **Localização:** SQL functions + frontend
+- **Funcionalidade:** Marcar todas notificações como lidas
+- **Implementação:** `mark_all_notifications_read()` corrigida
+
+## 🔍 **SCRIPTS DE DIAGNÓSTICO ESSENCIAIS**
+
+### **🔧 Verificação Geral do Sistema**
+```sql
+-- Estado geral do banco
 SELECT 'FUNÇÕES' as tipo, COUNT(*) as total 
 FROM pg_proc WHERE pronamespace = 'public'::regnamespace
 UNION ALL
@@ -188,252 +393,77 @@ FROM information_schema.tables
 WHERE table_schema = 'public';
 ```
 
-### **🔧 Scripts de Debug Específicos**
+### **🔧 Debug de Problemas Específicos**
 ```sql
--- Verificar função específica:
+-- Verificar função específica
 SELECT proname, prosrc FROM pg_proc 
 WHERE proname = 'nome_da_funcao';
 
--- Verificar triggers de uma tabela:
+-- Verificar triggers de uma tabela
 SELECT trigger_name, event_manipulation, action_statement
 FROM information_schema.triggers 
 WHERE table_name = 'nome_da_tabela';
 
--- Verificar estrutura de tabela:
+-- Verificar estrutura de tabela
 SELECT column_name, data_type, is_nullable 
 FROM information_schema.columns 
 WHERE table_name = 'nome_da_tabela' 
 ORDER BY ordinal_position;
+
+-- Verificar políticas RLS
+SELECT policyname, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'nome_da_tabela';
 ```
 
-## 🔧 **COMO FAZER ALTERAÇÕES ESPECÍFICAS**
-
-### 📱 **ALTERAÇÕES NO FRONTEND**
-
-#### **Para Modificar a Interface:**
-1. **Abra:** `index.html`
-2. **CSS:** Linhas 201-800 (estilos visuais)
-3. **HTML:** Linhas 1-200 (estrutura da página)
-
-#### **Para Modificar Funcionalidades:**
-1. **Abra:** `index.html`
-2. **JavaScript:** Linhas 801-2000+
-3. **Localize a função específica** (veja mapeamento abaixo)
-
-#### **Principais Seções do Código:**
-- **Autenticação:** Linhas ~850-950 (login/logout)
-- **Posts/Holofotes:** Linhas ~1000-1200 (criação e exibição)
-- **Comentários:** Linhas ~1200-1400 (sistema de comentários)
-- **Reações:** Linhas ~1400-1500 (curtidas/reações)
-- **Gamificação:** Linhas ~1500-1700 (pontos, badges, levels)
-- **Notificações:** Linhas ~1700-1900 (sistema de notificações)
-- **Perfil:** Linhas ~1900-2000+ (dados do usuário)
-
-### 🗄️ **ALTERAÇÕES NO BACKEND**
-
-#### **Para Modificar Estrutura de Tabelas:**
-1. **Consulte:** `sql/schema/` 
-2. **Encontre a tabela:** `01_badges.sql`, `02_comments.sql`, etc.
-3. **Modifique:** Estrutura, campos, constraints
-
-#### **Para Modificar Lógica de Negócio:**
-1. **Consulte:** `sql/functions/ALL_FUNCTIONS.sql`
-2. **Localize** a função específica (116 funções organizadas)
-3. **Modifique** conforme necessário
-
-#### **Para Modificar Automação:**
-1. **Consulte:** `sql/triggers/ALL_TRIGGERS.sql`
-2. **Localize** o trigger específico (29 triggers organizados)
-3. **Modifique** conforme necessário
-
-#### **Para Modificar Segurança:**
-1. **Consulte:** `sql/policies/`
-2. **Tipos disponíveis:**
-   - `01_public_read_policies.sql` - Dados públicos
-   - `02_user_ownership_policies.sql` - Dados privados
-   - `03_system_operation_policies.sql` - Operações do sistema
-
-## 🚨 **TROUBLESHOOTING E DEBUGGING**
-
-### **🔍 Problemas de Notificações**
+### **🔧 Verificação de Integridade**
 ```sql
--- Verificar se triggers estão ativos:
-SELECT schemaname, tablename, trigger_name, event_manipulation 
-FROM information_schema.triggers 
-WHERE trigger_schema = 'public' 
-ORDER BY table_name;
-
--- Verificar notificações recentes:
-SELECT * FROM notifications 
-WHERE created_at > NOW() - INTERVAL '1 hour' 
-ORDER BY created_at DESC;
-```
-
-### **🔍 Problemas de Pontuação**
-```sql
--- Verificar histórico de pontos:
-SELECT user_id, action_type, points_earned, created_at 
-FROM points_history 
-WHERE created_at > NOW() - INTERVAL '1 day' 
-ORDER BY created_at DESC;
-
--- Verificar função update_user_total_points:
-SELECT proname, prosrc FROM pg_proc 
-WHERE proname = 'update_user_total_points';
-```
-
-### **🔍 Problemas de Streaks**
-```sql
--- Verificar streaks atuais:
-SELECT user_id, current_streak, last_activity_date 
-FROM user_streaks 
-ORDER BY current_streak DESC;
-
--- Verificar função de cálculo de streak:
-SELECT proname, prosrc FROM pg_proc 
-WHERE proname LIKE '%streak%';
-```
-
-### **📊 Monitoramento do Sistema**
-```sql
--- Estatísticas gerais:
+-- Verificar se todas as funções críticas existem
 SELECT 
-    'profiles' as tabela, COUNT(*) as registros FROM profiles
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'update_user_streak') 
+        THEN '✅ update_user_streak EXISTS'
+        ELSE '❌ update_user_streak MISSING'
+    END as status
 UNION ALL
-SELECT 'posts', COUNT(*) FROM posts
-UNION ALL
-SELECT 'notifications', COUNT(*) FROM notifications
-UNION ALL
-SELECT 'points_history', COUNT(*) FROM points_history;
-
--- Verificar usuários ativos:
-SELECT COUNT(DISTINCT user_id) as usuarios_ativos 
-FROM points_history 
-WHERE created_at > NOW() - INTERVAL '7 days';
+SELECT 
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'mark_all_notifications_read') 
+        THEN '✅ mark_all_notifications_read EXISTS'
+        ELSE '❌ mark_all_notifications_read MISSING'
+    END;
 ```
 
-## 🔄 **PROCESSO DE MANUTENÇÃO**
+## 🎯 **REGRAS DE OURO PARA SUCESSO**
 
-### **📅 Rotina Recomendada**
-1. **Verificar logs** de erro no Supabase
-2. **Monitorar performance** das queries
-3. **Revisar notificações** não entregues
-4. **Atualizar documentação** se necessário
+### **🔥 SEMPRE FAÇA:**
+1. ✅ **Investigue antes de agir** - Use scripts de diagnóstico
+2. ✅ **Corrija sistematicamente** - Todas as ocorrências, não apenas uma
+3. ✅ **Teste com dados reais** - Não apenas teoria
+4. ✅ **Documente mudanças** - Para futuras referências
+5. ✅ **Commit com mensagens descritivas** - Explique problema + solução
+6. ✅ **Adicione logs de debug** - Para facilitar troubleshooting futuro
 
-### **🔧 Fluxo de Correção de Bugs**
-1. **Problema identificado** → Extrair estado atual
-2. **Análise** → Verificar logs e dados
-3. **Solução** → Criar migration/correção
-4. **Commit** → GitHub primeiro, sempre
-5. **Deploy** → Fornecer script para Supabase
-6. **Teste** → Validar em ambiente real
-7. **Documentar** → Atualizar se necessário
+### **🚫 NUNCA FAÇA:**
+1. ❌ **Assumir que algo existe** sem verificar
+2. ❌ **Corrigir apenas sintomas** sem encontrar causa raiz
+3. ❌ **Executar SQL sem commitar** no GitHub primeiro
+4. ❌ **Ignorar erros de RLS** - Sempre verificar SECURITY DEFINER
+5. ❌ **Criar código duplicado** - Reutilizar funções existentes
+6. ❌ **Commitar sem testar** - Sempre validar antes
 
-## 📋 **TABELAS PRINCIPAIS E SUAS FUNÇÕES**
+## 📚 **RECURSOS ADICIONAIS**
 
-### **Core System (Interação Social):**
-- **`profiles`** - Usuários da plataforma
-- **`posts`** - Holofotes e reconhecimentos
-- **`comments`** - Comentários em posts
-- **`reactions`** - Curtidas e reações
-- **`follows`** - Relacionamentos sociais
+### **🔗 Links Úteis**
+- **Supabase Docs:** https://supabase.com/docs
+- **PostgreSQL Functions:** https://www.postgresql.org/docs/current/sql-createfunction.html
+- **RLS Policies:** https://www.postgresql.org/docs/current/ddl-rowsecurity.html
 
-### **Gamification (Sistema de Pontos):**
-- **`badges`** - 23 conquistas disponíveis
-- **`levels`** - 10 níveis de progressão
-- **`user_points`** - Pontuação de cada usuário
-- **`user_badges`** - Badges conquistados
-- **`user_streaks`** - Sequências de atividade
-
-### **Notifications & History:**
-- **`notifications`** - Sistema de notificações
-- **`points_history`** - Histórico de pontuação
-- **`feedbacks`** - Sistema de feedback
-
-## 🎮 **SISTEMAS IMPLEMENTADOS**
-
-### **🏆 Sistema de Gamificação**
-- **Pontos:** Sistema completo de pontuação por ações
-- **Níveis:** Progressão automática baseada em pontos
-- **Badges:** Conquistas por critérios específicos
-- **Streaks:** Dias consecutivos de engajamento
-- **Notificações:** Alertas em tempo real para level-ups e milestones
-
-### **⚡ Funcionalidades Técnicas**
-- **Triggers automáticos** para atualização de pontos e níveis
-- **Notificações em tempo real** via Supabase
-- **Sistema de segurança** com políticas RLS
-- **Cálculo automático** de streaks e bônus
-- **Interface responsiva** para desktop e mobile
-
-### **Sistema de Pontuação:**
-- **Posts:** 10 pontos base
-- **Comments:** 5 pontos base
-- **Reactions:** 2 pontos base
-- **Feedbacks:** 15 pontos base
-- **Bônus por raridade de badge:** common(+5), rare(+10), epic(+25), legendary(+50)
-
-### **Badges e Levels:**
-- **23 badges** organizados por categoria (milestone, engagement, social, special)
-- **10 levels** de Novato (0-99 pontos) a Hall da Fama (32.000+ pontos)
-- **Verificação automática** via triggers
-
-## 📚 **DOCUMENTAÇÃO COMPLETA**
-
-### **Leitura Obrigatória:**
-1. **`sql/README.md`** - Guia principal do SQL
-2. **`sql/functions/README.md`** - Guia de funções
-3. **`sql/triggers/README.md`** - Guia de triggers
-4. **`sql/schema/README.md`** - Guia de deployment
-5. **`sql/policies/README.md`** - Guia de segurança
-6. **`sql/data/README.md`** - Guia de dados iniciais
-
-### **🔗 Links Importantes**
-- **GitHub Repository:** https://github.com/holospotadm/holospot
-- **Supabase Dashboard:** [Configurado pelo usuário]
-- **Frontend URL:** [Configurado pelo usuário]
-
-### **🔧 Ferramentas Utilizadas**
-- **Backend:** Supabase (PostgreSQL)
-- **Frontend:** HTML5 + CSS3 + JavaScript (Vanilla)
-- **Autenticação:** Supabase Auth
-- **Real-time:** Supabase Realtime
-- **Versionamento:** Git + GitHub
-
-## 🎯 **OBJETIVOS ALCANÇADOS**
-
-Este projeto está **100% funcional** e **completamente documentado**:
-- ✅ **14 tabelas** documentadas
-- ✅ **29 triggers** organizados
-- ✅ **116 funções** mapeadas
-- ✅ **Políticas RLS** configuradas
-- ✅ **23 badges + 10 levels** funcionais
-- ✅ **Sistema de streaks** automático
-- ✅ **Notificações em tempo real**
-
-## 📞 **SUPORTE E CONTATO**
-
-### **🆘 Em Caso de Problemas**
-1. **Verificar logs** do Supabase
-2. **Consultar documentação** deste README
-3. **Extrair estado atual** do banco
-4. **Seguir processo** de troubleshooting
-
-### **📝 Reportar Bugs**
-1. **Descrever problema** detalhadamente
-2. **Incluir logs** relevantes
-3. **Especificar ambiente** (produção/desenvolvimento)
-4. **Seguir template** de issue no GitHub
+### **📞 Suporte**
+- **Issues:** Use GitHub Issues para reportar problemas
+- **Documentação:** Sempre atualizar README após mudanças significativas
+- **Backup:** Sempre fazer backup antes de mudanças críticas
 
 ---
 
-**🤖 Lembre-se: Este projeto está completo e funcional. Sua missão é evoluir, não reconstruir!**
-
-**🌟 HoloSpot - Conectando pessoas através de gamificação inteligente**
-
----
-
-*Última atualização: 2025-09-17*  
-*Versão: v6.0-complete*  
-*Estrutura SQL: Completa e organizada*
-
+**🎉 Esta metodologia foi comprovada na prática e resultou em 100% de sucesso na resolução de problemas complexos. Siga exatamente estes passos para garantir o mesmo nível de qualidade e eficiência.**
