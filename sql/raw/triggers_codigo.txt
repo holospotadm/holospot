@@ -1,0 +1,141 @@
+6. DEFINIÇÃO DE TODAS AS TRIGGERS
+============================================================================
+
+-- TRIGGER: auto_badge_check_bonus_comments
+-- ============================================================================
+CREATE TRIGGER auto_badge_check_bonus_comments AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION auto_check_badges_with_bonus_after_action();
+
+
+-- TRIGGER: auto_badge_check_bonus_feedbacks
+-- ============================================================================
+CREATE TRIGGER auto_badge_check_bonus_feedbacks AFTER INSERT ON public.feedbacks FOR EACH ROW EXECUTE FUNCTION auto_check_badges_with_bonus_after_action();
+
+
+-- TRIGGER: auto_badge_check_bonus_posts
+-- ============================================================================
+CREATE TRIGGER auto_badge_check_bonus_posts AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION auto_check_badges_with_bonus_after_action();
+
+
+-- TRIGGER: auto_badge_check_bonus_reactions
+-- ============================================================================
+CREATE TRIGGER auto_badge_check_bonus_reactions AFTER INSERT ON public.reactions FOR EACH ROW EXECUTE FUNCTION auto_check_badges_with_bonus_after_action();
+
+
+-- TRIGGER: auto_badge_check_bonus_user_points
+-- ============================================================================
+CREATE TRIGGER auto_badge_check_bonus_user_points AFTER UPDATE ON public.user_points FOR EACH ROW EXECUTE FUNCTION auto_check_badges_with_bonus_after_action();
+
+
+-- TRIGGER: badge_notify_only_trigger
+-- ============================================================================
+CREATE TRIGGER badge_notify_only_trigger AFTER INSERT ON public.user_badges FOR EACH ROW EXECUTE FUNCTION handle_badge_notification_only();
+
+
+-- TRIGGER: comment_delete_secure_trigger
+-- ============================================================================
+CREATE TRIGGER comment_delete_secure_trigger AFTER DELETE ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_delete_secure();
+
+
+-- TRIGGER: comment_insert_secure_trigger
+-- ============================================================================
+CREATE TRIGGER comment_insert_secure_trigger AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_insert_secure();
+
+
+-- TRIGGER: comment_notification_correto_trigger
+-- ============================================================================
+CREATE TRIGGER comment_notification_correto_trigger AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_notification_correto();
+
+
+-- TRIGGER: comment_notify_only_trigger
+-- ============================================================================
+CREATE TRIGGER comment_notify_only_trigger AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION handle_comment_notification_only();
+
+
+-- TRIGGER: feedback_insert_secure_trigger
+-- ============================================================================
+CREATE TRIGGER feedback_insert_secure_trigger AFTER INSERT ON public.feedbacks FOR EACH ROW EXECUTE FUNCTION handle_feedback_insert_secure();
+
+
+-- TRIGGER: feedback_notification_correto_trigger
+-- ============================================================================
+CREATE TRIGGER feedback_notification_correto_trigger AFTER INSERT ON public.feedbacks FOR EACH ROW EXECUTE FUNCTION handle_feedback_notification_correto();
+
+
+-- TRIGGER: follow_notification_correto_trigger
+-- ============================================================================
+CREATE TRIGGER follow_notification_correto_trigger AFTER INSERT ON public.follows FOR EACH ROW EXECUTE FUNCTION handle_follow_notification_correto();
+
+
+-- TRIGGER: holofote_notification_trigger
+-- ============================================================================
+CREATE TRIGGER holofote_notification_trigger AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION handle_holofote_notification();
+
+
+-- TRIGGER: level_up_notification_trigger
+-- ============================================================================
+CREATE TRIGGER level_up_notification_trigger AFTER UPDATE ON public.user_points FOR EACH ROW EXECUTE FUNCTION handle_level_up_notification();
+
+
+-- TRIGGER: post_insert_secure_trigger
+-- ============================================================================
+CREATE TRIGGER post_insert_secure_trigger AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION handle_post_insert_secure();
+
+
+-- TRIGGER: reaction_delete_secure_trigger
+-- ============================================================================
+CREATE TRIGGER reaction_delete_secure_trigger AFTER DELETE ON public.reactions FOR EACH ROW EXECUTE FUNCTION handle_reaction_delete_secure();
+
+
+-- TRIGGER: reaction_insert_secure_trigger
+-- ============================================================================
+CREATE TRIGGER reaction_insert_secure_trigger AFTER INSERT ON public.reactions FOR EACH ROW EXECUTE FUNCTION handle_reaction_insert_secure();
+
+
+-- TRIGGER: reaction_notification_simple_trigger
+-- ============================================================================
+CREATE TRIGGER reaction_notification_simple_trigger AFTER INSERT ON public.reactions FOR EACH ROW EXECUTE FUNCTION handle_reaction_simple();
+
+
+-- TRIGGER: reaction_points_simple_trigger
+-- ============================================================================
+CREATE TRIGGER reaction_points_simple_trigger AFTER INSERT ON public.reactions FOR EACH ROW EXECUTE FUNCTION handle_reaction_points_simple();
+
+
+-- TRIGGER: streak_notify_only_trigger
+-- ============================================================================
+CREATE TRIGGER streak_notify_only_trigger AFTER UPDATE ON public.user_streaks FOR EACH ROW EXECUTE FUNCTION handle_streak_notification_only();
+
+
+-- TRIGGER: trigger_generate_username
+-- ============================================================================
+CREATE TRIGGER trigger_generate_username BEFORE INSERT OR UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION generate_username_from_email();
+
+
+-- TRIGGER: update_badges_updated_at
+-- ============================================================================
+CREATE TRIGGER update_badges_updated_at BEFORE UPDATE ON public.badges FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+
+-- TRIGGER: update_streak_after_comment
+-- ============================================================================
+CREATE TRIGGER update_streak_after_comment AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION update_user_streak_trigger();
+
+
+-- TRIGGER: update_streak_after_feedback
+-- ============================================================================
+CREATE TRIGGER update_streak_after_feedback AFTER INSERT ON public.feedbacks FOR EACH ROW EXECUTE FUNCTION update_user_streak_trigger();
+
+
+-- TRIGGER: update_streak_after_post
+-- ============================================================================
+CREATE TRIGGER update_streak_after_post AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION update_user_streak_trigger();
+
+
+-- TRIGGER: update_streak_after_reaction
+-- ============================================================================
+CREATE TRIGGER update_streak_after_reaction AFTER INSERT ON public.reactions FOR EACH ROW EXECUTE FUNCTION update_user_streak_trigger();
+
+
+-- TRIGGER: update_user_points_updated_at
+-- ============================================================================
+CREATE TRIGGER update_user_points_updated_at BEFORE UPDATE ON public.user_points FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

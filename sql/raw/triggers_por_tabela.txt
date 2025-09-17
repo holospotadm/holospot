@@ -1,0 +1,35 @@
+7. TRIGGERS POR TABELA
+============================================================================
+TABELA: badges | TRIGGERS: 1 | LISTA: update_badges_updated_at
+TABELA: comments | TRIGGERS: 6 | LISTA: auto_badge_check_bonus_comments, comment_delete_secure_trigger, comment_insert_secure_trigger, comment_notification_correto_trigger, comment_notify_only_trigger, update_streak_after_comment
+TABELA: feedbacks | TRIGGERS: 4 | LISTA: auto_badge_check_bonus_feedbacks, feedback_insert_secure_trigger, feedback_notification_correto_trigger, update_streak_after_feedback
+TABELA: follows | TRIGGERS: 1 | LISTA: follow_notification_correto_trigger
+TABELA: posts | TRIGGERS: 4 | LISTA: auto_badge_check_bonus_posts, holofote_notification_trigger, post_insert_secure_trigger, update_streak_after_post
+TABELA: profiles | TRIGGERS: 1 | LISTA: trigger_generate_username
+TABELA: reactions | TRIGGERS: 6 | LISTA: auto_badge_check_bonus_reactions, reaction_delete_secure_trigger, reaction_insert_secure_trigger, reaction_notification_simple_trigger, reaction_points_simple_trigger, update_streak_after_reaction
+TABELA: user_badges | TRIGGERS: 1 | LISTA: badge_notify_only_trigger
+TABELA: user_points | TRIGGERS: 3 | LISTA: auto_badge_check_bonus_user_points, level_up_notification_trigger, update_user_points_updated_at
+TABELA: user_streaks | TRIGGERS: 1 | LISTA: streak_notify_only_trigger
+
+8. FUNÇÕES USADAS POR TRIGGERS
+============================================================================
+FUNÇÃO: auto_check_badges_with_bonus_after_action | USADA POR: 5 triggers | TRIGGERS: auto_badge_check_bonus_comments, auto_badge_check_bonus_feedbacks, auto_badge_check_bonus_posts, auto_badge_check_bonus_reactions, auto_badge_check_bonus_user_points
+FUNÇÃO: update_user_streak_trigger | USADA POR: 4 triggers | TRIGGERS: update_streak_after_comment, update_streak_after_feedback, update_streak_after_post, update_streak_after_reaction
+FUNÇÃO: update_updated_at_column | USADA POR: 2 triggers | TRIGGERS: update_badges_updated_at, update_user_points_updated_at
+FUNÇÃO: generate_username_from_email | USADA POR: 1 triggers | TRIGGERS: trigger_generate_username
+FUNÇÃO: handle_badge_notification_only | USADA POR: 1 triggers | TRIGGERS: badge_notify_only_trigger
+FUNÇÃO: handle_comment_delete_secure | USADA POR: 1 triggers | TRIGGERS: comment_delete_secure_trigger
+FUNÇÃO: handle_comment_insert_secure | USADA POR: 1 triggers | TRIGGERS: comment_insert_secure_trigger
+FUNÇÃO: handle_comment_notification_correto | USADA POR: 1 triggers | TRIGGERS: comment_notification_correto_trigger
+FUNÇÃO: handle_comment_notification_only | USADA POR: 1 triggers | TRIGGERS: comment_notify_only_trigger
+FUNÇÃO: handle_feedback_insert_secure | USADA POR: 1 triggers | TRIGGERS: feedback_insert_secure_trigger
+FUNÇÃO: handle_feedback_notification_correto | USADA POR: 1 triggers | TRIGGERS: feedback_notification_correto_trigger
+FUNÇÃO: handle_follow_notification_correto | USADA POR: 1 triggers | TRIGGERS: follow_notification_correto_trigger
+FUNÇÃO: handle_holofote_notification | USADA POR: 1 triggers | TRIGGERS: holofote_notification_trigger
+FUNÇÃO: handle_level_up_notification | USADA POR: 1 triggers | TRIGGERS: level_up_notification_trigger
+FUNÇÃO: handle_post_insert_secure | USADA POR: 1 triggers | TRIGGERS: post_insert_secure_trigger
+FUNÇÃO: handle_reaction_delete_secure | USADA POR: 1 triggers | TRIGGERS: reaction_delete_secure_trigger
+FUNÇÃO: handle_reaction_insert_secure | USADA POR: 1 triggers | TRIGGERS: reaction_insert_secure_trigger
+FUNÇÃO: handle_reaction_points_simple | USADA POR: 1 triggers | TRIGGERS: reaction_points_simple_trigger
+FUNÇÃO: handle_reaction_simple | USADA POR: 1 triggers | TRIGGERS: reaction_notification_simple_trigger
+FUNÇÃO: handle_streak_notification_only | USADA POR: 1 triggers | TRIGGERS: streak_notify_only_trigger
