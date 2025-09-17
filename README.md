@@ -21,39 +21,47 @@ Se você é uma nova IA assumindo este projeto, **este guia contém a metodologi
 
 **NUNCA assuma nada. SEMPRE investigue primeiro.**
 
-#### **Processo de Investigação Obrigatório:**
+#### **Processo de Investigação Comprovado:**
 ```shell
-# ORDEM OBRIGATÓRIA PARA QUALQUER PROBLEMA:
+# METODOLOGIA REAL QUE FUNCIONOU 100%:
 1. 🔍 Reproduzir o erro exato (copiar mensagem completa)
-2. 🔍 Identificar tabelas/funções envolvidas
-3. 🔍 Extrair estado atual do banco (usar scripts abaixo)
-4. 🔍 Verificar arquivos no GitHub
-5. 🔍 Analisar logs e stack traces
-6. 🔍 Identificar causa raiz ANTES de propor solução
+2. 🔍 Buscar no GitHub com grep nos arquivos SQL/HTML
+3. 🔍 Identificar causa raiz através do código no GitHub
+4. 🔍 Analisar TODAS as ocorrências do problema
+5. 🔍 Corrigir sistematicamente (não apenas uma ocorrência)
+6. ✅ Commitar correção no GitHub PRIMEIRO
+7. ✅ Fornecer script SQL pronto para execução
 ```
 
-#### **Scripts de Investigação Essenciais:**
+#### **🎯 PREMISSA FUNDAMENTAL:**
+**GitHub = Estado atual do banco** (fonte da verdade)
+- ✅ Trabalhar com base nos arquivos commitados
+- ✅ Confiar no código do GitHub como verdade
+- ❌ NÃO extrair estado do banco (desnecessário se GitHub atualizado)
+
+#### **🔧 Scripts de Verificação (Último Recurso):**
+**Use APENAS se houver suspeita de dessincronia GitHub ↔ Banco**
+
 ```sql
--- 1. VERIFICAR FUNÇÕES EXISTENTES
-SELECT proname, prosrc FROM pg_proc 
-WHERE proname ILIKE '%nome_suspeito%';
+-- SÓ usar SE houver dúvida sobre sincronia:
+-- 1. VERIFICAR SE FUNÇÃO EXISTE NO BANCO
+SELECT proname FROM pg_proc WHERE proname = 'funcao_suspeita';
 
 -- 2. VERIFICAR TRIGGERS ATIVOS
-SELECT trigger_name, event_manipulation, action_statement
-FROM information_schema.triggers 
-WHERE table_name = 'tabela_problema';
+SELECT trigger_name FROM information_schema.triggers 
+WHERE table_name = 'tabela_suspeita';
 
--- 3. VERIFICAR ESTRUTURA DE TABELA
-SELECT column_name, data_type, is_nullable 
-FROM information_schema.columns 
-WHERE table_name = 'tabela_problema' 
-ORDER BY ordinal_position;
-
--- 4. VERIFICAR POLÍTICAS RLS
-SELECT policyname, cmd, qual, with_check
-FROM pg_policies 
-WHERE tablename = 'tabela_problema';
+-- 3. VERIFICAR ESTRUTURA DE TABELA (se erro de campo)
+SELECT column_name FROM information_schema.columns 
+WHERE table_name = 'tabela_suspeita';
 ```
+
+#### **📋 Quando Extrair do Banco:**
+- 🤔 Erro não faz sentido com código do GitHub?
+- 🤔 Suspeita de função/trigger não commitado?
+- 🤔 Comportamento inconsistente reportado?
+
+**SE NÃO → Trabalhar apenas com GitHub (metodologia comprovada)**
 
 ### **🔧 2. METODOLOGIA DE RESOLUÇÃO DE PROBLEMAS**
 
@@ -62,28 +70,25 @@ WHERE tablename = 'tabela_problema';
 **EXEMPLO REAL:** Erro `record "new" has no field "user_id"`
 
 ```shell
-# PASSO 1: INVESTIGAÇÃO PROFUNDA
-1. 🔍 Buscar TODAS as ocorrências de "NEW.user_id" no código
-   grep -n "NEW\.user_id" /path/to/sql/functions/ALL_FUNCTIONS.sql
+# PROCESSO REAL QUE FUNCIONOU:
+1. 🔍 Buscar TODAS as ocorrências no GitHub
+   grep -n "NEW\.user_id" sql/functions/ALL_FUNCTIONS.sql
 
-2. 🔍 Verificar estrutura da tabela problemática
-   SELECT column_name FROM information_schema.columns 
-   WHERE table_name = 'feedbacks';
+2. 🔍 Analisar código e identificar campo correto
+   # Verificar schema no GitHub: sql/schema/04_feedbacks.sql
+   # Campo correto: NEW.author_id (não NEW.user_id)
 
-3. 🔍 Identificar triggers que executam na tabela
-   SELECT trigger_name, action_statement FROM information_schema.triggers 
-   WHERE table_name = 'feedbacks';
+3. 🔍 Mapear fluxo de execução através do código
+   # INSERT feedbacks → trigger update_streak_after_feedback 
+   # → função update_user_streak_trigger() → erro NEW.user_id
 
-# PASSO 2: ANÁLISE DE CAUSA RAIZ
-4. 🔍 Mapear fluxo de execução:
-   INSERT feedbacks → trigger X → função Y → erro em campo Z
+4. 🔍 Identificar TODAS as funções afetadas
+   # update_user_streak_trigger, notify_feedback_smart, etc.
 
-5. 🔍 Identificar TODAS as funções afetadas (não apenas a óbvia)
-
-# PASSO 3: CORREÇÃO SISTEMÁTICA
-6. ✅ Corrigir TODAS as ocorrências (não apenas uma)
-7. ✅ Testar lógica condicional se necessário
-8. ✅ Adicionar SECURITY DEFINER se for problema de RLS
+5. ✅ Corrigir TODAS as ocorrências sistematicamente
+6. ✅ Adicionar lógica condicional por tabela se necessário
+7. ✅ Commitar no GitHub PRIMEIRO
+8. ✅ Fornecer script SQL para execução
 ```
 
 #### **Processo Comprovado para Erros RLS:**
