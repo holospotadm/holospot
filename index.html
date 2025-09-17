@@ -300,6 +300,41 @@
             display: none;
         }
 
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-header span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .mark-all-read-btn {
+            background: #FFB700;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .mark-all-read-btn:hover {
+            background: #e6a600;
+        }
+
+        .mark-all-read-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         .notification-item {
             padding: 1rem;
             border-bottom: 1px solid #f0f0f0;
@@ -1788,6 +1823,10 @@
                     </svg>
                     <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
                     <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <span>Notificações</span>
+                            <button id="markAllReadBtn" class="mark-all-read-btn" style="display: none;">Marcar todas como lidas</button>
+                        </div>
                         <div class="notification-item">
                             <div class="notification-text">Você tem novas menções!</div>
                             <div class="notification-time">há 2 minutos</div>
@@ -5770,9 +5809,14 @@
 
         function renderNotifications() {
             const dropdown = document.getElementById('notificationDropdown');
+            const markAllBtn = document.getElementById('markAllReadBtn');
             
             if (notifications.length === 0) {
                 dropdown.innerHTML = `
+                    <div class="notification-header">
+                        <span>Notificações</span>
+                        <button id="markAllReadBtn" class="mark-all-read-btn" style="display: none;">Marcar todas como lidas</button>
+                    </div>
                     <div class="notification-item">
                         <strong>Nenhuma notificação</strong><br>
                         <small>Você receberá notificações quando alguém interagir com seus posts</small>
@@ -5781,13 +5825,28 @@
                 return;
             }
             
-            dropdown.innerHTML = notifications.map(notification => `
-                <div class="notification-item ${!notification.read ? 'unread' : ''}" 
-                     onclick="markNotificationAsRead('${notification.id}')">
-                    <strong>${notification.message}</strong><br>
-                    <small>${formatDate(notification.created_at)}</small>
+            // Contar notificações não lidas
+            const unreadCount = notifications.filter(n => !n.read).length;
+            
+            dropdown.innerHTML = `
+                <div class="notification-header">
+                    <span>Notificações</span>
+                    <button id="markAllReadBtn" class="mark-all-read-btn" ${unreadCount === 0 ? 'style="display: none;"' : ''}>Marcar todas como lidas</button>
                 </div>
-            `).join('');
+                ${notifications.map(notification => `
+                    <div class="notification-item ${!notification.read ? 'unread' : ''}" 
+                         onclick="markNotificationAsRead('${notification.id}')">
+                        <strong>${notification.message}</strong><br>
+                        <small>${formatDate(notification.created_at)}</small>
+                    </div>
+                `).join('')}
+            `;
+            
+            // Adicionar event listener para o botão "Marcar todas como lidas"
+            const newMarkAllBtn = document.getElementById('markAllReadBtn');
+            if (newMarkAllBtn) {
+                newMarkAllBtn.addEventListener('click', markAllNotificationsAsRead);
+            }
         }
 
         async function markNotificationAsRead(notificationId) {
@@ -5819,6 +5878,80 @@
                 
             } catch (error) {
                 console.error('❌ Erro ao marcar notificação como lida:', error);
+            }
+        }
+
+        async function markAllNotificationsAsRead() {
+            try {
+                console.log('📝 Marcando todas as notificações como lidas...');
+                
+                const markAllBtn = document.getElementById('markAllReadBtn');
+                if (markAllBtn) {
+                    markAllBtn.disabled = true;
+                    markAllBtn.textContent = 'Marcando...';
+                }
+                
+                // Tentar usar a função do banco com timeout
+                try {
+                    const { data, error } = await withTimeout(
+                        supabase.rpc('mark_all_notifications_read', { 
+                            p_user_id: currentUser.id 
+                        }),
+                        5000
+                    );
+                    
+                    if (error) throw error;
+                    
+                    console.log('✅ Todas as notificações marcadas como lidas no banco:', data);
+                    
+                    // Mostrar mensagem de sucesso
+                    if (data && data.message) {
+                        showToast(data.message, 'success');
+                    } else {
+                        showToast('Todas as notificações foram marcadas como lidas!', 'success');
+                    }
+                    
+                } catch (dbError) {
+                    console.warn('⚠️ Erro ao usar função do banco, marcando individualmente:', dbError.message);
+                    
+                    // Fallback: marcar individualmente
+                    const unreadNotifications = notifications.filter(n => !n.read);
+                    
+                    if (unreadNotifications.length > 0) {
+                        const updateQuery = supabase
+                            .from('notifications')
+                            .update({ read: true })
+                            .eq('user_id', currentUser.id)
+                            .eq('read', false);
+                        
+                        await withTimeout(updateQuery, 5000);
+                        
+                        showToast(`${unreadNotifications.length} notificações marcadas como lidas!`, 'success');
+                    } else {
+                        showToast('Nenhuma notificação não lida encontrada!', 'info');
+                    }
+                }
+                
+                // Sempre atualizar estado local
+                notifications.forEach(notification => {
+                    if (!notification.read) {
+                        notification.read = true;
+                    }
+                });
+                
+                updateNotificationBadge();
+                renderNotifications();
+                
+            } catch (error) {
+                console.error('❌ Erro ao marcar todas as notificações como lidas:', error);
+                showToast('Erro ao marcar notificações como lidas. Tente novamente.', 'error');
+            } finally {
+                // Restaurar botão
+                const markAllBtn = document.getElementById('markAllReadBtn');
+                if (markAllBtn) {
+                    markAllBtn.disabled = false;
+                    markAllBtn.textContent = 'Marcar todas como lidas';
+                }
             }
         }
 
