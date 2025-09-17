@@ -2758,6 +2758,77 @@
             if (navTabs) navTabs.style.display = 'none';
         }
 
+        // ===== SINCRONIZAÇÃO DE REAÇÕES LOCAIS =====
+        async function syncLocalReactions() {
+            console.log('🔄 Sincronizando reações locais com o servidor...');
+            
+            const localReactions = [];
+            
+            // Encontrar todas as reações locais
+            posts.forEach(post => {
+                if (Array.isArray(post.reactions)) {
+                    post.reactions.forEach(reaction => {
+                        if (reaction.id.toString().startsWith('local-')) {
+                            localReactions.push({ post, reaction });
+                        }
+                    });
+                }
+            });
+            
+            if (localReactions.length === 0) {
+                console.log('✅ Nenhuma reação local para sincronizar');
+                return;
+            }
+            
+            console.log(`🔄 Encontradas ${localReactions.length} reações locais para sincronizar`);
+            
+            for (const { post, reaction } of localReactions) {
+                try {
+                    const { data, error } = await supabase
+                        .from('reactions')
+                        .insert({
+                            post_id: reaction.post_id,
+                            user_id: reaction.user_id,
+                            type: reaction.type
+                        })
+                        .select()
+                        .single();
+                    
+                    if (!error && data) {
+                        // Substituir reação local pela do servidor
+                        const index = post.reactions.findIndex(r => r.id === reaction.id);
+                        if (index !== -1) {
+                            post.reactions[index] = data;
+                            console.log(`✅ Reação local sincronizada: ${reaction.type} no post ${reaction.post_id}`);
+                        }
+                    }
+                    
+                } catch (syncError) {
+                    console.warn(`⚠️ Erro ao sincronizar reação ${reaction.type}:`, syncError.message);
+                }
+            }
+            
+            console.log('✅ Sincronização de reações locais concluída');
+        }
+
+        // ===== CONFIGURAR SINCRONIZAÇÃO DE REDE =====
+        function setupNetworkSync() {
+            // Sincronizar quando a conexão for restaurada
+            window.addEventListener('online', () => {
+                console.log('🌐 Conexão restaurada, sincronizando reações locais...');
+                showToast('Conexão restaurada. Sincronizando dados...');
+                setTimeout(() => {
+                    syncLocalReactions();
+                }, 1000);
+            });
+            
+            // Avisar quando a conexão for perdida
+            window.addEventListener('offline', () => {
+                console.log('📵 Conexão perdida, modo offline ativado');
+                showToast('Conexão perdida. Suas ações serão salvas localmente.');
+            });
+        }
+
         function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appContainer').classList.add('active');
@@ -2767,6 +2838,9 @@
             const navTabs = document.querySelector('.nav-tabs');
             if (header) header.style.display = 'block';
             if (navTabs) navTabs.style.display = 'flex';
+            
+            // Configurar sincronização de rede
+            setupNetworkSync();
             
             // Update user info in header
             if (currentUser) {
@@ -5062,6 +5136,39 @@
             }
         }
 
+        // ===== FUNÇÃO DE RETRY COM BACKOFF EXPONENCIAL =====
+        async function retryWithBackoff(operation, maxRetries = 3, baseDelay = 1000) {
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    return await operation();
+                } catch (error) {
+                    console.log(`🔄 Tentativa ${attempt}/${maxRetries} falhou:`, error.message);
+                    
+                    // Se é o último retry, relançar o erro
+                    if (attempt === maxRetries) {
+                        throw error;
+                    }
+                    
+                    // Verificar se é erro de rede que vale a pena tentar novamente
+                    const isNetworkError = 
+                        error.message.includes('Failed to fetch') ||
+                        error.message.includes('ERR_NETWORK_CHANGED') ||
+                        error.message.includes('ERR_INTERNET_DISCONNECTED') ||
+                        error.message.includes('ERR_CONNECTION_REFUSED') ||
+                        error.code === 'NETWORK_ERROR';
+                    
+                    if (!isNetworkError) {
+                        throw error; // Não tentar novamente para outros tipos de erro
+                    }
+                    
+                    // Delay com backoff exponencial
+                    const delay = baseDelay * Math.pow(2, attempt - 1);
+                    console.log(`⏳ Aguardando ${delay}ms antes da próxima tentativa...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
         async function toggleReaction(postId, type) {
             try {
                 console.log(`💖 Tentando ${type} no post:`, postId);
@@ -5096,82 +5203,106 @@
                     return; // Silenciosamente não fazer nada
                 }
                 
+                // Garantir que reactions seja sempre um array
+                if (!Array.isArray(post.reactions)) {
+                    post.reactions = [];
+                }
+                
                 const existingReaction = post.reactions.find(r => r.user_id === currentUser.id && r.type === type);
                 
                 if (existingReaction) {
-                    // Remove reaction
+                    // ===== REMOVER REAÇÃO COM RETRY =====
                     try {
                         // Só tentar deletar do banco se não for ID local
                         if (!existingReaction.id.toString().startsWith('local-')) {
-                            const { error: deleteError } = await supabase
-                                .from('reactions')
-                                .delete()
-                                .eq('id', existingReaction.id);
-                            
-                            if (deleteError) {
-                                // Ignorar erro 404 (reação já não existe)
-                                if (deleteError.code === 'PGRST116' || deleteError.message.includes('404')) {
-                                    console.log('✅ Reação já não existia no banco');
-                                } else {
-                                    console.error('❌ Erro ao remover reação do banco:', deleteError);
+                            await retryWithBackoff(async () => {
+                                const { error: deleteError } = await supabase
+                                    .from('reactions')
+                                    .delete()
+                                    .eq('id', existingReaction.id);
+                                
+                                if (deleteError) {
+                                    // Ignorar erro 404 (reação já não existe)
+                                    if (deleteError.code === 'PGRST116' || deleteError.message.includes('404')) {
+                                        console.log('✅ Reação já não existia no banco');
+                                        return;
+                                    }
+                                    throw deleteError;
                                 }
-                            } else {
+                                
                                 console.log('✅ Reação removida do banco');
-                            }
+                            });
                         } else {
                             console.log('✅ Reação local removida (não estava no banco)');
                         }
-                    } catch (deleteError) {
-                        console.warn('⚠️ Erro ao remover reação do banco, removendo apenas localmente:', deleteError.message);
+                        
+                        // Remover localmente
+                        post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
+                        console.log('✅ Reação removida localmente');
+                        
+                    } catch (error) {
+                        console.warn('⚠️ Erro ao remover reação do banco, removendo apenas localmente:', error.message);
+                        
+                        // Mesmo com erro, remover localmente
+                        post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
+                        
+                        // Mostrar feedback específico para erro de rede
+                        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NETWORK')) {
+                            showToast('Reação removida localmente. Verifique sua conexão.');
+                        }
                     }
-                    
-                    post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
-                    console.log('✅ Reação removida localmente');
                 } else {
-                    // Add reaction
+                    // ===== ADICIONAR REAÇÃO COM RETRY =====
                     let newReaction = null;
                     
                     try {
-                        const { data, error } = await supabase
-                            .from('reactions')
-                            .insert({
-                                post_id: postId,
-                                user_id: currentUser.id,
-                                type: type
-                            })
-                            .select()
-                            .single();
+                        await retryWithBackoff(async () => {
+                            const { data, error } = await supabase
+                                .from('reactions')
+                                .insert({
+                                    post_id: postId,
+                                    user_id: currentUser.id,
+                                    type: type
+                                })
+                                .select()
+                                .single();
+                            
+                            if (error) throw error;
+                            
+                            newReaction = data;
+                            console.log('✅ Reação adicionada no banco');
+                        });
                         
-                        if (error) throw error;
-                        
-                        newReaction = data;
-                        console.log('✅ Reação adicionada no banco');
-                    } catch (insertError) {
-                        console.warn('⚠️ Erro ao adicionar reação no banco, adicionando apenas localmente:', insertError.message);
+                    } catch (error) {
+                        console.warn('⚠️ Erro ao adicionar reação no banco após tentativas, adicionando apenas localmente:', error.message);
                         
                         // Fallback: criar reação local
                         newReaction = {
-                            id: `local-${Date.now()}`,
+                            id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                             post_id: postId,
                             user_id: currentUser.id,
                             type: type,
                             created_at: new Date().toISOString()
                         };
+                        
+                        // Mostrar feedback específico para erro de rede
+                        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NETWORK')) {
+                            showToast('Reação adicionada localmente. Verifique sua conexão.');
+                        }
                     }
                     
                     if (newReaction) {
                         post.reactions.push(newReaction);
                         console.log('✅ Reação adicionada localmente');
                         
-                        // 🔧 NOTIFICAÇÃO REMOVIDA: Agora é criada automaticamente pelo trigger SQL
-                        // Evita duplicação entre frontend e backend
+                        // Notificação será criada pelo trigger SQL quando a conexão for restaurada
                         if (post.user_id !== currentUser.id) {
                             console.log('✅ Notificação de reação será criada automaticamente pelo trigger SQL');
                         }
                     }
                 }
                 
-                // 🚀 TEMPO REAL: Atualizar interface imediatamente após reação
+                // ===== ATUALIZAR INTERFACE =====
                 try {
                     await updateMetricsRealTime();
                     await reRenderPostsRealTime();
@@ -5184,20 +5315,20 @@
                     updateStats();
                     console.log('✅ Estatísticas atualizadas');
                     
-                    // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
+                    // Tentar atualizar notificações (com retry menor)
                     try {
-                        await loadNotifications();
+                        await retryWithBackoff(async () => {
+                            await loadNotifications();
+                        }, 2, 500); // Menos tentativas para notificações
                         console.log('✅ Notificações atualizadas após reação');
                     } catch (notifError) {
-                        console.warn('⚠️ Erro ao atualizar notificações:', notifError);
+                        console.warn('⚠️ Erro ao atualizar notificações:', notifError.message);
                     }
                     
                     // Atualizar métricas do perfil em tempo real
                     if (typeof updateSimpleMetrics === 'function') {
                         setTimeout(() => {
                             updateSimpleMetrics();
-                            
-                            
                             console.log('✅ Métricas do perfil atualizadas após reação');
                         }, 500);
                     }
@@ -5213,7 +5344,7 @@
             } catch (error) {
                 console.error('❌ Erro crítico ao reagir:', error);
                 console.error('❌ Stack trace:', error.stack);
-                alert('Erro ao reagir ao post. Tente novamente.');
+                showToast('Erro ao processar reação. Verifique sua conexão.');
             }
         }
 
