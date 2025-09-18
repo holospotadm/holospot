@@ -6648,7 +6648,10 @@
             document.querySelectorAll('.comment-content, .comment-text').forEach(element => {
                 if (element.dataset.processed !== 'true') {
                     const originalText = element.textContent;
-                    element.innerHTML = linkifyUsernames(originalText);
+                    if (originalText.includes('@')) {
+                        element.innerHTML = linkifyUsernames(originalText);
+                        console.log('✅ Processado @username em comentário');
+                    }
                     element.dataset.processed = 'true';
                 }
             });
@@ -6684,7 +6687,10 @@
             document.querySelectorAll('.feedback-content, .feedback-text').forEach(element => {
                 if (element.dataset.processed !== 'true') {
                     const originalText = element.textContent;
-                    element.innerHTML = linkifyUsernames(originalText);
+                    if (originalText.includes('@')) {
+                        element.innerHTML = linkifyUsernames(originalText);
+                        console.log('✅ Processado @username em feedback');
+                    }
                     element.dataset.processed = 'true';
                 }
             });
@@ -6723,6 +6729,9 @@
             try {
                 console.log('👤 Abrindo perfil do usuário:', username);
                 
+                // Mostrar loading
+                showToast('Carregando perfil...');
+                
                 const userData = await fetchUserProfileData(username);
                 
                 if (!userData) {
@@ -6732,6 +6741,8 @@
                 }
                 
                 const stats = await fetchUserStats(userData.id);
+                
+                // GARANTIR que showUserProfileModal receba os parâmetros corretos
                 showUserProfileModal(userData, stats);
                 
             } catch (error) {
@@ -6827,7 +6838,21 @@
         }
 
         function showUserProfileModal(userData, stats) {
+            // VALIDAÇÃO: Garantir que parâmetros estão corretos
+            if (!userData || typeof userData !== 'object') {
+                console.error('❌ showUserProfileModal: userData inválido:', userData);
+                showToast('Erro: dados do usuário inválidos');
+                return;
+            }
+            
+            if (!stats || typeof stats !== 'object') {
+                console.error('❌ showUserProfileModal: stats inválido:', stats);
+                showToast('Erro: estatísticas do usuário inválidas');
+                return;
+            }
+            
             console.log('📱 Abrindo modal de perfil:', userData.name);
+            console.log('📊 Estatísticas:', stats);
             
             let modal = document.getElementById('userProfileModal');
             if (!modal) {
@@ -7116,6 +7141,7 @@
         }
 
         function processPostsForUsernames() {
+            console.log('🔄 Processando @username em posts...');
             setTimeout(() => {
                 processAllTextContent();
             }, 500);
@@ -7126,12 +7152,14 @@
         }
 
         function processCommentsForUsernames() {
+            console.log('🔄 Processando @username em comentários...');
             setTimeout(() => {
                 processAllTextContent();
             }, 100);
         }
 
         function processNotificationsForUsernames() {
+            console.log('🔄 Processando @username em notificações...');
             setTimeout(() => {
                 processAllTextContent();
             }, 100);
@@ -7144,6 +7172,14 @@
         // Função para forçar processamento manual (para debug)
         function forceProcessUsernames() {
             console.log('🔧 FORÇANDO processamento de @username...');
+            
+            // Limpar flags de processamento
+            document.querySelectorAll('[data-processed="true"]').forEach(element => {
+                element.dataset.processed = 'false';
+                console.log('🔄 Limpando flag de processamento:', element.textContent.substring(0, 50));
+            });
+            
+            // Processar novamente
             processAllTextContent();
         }
 
