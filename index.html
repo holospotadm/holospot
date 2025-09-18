@@ -6574,21 +6574,25 @@
         function processAllTextContent() {
             console.log('🔗 Processando @username em todos os textos...');
             
-            // Posts - processar apenas se for texto puro (sem estrutura HTML)
+            // Posts - processar de forma mais inteligente
             document.querySelectorAll('.post-story').forEach(element => {
                 if (element.dataset.processed !== 'true') {
-                    // Verificar se elemento tem estrutura HTML complexa
-                    if (element.children.length === 0) {
-                        // Só processar se for texto puro
-                        const originalText = element.textContent;
-                        element.innerHTML = linkifyUsernames(originalText);
-                        element.dataset.processed = 'true';
-                        console.log('✅ Processado @username em post (texto puro)');
-                    } else {
-                        // Se tem estrutura HTML, marcar como processado sem alterar
-                        element.dataset.processed = 'true';
-                        console.log('⚠️ Post com estrutura HTML preservado');
+                    const originalText = element.textContent;
+                    if (originalText.includes('@')) {
+                        console.log('🔍 Post com @username encontrado:', originalText);
+                        // Processar apenas se contém @username
+                        if (element.children.length === 0) {
+                            // Texto puro - processar diretamente
+                            element.innerHTML = linkifyUsernames(originalText);
+                            console.log('✅ Processado @username em post (texto puro)');
+                        } else {
+                            // Tem estrutura HTML - processar de forma mais cuidadosa
+                            console.log('🔧 Post com HTML, processando cuidadosamente...');
+                            processTextNodesInElement(element);
+                            console.log('✅ Processado @username em post (com HTML)');
+                        }
                     }
+                    element.dataset.processed = 'true';
                 }
             });
             
@@ -6601,13 +6605,21 @@
                 }
             });
             
-            // Notificações - processar apenas o texto, não elementos com onclick
-            document.querySelectorAll('.notification-item strong').forEach(element => {
-                if (element.dataset.processed !== 'true' && element.textContent.includes('@')) {
+            // Notificações - seletores mais amplos
+            document.querySelectorAll('.notification-item strong, .notification-item .notification-message, .notification-item').forEach(element => {
+                if (element.dataset.processed !== 'true') {
                     const originalText = element.textContent;
-                    element.innerHTML = linkifyUsernames(originalText);
+                    if (originalText.includes('@')) {
+                        console.log('🔍 Notificação com @username encontrada:', originalText);
+                        // Verificar se não tem onclick (para não quebrar funcionalidade)
+                        if (!element.hasAttribute('onclick')) {
+                            element.innerHTML = linkifyUsernames(originalText);
+                            console.log('✅ Processado @username em notificação');
+                        } else {
+                            console.log('⚠️ Notificação com onclick preservada');
+                        }
+                    }
                     element.dataset.processed = 'true';
-                    console.log('✅ Processado @username em notificação');
                 }
             });
             
@@ -6621,6 +6633,33 @@
             });
             
             console.log('✅ @username processados em todos os textos');
+        }
+        
+        // Função auxiliar para processar nós de texto dentro de elementos com HTML
+        function processTextNodesInElement(element) {
+            const walker = document.createTreeWalker(
+                element,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+            
+            const textNodes = [];
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.textContent.includes('@')) {
+                    textNodes.push(node);
+                }
+            }
+            
+            textNodes.forEach(textNode => {
+                const originalText = textNode.textContent;
+                if (originalText.includes('@')) {
+                    const span = document.createElement('span');
+                    span.innerHTML = linkifyUsernames(originalText);
+                    textNode.parentNode.replaceChild(span, textNode);
+                }
+            });
         }
 
         async function openUserProfile(username) {
@@ -7023,6 +7062,10 @@
             setTimeout(() => {
                 processAllTextContent();
             }, 500);
+            // Backup: tentar novamente após mais tempo
+            setTimeout(() => {
+                processAllTextContent();
+            }, 2000);
         }
 
         function processCommentsForUsernames() {
@@ -7035,6 +7078,16 @@
             setTimeout(() => {
                 processAllTextContent();
             }, 100);
+            // Backup: tentar novamente após mais tempo
+            setTimeout(() => {
+                processAllTextContent();
+            }, 1000);
+        }
+        
+        // Função para forçar processamento manual (para debug)
+        function forceProcessUsernames() {
+            console.log('🔧 FORÇANDO processamento de @username...');
+            processAllTextContent();
         }
 
         function toggleNotifications() {
