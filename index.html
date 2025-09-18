@@ -6207,33 +6207,23 @@
                     mentionedUserData = mentionedUser;
                 }
                 
-                // Buscar reações do post
+                // Buscar reações do post (query simples)
                 const { data: reactions } = await supabase
                     .from('reactions')
-                    .select(`
-                        *,
-                        user:profiles!reactions_user_id_fkey(id, username, avatar_url, name)
-                    `)
+                    .select('*')
                     .eq('post_id', postId);
                 
-                // Buscar comentários do post
+                // Buscar comentários do post (query simples)
                 const { data: comments } = await supabase
                     .from('comments')
-                    .select(`
-                        *,
-                        author:profiles!comments_user_id_fkey(id, username, avatar_url, name)
-                    `)
+                    .select('*')
                     .eq('post_id', postId)
                     .order('created_at', { ascending: true });
                 
-                // Buscar feedbacks do post
+                // Buscar feedbacks do post (query simples)
                 const { data: feedbacks } = await supabase
                     .from('feedbacks')
-                    .select(`
-                        *,
-                        author:profiles!feedbacks_author_id_fkey(id, username, avatar_url, name),
-                        mentioned_user:profiles!feedbacks_mentioned_user_id_fkey(id, username, avatar_url, name)
-                    `)
+                    .select('*')
                     .eq('post_id', postId);
                 
                 // Montar objeto completo do post
