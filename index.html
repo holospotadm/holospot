@@ -5923,7 +5923,11 @@
                 
                 updateNotificationBadge();
                 renderNotifications();
-                processNotificationsForUsernames(); // Processar @username nas notificações
+                
+                // Processar @username nas notificações após renderizar
+                setTimeout(() => {
+                    processNotificationsForUsernames();
+                }, 200);
                 console.log('✅ Notificações processadas e renderizadas');
                 
             } catch (error) {
@@ -5971,16 +5975,31 @@
             
             dropdown.innerHTML = `
                 ${notifications.map(notification => {
-                    // Verificar se é notificação relacionada a post
+                    // Verificar se é notificação relacionada a post (melhorar detecção)
                     const isPostRelated = notification.type && ['comment', 'reaction', 'mention', 'feedback'].includes(notification.type);
-                    const hasPostReference = notification.group_data && notification.group_data.post_id;
+                    const hasPostReference = (notification.group_data && notification.group_data.post_id) || 
+                                           (notification.reference_type === 'post' && notification.reference_id);
+                    
+                    // Obter post_id de diferentes fontes possíveis
+                    const postId = notification.group_data?.post_id || 
+                                  notification.reference_id || 
+                                  notification.post_id;
+                    
+                    console.log('🔍 Análise notificação:', {
+                        id: notification.id,
+                        type: notification.type,
+                        isPostRelated,
+                        hasPostReference,
+                        postId,
+                        reference_type: notification.reference_type
+                    });
                     
                     // Se for relacionada a post, adicionar funcionalidade de clique
-                    if (isPostRelated && hasPostReference) {
+                    if (isPostRelated && postId) {
                         return `
                             <div class="notification-item ${!notification.read ? 'unread' : ''}" 
                                  style="cursor: pointer; transition: background-color 0.2s ease;"
-                                 onclick="openPostFromNotification('${notification.id}', '${notification.group_data.post_id}')"
+                                 onclick="openPostFromNotification('${notification.id}', '${postId}')"
                                  onmouseover="this.style.backgroundColor='#f8f9fa'"
                                  onmouseout="this.style.backgroundColor='transparent'">
                                 <strong>${notification.message}</strong><br>
@@ -6576,12 +6595,13 @@
                 }
             });
             
-            // Notificações
-            document.querySelectorAll('.notification-message, .notification-item strong').forEach(element => {
-                if (element.dataset.processed !== 'true') {
+            // Notificações - processar apenas o texto, não elementos com onclick
+            document.querySelectorAll('.notification-item strong').forEach(element => {
+                if (element.dataset.processed !== 'true' && element.textContent.includes('@')) {
                     const originalText = element.textContent;
                     element.innerHTML = linkifyUsernames(originalText);
                     element.dataset.processed = 'true';
+                    console.log('✅ Processado @username em notificação');
                 }
             });
             
