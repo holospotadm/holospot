@@ -5975,15 +5975,12 @@
             
             dropdown.innerHTML = `
                 ${notifications.map(notification => {
-                    // Verificar se é notificação relacionada a post (melhorar detecção)
+                    // Verificar se é notificação relacionada a post (usar apenas campos existentes)
                     const isPostRelated = notification.type && ['comment', 'reaction', 'mention', 'feedback'].includes(notification.type);
-                    const hasPostReference = (notification.group_data && notification.group_data.post_id) || 
-                                           (notification.reference_type === 'post' && notification.reference_id);
                     
-                    // Obter post_id de diferentes fontes possíveis
-                    const postId = notification.group_data?.post_id || 
-                                  notification.reference_id || 
-                                  notification.post_id;
+                    // Obter post_id apenas do group_data (único campo que existe)
+                    const postId = notification.group_data?.post_id;
+                    const hasPostReference = postId !== undefined && postId !== null;
                     
                     console.log('🔍 Análise notificação:', {
                         id: notification.id,
@@ -5991,7 +5988,7 @@
                         isPostRelated,
                         hasPostReference,
                         postId,
-                        reference_type: notification.reference_type
+                        group_data: notification.group_data
                     });
                     
                     // Se for relacionada a post, adicionar funcionalidade de clique
