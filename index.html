@@ -4259,10 +4259,7 @@
                 
                 const postsQuery = supabase
                     .from('posts')
-                    .select(`
-                        *,
-                        mentioned_user:profiles!mentioned_user_id(id, name, email, avatar_url)
-                    `)
+                    .select('*')
                     .order('created_at', { ascending: false });
                 
                 const { data, error } = await withTimeout(postsQuery, 5000);
@@ -5225,10 +5222,7 @@
                     try {
                         const { data: postData, error: postError } = await supabase
                             .from('posts')
-                            .select(`
-                                *,
-                                mentioned_user:profiles!mentioned_user_id(id, name, email, avatar_url)
-                            `)
+                            .select('*')
                             .eq('id', postId)
                             .single();
                         
@@ -6222,10 +6216,7 @@
                 // Buscar post básico primeiro
                 const { data: post, error } = await supabase
                     .from('posts')
-                    .select(`
-                        *,
-                        mentioned_user:profiles!mentioned_user_id(id, name, email, avatar_url)
-                    `)
+                    .select('*')
                     .eq('id', postId)
                     .single();
                 
@@ -9455,10 +9446,7 @@
                 // Recarregar posts onde o usuário atual foi mencionado
                 const { data: userPosts, error } = await supabase
                     .from('posts')
-                    .select(`
-                        *,
-                        mentioned_user:profiles!mentioned_user_id(id, name, email, avatar_url)
-                    `)
+                    .select('*')
                     .eq('mentioned_user_id', currentUser.id)
                     .order('created_at', { ascending: false });
                 
