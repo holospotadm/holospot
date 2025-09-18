@@ -3831,7 +3831,7 @@
                                 <div class="post-person">
                                 Holofotes para: 
                                 ${post.mentioned_user_id ? `
-                                    <span onclick="openUserProfile('${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || 'usuario'}')" 
+                                    <span onclick="openUserProfileById('${post.mentioned_user_id}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
@@ -4837,7 +4837,7 @@
                             <div class="post-person">
                                 Holofotes para: 
                                 ${post.mentioned_user_id ? `
-                                    <span onclick="openUserProfile('${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || 'usuario'}')" 
+                                    <span onclick="openUserProfileById('${post.mentioned_user_id}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
@@ -6747,6 +6747,58 @@
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar perfil:', error);
+                showToast('Erro ao carregar perfil do usuário');
+            }
+        }
+
+        // Função para buscar usuário por ID (mais segura)
+        async function fetchUserProfileDataById(userId) {
+            try {
+                console.log('🔍 Buscando dados do usuário por ID:', userId);
+                
+                const { data: user, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+                
+                if (error || !user) {
+                    console.error('❌ Usuário não encontrado por ID:', error);
+                    return null;
+                }
+                
+                console.log('✅ Dados do usuário encontrados por ID:', user);
+                return user;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados do usuário por ID:', error);
+                return null;
+            }
+        }
+
+        // Função para abrir perfil por ID (quando temos mentioned_user_id)
+        async function openUserProfileById(userId) {
+            try {
+                console.log('👤 Abrindo perfil do usuário por ID:', userId);
+                
+                // Mostrar loading
+                showToast('Carregando perfil...');
+                
+                const userData = await fetchUserProfileDataById(userId);
+                
+                if (!userData) {
+                    console.error('❌ Usuário não encontrado por ID:', userId);
+                    showToast('Usuário não encontrado');
+                    return;
+                }
+                
+                const stats = await fetchUserStats(userData.id);
+                
+                // GARANTIR que showUserProfileModal receba os parâmetros corretos
+                showUserProfileModal(userData, stats);
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar perfil por ID:', error);
                 showToast('Erro ao carregar perfil do usuário');
             }
         }
@@ -9595,7 +9647,7 @@
                                 <div class="post-person">
                                 Holofotes para: 
                                 ${post.mentioned_user_id ? `
-                                    <span onclick="openUserProfile('${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || 'usuario'}')" 
+                                    <span onclick="openUserProfileById('${post.mentioned_user_id}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
