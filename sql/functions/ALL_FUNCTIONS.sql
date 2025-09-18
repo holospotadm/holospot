@@ -2530,14 +2530,15 @@ BEGIN
         RETURN NEW;
     END IF;
     
-    -- Criar notificação com mensagem corrigida
+    -- Criar notificação com mensagem corrigida (COM post_id)
     INSERT INTO public.notifications (
-        user_id, from_user_id, type, message, read, created_at
+        user_id, from_user_id, type, message, post_id, read, created_at
     ) VALUES (
         post_author_id,
         NEW.user_id,
         'comment',
         username_from || ' comentou no seu post',  -- ✅ SEM EXCLAMAÇÃO
+        NEW.post_id,  -- ✅ ADICIONAR post_id
         false,
         NOW()
     );
@@ -2962,6 +2963,7 @@ BEGIN
             from_user_id, 
             type, 
             message, 
+            post_id,
             read, 
             created_at
         ) VALUES (
@@ -2969,6 +2971,7 @@ BEGIN
             NEW.author_id,
             'feedback',
             username_from || ' deu feedback sobre o post que você fez destacando-o!',
+            NEW.post_id,  -- ✅ ADICIONAR post_id
             false,
             NOW()
         );
@@ -3076,6 +3079,7 @@ BEGIN
             from_user_id, 
             type, 
             message, 
+            post_id,
             read, 
             created_at
         ) VALUES (
@@ -3083,6 +3087,7 @@ BEGIN
             NEW.author_id,
             'feedback',
             username_from || ' deu feedback sobre o post que você fez destacando-o!',
+            NEW.post_id,  -- ✅ ADICIONAR post_id
             false,
             NOW()
         );
@@ -3287,12 +3292,13 @@ BEGIN
         ) THEN
             -- Criar notificação de holofote
             INSERT INTO public.notifications (
-                user_id, from_user_id, type, message, read, created_at
+                user_id, from_user_id, type, message, post_id, read, created_at
             ) VALUES (
                 NEW.mentioned_user_id,  -- Quem foi mencionado recebe notificação
                 NEW.user_id,            -- Quem criou o post
                 'mention',
                 username_from || ' destacou você em um post',  -- ✅ NOVA MENSAGEM
+                NEW.id,  -- ✅ ADICIONAR post_id (NEW.id é o ID do post)
                 false,
                 NOW()
             );
@@ -3870,12 +3876,12 @@ BEGIN
         AND created_at > NOW() - INTERVAL '2 hours'
         LIMIT 1
     ) THEN
-        -- Criar notificação simples
+        -- Criar notificação simples (COM post_id)
         INSERT INTO public.notifications (
-            user_id, from_user_id, type, message, 
+            user_id, from_user_id, type, message, post_id,
             priority, read, created_at
         ) VALUES (
-            post_owner_id, NEW.user_id, 'reaction', message_text,
+            post_owner_id, NEW.user_id, 'reaction', message_text, NEW.post_id,
             1, false, NOW()
         );
     END IF;
