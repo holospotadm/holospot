@@ -3811,7 +3811,14 @@
                             <div class="post-header">
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
-                                    <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
+                                    <div class="post-author-name">
+                                    <span onclick="showUserProfileModal('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${post.user_data?.name || 'Usuário'}
+                                    </span>
+                                </div>
                                     <div class="post-author-meta">
                                         <span class="post-author-username">@${currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
@@ -3821,7 +3828,17 @@
                             </div>
                             
                             <div class="post-content">
-                                <div class="post-person">Holofotes para: ${post.celebrated_person_name || post.person_name}</div>
+                                <div class="post-person">
+                                Holofotes para: 
+                                ${post.mentioned_user_id ? `
+                                    <span onclick="showUserProfileModal('${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        @${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || post.celebrated_person_name || post.person_name}
+                                    </span>
+                                ` : `${post.celebrated_person_name || post.person_name}`}
+                            </div>
                                 ${post.type || post.highlight_type ? `
                                     <div class="post-type">
                                         ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
@@ -4688,7 +4705,13 @@
                             <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <div style="color: #e65100; font-weight: bold; font-size: 13px;">
-                                        🔄 Feedback de ${feedbackUserName} (@${feedbackUsername})
+                                        🔄 Feedback de ${feedbackUserName} (
+                                        <span onclick="showUserProfileModal('${feedbackUsername}')" 
+                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                              onmouseover="this.style.color='#0056b3'"
+                                              onmouseout="this.style.color='#007bff'">
+                                            @${feedbackUsername}
+                                        </span>)
                                     </div>
                                     <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                         ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
@@ -4789,7 +4812,14 @@
                         <div class="post-header">
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
-                                <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
+                                <div class="post-author-name">
+                                    <span onclick="showUserProfileModal('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${post.user_data?.name || 'Usuário'}
+                                    </span>
+                                </div>
                                 <div class="post-author-meta">
                                     <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
                                     <span class="post-time-separator">•</span>
@@ -4804,7 +4834,17 @@
                         </div>
                         
                         <div class="post-content">
-                            <div class="post-person">Holofotes para: ${post.celebrated_person_name || post.person_name}</div>
+                            <div class="post-person">
+                                Holofotes para: 
+                                ${post.mentioned_user_id ? `
+                                    <span onclick="showUserProfileModal('${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        @${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || post.celebrated_person_name || post.person_name}
+                                    </span>
+                                ` : `${post.celebrated_person_name || post.person_name}`}
+                            </div>
                             ${post.type || post.highlight_type ? `
                                 <div class="post-type">
                                     ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
@@ -8438,7 +8478,13 @@
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                    💬 ${userName} (@${username})
+                                    💬 ${userName} (
+                                    <span onclick="showUserProfileModal('${username}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        @${username}
+                                    </span>)
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     ${formatDateShort(comment.created_at)}
@@ -8564,7 +8610,13 @@
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                    💬 ${userName} (@${username})
+                                    💬 ${userName} (
+                                    <span onclick="showUserProfileModal('${username}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        @${username}
+                                    </span>)
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     Agora
@@ -9487,7 +9539,14 @@
                             <div class="post-header">
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
-                                    <div class="post-author-name">${post.user_data?.name || 'Usuário'}</div>
+                                    <div class="post-author-name">
+                                    <span onclick="showUserProfileModal('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${post.user_data?.name || 'Usuário'}
+                                    </span>
+                                </div>
                                     <div class="post-author-meta">
                                         <span class="post-author-username">@${author.email?.split('@')[0] || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
@@ -9497,7 +9556,17 @@
                             </div>
                             
                             <div class="post-content">
-                                <div class="post-person">Holofotes para: ${post.celebrated_person_name || post.person_name}</div>
+                                <div class="post-person">
+                                Holofotes para: 
+                                ${post.mentioned_user_id ? `
+                                    <span onclick="showUserProfileModal('${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        @${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || post.celebrated_person_name || post.person_name}
+                                    </span>
+                                ` : `${post.celebrated_person_name || post.person_name}`}
+                            </div>
                                 ${post.type || post.highlight_type ? `
                                     <div class="post-type">
                                         ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
