@@ -6574,10 +6574,18 @@
         function processAllTextContent() {
             console.log('🔗 Processando @username em todos os textos...');
             
+            // DIAGNÓSTICO: Verificar quantos elementos existem
+            const postStories = document.querySelectorAll('.post-story');
+            console.log('📊 DIAGNÓSTICO: Encontrados', postStories.length, 'elementos .post-story');
+            
             // Posts - processar de forma mais inteligente
-            document.querySelectorAll('.post-story').forEach(element => {
+            postStories.forEach((element, index) => {
+                const originalText = element.textContent;
+                console.log(`📝 Post ${index + 1}:`, originalText.substring(0, 100) + '...');
+                console.log(`🔍 Contém @? ${originalText.includes('@')}`);
+                console.log(`✅ Já processado? ${element.dataset.processed === 'true'}`);
+                
                 if (element.dataset.processed !== 'true') {
-                    const originalText = element.textContent;
                     if (originalText.includes('@')) {
                         console.log('🔍 Post com @username encontrado:', originalText);
                         // Processar apenas se contém @username
@@ -6605,10 +6613,19 @@
                 }
             });
             
+            // DIAGNÓSTICO: Verificar notificações
+            const notifications = document.querySelectorAll('.notification-item strong, .notification-item .notification-message, .notification-item');
+            console.log('📊 DIAGNÓSTICO: Encontrados', notifications.length, 'elementos de notificação');
+            
             // Notificações - seletores mais amplos
-            document.querySelectorAll('.notification-item strong, .notification-item .notification-message, .notification-item').forEach(element => {
+            notifications.forEach((element, index) => {
+                const originalText = element.textContent;
+                console.log(`📝 Notificação ${index + 1}:`, originalText.substring(0, 50) + '...');
+                console.log(`🔍 Contém @? ${originalText.includes('@')}`);
+                console.log(`✅ Já processado? ${element.dataset.processed === 'true'}`);
+                console.log(`🔗 Tem onclick? ${element.hasAttribute('onclick')}`);
+                
                 if (element.dataset.processed !== 'true') {
-                    const originalText = element.textContent;
                     if (originalText.includes('@')) {
                         console.log('🔍 Notificação com @username encontrada:', originalText);
                         // Verificar se não tem onclick (para não quebrar funcionalidade)
