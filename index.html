@@ -3812,15 +3812,12 @@
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
                                     <div class="post-author-name">
-                                    ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
-                                        `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
-                                        `<span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
-                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                              onmouseover="this.style.color='#0056b3'"
-                                              onmouseout="this.style.color='#007bff'">
-                                            @${post.user_data?.email?.split('@')[0] || 'usuario'}
-                                        </span>`
-                                    }
+                                    <span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${post.user_data?.name || 'Usuário'}
+                                    </span>
                                 </div>
                                     <div class="post-author-meta">
                                         <span class="post-author-username">@${currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario'}</span>
@@ -4158,7 +4155,7 @@
                         <div style="margin-bottom: 15px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 12px; box-shadow: 0 2px 8px rgba(255,152,0,0.1);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <div style="color: #e65100; font-weight: bold; font-size: 14px;">
-                                    🔄 @${username}
+                                    🔄 ${userName} (@${username})
                                 </div>
                                 <div style="color: #999; font-size: 12px;">
                                     ${date}
@@ -4708,13 +4705,13 @@
                             <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <div style="color: #e65100; font-weight: bold; font-size: 13px;">
-                                        🔄 Feedback de 
+                                        🔄 Feedback de ${feedbackUserName} (
                                         <span onclick="openUserProfile('${feedbackUsername}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
                                             @${feedbackUsername}
-                                        </span>
+                                        </span>)
                                     </div>
                                     <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                         ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
@@ -4816,15 +4813,12 @@
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
                                 <div class="post-author-name">
-                                    ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
-                                        `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
-                                        `<span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
-                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                              onmouseover="this.style.color='#0056b3'"
-                                              onmouseout="this.style.color='#007bff'">
-                                            @${post.user_data?.email?.split('@')[0] || 'usuario'}
-                                        </span>`
-                                    }
+                                    <span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${post.user_data?.name || 'Usuário'}
+                                    </span>
                                 </div>
                                 <div class="post-author-meta">
                                     <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
@@ -8572,13 +8566,13 @@
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                    💬 
+                                    💬 ${userName} (
                                     <span onclick="openUserProfile('${username}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
                                         @${username}
-                                    </span>
+                                    </span>)
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     ${formatDateShort(comment.created_at)}
@@ -8704,13 +8698,13 @@
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                    💬 
+                                    💬 ${userName} (
                                     <span onclick="openUserProfile('${username}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
                                         @${username}
-                                    </span>
+                                    </span>)
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     Agora
@@ -9634,15 +9628,12 @@
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
                                     <div class="post-author-name">
-                                    ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
-                                        `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
-                                        `<span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
-                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                              onmouseover="this.style.color='#0056b3'"
-                                              onmouseout="this.style.color='#007bff'">
-                                            @${post.user_data?.email?.split('@')[0] || 'usuario'}
-                                        </span>`
-                                    }
+                                    <span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${post.user_data?.name || 'Usuário'}
+                                    </span>
                                 </div>
                                     <div class="post-author-meta">
                                         <span class="post-author-username">@${author.email?.split('@')[0] || 'usuario'}</span>
@@ -10316,7 +10307,7 @@
                     const username = comment.profiles?.username || '';
                     html += `
                         <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">💬 ${username ? `@${username}` : userName}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">💬 ${userName} ${username ? `(@${username})` : ''}</div>
                             <div style="color: #666; margin-bottom: 0.5rem;">${comment.content}</div>
                             <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
                         </div>
@@ -10351,7 +10342,7 @@
                     const username = feedback.profiles?.username || '';
                     html += `
                         <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${username ? `@${username}` : userName}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${userName} ${username ? `(@${username})` : ''}</div>
                             <div style="color: #666; margin-bottom: 0.5rem;">${feedback.content}</div>
                             <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
                         </div>
