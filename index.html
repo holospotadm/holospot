@@ -6173,20 +6173,38 @@
             try {
                 console.log('🔍 Buscando detalhes do post:', postId);
                 
-                // Buscar post com dados relacionados (corrigir foreign keys)
+                // Buscar post básico primeiro
                 const { data: post, error } = await supabase
                     .from('posts')
-                    .select(`
-                        *,
-                        profiles:user_id(id, username, avatar_url, name),
-                        mentioned_profiles:mentioned_user_id(id, username, avatar_url, name)
-                    `)
+                    .select('*')
                     .eq('id', postId)
                     .single();
                 
                 if (error) {
                     console.error('❌ Erro ao buscar post:', error);
                     return null;
+                }
+                
+                // Buscar dados do autor separadamente
+                let authorData = null;
+                if (post.user_id) {
+                    const { data: author } = await supabase
+                        .from('profiles')
+                        .select('id, username, avatar_url, name')
+                        .eq('id', post.user_id)
+                        .single();
+                    authorData = author;
+                }
+                
+                // Buscar dados do usuário mencionado separadamente
+                let mentionedUserData = null;
+                if (post.mentioned_user_id) {
+                    const { data: mentionedUser } = await supabase
+                        .from('profiles')
+                        .select('id, username, avatar_url, name')
+                        .eq('id', post.mentioned_user_id)
+                        .single();
+                    mentionedUserData = mentionedUser;
                 }
                 
                 // Buscar reações do post
@@ -6224,12 +6242,12 @@
                     reactions: reactions || [],
                     comments: comments || [],
                     feedbacks: feedbacks || [],
-                    user_data: post.profiles || {
+                    user_data: authorData || {
                         name: 'Usuário',
                         username: 'usuario',
                         avatar_url: ''
                     },
-                    mentioned_user_data: post.mentioned_profiles || null
+                    mentioned_user_data: mentionedUserData || null
                 };
                 
                 console.log('✅ Detalhes do post carregados:', completePost);
