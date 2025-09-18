@@ -2788,14 +2788,15 @@ BEGIN
         RETURN NEW;
     END IF;
     
-    -- Criar notificação com mensagem corrigida
+    -- Criar notificação com mensagem corrigida (COM post_id)
     INSERT INTO public.notifications (
-        user_id, from_user_id, type, message, read, created_at
+        user_id, from_user_id, type, message, post_id, read, created_at
     ) VALUES (
         NEW.author_id,
         NEW.mentioned_user_id,
         'feedback',
         username_from || ' deu feedback sobre o seu post',  -- ✅ SEM EXCLAMAÇÃO
+        NEW.post_id,  -- ✅ ADICIONAR post_id
         false,
         NOW()
     );

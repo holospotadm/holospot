@@ -6173,13 +6173,13 @@
             try {
                 console.log('🔍 Buscando detalhes do post:', postId);
                 
-                // Buscar post com dados relacionados
+                // Buscar post com dados relacionados (corrigir foreign keys)
                 const { data: post, error } = await supabase
                     .from('posts')
                     .select(`
                         *,
-                        author:profiles!posts_user_id_fkey(id, username, avatar_url, name),
-                        mentioned_user:profiles!posts_mentioned_user_id_fkey(id, username, avatar_url, name)
+                        profiles:user_id(id, username, avatar_url, name),
+                        mentioned_profiles:mentioned_user_id(id, username, avatar_url, name)
                     `)
                     .eq('id', postId)
                     .single();
@@ -6224,11 +6224,12 @@
                     reactions: reactions || [],
                     comments: comments || [],
                     feedbacks: feedbacks || [],
-                    user_data: post.author || {
+                    user_data: post.profiles || {
                         name: 'Usuário',
                         username: 'usuario',
                         avatar_url: ''
-                    }
+                    },
+                    mentioned_user_data: post.mentioned_profiles || null
                 };
                 
                 console.log('✅ Detalhes do post carregados:', completePost);
