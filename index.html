@@ -5975,11 +5975,11 @@
             
             dropdown.innerHTML = `
                 ${notifications.map(notification => {
-                    // Verificar se é notificação relacionada a post (usar apenas campos existentes)
+                    // Verificar se é notificação relacionada a post (usar campo post_id)
                     const isPostRelated = notification.type && ['comment', 'reaction', 'mention', 'feedback'].includes(notification.type);
                     
-                    // Obter post_id apenas do group_data (único campo que existe)
-                    const postId = notification.group_data?.post_id;
+                    // Usar o novo campo post_id que será adicionado à tabela
+                    const postId = notification.post_id;
                     const hasPostReference = postId !== undefined && postId !== null;
                     
                     console.log('🔍 Análise notificação:', {
@@ -5988,7 +5988,7 @@
                         isPostRelated,
                         hasPostReference,
                         postId,
-                        group_data: notification.group_data
+                        message: notification.message
                     });
                     
                     // Se for relacionada a post, adicionar funcionalidade de clique
