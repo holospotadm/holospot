@@ -3812,12 +3812,7 @@
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
                                     <div class="post-author-name">
-                                    <span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
-                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                          onmouseover="this.style.color='#0056b3'"
-                                          onmouseout="this.style.color='#007bff'">
-                                        ${post.user_data?.name || 'Usuário'}
-                                    </span>
+                                    ${post.user_data?.name || 'Usuário'}
                                 </div>
                                     <div class="post-author-meta">
                                         <span class="post-author-username">@${currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario'}</span>
@@ -3831,12 +3826,15 @@
                                 <div class="post-person">
                                 Holofotes para: 
                                 ${post.mentioned_user_id ? `
-                                    <span onclick="openUserProfileById('${post.mentioned_user_id}')" 
-                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                          onmouseover="this.style.color='#0056b3'"
-                                          onmouseout="this.style.color='#007bff'">
-                                        ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
-                                    </span>
+                                    ${post.mentioned_user_id === currentUser.id ? 
+                                        `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
+                                        `<span onclick="openUserProfileById('${post.mentioned_user_id}')" 
+                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                              onmouseover="this.style.color='#0056b3'"
+                                              onmouseout="this.style.color='#007bff'">
+                                            ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
+                                        </span>`
+                                    }
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
                                 ${post.type || post.highlight_type ? `
@@ -4155,7 +4153,7 @@
                         <div style="margin-bottom: 15px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 12px; box-shadow: 0 2px 8px rgba(255,152,0,0.1);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <div style="color: #e65100; font-weight: bold; font-size: 14px;">
-                                    🔄 ${userName} (@${username})
+                                    🔄 @${username}
                                 </div>
                                 <div style="color: #999; font-size: 12px;">
                                     ${date}
@@ -4705,7 +4703,7 @@
                             <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <div style="color: #e65100; font-weight: bold; font-size: 13px;">
-                                        🔄 Feedback de ${feedbackUserName} (
+                                        🔄 Feedback de 
                                         ${feedbackUsername === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                             `<span>@${feedbackUsername}</span>` :
                                             `<span onclick="openUserProfile('${feedbackUsername}')" 
@@ -4714,7 +4712,7 @@
                                                   onmouseout="this.style.color='#007bff'">
                                                 @${feedbackUsername}
                                             </span>`
-                                        })
+                                        }
                                     </div>
                                     <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                         ${feedback.created_at ? formatDateShort(feedback.created_at) : 'recente'}
@@ -4816,12 +4814,7 @@
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
                                 <div class="post-author-name">
-                                    <span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
-                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                          onmouseover="this.style.color='#0056b3'"
-                                          onmouseout="this.style.color='#007bff'">
-                                        ${post.user_data?.name || 'Usuário'}
-                                    </span>
+                                    ${post.user_data?.name || 'Usuário'}
                                 </div>
                                 <div class="post-author-meta">
                                     ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
@@ -4848,12 +4841,15 @@
                             <div class="post-person">
                                 Holofotes para: 
                                 ${post.mentioned_user_id ? `
-                                    <span onclick="openUserProfileById('${post.mentioned_user_id}')" 
-                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                          onmouseover="this.style.color='#0056b3'"
-                                          onmouseout="this.style.color='#007bff'">
-                                        ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
-                                    </span>
+                                    ${post.mentioned_user_id === currentUser.id ? 
+                                        `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
+                                        `<span onclick="openUserProfileById('${post.mentioned_user_id}')" 
+                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                              onmouseover="this.style.color='#0056b3'"
+                                              onmouseout="this.style.color='#007bff'">
+                                            ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
+                                        </span>`
+                                    }
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
                             ${post.type || post.highlight_type ? `
@@ -8595,7 +8591,7 @@
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                    💬 ${userName} (
+                                    💬 
                                     ${username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `<span>@${username}</span>` :
                                         `<span onclick="openUserProfile('${username}')" 
@@ -8604,7 +8600,7 @@
                                               onmouseout="this.style.color='#007bff'">
                                             @${username}
                                         </span>`
-                                    })
+                                    }
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     ${formatDateShort(comment.created_at)}
@@ -8730,7 +8726,7 @@
                         <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                 <div style="color: #1565c0; font-weight: bold; font-size: 13px;">
-                                    💬 ${userName} (
+                                    💬 
                                     ${username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `<span>@${username}</span>` :
                                         `<span onclick="openUserProfile('${username}')" 
@@ -8739,7 +8735,7 @@
                                               onmouseout="this.style.color='#007bff'">
                                             @${username}
                                         </span>`
-                                    })
+                                    }
                                 </div>
                                 <div style="color: #999; font-size: 11px; margin-left: 10px;">
                                     Agora
@@ -9209,7 +9205,7 @@
                                             postCount: userPosts.filter(p => 
                                                 (p.celebrated_person_name || p.person_name || '').includes(`@${username}`)
                                             ).length
-                                        });
+                                        };
                                         console.log(`✅ Adicionado (fallback): @${username}`);
                                     }
                                 });
@@ -9663,12 +9659,7 @@
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
                                     <div class="post-author-name">
-                                    <span onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
-                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                          onmouseover="this.style.color='#0056b3'"
-                                          onmouseout="this.style.color='#007bff'">
-                                        ${post.user_data?.name || 'Usuário'}
-                                    </span>
+                                    ${post.user_data?.name || 'Usuário'}
                                 </div>
                                     <div class="post-author-meta">
                                         ${(author.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
@@ -9690,12 +9681,15 @@
                                 <div class="post-person">
                                 Holofotes para: 
                                 ${post.mentioned_user_id ? `
-                                    <span onclick="openUserProfileById('${post.mentioned_user_id}')" 
-                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                          onmouseover="this.style.color='#0056b3'"
-                                          onmouseout="this.style.color='#007bff'">
-                                        ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
-                                    </span>
+                                    ${post.mentioned_user_id === currentUser.id ? 
+                                        `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
+                                        `<span onclick="openUserProfileById('${post.mentioned_user_id}')" 
+                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                              onmouseover="this.style.color='#0056b3'"
+                                              onmouseout="this.style.color='#007bff'">
+                                            ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
+                                        </span>`
+                                    }
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
                                 ${post.type || post.highlight_type ? `
@@ -10350,7 +10344,7 @@
                     const username = comment.profiles?.username || '';
                     html += `
                         <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">💬 ${userName} ${username ? `(@${username})` : ''}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">💬 ${username ? `@${username}` : userName}</div>
                             <div style="color: #666; margin-bottom: 0.5rem;">${comment.content}</div>
                             <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
                         </div>
@@ -10385,7 +10379,7 @@
                     const username = feedback.profiles?.username || '';
                     html += `
                         <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${userName} ${username ? `(@${username})` : ''}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${username ? `@${username}` : userName}</div>
                             <div style="color: #666; margin-bottom: 0.5rem;">${feedback.content}</div>
                             <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
                         </div>
