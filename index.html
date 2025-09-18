@@ -3835,7 +3835,7 @@
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
-                                        @${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || post.celebrated_person_name || post.person_name}
+                                        ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
                                     </span>
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
@@ -4841,7 +4841,7 @@
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
-                                        @${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || post.celebrated_person_name || post.person_name}
+                                        ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
                                     </span>
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
@@ -9599,7 +9599,7 @@
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
-                                        @${post.mentioned_user?.username || post.mentioned_user?.email?.split('@')[0] || post.celebrated_person_name || post.person_name}
+                                        ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
                                     </span>
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
