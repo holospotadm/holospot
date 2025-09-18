@@ -6549,12 +6549,21 @@
         function processAllTextContent() {
             console.log('🔗 Processando @username em todos os textos...');
             
-            // Posts - conteúdo principal (apenas .post-story, não .post-content que contém estrutura HTML)
+            // Posts - processar apenas se for texto puro (sem estrutura HTML)
             document.querySelectorAll('.post-story').forEach(element => {
                 if (element.dataset.processed !== 'true') {
-                    const originalText = element.textContent;
-                    element.innerHTML = linkifyUsernames(originalText);
-                    element.dataset.processed = 'true';
+                    // Verificar se elemento tem estrutura HTML complexa
+                    if (element.children.length === 0) {
+                        // Só processar se for texto puro
+                        const originalText = element.textContent;
+                        element.innerHTML = linkifyUsernames(originalText);
+                        element.dataset.processed = 'true';
+                        console.log('✅ Processado @username em post (texto puro)');
+                    } else {
+                        // Se tem estrutura HTML, marcar como processado sem alterar
+                        element.dataset.processed = 'true';
+                        console.log('⚠️ Post com estrutura HTML preservado');
+                    }
                 }
             });
             
