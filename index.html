@@ -1052,7 +1052,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 1200;
             backdrop-filter: blur(4px);
             animation: modalFadeIn 0.3s ease-out;
         }
@@ -6754,8 +6754,7 @@
             try {
                 console.log('👤 Abrindo perfil do usuário:', username);
                 
-                // Mostrar loading
-                showToast('Carregando perfil...');
+                // Removido loading toast para melhor UX
                 
                 const userData = await fetchUserProfileData(username);
                 
@@ -6806,8 +6805,7 @@
             try {
                 console.log('👤 Abrindo perfil do usuário por ID:', userId);
                 
-                // Mostrar loading
-                showToast('Carregando perfil...');
+                // Removido loading toast para melhor UX
                 
                 const userData = await fetchUserProfileDataById(userId);
                 
