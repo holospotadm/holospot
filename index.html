@@ -6345,7 +6345,7 @@
             modal.style.cssText = `
                 display: none;
                 position: fixed;
-                z-index: 1100;
+                z-index: 1300;
                 left: 0;
                 top: 0;
                 width: 100%;
@@ -6535,7 +6535,7 @@
                     </div>
                     
                     <div class="post-footer" style="padding: 0 1.5rem 1.5rem 1.5rem; display: flex; gap: 15px;">
-                        <span class="comments-display" onclick="openCommentsModal('${postData.id}')" style="
+                        <span class="comments-display" style="
                             display: flex;
                             align-items: center;
                             gap: 5px;
@@ -6543,14 +6543,14 @@
                             background: ${postData.comments?.length > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5'};
                             color: ${postData.comments?.length > 0 ? 'white' : '#666'};
                             border-radius: 20px;
-                            cursor: pointer;
+                            cursor: default;
                             font-size: 14px;
                             font-weight: 600;
                             transition: all 0.2s ease;
                         ">
                             💬 ${postData.comments?.length || 0}
                         </span>
-                        <span class="feedback-display" onclick="openPostFeedbackModal('${postData.id}')" style="
+                        <span class="feedback-display" style="
                             display: flex;
                             align-items: center;
                             gap: 5px;
@@ -6558,7 +6558,7 @@
                             background: ${postData.feedbacks?.length > 0 ? 'linear-gradient(135deg, #e55a2b, #ffb700)' : '#f5f5f5'};
                             color: ${postData.feedbacks?.length > 0 ? 'white' : '#666'};
                             border-radius: 20px;
-                            cursor: pointer;
+                            cursor: default;
                             font-size: 14px;
                             font-weight: 600;
                             transition: all 0.2s ease;
@@ -6947,7 +6947,7 @@
             modal.style.cssText = `
                 display: none;
                 position: fixed;
-                z-index: 1100;
+                z-index: 1300;
                 left: 0;
                 top: 0;
                 width: 100%;
@@ -10377,7 +10377,18 @@
                     const username = feedback.profiles?.username || '';
                     html += `
                         <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${username ? `@${username}` : userName}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🔄 ${
+                                username ? 
+                                    (username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
+                                        `@${username}` :
+                                        `<span onclick="openUserProfile('${username}')" 
+                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                              onmouseover="this.style.color='#0056b3'"
+                                              onmouseout="this.style.color='#007bff'">
+                                            @${username}
+                                        </span>`
+                                    ) : userName
+                            }</div>
                             <div style="color: #666; margin-bottom: 0.5rem;">${feedback.content}</div>
                             <div style="color: #999; font-size: 0.9rem;">${timeAgo}</div>
                         </div>
