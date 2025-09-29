@@ -7221,48 +7221,15 @@
                     followBtn.style.display = 'none';
                 } else {
                     followBtn.style.display = 'block';
-                    // TODO: Implementar lógica de verificar se já segue
-                    followBtn.textContent = 'Seguir';
-                    followBtn.style.background = '#007bff';
+                    // Verificar se já segue este usuário
+                    checkFollowStatus(userData.id, followBtn);
                 }
             }
             
-            // Card do Nível Atual
+            // Card do Nível Atual - buscar dados reais
             const levelCard = modal.querySelector('.level-card');
             if (levelCard) {
-                // Calcular nível baseado nos pontos (stats.holofotes + stats.reactions)
-                const totalPoints = (stats.holofotes || 0) + (stats.reactions || 0);
-                const level = Math.floor(totalPoints / 100) + 1;
-                const currentLevelPoints = totalPoints % 100;
-                const nextLevelPoints = 100 - currentLevelPoints;
-                const progressPercent = (currentLevelPoints / 100) * 100;
-                
-                // Nomes dos níveis
-                const levelNames = {
-                    1: 'Iniciante', 2: 'Aprendiz', 3: 'Praticante', 4: 'Experiente', 
-                    5: 'Influente', 6: 'Especialista', 7: 'Mentor', 8: 'Líder', 
-                    9: 'Visionário', 10: 'Lenda'
-                };
-                
-                // Emojis dos níveis
-                const levelEmojis = {
-                    1: '📢', 2: '🌱', 3: '🔥', 4: '⭐', 5: '🚀', 
-                    6: '💎', 7: '👑', 8: '🏆', 9: '🌟', 10: '🎯'
-                };
-                
-                // Atualizar conteúdo do card
-                modal.querySelector('.level-title').textContent = `Nível ${level}`;
-                modal.querySelector('.level-name').textContent = levelNames[Math.min(level, 10)] || 'Mestre';
-                modal.querySelector('.level-points').textContent = `${totalPoints} pontos`;
-                modal.querySelector('.level-next').textContent = level >= 10 ? 'Nível máximo!' : `${nextLevelPoints} para próximo nível`;
-                modal.querySelector('.level-progress').style.width = `${Math.min(progressPercent, 100)}%`;
-                modal.querySelector('.level-ranking').textContent = 'Ranking: Calculando...';
-                
-                // Atualizar emoji
-                const emojiElement = levelCard.querySelector('div[style*="font-size: 24px"]');
-                if (emojiElement) {
-                    emojiElement.textContent = levelEmojis[Math.min(level, 10)] || '🎯';
-                }
+                loadUserLevelData(userData.id, levelCard);
             }
             
             // Armazenar dados do usuário no modal para uso posterior
@@ -7271,23 +7238,128 @@
             modal.dataset.userEmail = userData.email || '';
         }
         
-        // Função para toggle do botão seguir
-        function toggleFollow() {
+        // Função para verificar status de seguir
+        async function checkFollowStatus(userId, followBtn) {
+            try {
+                const { data, error } = await supabase
+                    .from('follows')
+                    .select('id')
+                    .eq('follower_id', currentUser.id)
+                    .eq('following_id', userId)
+                    .single();
+                
+                if (data) {
+                    // Já segue
+                    followBtn.textContent = 'Seguindo';
+                    followBtn.style.background = '#28a745';
+                } else {
+                    // Não segue
+                    followBtn.textContent = 'Seguir';
+                    followBtn.style.background = '#007bff';
+                }
+            } catch (error) {
+                console.log('ℹ️ Usuário não seguido ainda');
+                followBtn.textContent = 'Seguir';
+                followBtn.style.background = '#007bff';
+            }
+        }
+        
+        // Função para carregar dados reais de nível do usuário
+        async function loadUserLevelData(userId, levelCard) {
+            try {
+                // Buscar dados de gamificação do usuário específico
+                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                    p_user_id: userId
+                });
+                
+                if (error) {
+                    console.error('❌ Erro ao carregar dados de nível:', error);
+                    return;
+                }
+                
+                console.log('🎯 Dados de nível recebidos:', data);
+                
+                // Atualizar card com dados reais
+                if (data) {
+                    const level = data.current_level?.id || 1;
+                    const levelName = data.current_level?.name || 'Iniciante';
+                    const totalPoints = data.total_points || 0;
+                    const nextLevelPoints = data.next_level?.points_required || 100;
+                    const currentLevelPoints = data.current_level?.points_required || 0;
+                    const pointsToNext = nextLevelPoints - totalPoints;
+                    const progressPercent = data.progress || 0;
+                    
+                    // Emojis dos níveis
+                    const levelEmojis = {
+                        1: '📢', 2: '🌱', 3: '🔥', 4: '⭐', 5: '🚀', 
+                        6: '💎', 7: '👑', 8: '🏆', 9: '🌟', 10: '🎯'
+                    };
+                    
+                    // Atualizar conteúdo do card
+                    levelCard.querySelector('.level-title').textContent = `Nível ${level}`;
+                    levelCard.querySelector('.level-name').textContent = levelName;
+                    levelCard.querySelector('.level-points').textContent = `${totalPoints} pontos`;
+                    levelCard.querySelector('.level-next').textContent = data.next_level ? `${pointsToNext} para próximo nível` : 'Nível máximo!';
+                    levelCard.querySelector('.level-progress').style.width = `${Math.min(progressPercent, 100)}%`;
+                    
+                    // Atualizar emoji
+                    const emojiElement = levelCard.querySelector('div[style*="font-size: 24px"]');
+                    if (emojiElement) {
+                        emojiElement.textContent = levelEmojis[Math.min(level, 10)] || '🎯';
+                    }
+                    
+                    // Buscar ranking se disponível
+                    if (data.ranking) {
+                        levelCard.querySelector('.level-ranking').textContent = `Ranking: #${data.ranking.position} de ${data.ranking.total} usuários`;
+                    } else {
+                        levelCard.querySelector('.level-ranking').textContent = 'Ranking: Calculando...';
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados de nível:', error);
+            }
+        }
+        
+        // Função para toggle do botão seguir com integração real
+        async function toggleFollow() {
             const modal = document.getElementById('userProfileModal');
             const followBtn = modal?.querySelector('.follow-btn');
             const userId = modal?.dataset.userId;
             
             if (!followBtn || !userId) return;
             
-            // TODO: Implementar lógica real de seguir/deixar de seguir
-            if (followBtn.textContent === 'Seguir') {
-                followBtn.textContent = 'Seguindo';
-                followBtn.style.background = '#28a745';
-                showToast('Usuário seguido com sucesso!');
-            } else {
-                followBtn.textContent = 'Seguir';
-                followBtn.style.background = '#007bff';
-                showToast('Deixou de seguir o usuário');
+            try {
+                if (followBtn.textContent === 'Seguir') {
+                    // Seguir usuário
+                    const { error } = await supabase
+                        .from('follows')
+                        .insert({
+                            follower_id: currentUser.id,
+                            following_id: userId
+                        });
+                    
+                    if (error) throw error;
+                    
+                    followBtn.textContent = 'Seguindo';
+                    followBtn.style.background = '#28a745';
+                    showToast('Usuário seguido com sucesso!');
+                } else {
+                    // Deixar de seguir
+                    const { error } = await supabase
+                        .from('follows')
+                        .delete()
+                        .eq('follower_id', currentUser.id)
+                        .eq('following_id', userId);
+                    
+                    if (error) throw error;
+                    
+                    followBtn.textContent = 'Seguir';
+                    followBtn.style.background = '#007bff';
+                    showToast('Deixou de seguir o usuário');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao alterar status de seguir:', error);
+                showToast('Erro ao alterar status de seguir');
             }
         }
 
