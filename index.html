@@ -6997,13 +6997,13 @@
                         background: white;
                         z-index: 10;
                     ">
-                        <h2 class="modal-title" style="margin: 0; color: #333;">Perfil do Usuário</h2>
                         <span class="close" style="
                             font-size: 28px;
                             font-weight: bold;
                             cursor: pointer;
                             color: #999;
                             line-height: 1;
+                            margin-left: auto;
                         " onclick="closeUserProfileModal()">&times;</span>
                     </div>
                     <div class="modal-body" style="padding: 1.5rem;">
@@ -7018,7 +7018,7 @@
                                 border-radius: 50%;
                                 object-fit: cover;
                                 margin-right: 1rem;
-                                border: 3px solid #e55a2b;
+
                             ">
                             <div class="profile-info">
                                 <h3 class="profile-name" style="
@@ -7160,7 +7160,7 @@
                     color: white;
                     font-size: 32px;
                     font-weight: bold;
-                    border: 3px solid #e55a2b;
+
                 `;
                 initial.textContent = (userData.name || 'U').charAt(0).toUpperCase();
                 this.parentNode.insertBefore(initial, this);
