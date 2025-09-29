@@ -6986,26 +6986,17 @@
                     overflow-y: auto;
                     position: relative;
                 ">
-                    <div class="modal-header" style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 1.5rem;
-                        border-bottom: 1px solid #eee;
-                        position: sticky;
-                        top: 0;
-                        background: white;
-                        z-index: 10;
-                    ">
-                        <span class="close" style="
-                            font-size: 28px;
-                            font-weight: bold;
-                            cursor: pointer;
-                            color: #999;
-                            line-height: 1;
-                            margin-left: auto;
-                        " onclick="closeUserProfileModal()">&times;</span>
-                    </div>
+                    <span class="close" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 20px;
+                        font-size: 28px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        color: #999;
+                        line-height: 1;
+                        z-index: 20;
+                    " onclick="closeUserProfileModal()">&times;</span>
                     <div class="modal-body" style="padding: 1.5rem;">
                         <div class="profile-header" style="
                             display: flex;
