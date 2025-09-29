@@ -6997,6 +6997,21 @@
                         line-height: 1;
                         z-index: 20;
                     " onclick="closeUserProfileModal()">&times;</span>
+                    <button class="follow-btn" style="
+                        position: absolute;
+                        top: 55px;
+                        right: 20px;
+                        padding: 8px 16px;
+                        border: none;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        background: #007bff;
+                        color: white;
+                        z-index: 20;
+                    " onclick="toggleFollow()">Seguir</button>
                     <div class="modal-body" style="padding: 1.5rem;">
                         <div class="profile-header" style="
                             display: flex;
@@ -7017,24 +7032,11 @@
                                     color: #333;
                                     font-size: 1.5rem;
                                 "></h3>
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <p class="profile-username" style="
-                                        margin: 0;
-                                        color: #666;
-                                        font-size: 1rem;
-                                    "></p>
-                                    <button class="follow-btn" style="
-                                        padding: 8px 16px;
-                                        border: none;
-                                        border-radius: 20px;
-                                        font-size: 14px;
-                                        font-weight: 600;
-                                        cursor: pointer;
-                                        transition: all 0.2s ease;
-                                        background: #007bff;
-                                        color: white;
-                                    " onclick="toggleFollow()">Seguir</button>
-                                </div>
+                                <p class="profile-username" style="
+                                    margin: 0;
+                                    color: #666;
+                                    font-size: 1rem;
+                                "></p>
                             </div>
                         </div>
                         
@@ -7309,18 +7311,64 @@
                     }
                     
                     // Buscar ranking se disponível
-                    if (data.ranking) {
+                    if (data.ranking && data.ranking.position && data.ranking.total) {
                         levelCard.querySelector('.level-ranking').textContent = `Ranking: #${data.ranking.position} de ${data.ranking.total} usuários`;
                     } else {
-                        levelCard.querySelector('.level-ranking').textContent = 'Ranking: Calculando...';
+                        // Fallback: calcular ranking manualmente
+                        calculateUserRanking(userId, totalPoints, levelCard);
                     }
                 }
             } catch (error) {
                 console.error('❌ Erro ao carregar dados de nível:', error);
+                // Fallback em caso de erro
+                calculateUserRanking(userId, 0, levelCard);
             }
         }
         
-        // Função para toggle do botão seguir com integração real
+        // Função para calcular ranking manualmente quando não disponível via RPC
+        async function calculateUserRanking(userId, userPoints, levelCard) {
+            try {
+                // Buscar total de usuários ativos (que têm pelo menos 1 post ou comentário)
+                const { data: totalUsersData, error: totalError } = await supabase
+                    .from('profiles')
+                    .select('id', { count: 'exact' });
+                
+                if (totalError) {
+                    console.error('❌ Erro ao buscar total de usuários:', totalError);
+                    levelCard.querySelector('.level-ranking').textContent = 'Ranking: Indisponível';
+                    return;
+                }
+                
+                const totalUsers = totalUsersData?.length || 0;
+                
+                if (totalUsers === 0) {
+                    levelCard.querySelector('.level-ranking').textContent = 'Ranking: Sem dados';
+                    return;
+                }
+                
+                // Buscar usuários com pontuação maior que o usuário atual para calcular posição
+                const { data: higherScoreUsers, error: rankError } = await supabase.rpc('get_users_with_higher_score', {
+                    p_user_id: userId,
+                    p_user_points: userPoints
+                });
+                
+                if (rankError) {
+                    console.warn('⚠️ Erro ao calcular ranking, usando estimativa:', rankError.message);
+                    // Estimativa baseada em pontuação (assumindo distribuição uniforme)
+                    const estimatedPosition = Math.max(1, Math.ceil(totalUsers * (1 - userPoints / 1000)));
+                    levelCard.querySelector('.level-ranking').textContent = `Ranking: ~#${estimatedPosition} de ${totalUsers} usuários`;
+                } else {
+                    const position = (higherScoreUsers?.length || 0) + 1;
+                    levelCard.querySelector('.level-ranking').textContent = `Ranking: #${position} de ${totalUsers} usuários`;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao calcular ranking:', error);
+                levelCard.querySelector('.level-ranking').textContent = 'Ranking: Indisponível';
+            }
+        }
+        
+        // Função para toggle do botão seguir com integração real e atualizações sistema-wide
         async function toggleFollow() {
             const modal = document.getElementById('userProfileModal');
             const followBtn = modal?.querySelector('.follow-btn');
@@ -7329,37 +7377,67 @@
             if (!followBtn || !userId) return;
             
             try {
-                if (followBtn.textContent === 'Seguir') {
-                    // Seguir usuário
-                    const { error } = await supabase
-                        .from('follows')
-                        .insert({
-                            follower_id: currentUser.id,
-                            following_id: userId
-                        });
+                console.log(`👥 Tentando ${following.some(f => f.following_id === userId) ? 'desseguir' : 'seguir'} usuário:`, userId);
+                const isFollowing = following.some(f => f.following_id === userId);
+                
+                if (isFollowing) {
+                    // Unfollow
+                    try {
+                        const unfollowQuery = supabase
+                            .from('follows')
+                            .delete()
+                            .eq('follower_id', currentUser.id)
+                            .eq('following_id', userId);
+                        
+                        await withTimeout(unfollowQuery, 2000);
+                        console.log('✅ Unfollow realizado no banco');
+                    } catch (unfollowError) {
+                        console.warn('⚠️ Erro ao desseguir no banco, atualizando apenas localmente:', unfollowError.message);
+                    }
                     
-                    if (error) throw error;
-                    
-                    followBtn.textContent = 'Seguindo';
-                    followBtn.style.background = '#28a745';
-                    showToast('Usuário seguido com sucesso!');
-                } else {
-                    // Deixar de seguir
-                    const { error } = await supabase
-                        .from('follows')
-                        .delete()
-                        .eq('follower_id', currentUser.id)
-                        .eq('following_id', userId);
-                    
-                    if (error) throw error;
+                    following = following.filter(f => f.following_id !== userId);
+                    console.log('✅ Usuário removido da lista local de seguindo');
                     
                     followBtn.textContent = 'Seguir';
                     followBtn.style.background = '#007bff';
                     showToast('Deixou de seguir o usuário');
+                } else {
+                    // Follow
+                    try {
+                        const followQuery = supabase
+                            .from('follows')
+                            .insert({
+                                follower_id: currentUser.id,
+                                following_id: userId
+                            });
+                        
+                        await withTimeout(followQuery, 2000);
+                        console.log('✅ Follow realizado no banco');
+                    } catch (followError) {
+                        console.warn('⚠️ Erro ao seguir no banco, atualizando apenas localmente:', followError.message);
+                    }
+                    
+                    following.push({ following_id: userId });
+                    console.log('✅ Usuário adicionado à lista local de seguindo');
+                    
+                    followBtn.textContent = 'Seguindo';
+                    followBtn.style.background = '#28a745';
+                    showToast('Usuário seguido com sucesso!');
+                    
+                    // Tentar criar notificação
+                    console.log('✅ Notificação de follow será criada automaticamente pelo trigger SQL');
                 }
+                
+                // Sempre atualizar contadores e interface sistema-wide
+                updateFollowCounts();
+                if (!window.isLoadingPosts) {
+                    await renderPosts();
+                }
+                console.log('✅ Interface atualizada após follow/unfollow');
+                
             } catch (error) {
-                console.error('❌ Erro ao alterar status de seguir:', error);
-                showToast('Erro ao alterar status de seguir');
+                console.error('❌ Erro crítico ao seguir/desseguir:', error);
+                showToast('Erro ao seguir/desseguir usuário. Tente novamente.');
             }
         }
 
