@@ -7011,17 +7011,58 @@
                                 margin-right: 1rem;
 
                             ">
-                            <div class="profile-info">
+                            <div class="profile-info" style="flex: 1;">
                                 <h3 class="profile-name" style="
                                     margin: 0 0 0.5rem 0;
                                     color: #333;
                                     font-size: 1.5rem;
                                 "></h3>
-                                <p class="profile-username" style="
-                                    margin: 0;
-                                    color: #666;
-                                    font-size: 1rem;
-                                "></p>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <p class="profile-username" style="
+                                        margin: 0;
+                                        color: #666;
+                                        font-size: 1rem;
+                                    "></p>
+                                    <button class="follow-btn" style="
+                                        padding: 8px 16px;
+                                        border: none;
+                                        border-radius: 20px;
+                                        font-size: 14px;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                        background: #007bff;
+                                        color: white;
+                                    " onclick="toggleFollow()">Seguir</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card do Nível Atual -->
+                        <div class="level-card" style="
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 15px 20px;
+                            border-radius: 12px;
+                            margin-bottom: 20px;
+                            position: relative;
+                        ">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div>
+                                    <div class="level-title" style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">Nível 1</div>
+                                    <div class="level-name" style="font-size: 14px; opacity: 0.9;">Iniciante</div>
+                                </div>
+                                <div style="font-size: 24px;">📢</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span class="level-points" style="font-size: 14px;">0 pontos</span>
+                                <span class="level-next" style="font-size: 14px;">100 para próximo nível</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; overflow: hidden;">
+                                <div class="level-progress" style="background: white; height: 100%; width: 0%; border-radius: 3px; transition: width 0.3s ease;"></div>
+                            </div>
+                            <div class="level-ranking" style="text-align: center; margin-top: 8px; font-size: 12px; opacity: 0.9;">
+                                Ranking: #-- de -- usuários
                             </div>
                         </div>
                         
@@ -7172,10 +7213,82 @@
             modal.querySelector('#userCommentsCount').textContent = stats.comments;
             modal.querySelector('#userReactionsCount').textContent = stats.reactions;
             
+            // Botão Seguir/Deixar de Seguir
+            const followBtn = modal.querySelector('.follow-btn');
+            if (followBtn) {
+                // Verificar se é o próprio usuário
+                if (userData.id === currentUser.id) {
+                    followBtn.style.display = 'none';
+                } else {
+                    followBtn.style.display = 'block';
+                    // TODO: Implementar lógica de verificar se já segue
+                    followBtn.textContent = 'Seguir';
+                    followBtn.style.background = '#007bff';
+                }
+            }
+            
+            // Card do Nível Atual
+            const levelCard = modal.querySelector('.level-card');
+            if (levelCard) {
+                // Calcular nível baseado nos pontos (stats.holofotes + stats.reactions)
+                const totalPoints = (stats.holofotes || 0) + (stats.reactions || 0);
+                const level = Math.floor(totalPoints / 100) + 1;
+                const currentLevelPoints = totalPoints % 100;
+                const nextLevelPoints = 100 - currentLevelPoints;
+                const progressPercent = (currentLevelPoints / 100) * 100;
+                
+                // Nomes dos níveis
+                const levelNames = {
+                    1: 'Iniciante', 2: 'Aprendiz', 3: 'Praticante', 4: 'Experiente', 
+                    5: 'Influente', 6: 'Especialista', 7: 'Mentor', 8: 'Líder', 
+                    9: 'Visionário', 10: 'Lenda'
+                };
+                
+                // Emojis dos níveis
+                const levelEmojis = {
+                    1: '📢', 2: '🌱', 3: '🔥', 4: '⭐', 5: '🚀', 
+                    6: '💎', 7: '👑', 8: '🏆', 9: '🌟', 10: '🎯'
+                };
+                
+                // Atualizar conteúdo do card
+                modal.querySelector('.level-title').textContent = `Nível ${level}`;
+                modal.querySelector('.level-name').textContent = levelNames[Math.min(level, 10)] || 'Mestre';
+                modal.querySelector('.level-points').textContent = `${totalPoints} pontos`;
+                modal.querySelector('.level-next').textContent = level >= 10 ? 'Nível máximo!' : `${nextLevelPoints} para próximo nível`;
+                modal.querySelector('.level-progress').style.width = `${Math.min(progressPercent, 100)}%`;
+                modal.querySelector('.level-ranking').textContent = 'Ranking: Calculando...';
+                
+                // Atualizar emoji
+                const emojiElement = levelCard.querySelector('div[style*="font-size: 24px"]');
+                if (emojiElement) {
+                    emojiElement.textContent = levelEmojis[Math.min(level, 10)] || '🎯';
+                }
+            }
+            
             // Armazenar dados do usuário no modal para uso posterior
             modal.dataset.userId = userData.id;
             modal.dataset.userName = userData.name || 'Usuário';
             modal.dataset.userEmail = userData.email || '';
+        }
+        
+        // Função para toggle do botão seguir
+        function toggleFollow() {
+            const modal = document.getElementById('userProfileModal');
+            const followBtn = modal?.querySelector('.follow-btn');
+            const userId = modal?.dataset.userId;
+            
+            if (!followBtn || !userId) return;
+            
+            // TODO: Implementar lógica real de seguir/deixar de seguir
+            if (followBtn.textContent === 'Seguir') {
+                followBtn.textContent = 'Seguindo';
+                followBtn.style.background = '#28a745';
+                showToast('Usuário seguido com sucesso!');
+            } else {
+                followBtn.textContent = 'Seguir';
+                followBtn.style.background = '#007bff';
+                showToast('Deixou de seguir o usuário');
+            }
         }
 
         function closeUserProfileModal() {
