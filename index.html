@@ -6473,7 +6473,18 @@
                     
                     <div class="post-content" style="padding: 1rem 1.5rem;">
                         <div class="post-person" style="font-weight: 600; color: #e55a2b; margin-bottom: 0.5rem;">
-                            Holofotes para: ${postData.celebrated_person_name || postData.person_name || 'Alguém especial'}
+                            Holofotes para: 
+                            ${postData.mentioned_user_id ? `
+                                ${postData.mentioned_user_id === currentUser.id ? 
+                                    `<span>${postData.mentioned_user?.username ? '@' + postData.mentioned_user.username : postData.mentioned_user?.email ? '@' + postData.mentioned_user.email.split('@')[0] : postData.celebrated_person_name || postData.person_name}</span>` :
+                                    `<span onclick="openUserProfileById('${postData.mentioned_user_id}')" 
+                                          style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                          onmouseover="this.style.color='#0056b3'"
+                                          onmouseout="this.style.color='#007bff'">
+                                        ${postData.mentioned_user?.username ? '@' + postData.mentioned_user.username : postData.mentioned_user?.email ? '@' + postData.mentioned_user.email.split('@')[0] : postData.celebrated_person_name || postData.person_name}
+                                    </span>`
+                                }
+                            ` : `<span>${postData.celebrated_person_name || postData.person_name || 'Alguém especial'}</span>`}
                         </div>
                         ${postData.type || postData.highlight_type ? `
                             <div class="post-type" style="color: #666; font-size: 14px; margin-bottom: 0.5rem;">
