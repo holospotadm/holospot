@@ -457,6 +457,32 @@ SELECT
 5. ❌ **Criar código duplicado** - Reutilizar funções existentes
 6. ❌ **Commitar sem testar** - Sempre validar antes
 
+## 🔑 **CREDENCIAIS DE ACESSO**
+
+### **GitHub Repository Access**
+- **Username:** `holospotadm`
+- **Token:** `[FORNECIDO SEPARADAMENTE POR SEGURANÇA]`
+- **Repository:** `https://github.com/holospotadm/holospot`
+
+### **Como Usar as Credenciais:**
+```bash
+# Clonar repositório (substitua TOKEN pelo token fornecido)
+git clone https://holospotadm:TOKEN@github.com/holospotadm/holospot.git
+
+# Configurar remote para push (substitua TOKEN pelo token fornecido)
+git remote set-url origin https://holospotadm:TOKEN@github.com/holospotadm/holospot.git
+
+# Fazer push das alterações
+git push origin main
+```
+
+### **Token Atual (Setembro 2025):**
+- **Status:** ✅ Ativo e válido
+- **Permissões:** Acesso completo ao repositório
+- **Localização:** Fornecido separadamente por questões de segurança
+
+**⚠️ IMPORTANTE:** Por segurança, o token não é armazenado diretamente no código. Solicite o token atual ao administrador do projeto ou consulte as variáveis de ambiente seguras.
+
 ## 📚 **RECURSOS ADICIONAIS**
 
 ### **🔗 Links Úteis**
