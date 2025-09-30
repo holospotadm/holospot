@@ -945,6 +945,23 @@
             background: linear-gradient(#f8f9fa, #f8f9fa) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box !important;
         }
 
+        /* Modal stat cards styling to match profile tab */
+        #modalPostsCreatedCard,
+        #modalHolofotesCard {
+            border: 2px solid transparent !important;
+            background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box !important;
+        }
+
+        #modalFollowingCard,
+        #modalFollowersCard {
+            /* Orange styling for following/followers cards */
+        }
+
+        #modalFollowingCard .stat-number,
+        #modalFollowersCard .stat-number {
+            color: #e65100 !important;
+        }
+
         /* Hover effect only for clickable stat cards */
         #postsCreatedCard:hover,
         #peopleHighlightedCard:hover,
@@ -7068,23 +7085,23 @@
                             margin-bottom: 20px;
                         ">
                             <!-- Primeira linha: Seguindo | Seguidores -->
-                            <div class="stat-card">
+                            <div class="stat-card" id="modalFollowingCard">
                                 <div class="stat-number" id="userFollowingCount">0</div>
                                 <div class="stat-label">Seguindo</div>
                             </div>
                             
-                            <div class="stat-card">
+                            <div class="stat-card" id="modalFollowersCard">
                                 <div class="stat-number" id="userFollowersCount">0</div>
                                 <div class="stat-label">Seguidores</div>
                             </div>
                             
                             <!-- Segunda linha: Posts Criados | Holofotes Recebidos -->
-                            <div class="stat-card">
+                            <div class="stat-card" id="modalPostsCreatedCard">
                                 <div class="stat-number" id="userPostsCount">0</div>
                                 <div class="stat-label">Posts Criados</div>
                             </div>
                             
-                            <div class="stat-card">
+                            <div class="stat-card" id="modalHolofotesCard">
                                 <div class="stat-number" id="userHolofotesCount">0</div>
                                 <div class="stat-label">Holofotes Recebidos</div>
                             </div>
