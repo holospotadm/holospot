@@ -6892,28 +6892,24 @@
                 const [
                     postsResult,
                     holofotesResult,
-                    commentsResult,
-                    feedbacksResult,
-                    reactionsResult
+                    followingResult,
+                    followersResult
                 ] = await Promise.all([
                     // Posts criados
                     supabase.from('posts').select('id').eq('user_id', userId),
                     // Holofotes recebidos
                     supabase.from('posts').select('id').eq('mentioned_user_id', userId),
-                    // Comentários feitos
-                    supabase.from('comments').select('id').eq('user_id', userId),
-                    // Feedbacks dados
-                    supabase.from('feedbacks').select('id').eq('mentioned_user_id', userId),
-                    // Reações dadas
-                    supabase.from('reactions').select('id').eq('user_id', userId)
+                    // Seguindo
+                    supabase.from('follows').select('id').eq('follower_id', userId),
+                    // Seguidores
+                    supabase.from('follows').select('id').eq('following_id', userId)
                 ]);
                 
                 const stats = {
                     posts: postsResult.data?.length || 0,
                     holofotes: holofotesResult.data?.length || 0,
-                    comments: commentsResult.data?.length || 0,
-                    feedbacks: feedbacksResult.data?.length || 0,
-                    reactions: reactionsResult.data?.length || 0
+                    following: followingResult.data?.length || 0,
+                    followers: followersResult.data?.length || 0
                 };
                 
                 console.log('✅ Estatísticas do usuário:', stats);
@@ -6924,9 +6920,8 @@
                 return {
                     posts: 0,
                     holofotes: 0,
-                    comments: 0,
-                    feedbacks: 0,
-                    reactions: 0
+                    following: 0,
+                    followers: 0
                 };
             }
         }
@@ -7070,94 +7065,109 @@
                             display: grid;
                             grid-template-columns: repeat(2, 1fr);
                             gap: 15px;
+                            margin-bottom: 20px;
                         ">
-                            <div class="stat-card" onclick="openUserPostsListModal()" style="
-                                background: linear-gradient(135deg, #e55a2b, #ffb700);
-                                color: white;
-                                padding: 20px;
-                                border-radius: 12px;
+                            <!-- Primeira linha: Seguindo | Seguidores -->
+                            <div class="stat-card" style="
+                                background: rgba(255, 255, 255, 0.95);
+                                border-radius: 15px;
+                                padding: 1.2rem;
                                 text-align: center;
-                                cursor: pointer;
-                                transition: transform 0.2s ease;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                outline: none;
-                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                                transition: all 0.3s ease;
+                            ">
+                                <div class="stat-number" id="userFollowingCount" style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                    color: #333;
+                                ">0</div>
+                                <div class="stat-label" style="
+                                    font-size: 14px;
+                                    color: #666;
+                                ">Seguindo</div>
+                            </div>
+                            
+                            <div class="stat-card" style="
+                                background: rgba(255, 255, 255, 0.95);
+                                border-radius: 15px;
+                                padding: 1.2rem;
+                                text-align: center;
+                                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                                transition: all 0.3s ease;
+                            ">
+                                <div class="stat-number" id="userFollowersCount" style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                    color: #333;
+                                ">0</div>
+                                <div class="stat-label" style="
+                                    font-size: 14px;
+                                    color: #666;
+                                ">Seguidores</div>
+                            </div>
+                            
+                            <!-- Segunda linha: Posts Criados | Holofotes Recebidos -->
+                            <div class="stat-card" style="
+                                background: rgba(255, 255, 255, 0.95);
+                                border-radius: 15px;
+                                padding: 1.2rem;
+                                text-align: center;
+                                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                                transition: all 0.3s ease;
+                            ">
                                 <div class="stat-number" id="userPostsCount" style="
                                     font-size: 24px;
                                     font-weight: bold;
                                     margin-bottom: 5px;
+                                    color: #333;
                                 ">0</div>
                                 <div class="stat-label" style="
                                     font-size: 14px;
-                                    opacity: 0.9;
+                                    color: #666;
                                 ">Posts Criados</div>
                             </div>
                             
-                            <div class="stat-card" onclick="openUserHolofotesListModal()" style="
-                                background: linear-gradient(135deg, #2196f3, #1976d2);
-                                color: white;
-                                padding: 20px;
-                                border-radius: 12px;
+                            <div class="stat-card" style="
+                                background: rgba(255, 255, 255, 0.95);
+                                border-radius: 15px;
+                                padding: 1.2rem;
                                 text-align: center;
-                                cursor: pointer;
-                                transition: transform 0.2s ease;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                outline: none;
-                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                                transition: all 0.3s ease;
+                            ">
                                 <div class="stat-number" id="userHolofotesCount" style="
                                     font-size: 24px;
                                     font-weight: bold;
                                     margin-bottom: 5px;
+                                    color: #333;
                                 ">0</div>
                                 <div class="stat-label" style="
                                     font-size: 14px;
-                                    opacity: 0.9;
+                                    color: #666;
                                 ">Holofotes Recebidos</div>
                             </div>
-                            
-                            <div class="stat-card" onclick="openUserCommentsListModal()" style="
-                                background: linear-gradient(135deg, #4caf50, #388e3c);
-                                color: white;
-                                padding: 20px;
-                                border-radius: 12px;
-                                text-align: center;
-                                cursor: pointer;
-                                transition: transform 0.2s ease;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                outline: none;
-                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                <div class="stat-number" id="userCommentsCount" style="
-                                    font-size: 24px;
-                                    font-weight: bold;
-                                    margin-bottom: 5px;
-                                ">0</div>
-                                <div class="stat-label" style="
-                                    font-size: 14px;
-                                    opacity: 0.9;
-                                ">Comentários</div>
-                            </div>
-                            
-                            <div class="stat-card" onclick="openUserReactionsListModal()" style="
-                                background: linear-gradient(135deg, #ff9800, #f57c00);
-                                color: white;
-                                padding: 20px;
-                                border-radius: 12px;
-                                text-align: center;
-                                cursor: pointer;
-                                transition: transform 0.2s ease;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                outline: none;
-                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                <div class="stat-number" id="userReactionsCount" style="
-                                    font-size: 24px;
-                                    font-weight: bold;
-                                    margin-bottom: 5px;
-                                ">0</div>
-                                <div class="stat-label" style="
-                                    font-size: 14px;
-                                    opacity: 0.9;
-                                ">Reações Dadas</div>
-                            </div>
+                        </div>
+                        
+                        <!-- Link para perfil do usuário -->
+                        <div style="
+                            text-align: center;
+                            padding: 15px;
+                            border-top: 1px solid #eee;
+                            margin-top: 10px;
+                        ">
+                            <a href="#" onclick="showToast('Funcionalidade em desenvolvimento'); return false;" style="
+                                color: #007bff;
+                                text-decoration: none;
+                                font-size: 14px;
+                                font-weight: 500;
+                            ">📄 Visualizar perfil completo do usuário</a>
+                            <div style="
+                                font-size: 12px;
+                                color: #999;
+                                margin-top: 5px;
+                            ">Em desenvolvimento</div>
                         </div>
                     </div>
                 </div>
@@ -7210,8 +7220,8 @@
             // Estatísticas
             modal.querySelector('#userPostsCount').textContent = stats.posts;
             modal.querySelector('#userHolofotesCount').textContent = stats.holofotes;
-            modal.querySelector('#userCommentsCount').textContent = stats.comments;
-            modal.querySelector('#userReactionsCount').textContent = stats.reactions;
+            modal.querySelector('#userFollowingCount').textContent = stats.following || 0;
+            modal.querySelector('#userFollowersCount').textContent = stats.followers || 0;
             
             // Botão Seguir/Deixar de Seguir
             const followBtn = modal.querySelector('.follow-btn');
