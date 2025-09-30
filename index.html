@@ -2188,7 +2188,7 @@
     <div id="feedbacksModal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
-                <h2>🔄 Feedbacks Recebidos</h2>
+                <h2>📬 Feedback</h2>
                 <button class="close-btn" onclick="closeFeedbacksModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -3938,7 +3938,7 @@
             console.log('📬 Abrindo modal de feedbacks para post:', postId, 'origem:', source);
             
             // Definir título baseado na origem
-            const modalTitle = source === 'holofotes_recebidos' ? '📬 Feedbacks' : '📬 Feedbacks Recebidos';
+            const modalTitle = '📬 Feedback';
             
             // Criar modal
             const modal = document.createElement('div');
@@ -6372,10 +6372,19 @@
                 // Para outros posts: mostrar header normal
                 modalHeader.style.display = 'flex';
                 const titles = {
-                    'received_holofote': 'Holofote Recebido',
+                    'received_holofote': '🏆 Holofote Recebido',
                     'other_post': 'Post'
                 };
                 modalTitle.textContent = titles[modalType] || 'Post';
+                
+                // Aplicar gradiente laranja > dourado para holofote recebido
+                if (modalType === 'received_holofote') {
+                    modalHeader.style.background = 'linear-gradient(135deg, #ff9800, #ffb700)';
+                    modalHeader.style.color = 'white';
+                } else {
+                    modalHeader.style.background = '';
+                    modalHeader.style.color = '';
+                }
             }
             
             // Renderizar post único
@@ -6565,13 +6574,13 @@
                             align-items: center;
                             gap: 3px;
                             padding: 6px 10px;
-                            background: ${userTouched ? 'linear-gradient(135deg, #ff6b6b, #ee5a52)' : '#f5f5f5'};
+                            background: ${userTouched ? 'linear-gradient(135deg, #ff6600, #9c27b0)' : '#f5f5f5'};
                             color: ${userTouched ? 'white' : '#666'};
                             border: none;
                             border-radius: 20px;
                             font-size: 12px;
                             transition: all 0.2s ease;
-                        " ${modalType !== 'own_post' ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='${userTouched ? 'linear-gradient(135deg, #ff6b6b, #ee5a52)' : '#f5f5f5'}'; this.style.color='${userTouched ? 'white' : '#666'}';"` : ''}>
+                        " ${modalType !== 'own_post' ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='${userTouched ? 'linear-gradient(135deg, #ff6600, #9c27b0)' : '#f5f5f5'}'; this.style.color='${userTouched ? 'white' : '#666'}';"` : ''}>
                             ❤️ ${touchedCount}
                         </button>
                         <button class="reaction-btn ${userGrateful ? 'active' : ''} ${modalType === 'own_post' ? 'disabled' : ''}" 
@@ -6580,13 +6589,13 @@
                             align-items: center;
                             gap: 3px;
                             padding: 6px 10px;
-                            background: ${userGrateful ? 'linear-gradient(135deg, #ffa726, #ff9800)' : '#f5f5f5'};
+                            background: ${userGrateful ? 'linear-gradient(135deg, #ff6600, #9c27b0)' : '#f5f5f5'};
                             color: ${userGrateful ? 'white' : '#666'};
                             border: none;
                             border-radius: 20px;
                             font-size: 12px;
                             transition: all 0.2s ease;
-                        " ${modalType !== 'own_post' ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='${userGrateful ? 'linear-gradient(135deg, #ffa726, #ff9800)' : '#f5f5f5'}'; this.style.color='${userGrateful ? 'white' : '#666'}';"` : ''}>
+                        " ${modalType !== 'own_post' ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='${userGrateful ? 'linear-gradient(135deg, #ff6600, #9c27b0)' : '#f5f5f5'}'; this.style.color='${userGrateful ? 'white' : '#666'}';"` : ''}>
                             🙏 ${gratefulCount}
                         </button>
                         <button class="reaction-btn ${userInspired ? 'active' : ''} ${modalType === 'own_post' ? 'disabled' : ''}" 
@@ -6595,13 +6604,13 @@
                             align-items: center;
                             gap: 3px;
                             padding: 6px 10px;
-                            background: ${userInspired ? 'linear-gradient(135deg, #42a5f5, #2196f3)' : '#f5f5f5'};
+                            background: ${userInspired ? 'linear-gradient(135deg, #ff6600, #9c27b0)' : '#f5f5f5'};
                             color: ${userInspired ? 'white' : '#666'};
                             border: none;
                             border-radius: 20px;
                             font-size: 12px;
                             transition: all 0.2s ease;
-                        " ${modalType !== 'own_post' ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='${userInspired ? 'linear-gradient(135deg, #42a5f5, #2196f3)' : '#f5f5f5'}'; this.style.color='${userInspired ? 'white' : '#666'}';"` : ''}>
+                        " ${modalType !== 'own_post' ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='${userInspired ? 'linear-gradient(135deg, #ff6600, #9c27b0)' : '#f5f5f5'}'; this.style.color='${userInspired ? 'white' : '#666'}';"` : ''}>
                             ✨ ${inspiredCount}
                         </button>
                     </div>
@@ -10725,7 +10734,7 @@
     <div id="feedbacksReceivedModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2>🔄 Feedbacks Recebidos</h2>
+                <h2>📬 Feedback</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
