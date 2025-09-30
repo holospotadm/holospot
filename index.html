@@ -5880,6 +5880,7 @@
                     // Add user data and reactions array to the new post
                     data.user_data = {
                         name: currentUser.user_metadata?.name || currentUser.email || 'Usuário',
+                        email: currentUser.email,
                         avatar_url: currentUser.user_metadata?.avatar_url || ''
                     };
                     data.reactions = [];
@@ -5903,6 +5904,7 @@
                         created_at: new Date().toISOString(),
                         user_data: {
                             name: currentUser.user_metadata?.name || currentUser.email || 'Usuário',
+                            email: currentUser.email,
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         },
                         reactions: []
