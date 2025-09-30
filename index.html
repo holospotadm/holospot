@@ -6997,26 +6997,12 @@
                         line-height: 1;
                         z-index: 20;
                     " onclick="closeUserProfileModal()">&times;</span>
-                    <button class="follow-btn" style="
-                        position: absolute;
-                        top: 55px;
-                        right: 20px;
-                        padding: 8px 16px;
-                        border: none;
-                        border-radius: 20px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                        background: #007bff;
-                        color: white;
-                        z-index: 20;
-                    " onclick="toggleFollow()">Seguir</button>
                     <div class="modal-body" style="padding: 1.5rem;">
                         <div class="profile-header" style="
                             display: flex;
                             align-items: center;
                             margin-bottom: 2rem;
+                            position: relative;
                         ">
                             <img class="profile-avatar" src="" alt="Avatar" style="
                                 width: 80px;
@@ -7038,6 +7024,18 @@
                                     font-size: 1rem;
                                 "></p>
                             </div>
+                            <button class="follow-btn" style="
+                                padding: 8px 16px;
+                                border: none;
+                                border-radius: 20px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                background: #007bff;
+                                color: white;
+                                margin-left: 15px;
+                            " onclick="toggleFollow()">Seguir</button>
                         </div>
                         
                         <!-- Card do Nível Atual -->
@@ -7325,10 +7323,17 @@
             }
         }
         
-        // Função para calcular ranking manualmente quando não disponível via RPC
+        // Função para calcular ranking usando a tabela user_ranking
         async function calculateUserRanking(userId, userPoints, levelCard) {
             try {
-                // Buscar total de usuários ativos (que têm pelo menos 1 post ou comentário)
+                // Primeiro, tentar buscar da tabela user_ranking
+                const { data: rankingData, error: rankingError } = await supabase
+                    .from('user_ranking')
+                    .select('ranking_position')
+                    .eq('user_id', userId)
+                    .single();
+                
+                // Buscar total de usuários
                 const { data: totalUsersData, error: totalError } = await supabase
                     .from('profiles')
                     .select('id', { count: 'exact' });
@@ -7346,17 +7351,21 @@
                     return;
                 }
                 
-                // Buscar usuários com pontuação maior que o usuário atual para calcular posição
+                // Se encontrou na tabela user_ranking, usar esse valor
+                if (!rankingError && rankingData && rankingData.ranking_position) {
+                    levelCard.querySelector('.level-ranking').textContent = `Ranking: #${rankingData.ranking_position} de ${totalUsers} usuários`;
+                    return;
+                }
+                
+                // Fallback: calcular manualmente se não encontrou na tabela user_ranking
                 const { data: higherScoreUsers, error: rankError } = await supabase.rpc('get_users_with_higher_score', {
                     p_user_id: userId,
                     p_user_points: userPoints
                 });
                 
                 if (rankError) {
-                    console.warn('⚠️ Erro ao calcular ranking, usando estimativa:', rankError.message);
-                    // Estimativa baseada em pontuação (assumindo distribuição uniforme)
-                    const estimatedPosition = Math.max(1, Math.ceil(totalUsers * (1 - userPoints / 1000)));
-                    levelCard.querySelector('.level-ranking').textContent = `Ranking: ~#${estimatedPosition} de ${totalUsers} usuários`;
+                    console.warn('⚠️ Erro ao calcular ranking:', rankError.message);
+                    levelCard.querySelector('.level-ranking').textContent = 'Ranking: Indisponível';
                 } else {
                     const position = (higherScoreUsers?.length || 0) + 1;
                     levelCard.querySelector('.level-ranking').textContent = `Ranking: #${position} de ${totalUsers} usuários`;
