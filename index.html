@@ -4878,11 +4878,7 @@
                                     <span class="post-time">${formatDateShort(post.created_at)}</span>
                                 </div>
                             </div>
-                            ${post.user_id !== currentUser.id ? `
-                                <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.user_id}')">
-                                    ${isFollowing ? '✓ Seguindo' : '+ Seguir'}
-                                </button>
-                            ` : ''}
+
                         </div>
                         
                         <div class="post-content">
@@ -6365,20 +6361,25 @@
                 modal = createSinglePostModal();
             }
             
-            // Configurar título baseado no tipo
-            const titles = {
-                'own_post': 'Seu Post',
-                'received_holofote': 'Holofote Recebido',
-                'other_post': 'Post'
-            };
-            
+            // Configurar layout baseado no tipo
+            const modalHeader = modal.querySelector('.modal-header');
             const modalTitle = modal.querySelector('.modal-title');
-            if (modalTitle) {
+            
+            if (modalType === 'own_post') {
+                // Para posts próprios: esconder header completamente
+                modalHeader.style.display = 'none';
+            } else {
+                // Para outros posts: mostrar header normal
+                modalHeader.style.display = 'flex';
+                const titles = {
+                    'received_holofote': 'Holofote Recebido',
+                    'other_post': 'Post'
+                };
                 modalTitle.textContent = titles[modalType] || 'Post';
             }
             
             // Renderizar post único
-            renderSinglePost(postData, modal);
+            renderSinglePost(postData, modal, modalType);
             
             // Mostrar modal
             modal.style.display = 'flex';
@@ -6451,7 +6452,7 @@
             return modal;
         }
 
-        function renderSinglePost(postData, modal) {
+        function renderSinglePost(postData, modal, modalType) {
             const container = modal.querySelector('#singlePostContent');
             if (!container) return;
             
@@ -6491,9 +6492,9 @@
             
             container.innerHTML = `
                 <div class="post" style="margin: 0; border: none; box-shadow: none;">
-                    <div class="post-header" style="padding: 1.5rem 1.5rem 0 1.5rem;">
+                    <div class="post-header" style="padding: 1.5rem 1.5rem 0 1.5rem; position: relative;">
                         <img class="post-avatar" src="${authorAvatar}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                        <div class="post-author">
+                        <div class="post-author" style="flex: 1;">
                             <div class="post-author-name" style="font-weight: 600; color: #333;">${authorName}</div>
                             <div class="post-author-meta" style="color: #666; font-size: 14px;">
                                 ${authorUsername === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
@@ -6509,6 +6510,18 @@
                                 <span class="post-time">${formatDateShort(postData.created_at)}</span>
                             </div>
                         </div>
+                        ${modalType === 'own_post' ? `
+                            <span class="close" style="
+                                position: absolute;
+                                top: 1.5rem;
+                                right: 1.5rem;
+                                font-size: 28px;
+                                font-weight: bold;
+                                cursor: pointer;
+                                color: #999;
+                                line-height: 1;
+                            " onclick="closeSinglePostModal()">&times;</span>
+                        ` : ''}
                     </div>
                     
                     <div class="post-content" style="padding: 1rem 1.5rem;">
@@ -6527,7 +6540,7 @@
                             ` : `<span>${postData.celebrated_person_name || postData.person_name || 'Alguém especial'}</span>`}
                         </div>
                         ${postData.type || postData.highlight_type ? `
-                            <div class="post-type" style="color: #666; font-size: 14px; margin-bottom: 0.5rem;">
+                            <div class="post-type" style="color: white; font-size: 14px; margin-bottom: 0.5rem;">
                                 ${typeEmojis[postData.type || postData.highlight_type] || '✨'} ${typeNames[postData.type || postData.highlight_type] || 'Destaque'}
                             </div>
                         ` : ''}
@@ -6546,7 +6559,7 @@
                     </div>
                     
                     <div class="post-reactions" style="padding: 0 1.5rem; display: flex; gap: 10px; margin-bottom: 1rem;">
-                        <button class="reaction-btn" onclick="toggleReaction('${postData.id}', 'touched')" style="
+                        <button class="reaction-btn" ${modalType === 'own_post' ? '' : `onclick="toggleReaction('${postData.id}', 'touched')"`} style="
                             display: flex;
                             align-items: center;
                             gap: 5px;
@@ -6556,12 +6569,13 @@
                             border: none;
                             border-radius: 20px;
                             font-size: 14px;
-                            cursor: pointer;
+                            cursor: ${modalType === 'own_post' ? 'default' : 'pointer'};
+                            opacity: ${modalType === 'own_post' ? '0.6' : '1'};
                             transition: all 0.2s ease;
                         ">
                             ❤️ ${touchedCount}
                         </button>
-                        <button class="reaction-btn" onclick="toggleReaction('${postData.id}', 'grateful')" style="
+                        <button class="reaction-btn" ${modalType === 'own_post' ? '' : `onclick="toggleReaction('${postData.id}', 'grateful')"`} style="
                             display: flex;
                             align-items: center;
                             gap: 5px;
@@ -6571,12 +6585,13 @@
                             border: none;
                             border-radius: 20px;
                             font-size: 14px;
-                            cursor: pointer;
+                            cursor: ${modalType === 'own_post' ? 'default' : 'pointer'};
+                            opacity: ${modalType === 'own_post' ? '0.6' : '1'};
                             transition: all 0.2s ease;
                         ">
                             🙏 ${gratefulCount}
                         </button>
-                        <button class="reaction-btn" onclick="toggleReaction('${postData.id}', 'inspired')" style="
+                        <button class="reaction-btn" ${modalType === 'own_post' ? '' : `onclick="toggleReaction('${postData.id}', 'inspired')"`} style="
                             display: flex;
                             align-items: center;
                             gap: 5px;
@@ -6586,7 +6601,8 @@
                             border: none;
                             border-radius: 20px;
                             font-size: 14px;
-                            cursor: pointer;
+                            cursor: ${modalType === 'own_post' ? 'default' : 'pointer'};
+                            opacity: ${modalType === 'own_post' ? '0.6' : '1'};
                             transition: all 0.2s ease;
                         ">
                             ✨ ${inspiredCount}
