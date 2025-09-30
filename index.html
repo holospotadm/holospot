@@ -7350,16 +7350,16 @@
                 // Tentar buscar da tabela user_ranking
                 const { data: rankingData, error: rankingError } = await supabase
                     .from('user_ranking')
-                    .select('ranking_position')
+                    .select('rank_position')
                     .eq('user_id', userId)
                     .single();
                 
                 console.log('📊 Dados da tabela user_ranking:', rankingData, 'Erro:', rankingError?.message);
                 
                 // Se encontrou na tabela user_ranking, usar esse valor
-                if (!rankingError && rankingData && rankingData.ranking_position) {
-                    console.log('✅ Usando ranking da tabela user_ranking:', rankingData.ranking_position);
-                    levelCard.querySelector('.level-ranking').textContent = `Ranking: #${rankingData.ranking_position} de ${totalUsers} usuários`;
+                if (!rankingError && rankingData && rankingData.rank_position) {
+                    console.log('✅ Usando ranking da tabela user_ranking:', rankingData.rank_position);
+                    levelCard.querySelector('.level-ranking').textContent = `Ranking: #${rankingData.rank_position} de ${totalUsers} usuários`;
                     return;
                 }
                 
