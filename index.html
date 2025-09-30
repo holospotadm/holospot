@@ -6427,21 +6427,15 @@
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        padding: 1.5rem;
-                        border-bottom: 1px solid #eee;
+                        padding: 1.5rem 2rem;
+                        border-radius: 12px 12px 0 0;
                         position: sticky;
                         top: 0;
                         background: white;
                         z-index: 10;
                     ">
                         <h2 class="modal-title" style="margin: 0;">Post</h2>
-                        <span class="close" style="
-                            font-size: 28px;
-                            font-weight: bold;
-                            cursor: pointer;
-                            color: #999;
-                            line-height: 1;
-                        " onclick="closeSinglePostModal()">&times;</span>
+                        <button class="close-btn" onclick="closeSinglePostModal()">&times;</button>
                     </div>
                     <div class="modal-body" style="padding: 0;">
                         <div id="singlePostContent"></div>
