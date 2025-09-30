@@ -6568,16 +6568,13 @@
                     </div>
                     
                     <div class="post-reactions" style="padding: 0 1.5rem; display: flex; gap: 10px; margin-bottom: 1rem;">
-                        <button class="reaction-btn ${userTouched ? 'active' : ''} ${modalType === 'own_post' ? 'disabled' : ''}" 
-                                ${modalType === 'own_post' ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${postData.id}', 'touched')"`}>
+                        <button onclick="reactToPost('${postData.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userTouched ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userTouched ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userTouched ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                             ❤️ ${touchedCount}
                         </button>
-                        <button class="reaction-btn ${userGrateful ? 'active' : ''} ${modalType === 'own_post' ? 'disabled' : ''}" 
-                                ${modalType === 'own_post' ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${postData.id}', 'grateful')"`}>
+                        <button onclick="reactToPost('${postData.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userGrateful ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userGrateful ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userGrateful ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                             🙏 ${gratefulCount}
                         </button>
-                        <button class="reaction-btn ${userInspired ? 'active' : ''} ${modalType === 'own_post' ? 'disabled' : ''}" 
-                                ${modalType === 'own_post' ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${postData.id}', 'inspired')"`}>
+                        <button onclick="reactToPost('${postData.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userInspired ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userInspired ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userInspired ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                             ✨ ${inspiredCount}
                         </button>
                     </div>
