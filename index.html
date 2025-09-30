@@ -6571,7 +6571,7 @@
                             font-size: 12px;
                             cursor: ${modalType === 'own_post' ? 'default' : 'pointer'};
                             transition: all 0.2s ease;
-                        " ${modalType === 'own_post' ? `onmouseover="this.innerHTML='🚫 ${touchedCount}';" onmouseout="this.innerHTML='❤️ ${touchedCount}';"` : `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='${userTouched ? 'linear-gradient(135deg, #ff6b6b, #ee5a52)' : '#f5f5f5'}'; this.style.color='${userTouched ? 'white' : '#666'}';"`}>
+                        " ${modalType === 'own_post' ? `title="🚫 Não é possível reagir ao próprio post" style="cursor: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><text y=%2224%22 font-size=%2224%22>🚫</text></svg>'), not-allowed;"` : `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='${userTouched ? 'linear-gradient(135deg, #ff6b6b, #ee5a52)' : '#f5f5f5'}'; this.style.color='${userTouched ? 'white' : '#666'}';"`}>
                             ❤️ ${touchedCount}
                         </button>
                         <button class="reaction-btn" ${modalType === 'own_post' ? '' : `onclick="toggleReaction('${postData.id}', 'grateful')"`} style="
@@ -6586,7 +6586,7 @@
                             font-size: 12px;
                             cursor: ${modalType === 'own_post' ? 'default' : 'pointer'};
                             transition: all 0.2s ease;
-                        " ${modalType === 'own_post' ? `onmouseover="this.innerHTML='🚫 ${gratefulCount}';" onmouseout="this.innerHTML='🙏 ${gratefulCount}';"` : `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='${userGrateful ? 'linear-gradient(135deg, #ffa726, #ff9800)' : '#f5f5f5'}'; this.style.color='${userGrateful ? 'white' : '#666'}';"`}>
+                        " ${modalType === 'own_post' ? `title="🚫 Não é possível reagir ao próprio post" style="cursor: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><text y=%2224%22 font-size=%2224%22>🚫</text></svg>'), not-allowed;"` : `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='${userGrateful ? 'linear-gradient(135deg, #ffa726, #ff9800)' : '#f5f5f5'}'; this.style.color='${userGrateful ? 'white' : '#666'}';"`}>
                             🙏 ${gratefulCount}
                         </button>
                         <button class="reaction-btn" ${modalType === 'own_post' ? '' : `onclick="toggleReaction('${postData.id}', 'inspired')"`} style="
@@ -6601,7 +6601,7 @@
                             font-size: 12px;
                             cursor: ${modalType === 'own_post' ? 'default' : 'pointer'};
                             transition: all 0.2s ease;
-                        " ${modalType === 'own_post' ? `onmouseover="this.innerHTML='🚫 ${inspiredCount}';" onmouseout="this.innerHTML='✨ ${inspiredCount}';"` : `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='${userInspired ? 'linear-gradient(135deg, #42a5f5, #2196f3)' : '#f5f5f5'}'; this.style.color='${userInspired ? 'white' : '#666'}';"`}>
+                        " ${modalType === 'own_post' ? `title="🚫 Não é possível reagir ao próprio post" style="cursor: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><text y=%2224%22 font-size=%2224%22>🚫</text></svg>'), not-allowed;"` : `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='${userInspired ? 'linear-gradient(135deg, #42a5f5, #2196f3)' : '#f5f5f5'}'; this.style.color='${userInspired ? 'white' : '#666'}';"`}>
                             ✨ ${inspiredCount}
                         </button>
                     </div>
