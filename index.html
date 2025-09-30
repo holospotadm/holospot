@@ -945,21 +945,44 @@
             background: linear-gradient(#f8f9fa, #f8f9fa) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box !important;
         }
 
-        /* Modal stat cards styling to match profile tab */
+        /* Modal stat cards styling to match profile tab exactly */
+        
+        /* Cards Seguindo/Seguidores: background laranja com texto branco */
+        #modalFollowingCard,
+        #modalFollowersCard {
+            background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+            color: white !important;
+        }
+
+        #modalFollowingCard .stat-number,
+        #modalFollowersCard .stat-number {
+            color: white !important;
+            font-size: 2rem !important;
+            font-weight: bold !important;
+        }
+
+        #modalFollowingCard .stat-label,
+        #modalFollowersCard .stat-label {
+            color: white !important;
+        }
+
+        /* Cards Posts Criados/Holofotes Recebidos: background branco com borda gradiente e números laranjas */
         #modalPostsCreatedCard,
         #modalHolofotesCard {
             border: 2px solid transparent !important;
             background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box !important;
         }
 
-        #modalFollowingCard,
-        #modalFollowersCard {
-            /* Orange styling for following/followers cards */
+        #modalPostsCreatedCard .stat-number,
+        #modalHolofotesCard .stat-number {
+            color: #e65100 !important;
+            font-size: 2rem !important;
+            font-weight: bold !important;
         }
 
-        #modalFollowingCard .stat-number,
-        #modalFollowersCard .stat-number {
-            color: #e65100 !important;
+        #modalPostsCreatedCard .stat-label,
+        #modalHolofotesCard .stat-label {
+            color: #666 !important;
         }
 
         /* Hover effect only for clickable stat cards */
