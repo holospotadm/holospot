@@ -495,10 +495,9 @@
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
-            width: 100%;
             position: sticky;
-            top: 160px;
-            z-index: 98;
+            top: 0;
+            z-index: 100;
         }
 
         .nav-tab {
@@ -512,6 +511,14 @@
             white-space: nowrap;
             min-width: 120px;
             text-indent: -2px;
+        }
+
+        /* Aba de busca pequena */
+        .nav-tab[data-tab="buscar"] {
+            flex: 0 0 auto;
+            min-width: 50px;
+            padding: 1rem 0.75rem;
+            font-size: 1.2rem;
         }
 
         .nav-tab.active {
@@ -3059,6 +3066,14 @@
                 setTimeout(() => {
                     setupStatCardListeners();
                     console.log('🔄 Event listeners dos cards reconfigurados na aba perfil');
+                }, 100);
+            }
+            
+            // Configurar sistema de busca quando mudar para aba buscar
+            if (tabName === 'buscar') {
+                setTimeout(() => {
+                    setupSearchSystem();
+                    console.log('🔍 Sistema de busca configurado na aba buscar');
                 }, 100);
             }
             
