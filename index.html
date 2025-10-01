@@ -125,6 +125,7 @@
             .header-actions {
                 display: contents;
             }
+        }
 
         /* Layout desktop - uma linha */
         @media (min-width: 769px) {
@@ -194,6 +195,7 @@
             .logout-btn {
                 order: 2;
             }
+        }
 
         .logo {
             display: flex;
@@ -517,12 +519,8 @@
         .nav-tab[data-tab="buscar"] {
             flex: 0 0 auto;
             min-width: 40px;
-            padding: 0.5rem 0.4rem;
+            padding: 0.5rem 0.5rem;
             font-size: 0.9rem;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .nav-tab.active {
@@ -923,6 +921,7 @@
                 grid-template-columns: repeat(5, 1fr);
                 gap: 0.8rem;
             }
+        }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
@@ -939,6 +938,7 @@
                 padding: 1rem;
                 border-radius: 12px;
             }
+        }
 
         /* Gradient borders for clickable stat cards */
         #postsCreatedCard,
@@ -1115,6 +1115,7 @@
                 opacity: 1;
                 backdrop-filter: blur(4px);
             }
+        }
 
         .modal-content {
             background: white;
@@ -1137,6 +1138,7 @@
                 transform: translateY(0) scale(1);
                 opacity: 1;
             }
+        }
 
         .modal-header {
             background: linear-gradient(135deg, #FFB700 0%, #E55A2B 100%);
@@ -1424,6 +1426,7 @@
             .highlight-types {
                 grid-template-columns: 1fr;
             }
+        }
 
         /* Hidden file input */
         #photoUpload {
@@ -1572,6 +1575,7 @@
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
+        }
 
         .modal-header {
             background: linear-gradient(135deg, #FFB700, #E55A2B);
@@ -1605,6 +1609,7 @@
             .modal-body {
                 padding: 1.5rem;
             }
+        }
 
         /* Dashboard de Insights Estratégicos */
         .insights-dashboard {
@@ -1812,11 +1817,13 @@
             .insight-value {
                 font-size: 1.3rem;
             }
+        }
 
         @media (min-width: 769px) and (max-width: 1024px) {
             .insights-grid {
                 grid-template-columns: repeat(2, 1fr);
-            }    
+            }
+        }    
             .network-size {
                 font-size: 1.6rem;
             }
@@ -1824,6 +1831,7 @@
             .altruism-value {
                 font-size: 1.5rem;
             }
+        }
 
         /* Estilos específicos para modais de comentários */
         #commentsReceivedModal .modal-header {
@@ -1928,6 +1936,7 @@
                 left: -50px;
                 right: -50px;
             }
+        }
     </style>
 </head>
 <body>
@@ -2466,7 +2475,8 @@
                 closePeopleHighlightedModal();
                 closeModal(); // For dynamic modals
                 console.log('🔑 ESC pressed - closing all modals');
-            });
+            }
+        });
 
         // Função para timeout agressivo
         function withTimeout(promise, timeoutMs = 10000) {
@@ -2493,6 +2503,7 @@
                 console.error('❌ Erro ao obter usuário atual:', error);
                 return null;
             }
+        }
         
         let currentUser = null;
         let posts = [];
@@ -2531,6 +2542,7 @@
                 feedbacksCache.clear();
                 console.log('🔄 Cache completo de feedbacks invalidado');
             }
+        }
         
         // Adicionar comentário ao cache em tempo real
         function addCommentToCache(postId, comment) {
@@ -2550,6 +2562,7 @@
                 commentsCache.clear();
                 console.log('🔄 Cache completo de comentários invalidado');
             }
+        }
         
         // Atualizar métricas em tempo real
         function updateMetricsRealTime() {
@@ -2630,7 +2643,8 @@
             } catch (error) {
                 console.error('💥 ERRO CRÍTICO na inicialização:', error);
                 alert('Erro ao carregar o HoloSpot. Recarregue a página.');
-            });
+            }
+        });
 
         function setupEventListeners() {
             try {
@@ -2714,6 +2728,7 @@
             } catch (error) {
                 console.error('❌ Erro ao configurar event listeners:', error);
             }
+        }
 
         function setupPullToRefresh() {
             let startY = 0;
@@ -2839,6 +2854,7 @@
                 console.error('❌ Erro no login:', error);
                 alert('Erro no login: ' + error.message);
             }
+        }
 
         async function handleLogout() {
             try {
@@ -2850,6 +2866,7 @@
             } catch (error) {
                 console.error('❌ Erro no logout:', error);
             }
+        }
 
         async function handleLogoRefresh() {
             try {
@@ -2897,6 +2914,7 @@
                     mainLogo.style.transform = 'scale(1)';
                 }
             }
+        }
 
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'flex';
@@ -3088,12 +3106,14 @@
             } else {
                 console.error('❌ Modal impactModal não encontrado no DOM');
             }
+        }
 
         function closeImpactModal() {
             const modal = document.getElementById('impactModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         // Funções do Modal de Conquistas
         function openAchievementsModal() {
@@ -3107,12 +3127,14 @@
             } else {
                 console.error('❌ Modal achievementsModal não encontrado no DOM');
             }
+        }
 
         function closeAchievementsModal() {
             const modal = document.getElementById('achievementsModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         // ===== FUNÇÕES DO MODAL DE NÍVEIS =====
         function openLevelsModal() {
@@ -3126,12 +3148,14 @@
             } else {
                 console.error('❌ Modal levelsModal não encontrado no DOM');
             }
+        }
 
         function closeLevelsModal() {
             const modal = document.getElementById('levelsModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         async function loadLevelsData() {
             console.log('📊 Carregando dados dos níveis...');
@@ -3148,6 +3172,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar níveis:', error);
             }
+        }
 
         function populateLevelsUI(levels) {
             const container = document.getElementById('levelsContainer');
@@ -3208,12 +3233,14 @@
             } else {
                 console.error('❌ Modal progressModal não encontrado no DOM');
             }
+        }
 
         function closeProgressModal() {
             const modal = document.getElementById('progressModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         async function loadProgressData() {
             console.log('🎯 Carregando conquistas em andamento...');
@@ -3261,6 +3288,7 @@
                     `;
                 }
             }
+        }
 
         async function calculateBadgeProgress(userId, allBadges, earnedBadges) {
             const earnedBadgeIds = earnedBadges.map(b => b.name);
@@ -3372,6 +3400,7 @@
                 console.error('Erro ao calcular progresso do badge:', badge.name, error);
                 return { percentage: 0, current: 0, required: badge.condition_value, description: 'Erro no cálculo' };
             }
+        }
 
         function populateProgressUI(progressBadges) {
             const container = document.getElementById('progressContainer');
@@ -3490,6 +3519,7 @@
                     `;
                 }
             }
+        }
 
         // Preencher interface com dados de gamificação
         function populateGamificationUI(data) {
@@ -3586,6 +3616,7 @@
                     recentActivity.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Nenhuma atividade recente</div>';
                 }
             }
+        }
 
         // Função para obter ícone do nível
         function getLevelIcon(levelId) {
@@ -3694,6 +3725,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar Dashboard de Insights:', error);
             }
+        }
 
         // Funções do Modal de Feedbacks
         function openFeedbacksModal() {
@@ -3702,12 +3734,14 @@
                 modal.style.display = 'flex';
                 loadFeedbacksInModal();
             }
+        }
 
         function closeFeedbacksModal() {
             const modal = document.getElementById('feedbacksModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         async function loadFeedbacksInModal() {
             try {
@@ -3832,6 +3866,7 @@
                     </div>
                 `;
             }
+        }
 
         // Funções do Modal de Posts
         function openPostsModal() {
@@ -3851,12 +3886,14 @@
             } else {
                 console.error('❌ Modal postsModal não encontrado');
             }
+        }
 
         function closePostsModal() {
             const modal = document.getElementById('postsModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         async function getFeedbacksForAuthorPost(post) {
             // Função removida - agora só usamos o modal clicável
@@ -4061,6 +4098,7 @@
                     </div>
                 `;
             }
+        }
 
         // Funções do Modal de Feedbacks de Post Específico
         function openPostFeedbackModal(postId, source = 'seus_posts') {
@@ -4147,6 +4185,7 @@
                     modal.remove();
                 }, 300);
             }
+        }
 
         // Função para enviar feedback (usada no modal Holofotes Recebidos)
         async function sendFeedback(postId) {
@@ -4198,6 +4237,7 @@
                 console.error('❌ Erro ao enviar feedback:', error);
                 alert('Erro ao enviar feedback. Tente novamente.');
             }
+        }
 
         async function loadPostFeedbacks(postId, source = 'seus_posts') {
             try {
@@ -4353,6 +4393,7 @@
                     </div>
                 `;
             }
+        }
 
         async function loadUserData() {
             try {
@@ -4408,6 +4449,7 @@
                 updateFollowCounts();
                 console.log('✅ Fallback aplicado');
             }
+        }
 
         function updateFollowCounts() {
             const followingCountEl = document.getElementById('followingCount');
@@ -4471,6 +4513,7 @@
                 await renderPosts();
                 console.log('✅ Interface renderizada sem posts');
             }
+        }
 
         async function loadPostsReactions() {
             try {
@@ -4541,6 +4584,7 @@
                     }
                 });
             }
+        }
 
         async function processPostsUserData() {
             console.log('👥 Processando dados de usuários...');
@@ -4678,6 +4722,7 @@
             if (tooltip) {
                 tooltip.remove();
             }
+        }
 
         // Cache global para feedbacks, perfis e comentários
         // (Variáveis já declaradas no início do arquivo)
@@ -4691,6 +4736,7 @@
                 feedbacksCache.clear();
                 console.log('🔄 Cache completo de feedbacks invalidado');
             }
+        }
         
         function addFeedbackToCache(postId, feedback) {
             if (!feedbacksCache.has(postId)) {
@@ -4708,6 +4754,7 @@
                 commentsCache.clear();
                 console.log('🔄 Cache completo de comentários invalidado');
             }
+        }
         
         function getCommentsCountFromCache(postId) {
             const comments = commentsCache.get(postId) || [];
@@ -4723,6 +4770,7 @@
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas:', error);
             }
+        }
         
         async function reRenderPostsRealTime() {
             console.log('🎨 Re-renderizando posts em tempo real...');
@@ -4733,6 +4781,7 @@
             } catch (error) {
                 console.error('❌ Erro ao re-renderizar posts:', error);
             }
+        }
         
         // Função para carregar todos os feedbacks em lote
         async function loadAllFeedbacksInBatch() {
@@ -4771,6 +4820,7 @@
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar feedbacks:', error);
             }
+        }
         
         // Função para carregar todos os comentários em lote
         async function loadAllCommentsInBatch() {
@@ -4816,6 +4866,7 @@
                     post.comments_count = 0;
                 });
             }
+        }
         
         // Função para carregar perfis em lote
         async function loadProfilesInBatch(userIds) {
@@ -4839,6 +4890,7 @@
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar perfis:', error);
             }
+        }
 
         // Função getFeedbackButtonForPost - VERSÃO OTIMIZADA
         async function getFeedbackButtonForPost(post) {
@@ -4914,6 +4966,7 @@
                 console.error('❌ Erro na função getFeedbackButtonForPost:', error);
                 return { feedbacksHtml: '', feedbackButtonHtml: '' }; // Em caso de erro, não mostrar nada
             }
+        }
 
         async function renderPosts() {
             const container = document.getElementById('postsContainer');
@@ -5113,6 +5166,7 @@
                 console.error('❌ Erro crítico ao seguir/desseguir:', error);
                 alert('Erro ao seguir/desseguir usuário. Tente novamente.');
             }
+        }
 
         // Função para atualizar contador de feedbacks de um post específico
         async function updateFeedbackCounter(postId) {
@@ -5154,6 +5208,7 @@
             } catch (error) {
                 console.error('❌ Erro ao atualizar contador de feedbacks:', error);
             }
+        }
 
         // Função para atualizar contador de comentários de um post específico
         async function updateCommentCounter(postId) {
@@ -5219,6 +5274,7 @@
             } catch (error) {
                 console.error('❌ Erro ao atualizar contador de comentários:', error);
             }
+        }
 
         // Função para reagir a posts (usada nos modais)
         async function reactToPost(postId, type) {
@@ -5336,6 +5392,7 @@
             } catch (error) {
                 console.error('❌ Erro ao atualizar reações do modal:', error);
             }
+        }
 
         // ===== FUNÇÃO DE RETRY COM BACKOFF EXPONENCIAL =====
         async function retryWithBackoff(operation, maxRetries = 3, baseDelay = 1000) {
@@ -5368,6 +5425,7 @@
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
+        }
 
         async function toggleReaction(postId, type) {
             try {
@@ -5548,6 +5606,7 @@
                 console.error('❌ Stack trace:', error.stack);
                 showToast('Erro ao processar reação. Verifique sua conexão.');
             }
+        }
 
         function openFeedbackModal(postId) {
             console.log('💬 Abrindo modal de feedback para post:', postId);
@@ -5642,6 +5701,7 @@
             if (modal) {
                 modal.remove();
             }
+        }
 
         async function submitFeedback(postId) {
             const feedbackText = document.getElementById('feedbackText').value.trim();
@@ -5718,6 +5778,7 @@
                 console.error('❌ Erro ao enviar feedback:', error);
                 alert('Erro ao enviar feedback. Tente novamente.');
             }
+        }
 
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
@@ -5818,6 +5879,7 @@
                 // Retornar URL local como último recurso
                 return URL.createObjectURL(file);
             }
+        }
 
         async function findMentionedUserId(personName) {
             try {
@@ -5886,6 +5948,7 @@
                 console.log('⚠️ Erro ao buscar ID do usuário (silenciado):', error.message);
                 return null;
             }
+        }
 
         async function createPost() {
             const personName = document.getElementById('personName').value.trim();
@@ -6073,6 +6136,7 @@
                 createBtn.disabled = false;
                 createBtn.innerHTML = '<img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
             }
+        }
 
         async function createNotification(userId, type, message) {
             try {
@@ -6093,6 +6157,7 @@
             } catch (error) {
                 console.error('❌ Erro ao criar notificação:', error);
             }
+        }
 
         async function loadNotifications() {
             try {
@@ -6137,6 +6202,7 @@
                 renderNotifications();
                 console.log('✅ Interface de notificações renderizada sem dados');
             }
+        }
 
         function updateNotificationBadge() {
             const unreadCount = notifications.filter(n => !n.read).length;
@@ -6148,6 +6214,7 @@
             } else {
                 badge.style.display = 'none';
             }
+        }
 
         function renderNotifications() {
             const dropdown = document.getElementById('notificationDropdown');
@@ -6224,6 +6291,7 @@
             if (newMarkAllBtn) {
                 newMarkAllBtn.addEventListener('click', markAllNotificationsAsRead);
             }
+        }
 
         async function markNotificationAsRead(notificationId) {
             try {
@@ -6255,6 +6323,7 @@
             } catch (error) {
                 console.error('❌ Erro ao marcar notificação como lida:', error);
             }
+        }
 
         async function markAllNotificationsAsRead() {
             try {
@@ -6328,6 +6397,7 @@
                     markAllBtn.textContent = `Marcar todas como lidas (${unreadCount})`;
                 }
             }
+        }
 
         // ===== FUNCIONALIDADE: MODAL DE POST AO CLICAR EM NOTIFICAÇÃO =====
         
@@ -6357,6 +6427,7 @@
                 console.error('❌ Erro ao abrir post a partir de notificação:', error);
                 showToast('Erro ao carregar post');
             }
+        }
 
         async function fetchPostDetails(postId) {
             try {
@@ -6436,6 +6507,7 @@
                 console.error('❌ Erro ao buscar detalhes do post:', error);
                 return null;
             }
+        }
 
         function determineModalType(postData) {
             if (!currentUser) return 'other_post';
@@ -6447,6 +6519,7 @@
             } else {
                 return 'other_post'; // Post de terceiro (comentário/reação)
             }
+        }
 
         function showPostModal(postData, modalType) {
             console.log('📱 Abrindo modal de post:', { modalType, postId: postData.id });
@@ -6758,6 +6831,7 @@
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         function showToast(message) {
             // Criar toast se não existir
@@ -6955,6 +7029,7 @@
                 console.error('❌ Erro ao carregar perfil:', error);
                 showToast('Erro ao carregar perfil do usuário');
             }
+        }
 
         // Função para buscar usuário por ID (mais segura)
         async function fetchUserProfileDataById(userId) {
@@ -6979,6 +7054,7 @@
                 console.error('❌ Erro ao buscar dados do usuário por ID:', error);
                 return null;
             }
+        }
 
         // Função para abrir perfil por ID (quando temos mentioned_user_id)
         async function openUserProfileById(userId) {
@@ -7004,6 +7080,7 @@
                 console.error('❌ Erro ao carregar perfil por ID:', error);
                 showToast('Erro ao carregar perfil do usuário');
             }
+        }
 
         async function fetchUserProfileData(username) {
             try {
@@ -7043,6 +7120,7 @@
                 console.error('❌ Erro ao buscar dados do usuário:', error);
                 return null;
             }
+        }
 
         async function fetchUserStats(userId) {
             try {
@@ -7083,6 +7161,7 @@
                     followers: 0
                 };
             }
+        }
 
         function showUserProfileModal(userData, stats) {
             // VALIDAÇÃO: Garantir que parâmetros estão corretos
@@ -7365,6 +7444,7 @@
                 followBtn.textContent = 'Seguir';
                 followBtn.style.background = '#007bff';
             }
+        }
         
         // Função para carregar dados reais de nível do usuário
         async function loadUserLevelData(userId, levelCard) {
@@ -7423,6 +7503,7 @@
                 // Fallback em caso de erro
                 calculateUserRanking(userId, 0, levelCard);
             }
+        }
         
         // Função para calcular ranking usando a tabela user_ranking
         async function calculateUserRanking(userId, userPoints, levelCard) {
@@ -7486,6 +7567,7 @@
                 console.error('❌ Erro crítico ao calcular ranking:', error);
                 levelCard.querySelector('.level-ranking').textContent = 'Ranking: Erro no sistema';
             }
+        }
         
         // Função para toggle do botão seguir com integração real e atualizações sistema-wide
         async function toggleFollow() {
@@ -7558,12 +7640,14 @@
                 console.error('❌ Erro crítico ao seguir/desseguir:', error);
                 showToast('Erro ao seguir/desseguir usuário. Tente novamente.');
             }
+        }
 
         function closeUserProfileModal() {
             const modal = document.getElementById('userProfileModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         function openUserPostsListModal() {
             const modal = document.getElementById('userProfileModal');
@@ -7573,6 +7657,7 @@
                 console.log('📝 Abrindo lista de posts do usuário:', userName);
                 showToast(`Posts de ${userName} - Funcionalidade em desenvolvimento`);
             }
+        }
 
         function openUserHolofotesListModal() {
             const modal = document.getElementById('userProfileModal');
@@ -7582,6 +7667,7 @@
                 console.log('🏆 Abrindo lista de holofotes do usuário:', userName);
                 showToast(`Holofotes de ${userName} - Funcionalidade em desenvolvimento`);
             }
+        }
 
         function openUserCommentsListModal() {
             const modal = document.getElementById('userProfileModal');
@@ -7591,6 +7677,7 @@
                 console.log('💬 Abrindo lista de comentários do usuário:', userName);
                 showToast(`Comentários de ${userName} - Funcionalidade em desenvolvimento`);
             }
+        }
 
         function openUserReactionsListModal() {
             const modal = document.getElementById('userProfileModal');
@@ -7600,6 +7687,7 @@
                 console.log('👍 Abrindo lista de reações do usuário:', userName);
                 showToast(`Reações de ${userName} - Funcionalidade em desenvolvimento`);
             }
+        }
 
         function processPostsForUsernames() {
             console.log('🔄 Processando @username em posts...');
@@ -7778,6 +7866,7 @@
                 console.error('Erro ao calcular reciprocidade:', error);
                 return 0;
             }
+        }
 
         async function calculateEngagementRate() {
             try {
@@ -7811,6 +7900,7 @@
                 console.error('Erro ao calcular taxa de engajamento:', error);
                 return 0;
             }
+        }
 
         async function calculateAverageImpact() {
             try {
@@ -7861,6 +7951,7 @@
                 console.error('Erro ao calcular impacto médio:', error);
                 return 0;
             }
+        }
 
         async function calculateEffectiveReach() {
             try {
@@ -7885,6 +7976,7 @@
                 console.error('Erro ao calcular alcance efetivo:', error);
                 return 0;
             }
+        }
 
         async function calculateNetworkSize() {
             try {
@@ -8038,6 +8130,7 @@
                 console.error('❌ Erro ao calcular rede de engajamento:', error);
                 return 0;
             }
+        }
 
         function calculateAltruismIndex() {
             const holofotesRecebidos = parseInt(document.getElementById('userHolofotesReceived')?.textContent || '0');
@@ -8080,6 +8173,7 @@
                     received: holofotesRecebidos
                 };
             }
+        }
 
         async function updateDashboardInsights() {
             try {
@@ -8160,6 +8254,7 @@
             } catch (error) {
                 console.error('❌ Erro ao atualizar Dashboard de Insights:', error);
             }
+        }
 
         // ===== FUNÇÕES DE VISUALIZAÇÃO CHART.JS =====
 
@@ -8480,6 +8575,7 @@
             } finally {
                 isCreatingChart = false;
             }
+        }
 
         function generatePersonalizedInsights(metrics) {
             const insights = [];
@@ -8647,6 +8743,7 @@
                 const days = Math.floor(diffInMinutes / 1440);
                 return `Há ${days} dia${days > 1 ? 's' : ''}`;
             }
+        }
 
         function formatDateShort(dateString) {
             const date = new Date(dateString);
@@ -8664,6 +8761,7 @@
                 const days = Math.floor(diffInMinutes / 1440);
                 return `${days}d`;
             }
+        }
 
         async function showFollowingModal() {
             console.log('👥 Abrindo modal de seguindo...');
@@ -8823,12 +8921,14 @@
             if (modal) {
                 modal.remove();
             }
+        }
 
         function closeFollowersModal() {
             const modal = document.getElementById('followersModal');
             if (modal) {
                 modal.remove();
             }
+        }
 
         // Sistema de Menções - Função para carregar usuários
         async function loadMentionUsers() {
@@ -8857,6 +8957,7 @@
                 console.error('❌ Erro ao carregar usuários para menções:', error);
                 mentionUsers = [];
             }
+        }
 
         // Sistema de Comentários
         async function loadCommentsForPost(postId) {
@@ -8883,6 +8984,7 @@
                 console.warn('⚠️ Erro ao carregar comentários:', error.message);
                 return [];
             }
+        }
 
         async function updateCommentsCount(postId) {
             try {
@@ -8913,6 +9015,7 @@
             } catch (error) {
                 console.warn('⚠️ Erro ao atualizar contador de comentários:', error.message);
             }
+        }
 
         async function openCommentsModal(postId) {
             try {
@@ -9030,12 +9133,14 @@
                 console.error('❌ Erro ao abrir modal de comentários:', error);
                 alert('Erro ao carregar comentários. Tente novamente.');
             }
+        }
 
         function closeCommentsModal() {
             const modal = document.getElementById('commentsModal');
             if (modal) {
                 modal.remove();
             }
+        }
 
         async function sendComment(postId) {
             try {
@@ -9166,6 +9271,7 @@
                 console.error('❌ Erro ao enviar comentário:', error);
                 alert('Erro ao enviar comentário. Tente novamente.');
             }
+        }
 
         // Função para atualizar contadores de comentários após carregar posts
         // 🚀 OTIMIZAÇÃO: Atualizar contadores usando cache (sem consultas individuais)
@@ -9201,6 +9307,7 @@
             } catch (error) {
                 console.warn('⚠️ Erro ao atualizar contadores de comentários do cache:', error.message);
             }
+        }
         
         async function updateAllCommentsCounters() {
             try {
@@ -9212,6 +9319,7 @@
             } catch (error) {
                 console.warn('⚠️ Erro ao atualizar contadores de comentários:', error.message);
             }
+        }
 
         // Sistema de Menções - Configurar event listeners
         function setupMentionsSystem() {
@@ -9254,6 +9362,7 @@
             } else {
                 hideMentionsAutocomplete();
             }
+        }
 
         // Sistema de Menções - Mostrar lista de usuários
         function showMentionsAutocomplete(query) {
@@ -9352,6 +9461,7 @@
                     hideMentionsAutocomplete();
                     break;
             }
+        }
 
         // Sistema de Menções - Selecionar usuário
         function selectMention(index) {
@@ -9457,12 +9567,14 @@
             } else {
                 console.error('❌ Modal peopleHighlightedModal não encontrado');
             }
+        }
 
         function closePeopleHighlightedModal() {
             const modal = document.getElementById('peopleHighlightedModal');
             if (modal) {
                 modal.style.display = 'none';
             }
+        }
 
         async function loadPeopleHighlightedInModal() {
             try {
@@ -9739,6 +9851,7 @@
                     </div>
                 `;
             }
+        }
 
         // ===== EVENT LISTENERS ROBUSTOS PARA CARDS DE ESTATÍSTICAS =====
         function setupStatCardListeners() {
@@ -9823,6 +9936,7 @@
                 modal.style.display = 'flex';
                 loadHolofotesRecebidosInModal();
             }
+        }
 
         function openPessoasQueTeDestacaramModal() {
             const modal = document.getElementById('pessoasQueTeDestacaramModal');
@@ -9830,6 +9944,7 @@
                 modal.style.display = 'flex';
                 loadPessoasQueTeDestacaramInModal();
             }
+        }
 
         // Função para carregar contadores de um post específico
         async function loadPostCounts(postId) {
@@ -9877,6 +9992,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar contadores do post:', error);
             }
+        }
 
         async function loadHolofotesRecebidosInModal() {
             try {
@@ -10107,6 +10223,7 @@
                     </div>
                 `;
             }
+        }
 
          async function loadPessoasQueTeDestacaramInModal() {
             try {
@@ -10224,6 +10341,7 @@
                     </div>
                 `;
             }
+        }
 
         // ===== FIM DAS FUNÇÕES DOS NOVOS MODAIS =====
 
@@ -10516,6 +10634,7 @@
                 console.error('❌ Erro ao atualizar métricas reais:', error);
                 // Em caso de erro, manter valores existentes
             }
+        }
 
         // 🔥 FUNÇÃO PARA MOSTRAR BONUS DE STREAK
         function showStreakBonus(streakData) {
@@ -10604,6 +10723,7 @@
                 modal.style.display = 'block';
                 loadPostsReceivedInModal();
             }
+        }
 
         function openCommentsReceivedModal() {
             const modal = document.getElementById('commentsReceivedModal');
@@ -10611,6 +10731,7 @@
                 modal.style.display = 'block';
                 loadCommentsReceivedInModal();
             }
+        }
 
         function openFeedbacksReceivedModal() {
             const modal = document.getElementById('feedbacksReceivedModal');
@@ -10618,6 +10739,7 @@
                 modal.style.display = 'block';
                 loadFeedbacksReceivedInModal();
             }
+        }
 
         async function loadPostsReceivedInModal() {
             try {
@@ -10658,6 +10780,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar posts recebidos:', error);
             }
+        }
 
         async function loadCommentsReceivedInModal() {
             try {
@@ -10703,6 +10826,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar comentários recebidos:', error);
             }
+        }
 
         async function loadFeedbacksReceivedInModal() {
             try {
@@ -10748,6 +10872,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar feedbacks recebidos:', error);
             }
+        }
 
         // ===== SISTEMA DE BUSCA =====
         
@@ -10803,6 +10928,7 @@
             } finally {
                 isSearching = false;
             }
+        }
 
         // Buscar posts no banco
         async function searchPosts(query) {
@@ -10821,6 +10947,7 @@
                 console.error('❌ Erro ao buscar posts:', error);
                 return [];
             }
+        }
 
         // Buscar perfis no banco
         async function searchProfiles(query) {
@@ -10838,6 +10965,7 @@
                 console.error('❌ Erro ao buscar perfis:', error);
                 return [];
             }
+        }
 
         // Renderizar resultados da busca
         function renderSearchResults(posts, profiles, query) {
@@ -10922,6 +11050,7 @@
                 console.error('❌ Erro ao abrir post da busca:', error);
                 showToast('Erro ao carregar post');
             }
+        }
 
         // Abrir perfil a partir da busca
         async function openProfileFromSearch(userId, username) {
@@ -10935,6 +11064,7 @@
                 console.error('❌ Erro ao abrir perfil da busca:', error);
                 showToast('Erro ao carregar perfil');
             }
+        }
 
         // Funções auxiliares
         function showSearchLoading() {
@@ -10967,6 +11097,7 @@
             if (searchResults) {
                 searchResults.style.display = 'none';
             }
+        }
 
         function getTypeEmoji(type) {
             const typeEmojis = {
