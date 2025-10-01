@@ -3050,17 +3050,31 @@
         }
 
         function switchTab(tabName) {
+            console.log('🔄 switchTab chamada para:', tabName);
+            
             // Update tab buttons
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+                console.log('✅ Aba ativada:', tabName);
+            } else {
+                console.error('❌ Aba não encontrada:', tabName);
+            }
             
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            document.getElementById(`${tabName}Tab`).classList.add('active');
+            const tabContent = document.getElementById(`${tabName}Tab`);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                console.log('✅ Conteúdo da aba ativado:', `${tabName}Tab`);
+            } else {
+                console.error('❌ Conteúdo da aba não encontrado:', `${tabName}Tab`);
+            }
             
             // Reconfigurar event listeners quando mudar para aba perfil
             if (tabName === 'perfil') {
