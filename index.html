@@ -6731,15 +6731,37 @@
                     </div>
                     
                     <div class="post-reactions" style="padding: 0 1.5rem; display: flex; gap: 10px; margin-bottom: 1rem;">
-                        <button onclick="reactToPost('${postData.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userTouched ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userTouched ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userTouched ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                            ❤️ ${touchedCount}
-                        </button>
-                        <button onclick="reactToPost('${postData.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userGrateful ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userGrateful ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userGrateful ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                            🙏 ${gratefulCount}
-                        </button>
-                        <button onclick="reactToPost('${postData.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userInspired ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userInspired ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userInspired ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                            ✨ ${inspiredCount}
-                        </button>
+                        ${(() => {
+                            const isAuthor = postData.user_id === currentUser.id;
+                            
+                            if (isAuthor) {
+                                // Autor do post: botões desabilitados com hover negado
+                                return `
+                                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
+                                        ❤️ ${touchedCount}
+                                    </button>
+                                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
+                                        🙏 ${gratefulCount}
+                                    </button>
+                                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
+                                        ✨ ${inspiredCount}
+                                    </button>
+                                `;
+                            } else {
+                                // Não é autor: botões funcionais normais
+                                return `
+                                    <button onclick="reactToPost('${postData.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userTouched ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userTouched ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userTouched ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        ❤️ ${touchedCount}
+                                    </button>
+                                    <button onclick="reactToPost('${postData.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userGrateful ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userGrateful ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userGrateful ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        🙏 ${gratefulCount}
+                                    </button>
+                                    <button onclick="reactToPost('${postData.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userInspired ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userInspired ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userInspired ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        ✨ ${inspiredCount}
+                                    </button>
+                                `;
+                            }
+                        })()}
                     </div>
                     
                     <div class="post-footer" style="padding: 0 1.5rem 1.5rem 1.5rem; display: flex; gap: 15px;">
