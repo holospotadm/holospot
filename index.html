@@ -8895,14 +8895,14 @@
             
             // Adicionar event listeners para os usernames clicáveis
             setTimeout(() => {
-                const clickableUsernames = document.querySelectorAll('#followersModal .username-clickable');
+                const clickableUsernames = document.querySelectorAll('#followingModal .username-clickable');
                 clickableUsernames.forEach(element => {
                     element.addEventListener('click', function() {
                         const userId = this.getAttribute('data-user-id');
                         const userName = this.getAttribute('data-user-name');
                         const userAvatar = this.getAttribute('data-user-avatar');
                         
-                        console.log('👤 Clique no username do modal Seguidores:', { userId, userName, userAvatar });
+                        console.log('👤 Clique no username do modal Seguindo:', { userId, userName, userAvatar });
                         
                         // NÃO fechar modal atual - manter aberto
                         // Abrir perfil do usuário
@@ -8994,7 +8994,7 @@
                         const userName = this.getAttribute('data-user-name');
                         const userAvatar = this.getAttribute('data-user-avatar');
                         
-                        console.log('👤 Clique no username do modal Seguidores:', { userId, userName, userAvatar });
+                        console.log('👤 Clique no username do modal Seguindo:', { userId, userName, userAvatar });
                         
                         // NÃO fechar modal atual - manter aberto
                         // Abrir perfil do usuário
