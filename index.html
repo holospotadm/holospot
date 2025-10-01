@@ -3099,6 +3099,20 @@
                 setTimeout(() => {
                     setupSearchSystem();
                     console.log('🔍 Sistema de busca configurado na aba buscar');
+                    
+                    // DEBUG: Verificar se elemento está visível
+                    const buscarTab = document.getElementById('buscarTab');
+                    if (buscarTab) {
+                        const computedStyle = window.getComputedStyle(buscarTab);
+                        console.log('🔍 DEBUG buscarTab:');
+                        console.log('- display:', computedStyle.display);
+                        console.log('- visibility:', computedStyle.visibility);
+                        console.log('- opacity:', computedStyle.opacity);
+                        console.log('- height:', computedStyle.height);
+                        console.log('- classList:', buscarTab.classList.toString());
+                        console.log('- offsetHeight:', buscarTab.offsetHeight);
+                        console.log('- offsetWidth:', buscarTab.offsetWidth);
+                    }
                 }, 100);
             }
             
