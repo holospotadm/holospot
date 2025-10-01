@@ -296,7 +296,7 @@
             width: 300px;
             max-height: 400px;
             overflow-y: auto;
-            z-index: 1000;
+            z-index: 1100;
             display: none;
         }
 
@@ -486,10 +486,11 @@
         .nav-tabs {
             display: flex;
             background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 0;
             padding: 0.5rem 0.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: none;
             overflow-x: auto;
             margin-top: -10px;
             max-width: 1200px;
