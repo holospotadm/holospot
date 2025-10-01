@@ -1854,10 +1854,6 @@
         
         #buscarTab.active {
             display: block !important;
-            width: 100% !important;
-            min-height: 500px !important;
-            background: white;
-            position: relative;
         }
         
         .search-page {
@@ -3106,11 +3102,9 @@
                     setupSearchSystem();
                     console.log('🔍 Sistema de busca configurado na aba buscar');
                     
-                    // DEBUG: Verificar se elemento está visível
+                    // Reposicionar elemento se necessário
                     const buscarTab = document.getElementById('buscarTab');
                     if (buscarTab) {
-                        console.log('🔍 ANTES - Parent ID:', buscarTab.parentElement?.id);
-                        
                         // MOVER ELEMENTO PARA LOCAL CORRETO
                         const appContainer = document.getElementById('appContainer');
                         if (appContainer && buscarTab.parentElement?.id !== 'appContainer') {
@@ -3118,23 +3112,7 @@
                             appContainer.appendChild(buscarTab);
                         }
                         
-                        console.log('🔍 DEPOIS - Parent ID:', buscarTab.parentElement?.id);
-                        
-                        const computedStyle = window.getComputedStyle(buscarTab);
-                        console.log('🔍 DEBUG buscarTab:');
-                        console.log('- display:', computedStyle.display);
-                        console.log('- visibility:', computedStyle.visibility);
-                        console.log('- opacity:', computedStyle.opacity);
-                        console.log('- height:', computedStyle.height);
-                        console.log('- classList:', buscarTab.classList.toString());
-                        console.log('- offsetHeight:', buscarTab.offsetHeight);
-                        console.log('- offsetWidth:', buscarTab.offsetWidth);
-                        
-                        // SOLUÇÃO DRÁSTICA: Forçar conteúdo visível
-                        buscarTab.style.cssText = 'display: block !important; width: 100% !important; min-height: 500px !important; background: red !important; position: relative !important; z-index: 9999 !important;';
-                        console.log('🔍 FORÇADO: CSS aplicado diretamente');
-                        console.log('- offsetHeight após força:', buscarTab.offsetHeight);
-                        console.log('- offsetWidth após força:', buscarTab.offsetWidth);
+                        console.log('✅ buscarTab reposicionado corretamente');
                     }
                 }, 100);
             }
