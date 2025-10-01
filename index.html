@@ -8831,33 +8831,39 @@
             }
             
             const followingList = await Promise.all(following.map(async f => {
-                // Tentar buscar dados reais do usuário incluindo avatar
+                // Tentar buscar dados reais do usuário incluindo avatar e username
                 let userName = 'Usuário';
                 let userAvatar = '';
+                let username = 'usuario';
                 
                 try {
                     const userQuery = supabase
                         .from('profiles')
-                        .select('name, email, avatar_url')
+                        .select('name, email, avatar_url, username')
                         .eq('id', f.following_id)
                         .single();
                     
                     const { data: userData } = await withTimeout(userQuery, 1000);
                     if (userData) {
                         userName = userData.name || userData.email || 'Usuário';
+                        username = userData.username || (userData.email ? userData.email.split('@')[0] : 'usuario');
                         userAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                     } else {
                         // Fallback com nome baseado no ID
                         const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                        const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
                         const nameIndex = f.following_id.charCodeAt(0) % names.length;
                         userName = names[nameIndex];
+                        username = usernames[nameIndex];
                         userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                     }
                 } catch (error) {
                     // Fallback com nome baseado no ID
                     const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                    const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
                     const nameIndex = f.following_id.charCodeAt(0) % names.length;
                     userName = names[nameIndex];
+                    username = usernames[nameIndex];
                     userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                 }
                 
@@ -8865,7 +8871,7 @@
                     <div class="follow-item">
                         <img src="${userAvatar}" 
                              alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
-                        <span>${userName}</span>
+                        <span class="username-clickable" data-user-id="${f.following_id}" data-user-name="${userName}" data-user-avatar="${userAvatar}" style="cursor: pointer; color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>
                     </div>
                 `;
             }));
@@ -8886,6 +8892,26 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modal);
+            
+            // Adicionar event listeners para os usernames clicáveis
+            setTimeout(() => {
+                const clickableUsernames = document.querySelectorAll('#followersModal .username-clickable');
+                clickableUsernames.forEach(element => {
+                    element.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-user-id');
+                        const userName = this.getAttribute('data-user-name');
+                        const userAvatar = this.getAttribute('data-user-avatar');
+                        
+                        console.log('👤 Clique no username:', { userId, userName, userAvatar });
+                        
+                        // Fechar modal atual
+                        closeFollowersModal();
+                        
+                        // Abrir perfil do usuário
+                        openUserProfileById(userId);
+                    });
+                });
+            }, 100);
         }
 
         async function showFollowersModal() {
@@ -8899,33 +8925,39 @@
             }
             
             const followersList = await Promise.all(followers.map(async f => {
-                // Tentar buscar dados reais do usuário incluindo avatar
+                // Tentar buscar dados reais do usuário incluindo avatar e username
                 let userName = 'Usuário';
                 let userAvatar = '';
+                let username = 'usuario';
                 
                 try {
                     const userQuery = supabase
                         .from('profiles')
-                        .select('name, email, avatar_url')
+                        .select('name, email, avatar_url, username')
                         .eq('id', f.follower_id)
                         .single();
                     
                     const { data: userData } = await withTimeout(userQuery, 1000);
                     if (userData) {
                         userName = userData.name || userData.email || 'Usuário';
+                        username = userData.username || (userData.email ? userData.email.split('@')[0] : 'usuario');
                         userAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                     } else {
                         // Fallback com nome baseado no ID
                         const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                        const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
                         const nameIndex = f.follower_id.charCodeAt(0) % names.length;
                         userName = names[nameIndex];
+                        username = usernames[nameIndex];
                         userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                     }
                 } catch (error) {
                     // Fallback com nome baseado no ID
                     const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                    const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
                     const nameIndex = f.follower_id.charCodeAt(0) % names.length;
                     userName = names[nameIndex];
+                    username = usernames[nameIndex];
                     userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                 }
                 
@@ -8933,7 +8965,7 @@
                     <div class="follow-item">
                         <img src="${userAvatar}" 
                              alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
-                        <span>${userName}</span>
+                        <span class="username-clickable" data-user-id="${f.follower_id}" data-user-name="${userName}" data-user-avatar="${userAvatar}" style="cursor: pointer; color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>
                     </div>
                 `;
             }));
@@ -8954,6 +8986,26 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modal);
+            
+            // Adicionar event listeners para os usernames clicáveis
+            setTimeout(() => {
+                const clickableUsernames = document.querySelectorAll('#followersModal .username-clickable');
+                clickableUsernames.forEach(element => {
+                    element.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-user-id');
+                        const userName = this.getAttribute('data-user-name');
+                        const userAvatar = this.getAttribute('data-user-avatar');
+                        
+                        console.log('👤 Clique no username:', { userId, userName, userAvatar });
+                        
+                        // Fechar modal atual
+                        closeFollowersModal();
+                        
+                        // Abrir perfil do usuário
+                        openUserProfileById(userId);
+                    });
+                });
+            }, 100);
         }
 
         function closeModal() {
