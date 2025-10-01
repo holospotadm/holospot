@@ -5952,12 +5952,61 @@
         }
 
         async function createPost() {
-            const personName = document.getElementById('personName').value.trim();
+            const personNameInput = document.getElementById('personName');
+            const personName = personNameInput.value.trim();
             const storyText = document.getElementById('storyText').value.trim();
             
             if (!personName || !storyText) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
+            }
+
+            // Validar menção se presente
+            if (personName.includes('@')) {
+                if (personNameInput.dataset.mentionLocked !== 'true') {
+                    alert('Por favor, selecione uma menção válida da lista de sugestões.');
+                    return;
+                }
+                
+                // Verificar se a menção ainda é válida no banco de dados
+                const mentionUsername = personNameInput.dataset.validMention;
+                const mentionId = personNameInput.dataset.validMentionId;
+                
+                if (mentionUsername && mentionId) {
+                    try {
+                        const { data: user, error } = await supabase
+                            .from('profiles')
+                            .select('id, username')
+                            .eq('id', mentionId)
+                            .single();
+                        
+                        if (error || !user) {
+                            alert('A pessoa mencionada não foi encontrada no sistema. Por favor, selecione uma menção válida.');
+                            return;
+                        }
+                        
+                        // Verificar se o username ainda é o mesmo
+                        const currentUsername = user.username || (user.email ? user.email.split('@')[0] : '');
+                        if (currentUsername !== mentionUsername) {
+                            alert('Os dados da pessoa mencionada foram alterados. Por favor, selecione a menção novamente.');
+                            // Desbloquear campo para nova seleção
+                            personNameInput.dataset.mentionLocked = 'false';
+                            delete personNameInput.dataset.validMention;
+                            delete personNameInput.dataset.validMentionId;
+                            delete personNameInput.dataset.validMentionName;
+                            return;
+                        }
+                        
+                        console.log('✅ Menção validada no banco de dados');
+                    } catch (error) {
+                        console.error('❌ Erro ao validar menção:', error);
+                        alert('Erro ao validar a menção. Por favor, tente novamente.');
+                        return;
+                    }
+                } else {
+                    alert('Dados da menção inválidos. Por favor, selecione uma menção válida.');
+                    return;
+                }
             }
 
             if (!selectedHighlightType) {
@@ -6085,7 +6134,14 @@
                 }
                 
                 // Clear form
-                document.getElementById('personName').value = '';
+                const personNameInput = document.getElementById('personName');
+                personNameInput.value = '';
+                // Clear mention data
+                personNameInput.dataset.mentionLocked = 'false';
+                delete personNameInput.dataset.validMention;
+                delete personNameInput.dataset.validMentionId;
+                delete personNameInput.dataset.validMentionName;
+                
                 document.getElementById('storyText').value = '';
                 removePhoto();
                 
@@ -9353,6 +9409,42 @@
             
             // LIMITAÇÃO: Apenas uma menção no campo "Nome da pessoa"
             if (textarea.id === 'personName') {
+                // Verificar se o campo está bloqueado com uma menção válida
+                if (textarea.dataset.mentionLocked === 'true') {
+                    const validMention = textarea.dataset.validMention;
+                    const expectedText = `@${validMention}`;
+                    
+                    // Se o texto não contém mais a menção válida, desbloquear o campo
+                    if (!text.includes(expectedText)) {
+                        console.log('🔓 Menção removida, desbloqueando campo');
+                        textarea.dataset.mentionLocked = 'false';
+                        delete textarea.dataset.validMention;
+                        delete textarea.dataset.validMentionId;
+                        delete textarea.dataset.validMentionName;
+                        
+                        // Se ainda há @ no texto, continuar com a lógica normal
+                        if (text.includes('@')) {
+                            // Continuar processamento normal
+                        } else {
+                            hideMentionsAutocomplete();
+                            return;
+                        }
+                    } else {
+                        // Campo bloqueado e menção ainda presente - bloquear qualquer entrada adicional
+                        console.log('🔒 Campo bloqueado - entrada rejeitada');
+                        
+                        // Verificar se a entrada atual é diferente da menção esperada
+                        if (text !== expectedText) {
+                            // Restaurar apenas a menção válida
+                            textarea.value = expectedText;
+                            textarea.setSelectionRange(expectedText.length, expectedText.length);
+                        }
+                        hideMentionsAutocomplete();
+                        return;
+                    }
+                }
+                
+                // Lógica normal para campo desbloqueado
                 const atCount = (text.match(/@/g) || []).length;
                 if (atCount > 1) {
                     // Remove o @ extra digitado
@@ -9445,6 +9537,18 @@
 
         // Sistema de Menções - Navegação por teclado
         function handleMentionKeydown(event) {
+            const input = event.target;
+            
+            // Se o campo estiver bloqueado, permitir apenas teclas de navegação e delete/backspace
+            if (input.id === 'personName' && input.dataset.mentionLocked === 'true') {
+                const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'];
+                if (!allowedKeys.includes(event.key)) {
+                    event.preventDefault();
+                    console.log('🔒 Entrada bloqueada - campo contém menção válida');
+                    return;
+                }
+            }
+            
             const autocomplete = document.getElementById('mentionsAutocomplete');
             if (autocomplete.style.display === 'none') return;
             
@@ -9495,29 +9599,35 @@
                 
                 return nameLower.includes(queryLower) || 
                        usernameLower.includes(queryLower) ||
-                       usernameLower.startsWith(queryLower); // Adiciona busca por início do username
-            }).slice(0, 5);
-            
-            if (index >= filteredUsers.length) return;
+                       usernameLower.replace(/\./g, '').includes(queryLower); // Remove pontos para busca
+            });
             
             const selectedUser = filteredUsers[index];
-            const text = input.value;
-            const beforeMention = text.substring(0, mentionStartPos);
-            const afterCursor = text.substring(input.selectionStart);
+            if (!selectedUser) return;
+            
+            const beforeMention = input.value.substring(0, mentionStartPos);
+            const afterCursor = input.value.substring(input.selectionStart);
             
             // Substituir @query por @username
-            const newText = beforeMention + `@${selectedUser.username} ` + afterCursor;
+            const newText = beforeMention + `@${selectedUser.username}`;
             input.value = newText;
             
             // Posicionar cursor após a menção
-            const newCursorPos = mentionStartPos + selectedUser.username.length + 2;
+            const newCursorPos = mentionStartPos + selectedUser.username.length + 1;
             input.setSelectionRange(newCursorPos, newCursorPos);
             
             console.log(`✅ Usuário @${selectedUser.username} mencionado no campo Nome`);
             
+            // BLOQUEAR campo após menção válida e armazenar dados do usuário
+            input.dataset.mentionLocked = 'true';
+            input.dataset.validMention = selectedUser.username;
+            input.dataset.validMentionId = selectedUser.id;
+            input.dataset.validMentionName = selectedUser.name;
+            console.log('🔒 Campo bloqueado após menção válida');
+            
             hideMentionsAutocomplete();
             input.focus();
-        }
+        }}
 
         // Listen for auth state changes
         let isInitialLoad = true;
