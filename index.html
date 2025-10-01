@@ -1839,41 +1839,39 @@
         }
 
         /* Sistema de Busca */
-        .search-container {
+        .search-page {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .search-input-container {
             position: relative;
-            margin-left: auto;
-            min-width: 300px;
+            margin-bottom: 2rem;
         }
 
         #searchInput {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.5rem;
             border: 2px solid #e0e0e0;
             border-radius: 25px;
-            font-size: 14px;
+            font-size: 16px;
             outline: none;
             transition: all 0.3s ease;
             background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         #searchInput:focus {
             border-color: #FFB700;
-            box-shadow: 0 0 0 3px rgba(255, 183, 0, 0.1);
+            box-shadow: 0 0 0 3px rgba(255, 183, 0, 0.1), 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
+        .search-results-page {
             background: white;
-            border: 1px solid #e0e0e0;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            max-height: 400px;
-            overflow-y: auto;
-            z-index: 1000;
-            margin-top: 5px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .search-section {
@@ -2012,12 +2010,7 @@
         <div class="nav-tab active" data-tab="inicio">🏠 Início</div>
         <div class="nav-tab" data-tab="destacar"><img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
-        
-        <!-- Campo de Busca -->
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Buscar posts e perfis..." autocomplete="off">
-            <div id="searchResults" class="search-results" style="display: none;"></div>
-        </div>
+        <div class="nav-tab" data-tab="buscar">🔍</div>
     </div>
 
     <!-- Main App -->
@@ -2313,9 +2306,20 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal de Feedbacks Recebidos -->
+        <div id="buscarTab" class="tab-content">
+            <div class="search-page">
+                <h2 style="margin-bottom: 2rem; color: #333; text-align: center;">🔍 Buscar</h2>
+                
+                <div class="search-input-container">
+                    <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off">
+                </div>
+                
+                <div id="searchResults" class="search-results-page" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de Feedbacks Recebidos -->>
     <div id="feedbacksModal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
@@ -10821,18 +10825,6 @@
                     }, 300);
                 }
             });
-
-            // Fechar resultados ao clicar fora
-            document.addEventListener('click', (e) => {
-                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                    hideSearchResults();
-                }
-            });
-
-            // Manter foco no input ao clicar nos resultados
-            searchResults.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
         }
 
         // Função principal de busca
@@ -10908,9 +10900,9 @@
             if (totalResults === 0) {
                 html = `
                     <div class="search-empty">
-                        <div style="font-size: 24px; margin-bottom: 10px;">🔍</div>
-                        <div>Nenhum resultado encontrado para "${query}"</div>
-                        <div style="font-size: 12px; margin-top: 5px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                        <div style="font-size: 18px; margin-bottom: 10px;">Nenhum resultado encontrado</div>
+                        <div style="font-size: 14px; color: #999;">
                             Tente buscar por nomes, conteúdo de posts ou usernames
                         </div>
                     </div>
@@ -10965,7 +10957,6 @@
         async function openPostFromSearch(postId) {
             try {
                 console.log('🔗 Abrindo post da busca:', postId);
-                hideSearchResults();
                 
                 // Reutilizar função existente
                 const postData = await fetchPostDetails(postId);
@@ -10988,7 +10979,6 @@
         async function openProfileFromSearch(userId, username) {
             try {
                 console.log('👤 Abrindo perfil da busca:', { userId, username });
-                hideSearchResults();
                 
                 // Reutilizar função existente
                 await openUserProfile(username);
@@ -11004,8 +10994,8 @@
             const searchResults = document.getElementById('searchResults');
             searchResults.innerHTML = `
                 <div class="search-loading">
-                    <div style="font-size: 20px; margin-bottom: 8px;">⏳</div>
-                    <div>Buscando...</div>
+                    <div style="font-size: 32px; margin-bottom: 15px;">⏳</div>
+                    <div style="font-size: 16px;">Buscando...</div>
                 </div>
             `;
             searchResults.style.display = 'block';
@@ -11015,9 +11005,9 @@
             const searchResults = document.getElementById('searchResults');
             searchResults.innerHTML = `
                 <div class="search-empty">
-                    <div style="font-size: 24px; margin-bottom: 10px;">⚠️</div>
-                    <div>Erro ao realizar busca</div>
-                    <div style="font-size: 12px; margin-top: 5px; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                    <div style="font-size: 18px; margin-bottom: 10px;">Erro ao realizar busca</div>
+                    <div style="font-size: 14px; color: #999;">
                         Tente novamente em alguns instantes
                     </div>
                 </div>
