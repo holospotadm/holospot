@@ -1823,6 +1823,20 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* Estilos específicos para modais de comentários */
+        #commentsReceivedModal .modal-header {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981) !important;
+        }
+
+        /* Outros modais de comentários que possam existir */
+        .comments-modal-header {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981) !important;
+        }
+
+        .comments-send-button {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981) !important;
+        }
     </style>
 </head>
 <body>
@@ -8876,7 +8890,7 @@
                 modal.className = 'modal-overlay';
                 modal.innerHTML = `
                     <div style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: linear-gradient(135deg, #FFB700, #E55A2B); color: white; border-radius: 12px 12px 0 0;">
+                        <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); color: white; border-radius: 12px 12px 0 0;">
                             <h3 style="margin: 0; color: white;">💬 Comentários (${comments.length})</h3>
                             <button onclick="closeCommentsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: white;">&times;</button>
                         </div>
@@ -8888,7 +8902,7 @@
                         <div style="padding: 20px; border-top: 1px solid #eee; flex-shrink: 0;">
                             <div style="display: flex; gap: 10px; align-items: flex-end;">
                                 <textarea id="newCommentText" placeholder="Escreva seu comentário..." style="flex: 1; min-height: 60px; max-height: 120px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;" rows="3"></textarea>
-                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #FFB700, #E55A2B); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                     Enviar
                                 </button>
                             </div>
