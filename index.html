@@ -1837,6 +1837,117 @@
         .comments-send-button {
             background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981) !important;
         }
+
+        /* Sistema de Busca */
+        .search-container {
+            position: relative;
+            margin-left: auto;
+            min-width: 300px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #searchInput:focus {
+            border-color: #FFB700;
+            box-shadow: 0 0 0 3px rgba(255, 183, 0, 0.1);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 5px;
+        }
+
+        .search-section {
+            padding: 15px 0;
+        }
+
+        .search-section:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .search-section h4 {
+            margin: 0 0 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: #FFB700;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .result-content {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .result-meta {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .search-empty {
+            padding: 30px 15px;
+            text-align: center;
+            color: #666;
+        }
+
+        .search-loading {
+            padding: 20px 15px;
+            text-align: center;
+            color: #666;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .search-container {
+                min-width: 200px;
+                margin-left: 10px;
+            }
+            
+            .search-results {
+                left: -50px;
+                right: -50px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1901,6 +2012,12 @@
         <div class="nav-tab active" data-tab="inicio">🏠 Início</div>
         <div class="nav-tab" data-tab="destacar"><img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
+        
+        <!-- Campo de Busca -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar posts e perfis..." autocomplete="off">
+            <div id="searchResults" class="search-results" style="display: none;"></div>
+        </div>
     </div>
 
     <!-- Main App -->
@@ -2914,6 +3031,9 @@
             loadMentionUsers().then(() => {
                 setupMentionsSystem();
             });
+            
+            // Inicializar sistema de busca
+            setupSearchSystem();
         }
 
         function switchTab(tabName) {
@@ -10671,6 +10791,269 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar feedbacks recebidos:', error);
             }
+        }
+
+        // ===== SISTEMA DE BUSCA =====
+        
+        let searchTimeout;
+        let isSearching = false;
+
+        // Configurar event listeners da busca
+        function setupSearchSystem() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (!searchInput || !searchResults) return;
+
+            // Busca em tempo real com debounce
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+                
+                if (query.length === 0) {
+                    hideSearchResults();
+                    return;
+                }
+                
+                if (query.length >= 2) {
+                    searchTimeout = setTimeout(() => {
+                        performSearch(query);
+                    }, 300);
+                }
+            });
+
+            // Fechar resultados ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    hideSearchResults();
+                }
+            });
+
+            // Manter foco no input ao clicar nos resultados
+            searchResults.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Função principal de busca
+        async function performSearch(query) {
+            if (isSearching) return;
+            
+            isSearching = true;
+            showSearchLoading();
+            
+            try {
+                console.log('🔍 Realizando busca para:', query);
+                
+                // Buscar posts e perfis em paralelo
+                const [posts, profiles] = await Promise.all([
+                    searchPosts(query),
+                    searchProfiles(query)
+                ]);
+                
+                renderSearchResults(posts, profiles, query);
+                
+            } catch (error) {
+                console.error('❌ Erro na busca:', error);
+                showSearchError();
+            } finally {
+                isSearching = false;
+            }
+        }
+
+        // Buscar posts no banco
+        async function searchPosts(query) {
+            try {
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select('id, content, celebrated_person_name, type, created_at, user_id')
+                    .or(`content.ilike.%${query}%,celebrated_person_name.ilike.%${query}%`)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+                
+                if (error) throw error;
+                return data || [];
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar posts:', error);
+                return [];
+            }
+        }
+
+        // Buscar perfis no banco
+        async function searchProfiles(query) {
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id, name, username, email')
+                    .or(`name.ilike.%${query}%,username.ilike.%${query}%,email.ilike.%${query}%`)
+                    .limit(8);
+                
+                if (error) throw error;
+                return data || [];
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar perfis:', error);
+                return [];
+            }
+        }
+
+        // Renderizar resultados da busca
+        function renderSearchResults(posts, profiles, query) {
+            const searchResults = document.getElementById('searchResults');
+            let html = '';
+            
+            const totalResults = posts.length + profiles.length;
+            
+            if (totalResults === 0) {
+                html = `
+                    <div class="search-empty">
+                        <div style="font-size: 24px; margin-bottom: 10px;">🔍</div>
+                        <div>Nenhum resultado encontrado para "${query}"</div>
+                        <div style="font-size: 12px; margin-top: 5px; color: #999;">
+                            Tente buscar por nomes, conteúdo de posts ou usernames
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Seção de Posts
+                if (posts.length > 0) {
+                    html += `
+                        <div class="search-section">
+                            <h4>📝 Posts (${posts.length})</h4>
+                            ${posts.map(post => `
+                                <div class="search-result-item" onclick="openPostFromSearch('${post.id}')">
+                                    <div class="result-title">
+                                        Holofote para: ${post.celebrated_person_name || 'Pessoa não informada'}
+                                    </div>
+                                    <div class="result-content">
+                                        ${(post.content || '').substring(0, 100)}${post.content && post.content.length > 100 ? '...' : ''}
+                                    </div>
+                                    <div class="result-meta">
+                                        ${formatDateShort(post.created_at)} • ${getTypeEmoji(post.type)} ${getTypeName(post.type)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                // Seção de Perfis
+                if (profiles.length > 0) {
+                    html += `
+                        <div class="search-section">
+                            <h4>👤 Perfis (${profiles.length})</h4>
+                            ${profiles.map(profile => `
+                                <div class="search-result-item" onclick="openProfileFromSearch('${profile.id}', '${profile.username || profile.email?.split('@')[0] || 'usuario'}')">
+                                    <div class="result-title">${profile.name || 'Nome não informado'}</div>
+                                    <div class="result-content">
+                                        @${profile.username || profile.email?.split('@')[0] || 'usuario'}
+                                    </div>
+                                    <div class="result-meta">Perfil do usuário</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+            
+            searchResults.innerHTML = html;
+            searchResults.style.display = 'block';
+        }
+
+        // Abrir post a partir da busca
+        async function openPostFromSearch(postId) {
+            try {
+                console.log('🔗 Abrindo post da busca:', postId);
+                hideSearchResults();
+                
+                // Reutilizar função existente
+                const postData = await fetchPostDetails(postId);
+                
+                if (!postData) {
+                    showToast('Post não encontrado');
+                    return;
+                }
+                
+                const modalType = determineModalType(postData);
+                showPostModal(postData, modalType);
+                
+            } catch (error) {
+                console.error('❌ Erro ao abrir post da busca:', error);
+                showToast('Erro ao carregar post');
+            }
+        }
+
+        // Abrir perfil a partir da busca
+        async function openProfileFromSearch(userId, username) {
+            try {
+                console.log('👤 Abrindo perfil da busca:', { userId, username });
+                hideSearchResults();
+                
+                // Reutilizar função existente
+                await openUserProfile(username);
+                
+            } catch (error) {
+                console.error('❌ Erro ao abrir perfil da busca:', error);
+                showToast('Erro ao carregar perfil');
+            }
+        }
+
+        // Funções auxiliares
+        function showSearchLoading() {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = `
+                <div class="search-loading">
+                    <div style="font-size: 20px; margin-bottom: 8px;">⏳</div>
+                    <div>Buscando...</div>
+                </div>
+            `;
+            searchResults.style.display = 'block';
+        }
+
+        function showSearchError() {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = `
+                <div class="search-empty">
+                    <div style="font-size: 24px; margin-bottom: 10px;">⚠️</div>
+                    <div>Erro ao realizar busca</div>
+                    <div style="font-size: 12px; margin-top: 5px; color: #999;">
+                        Tente novamente em alguns instantes
+                    </div>
+                </div>
+            `;
+            searchResults.style.display = 'block';
+        }
+
+        function hideSearchResults() {
+            const searchResults = document.getElementById('searchResults');
+            if (searchResults) {
+                searchResults.style.display = 'none';
+            }
+        }
+
+        function getTypeEmoji(type) {
+            const typeEmojis = {
+                'gratidao': '🙏',
+                'memoria': '🧠',
+                'conquista': '🏆',
+                'inspiracao': '💡',
+                'apoio': '🤝',
+                'reconhecimento': '👏'
+            };
+            return typeEmojis[type] || '✨';
+        }
+
+        function getTypeName(type) {
+            const typeNames = {
+                'gratidao': 'Gratidão',
+                'memoria': 'Memória',
+                'conquista': 'Conquista',
+                'inspiracao': 'Inspiração',
+                'apoio': 'Apoio',
+                'reconhecimento': 'Reconhecimento'
+            };
+            return typeNames[type] || 'Destaque';
         }
         
         console.log('✅ HoloSpot v8 carregado com sucesso!');
