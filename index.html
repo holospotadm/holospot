@@ -2228,23 +2228,60 @@
 
         .single-post-page-content {
             max-width: 800px;
-            margin: 2rem auto;
+            margin: 1rem auto 2rem auto;
             padding: 2rem;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Ajustes específicos para conteúdo do post na página única */
+        .single-post-page-content .post-container {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .single-post-page-content .post-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .single-post-page-content .post-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .single-post-page-content .post-actions {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .single-post-page-content .comments-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
         }
 
         /* Responsivo para página de post */
         @media (max-width: 768px) {
             .single-post-page-content {
-                margin: 1rem;
+                margin: 0.5rem;
                 padding: 1.5rem;
+                min-height: calc(100vh - 100px);
             }
             
             .post-page-logo {
                 font-size: 1.3rem;
+            }
+
+            .single-post-page-content .post-content {
+                font-size: 1rem;
             }
         }
 
@@ -2258,7 +2295,23 @@
             }
             
             .single-post-page-content {
+                margin: 0.25rem;
                 padding: 1rem;
+                min-height: calc(100vh - 80px);
+            }
+
+            .single-post-page-content .post-content {
+                font-size: 0.95rem;
+            }
+
+            .single-post-page-content .post-header {
+                margin-bottom: 1rem;
+            }
+
+            .single-post-page-content .post-actions,
+            .single-post-page-content .comments-section {
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
             }
         }
     </style>
@@ -13085,7 +13138,7 @@
                     const backButton = document.createElement('div');
                     backButton.innerHTML = `
                         <button onclick="PostRouter.closeSinglePostPage()" style="
-                            background: #e65100; 
+                            background: linear-gradient(135deg, #e65100, #ff8a50); 
                             color: white; 
                             border: none; 
                             padding: 0.75rem 1.5rem; 
@@ -13097,7 +13150,12 @@
                             display: block;
                             margin-left: auto;
                             margin-right: auto;
-                        ">← Voltar para o Feed</button>
+                            box-shadow: 0 4px 12px rgba(230, 81, 0, 0.3);
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(230, 81, 0, 0.4)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(230, 81, 0, 0.3)'">
+                            ← Voltar para o Feed
+                        </button>
                     `;
                     content.insertBefore(backButton, content.firstChild);
                     
