@@ -2186,6 +2186,85 @@
                 padding: 1rem;
             }
         }
+
+        /* ===== ESTILOS PARA PÁGINA ÚNICA DE POST ===== */
+        .single-post-page-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFB700 0%, #E55A2B 100%);
+            z-index: 10000;
+            overflow-y: auto;
+            display: none; /* Inicialmente oculto */
+        }
+
+        .single-post-page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem 0.5rem 2rem;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 10001;
+            box-shadow: none;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .post-page-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .single-post-page-content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Responsividade para página de post */
+        @media (max-width: 768px) {
+            .single-post-page-content {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .single-post-page-header {
+                padding: 1rem 1.5rem 0.5rem 1.5rem;
+            }
+            
+            .post-page-logo {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .single-post-page-header {
+                padding: 0.75rem 1rem 0.5rem 1rem;
+            }
+            
+            .post-page-logo {
+                font-size: 1.2rem;
+            }
+            
+            .single-post-page-content {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2711,6 +2790,18 @@
             </div>
         </div>
         <div id="fullProfileContent" class="full-profile-content">
+            <!-- Conteúdo será carregado dinamicamente -->
+        </div>
+    </div>
+
+    <!-- NOVO: Container para página única de post (inicialmente oculto) -->
+    <div id="singlePostPageContainer" class="single-post-page-container" style="display: none;">
+        <div class="single-post-page-header">
+            <div class="post-page-logo" onclick="PostRouter.closeSinglePostPage()" style="cursor: pointer;">
+                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+            </div>
+        </div>
+        <div id="singlePostPageContent" class="single-post-page-content">
             <!-- Conteúdo será carregado dinamicamente -->
         </div>
     </div>
@@ -12862,23 +12953,146 @@
             
         }
         
-        // Event listeners para ProfileRouter
+        // ===== SISTEMA DE URLS DE POST ÚNICO =====
+        
+        class PostRouter {
+            static currentPostData = null;
+            
+            static showSinglePostPage(postId) {
+                console.log('🔄 PostRouter.showSinglePostPage chamado para postId:', postId);
+                
+                try {
+                    // Fechar todos os modais antes de abrir a página
+                    this.closeAllModals();
+                    
+                    // Mostrar o container da página de post
+                    const container = document.getElementById('singlePostPageContainer');
+                    if (container) {
+                        container.style.display = 'block';
+                        console.log('✅ Container de post único exibido');
+                        
+                        // Carregar o conteúdo do post (será implementado na próxima etapa)
+                        this.loadPostContent(postId);
+                        
+                        // Atualizar URL sem recarregar a página
+                        const newUrl = `${window.location.origin}${window.location.pathname}?post=${postId}`;
+                        history.pushState({ postId: postId }, '', newUrl);
+                        console.log('✅ URL atualizada para:', newUrl);
+                    } else {
+                        console.error('❌ Container singlePostPageContainer não encontrado');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao abrir página de post:', error);
+                }
+            }
+            
+            static closeSinglePostPage() {
+                console.log('🔄 PostRouter.closeSinglePostPage chamado');
+                
+                try {
+                    // Ocultar o container da página de post
+                    const container = document.getElementById('singlePostPageContainer');
+                    if (container) {
+                        container.style.display = 'none';
+                        console.log('✅ Container de post único ocultado');
+                    }
+                    
+                    // Limpar dados do post atual
+                    this.currentPostData = null;
+                    
+                    // Voltar para a URL principal
+                    const newUrl = `${window.location.origin}${window.location.pathname}`;
+                    history.pushState({}, '', newUrl);
+                    console.log('✅ URL restaurada para:', newUrl);
+                    
+                    // Mostrar o conteúdo principal novamente
+                    this.showMainContent();
+                } catch (error) {
+                    console.error('❌ Erro ao fechar página de post:', error);
+                }
+            }
+            
+            static loadPostContent(postId) {
+                console.log('🔄 Carregando conteúdo do post:', postId);
+                
+                // Placeholder para próxima etapa - reutilizar lógica do modal
+                const content = document.getElementById('singlePostPageContent');
+                if (content) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
+                            <h2>Post ${postId}</h2>
+                            <p>Conteúdo será carregado na próxima etapa...</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            static closeAllModals() {
+                // Reutilizar função existente ou implementar fechamento de modais
+                if (typeof closeModal === 'function') {
+                    closeModal();
+                }
+                
+                // Fechar modais específicos se necessário
+                const modals = ['singlePostModal', 'tempPostsModal', 'tempHolofotesModal'];
+                modals.forEach(modalId => {
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+            
+            static showMainContent() {
+                // Mostrar o conteúdo principal da aplicação
+                const mainElements = ['header', 'nav-tabs', 'tab-content'];
+                mainElements.forEach(elementClass => {
+                    const element = document.querySelector(`.${elementClass}`);
+                    if (element) {
+                        element.style.display = '';
+                    }
+                });
+            }
+            
+            static checkInitialURL() {
+                console.log('🔄 PostRouter verificando URL inicial...');
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const postId = urlParams.get('post');
+                
+                if (postId) {
+                    console.log('✅ Parâmetro post encontrado na URL:', postId);
+                    this.showSinglePostPage(postId);
+                } else {
+                    console.log('ℹ️ Nenhum parâmetro post na URL');
+                }
+            }
+        }
+        
+        // Event listeners para PostRouter
         window.addEventListener('popstate', function(event) {
-            console.log('🔄 Evento popstate detectado:', event.state);
+            console.log('🔄 Evento popstate detectado para PostRouter:', event.state);
             try {
-                if (event.state && event.state.profileId) {
+                if (event.state && event.state.postId) {
+                    PostRouter.showSinglePostPage(event.state.postId);
+                } else if (event.state && event.state.profileId) {
+                    // Manter compatibilidade com ProfileRouter
                     ProfileRouter.showFullProfile(event.state.profileId);
                 } else {
+                    // Fechar tanto post quanto perfil
+                    PostRouter.closeSinglePostPage();
                     ProfileRouter.closeFullProfile();
                 }
             } catch (error) {
-                console.error('❌ Erro no popstate:', error);
+                console.error('❌ Erro no popstate do PostRouter:', error);
             }
         });
         
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 ProfileRouter.checkInitialURL();
+                PostRouter.checkInitialURL();
             }, 2000);
         });
 
@@ -12984,6 +13198,18 @@
                     <!-- Pessoas destacadas serão carregadas aqui -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- NOVO: Container para página única de post (inicialmente oculto) -->
+    <div id="singlePostPageContainer" class="single-post-page-container" style="display: none;">
+        <div class="single-post-page-header">
+            <div class="post-page-logo" onclick="PostRouter.closeSinglePostPage()" style="cursor: pointer;">
+                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+            </div>
+        </div>
+        <div id="singlePostPageContent" class="single-post-page-content">
+            <!-- Conteúdo será carregado dinamicamente -->
         </div>
     </div>
 
