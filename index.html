@@ -13044,27 +13044,79 @@
                 console.log('🔗 URL limpa para:', newURL);
             }
             
-            static loadPostContent(postId) {
+            static async loadPostContent(postId) {
                 const content = document.getElementById('singlePostPageContent');
-                if (content) {
+                if (!content) return;
+                
+                try {
+                    // Mostrar loading
                     content.innerHTML = `
                         <div style="text-align: center; padding: 3rem;">
                             <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
                             <h3>Carregando post...</h3>
                             <p style="color: #666; margin: 1rem 0;">Post ID: ${postId}</p>
-                            <button onclick="PostRouter.closeSinglePostPage()" style="
-                                background: #e65100; 
-                                color: white; 
-                                border: none; 
-                                padding: 0.75rem 1.5rem; 
-                                border-radius: 25px; 
-                                cursor: pointer; 
-                                font-size: 1rem; 
-                                font-weight: 600;
-                                margin-top: 1rem;
-                            ">← Voltar para o Feed</button>
                         </div>
                     `;
+                    
+                    // Reutilizar função existente para buscar dados do post
+                    const postData = await fetchPostDetails(postId);
+                    
+                    if (!postData) {
+                        throw new Error('Post não encontrado');
+                    }
+                    
+                    // Criar mock de modal para reutilizar renderSinglePost
+                    const mockModal = {
+                        querySelector: (selector) => {
+                            if (selector === '#singlePostContent') {
+                                return content;
+                            }
+                            return null;
+                        }
+                    };
+                    
+                    // Determinar tipo de modal (mesmo padrão do sistema existente)
+                    const modalType = this.determineModalType(postData);
+                    
+                    // Reutilizar função existente para renderizar o post
+                    renderSinglePost(postData, mockModal, modalType);
+                    
+                    // Adicionar botão voltar no topo
+                    const backButton = document.createElement('div');
+                    backButton.innerHTML = `
+                        <button onclick="PostRouter.closeSinglePostPage()" style="
+                            background: #e65100; 
+                            color: white; 
+                            border: none; 
+                            padding: 0.75rem 1.5rem; 
+                            border-radius: 25px; 
+                            cursor: pointer; 
+                            font-size: 1rem; 
+                            font-weight: 600;
+                            margin-bottom: 2rem;
+                            display: block;
+                            margin-left: auto;
+                            margin-right: auto;
+                        ">← Voltar para o Feed</button>
+                    `;
+                    content.insertBefore(backButton, content.firstChild);
+                    
+                    console.log('✅ Post carregado com sucesso:', postId);
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao carregar post:', error);
+                    this.showError('Erro ao carregar post: ' + error.message);
+                }
+            }
+            
+            static determineModalType(postData) {
+                // Mesma lógica do sistema existente
+                if (postData.mentioned_user_id === currentUser?.id) {
+                    return 'received';
+                } else if (postData.user_id === currentUser?.id) {
+                    return 'sent';
+                } else {
+                    return 'public';
                 }
             }
             
