@@ -1010,10 +1010,7 @@
             margin-bottom: 0.5rem;
         }
 
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
+        /* .stat-label CSS removido - estava sobrescrevendo estilos inline dos cards */
 
         .evolution-chart {
             background: rgba(255, 255, 255, 0.95);
@@ -1938,6 +1935,257 @@
                 right: -50px;
             }
         }
+
+        /* ===== NOVO: ESTILOS PARA PÁGINA COMPLETA DE PERFIL ===== */
+        .full-profile-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFB700 0%, #E55A2B 100%);
+            z-index: 10000;
+            overflow-y: auto;
+            display: none; /* Inicialmente oculto */
+        }
+
+        .full-profile-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem 0.5rem 2rem;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 10001;
+            box-shadow: none;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .profile-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .profile-logo span {
+            background: linear-gradient(135deg, #667eea, #764ba2) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            color: transparent !important;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .profile-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .profile-logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFF 30%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .profile-logo-icon::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 215, 0, 0.3) 45deg, transparent 90deg, rgba(255, 215, 0, 0.3) 135deg, transparent 180deg, rgba(255, 215, 0, 0.3) 225deg, transparent 270deg, rgba(255, 215, 0, 0.3) 315deg, transparent 360deg);
+            border-radius: 50%;
+            animation: rotate 3s linear infinite;
+        }
+
+        .full-profile-content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .profile-header-expanded {
+            background: transparent;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .profile-info-expanded h2 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .profile-info-expanded p {
+            margin: 0 0 1rem 0;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .follow-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .follow-button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .stats-expanded {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 183, 0, 0.2);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 183, 0, 0.4);
+        }
+
+        #fullProfileContainer .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 0.5rem;
+        }
+
+        /* .stat-label CSS removido - estava sobrescrevendo estilos inline dos cards */
+
+        .profile-sections {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 183, 0, 0.1);
+        }
+
+        .section h3 {
+            margin: 0 0 1.5rem 0;
+            color: #333;
+            border-bottom: 2px solid #f8f9fa;
+            padding-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        /* Responsividade para página completa */
+        @media (max-width: 768px) {
+            .full-profile-content {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .profile-header-expanded {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+            
+            .profile-avatar-large {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .stats-expanded {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .profile-logo {
+                font-size: 1.3rem;
+            }
+            
+            .profile-logo-icon {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .full-profile-header {
+                padding: 0.75rem 1rem 0.5rem 1rem;
+            }
+            
+            .profile-logo {
+                font-size: 1.2rem;
+            }
+            
+            .profile-logo-icon {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .profile-header-expanded {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2455,6 +2703,18 @@
         </div>
     </div>
 
+    <!-- NOVO: Container para página completa de perfil (inicialmente oculto) -->
+    <div id="fullProfileContainer" class="full-profile-container" style="display: none;">
+        <div class="full-profile-header">
+            <div class="profile-logo" onclick="ProfileRouter.closeFullProfile()" style="cursor: pointer;">
+                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+            </div>
+        </div>
+        <div id="fullProfileContent" class="full-profile-content">
+            <!-- Conteúdo será carregado dinamicamente -->
+        </div>
+    </div>
+
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
@@ -2463,21 +2723,7 @@
         // SECURITY FIX: Using ANON_KEY instead of SERVICE_KEY for client-side operations
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // ACCESSIBILITY: ESC key to close modals
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                // Close all possible modals
-                closeImpactModal();
-                closeAchievementsModal();
-                closeLevelsModal();
-                closeProgressModal();
-                closeFeedbacksModal();
-                closePostsModal();
-                closePeopleHighlightedModal();
-                closeModal(); // For dynamic modals
-                console.log('🔑 ESC pressed - closing all modals');
-            }
-        });
+        // ACCESSIBILITY: ESC key gerenciado pelo sistema de pilha de modais
 
         // Função para timeout agressivo
         function withTimeout(promise, timeoutMs = 10000) {
@@ -2510,6 +2756,51 @@
         let posts = [];
         let notifications = [];
         let following = [];
+        
+        // ===== SISTEMA DE PILHA DE MODAIS PARA ESC =====
+        const modalStack = [];
+        let globalEscHandler = null;
+        
+        function addModalToStack(modalId, closeFunction) {
+            // Remover modal da pilha se já existir
+            const existingIndex = modalStack.findIndex(m => m.id === modalId);
+            if (existingIndex !== -1) {
+                modalStack.splice(existingIndex, 1);
+            }
+            
+            // Adicionar modal no topo da pilha
+            modalStack.push({ id: modalId, close: closeFunction });
+            console.log('📚 Modal adicionado à pilha:', modalId, '| Pilha atual:', modalStack.map(m => m.id));
+            
+            // Configurar handler ESC global se não existir
+            if (!globalEscHandler) {
+                globalEscHandler = (e) => {
+                    if (e.key === 'Escape' && modalStack.length > 0) {
+                        // Fechar o modal do topo da pilha
+                        const topModal = modalStack[modalStack.length - 1];
+                        console.log('🔑 ESC pressionado - fechando modal:', topModal.id);
+                        topModal.close();
+                    }
+                };
+                document.addEventListener('keydown', globalEscHandler);
+                console.log('🎯 Handler ESC global configurado');
+            }
+        }
+        
+        function removeModalFromStack(modalId) {
+            const index = modalStack.findIndex(m => m.id === modalId);
+            if (index !== -1) {
+                modalStack.splice(index, 1);
+                console.log('📚 Modal removido da pilha:', modalId, '| Pilha atual:', modalStack.map(m => m.id));
+            }
+            
+            // Se não há mais modais, remover handler ESC global
+            if (modalStack.length === 0 && globalEscHandler) {
+                document.removeEventListener('keydown', globalEscHandler);
+                globalEscHandler = null;
+                console.log('🎯 Handler ESC global removido - pilha vazia');
+            }
+        }
         let followers = [];
         let selectedPhotoFile = null;
         let selectedHighlightType = null;
@@ -3518,6 +3809,18 @@
                             <div style="font-size: 14px;">${error.message}</div>
                         </div>
                     `;
+                    
+                    // Carregar dados do nível do usuário (reutilizando função existente)
+                    const levelCard = content.querySelector('.level-card');
+                    if (levelCard) {
+                        loadUserLevelData(userData.id, levelCard);
+                    }
+                    
+                    // Carregar dados de emblemas conquistados
+                    loadUserAchievementsCount(userData.id);
+                    
+                    // Verificar status de seguir
+                    checkUserFollowStatus(userData.id);
                 }
             }
         }
@@ -3745,6 +4048,8 @@
         }
 
         async function loadFeedbacksInModal() {
+            const feedbacksContainer = document.getElementById('modalFeedbacksContent');
+            feedbacksContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><p>Carregando feedbacks...</p></div>';
             try {
                 console.log('🔄 Carregando feedbacks no modal...');
                 
@@ -3871,21 +4176,44 @@
 
         // Funções do Modal de Posts
         function openPostsModal() {
-            console.log('🔍 Tentando abrir modal de posts...');
-            console.log('Current user:', currentUser);
+            console.log('🔍 [DEBUG] openPostsModal CHAMADA!');
             
-            if (!currentUser || !currentUser.id) {
-                console.error('❌ currentUser não está definido ou não tem ID');
-                alert('Erro: Usuário não identificado. Tente fazer login novamente.');
-                return;
+            let modal = document.getElementById('postsModal');
+            
+            // Se modal não existe, recriar
+            if (!modal) {
+                console.log('🔧 [DEBUG] Modal postsModal não encontrado, recriando...');
+                modal = document.createElement('div');
+                modal.id = 'postsModal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.onclick = () => closeModal();
+                
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h2>📝 Seus Posts</h2>
+                            <button class="close-btn" onclick="closePostsModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="modalPostsContent" style="max-height: 400px; overflow-y: auto;">
+                                <!-- Posts serão carregados aqui -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                console.log('✅ [DEBUG] Modal postsModal recriado');
             }
             
-            const modal = document.getElementById('postsModal');
-            if (modal) {
+            if (currentUser && currentUser.id) {
+                console.log('🔍 [DEBUG] Usuário válido encontrado, abrindo modal...');
                 modal.style.display = 'flex';
-                loadPostsInModal();
+                addModalToStack('postsModal', closePostsModal);
+                loadPostsInModal(currentUser.id);
             } else {
-                console.error('❌ Modal postsModal não encontrado');
+                console.error('❌ [DEBUG] currentUser não está definido ou não tem ID');
             }
         }
 
@@ -3893,6 +4221,7 @@
             const modal = document.getElementById('postsModal');
             if (modal) {
                 modal.style.display = 'none';
+                removeModalFromStack('postsModal');
             }
         }
 
@@ -3901,20 +4230,27 @@
             return '';
         }
 
-        async function loadPostsInModal() {
+        async function loadPostsInModal(targetUserId = null) {
+            const postsContainer = document.getElementById("modalPostsContent");
+            postsContainer.innerHTML = 
+'<div style="text-align: center; padding: 40px; color: #666;"><p>Carregando posts...</p></div>';
             try {
-                console.log('📝 Carregando posts no modal...');
+                const userId = targetUserId || currentUser?.id;
+                console.log('📝 Carregando posts no modal para usuário:', userId);
+                console.log('🔍 targetUserId recebido:', targetUserId);
+                console.log('🔍 currentUser.id:', currentUser?.id);
+                console.log('🔍 São diferentes?', targetUserId !== currentUser?.id);
                 
-                if (!currentUser || !currentUser.id) {
-                    console.error('❌ currentUser não está definido em loadPostsInModal');
+                if (!userId) {
+                    console.error('❌ userId não está definido em loadPostsInModal');
                     throw new Error('Usuário não identificado');
                 }
                 
-                // Recarregar posts do usuário atual para evitar problemas de cache
+                // Recarregar posts do usuário especificado
                 const { data: userPosts, error } = await supabase
                     .from('posts')
                     .select('*')
-                    .eq('user_id', currentUser.id)
+                    .eq('user_id', userId)
                     .order('created_at', { ascending: false });
                 
                 if (error) {
@@ -3979,16 +4315,56 @@
                     }
                 }
 
+                // Buscar dados dos autores dos posts (incluindo avatar)
+                const authorIds = [...new Set(userPosts.map(p => p.user_id))];
+                let authorsData = [];
+                
+                if (authorIds.length > 0) {
+                    try {
+                        const { data: profiles, error } = await supabase
+                            .from('profiles')
+                            .select('id, name, email, avatar_url')
+                            .in('id', authorIds);
+                        
+                        if (!error && profiles) {
+                            authorsData = profiles;
+                            console.log('✅ Dados dos autores com avatar carregados:', authorsData);
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro ao buscar dados dos autores:', error);
+                    }
+                }
+
                 // Usar o mesmo código do renderPosts do início
                 const postsHtml = [];
                 for (const post of userPosts) {
                     // Adicionar reações ao post
                     post.reactions = allReactions.filter(r => r.post_id === post.id);
-                    post.user_data = {
-                        name: currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário',
-                        email: currentUser.email,
-                        avatar_url: currentUser.user_metadata?.avatar_url || ''
-                    };
+                    
+                    // Buscar dados do verdadeiro autor do post
+                    const postAuthor = authorsData.find(author => author.id === post.user_id);
+                    
+                    // Se não encontrou o autor nos dados buscados, usar currentUser como fallback (caso seja o próprio usuário)
+                    if (postAuthor) {
+                        post.user_data = {
+                            name: postAuthor.name || postAuthor.email?.split('@')[0] || 'Usuário',
+                            email: postAuthor.email,
+                            avatar_url: postAuthor.avatar_url || '' // Agora tem avatar_url do profiles
+                        };
+                    } else if (post.user_id === currentUser.id) {
+                        post.user_data = {
+                            name: currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário',
+                            email: currentUser.email,
+                            avatar_url: currentUser.user_metadata?.avatar_url || ''
+                        };
+                    } else {
+                        // Fallback para autor desconhecido
+                        post.user_data = {
+                            name: 'Usuário',
+                            email: '',
+                            avatar_url: ''
+                        };
+                    }
                     
                     const typeEmojis = {
                         'gratidao': '🙏', 'gratitude': '🙏',
@@ -4023,7 +4399,7 @@
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
                                     <div class="post-author-meta">
-                                        <span class="post-author-username">@${currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario'}</span>
+                                        <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
                                         <span class="post-time">${formatDateShort(post.created_at)}</span>
                                     </div>
@@ -4036,7 +4412,7 @@
                                 ${post.mentioned_user_id ? `
                                     ${post.mentioned_user_id === currentUser.id ? 
                                         `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
-                                        `<span onclick="openUserProfileById('${post.mentioned_user_id}')" 
+                                        `<span onclick="openUserProfileByIdKeepingModals('${post.mentioned_user_id}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -4085,10 +4461,8 @@
                 postsContainer.innerHTML = postsHtml.join('');
                 console.log('✅ Posts carregados no modal');
                 
-                // Atualizar contadores de comentários após carregar posts
-                setTimeout(() => {
-                    updateAllCommentsCounters();
-                }, 500);
+                // ✅ OTIMIZAÇÃO: Comentários já foram processados no HTML acima
+                // Não precisamos fazer consultas individuais adicionais
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar posts:', error);
@@ -4241,6 +4615,8 @@
         }
 
         async function loadPostFeedbacks(postId, source = 'seus_posts') {
+            const feedbackContent = document.getElementById('postFeedbackContent');
+            feedbackContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div style="font-size: 24px; margin-bottom: 10px;">⏳</div><p>Carregando feedbacks...</p></div>';
             try {
                 console.log('📬 Carregando feedbacks para post:', postId, 'origem:', source);
                 
@@ -4363,7 +4739,7 @@
                                 <div style="color: #e65100; font-weight: bold; font-size: 14px;">
                                     🔄 ${username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `@${username}` :
-                                        `<span onclick="openUserProfile('${username}')" 
+                                        `<span onclick="openUserProfileKeepingModals('${username}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -4922,7 +5298,7 @@
                                         🔄 Feedback de 
                                         ${feedbackUsername === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                             `<span>@${feedbackUsername}</span>` :
-                                            `<span onclick="openUserProfile('${feedbackUsername}')" 
+                                            `<span onclick="openUserProfileKeepingModals('${feedbackUsername}')" 
                                                   style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                                   onmouseover="this.style.color='#0056b3'"
                                                   onmouseout="this.style.color='#007bff'">
@@ -5035,7 +5411,7 @@
                                 <div class="post-author-meta">
                                     ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
-                                        `<span class="post-author-username" onclick="openUserProfile('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                        `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -5055,7 +5431,7 @@
                                 ${post.mentioned_user_id ? `
                                     ${post.mentioned_user_id === currentUser.id ? 
                                         `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
-                                        `<span onclick="openUserProfileById('${post.mentioned_user_id}')" 
+                                        `<span onclick="openUserProfileByIdKeepingModals('${post.mentioned_user_id}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -6759,7 +7135,7 @@
                             ${postData.mentioned_user_id ? `
                                 ${postData.mentioned_user_id === currentUser.id ? 
                                     `<span>${postData.mentioned_user?.username ? '@' + postData.mentioned_user.username : postData.mentioned_user?.email ? '@' + postData.mentioned_user.email.split('@')[0] : postData.celebrated_person_name || postData.person_name}</span>` :
-                                    `<span onclick="openUserProfileById('${postData.mentioned_user_id}')" 
+                                    `<span onclick="openUserProfileByIdFromModal('${postData.mentioned_user_id}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                           onmouseover="this.style.color='#0056b3'"
                                           onmouseout="this.style.color='#007bff'">
@@ -7243,7 +7619,16 @@
             }
             
             populateUserProfileModal(modal, userData, stats);
+            
+            // Armazenar userId no dataset do modal para uso nos event listeners
+            modal.dataset.userId = userData.id;
+            
             modal.style.display = 'flex';
+            
+            // Adicionar modal à pilha para gerenciar ESC
+            addModalToStack('userProfileModal', closeUserProfileModal);
+            
+            // Cards no modal de perfil são apenas informativos (não clicáveis)
             
             console.log('✅ Modal de perfil aberto com sucesso');
         }
@@ -7391,12 +7776,13 @@
                             border-top: 1px solid #eee;
                             margin-top: 10px;
                         ">
-                            <a href="#" onclick="showToast('Funcionalidade em desenvolvimento'); return false;" style="
+                            <a href="#" onclick="openFullProfile('USER_ID_PLACEHOLDER'); return false;" style="
                                 color: #007bff;
                                 text-decoration: none;
                                 font-size: 14px;
                                 font-weight: 500;
-                            ">👤 Visualizar perfil completo do usuário</a>
+                                transition: color 0.2s ease;
+                            " onmouseover="this.style.color='#0056b3'" onmouseout="this.style.color='#007bff'">👤 Visualizar perfil completo do usuário</a>
                         </div>
                     </div>
                 </div>
@@ -7405,6 +7791,7 @@
             document.body.appendChild(modal);
             
             modal.addEventListener('click', (e) => {
+                // Fechar modal se clicar no fundo
                 if (e.target === modal) {
                     closeUserProfileModal();
                 }
@@ -7475,6 +7862,21 @@
             modal.dataset.userId = userData.id;
             modal.dataset.userName = userData.name || 'Usuário';
             modal.dataset.userEmail = userData.email || '';
+            
+            // Atualizar link do perfil completo com username (mais amigável que ID)
+            const profileLink = modal.querySelector('a[onclick*="USER_ID_PLACEHOLDER"]');
+            if (profileLink) {
+                // Priorizar username, depois email username, fallback para ID
+                const userIdentifier = userData.username || 
+                                     (userData.email ? userData.email.split('@')[0] : null) || 
+                                     userData.id;
+                
+                profileLink.onclick = function() {
+                    openFullProfile(userIdentifier);
+                    return false;
+                };
+                console.log('✅ Link do perfil completo atualizado para:', userIdentifier);
+            }
         }
         
         // Função para verificar status de seguir
@@ -7703,6 +8105,39 @@
             const modal = document.getElementById('userProfileModal');
             if (modal) {
                 modal.style.display = 'none';
+                removeModalFromStack('userProfileModal');
+            }
+        }
+
+        // ===== INTEGRAÇÃO COM PÁGINA COMPLETA DE PERFIL =====
+        
+        function openFullProfile(userId) {
+            console.log('🔄 openFullProfile chamado para userId:', userId);
+            
+            try {
+                // Validar userId
+                if (!userId) {
+                    throw new Error('UserId não fornecido');
+                }
+                
+                // Fechar TODOS os modais antes de abrir perfil completo
+                closeAllModals();
+                
+                // Aguardar um pouco para o modal fechar suavemente
+                setTimeout(() => {
+                    // Abrir página completa via ProfileRouter
+                    if (typeof ProfileRouter !== 'undefined') {
+                        ProfileRouter.showFullProfile(userId);
+                        console.log('✅ Página completa aberta via ProfileRouter');
+                    } else {
+                        console.error('❌ ProfileRouter não disponível');
+                        showToast('Erro: Sistema de perfil não carregado');
+                    }
+                }, 300); // 300ms para transição suave
+                
+            } catch (error) {
+                console.error('❌ Erro ao abrir perfil completo:', error);
+                showToast('Erro ao abrir perfil completo: ' + error.message);
             }
         }
 
@@ -8820,8 +9255,8 @@
             }
         }
 
-        async function showFollowingModal() {
-            console.log('👥 Abrindo modal de seguindo...');
+        async function showFollowingModal(userId = null) {
+            console.log('👥 Abrindo modal de seguindo...', userId ? `para usuário: ${userId}` : 'para usuário atual');
             
             // Verificar se já existe modal de seguindo e fechar apenas ele
             const existingFollowingModal = document.getElementById('followingModal');
@@ -8830,7 +9265,26 @@
                 existingFollowingModal.remove();
             }
             
-            const followingList = await Promise.all(following.map(async f => {
+            // Determinar qual lista de seguindo usar
+            let followingData;
+            if (userId && userId !== currentUser.id) {
+                // Buscar seguindo de outro usuário
+                const { data: userFollowing, error } = await supabase
+                    .from('follows')
+                    .select('following_id')
+                    .eq('follower_id', userId);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar seguindo:', error);
+                    return;
+                }
+                followingData = (userFollowing || []).map(f => ({ following_id: f.following_id }));
+            } else {
+                // Usar lista do usuário atual
+                followingData = following;
+            }
+            
+            const followingList = await Promise.all(followingData.map(async f => {
                 // Tentar buscar dados reais do usuário incluindo avatar e username
                 let userName = 'Usuário';
                 let userAvatar = '';
@@ -8880,7 +9334,7 @@
                 <div id="followingModal" class="modal-overlay" onclick="closeFollowingModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
-                            <h3>Seguindo (${following.length})</h3>
+                            <h3>Seguindo (${followingData.length})</h3>
                             <button class="modal-close" onclick="closeFollowingModal()">×</button>
                         </div>
                         <div class="modal-body">
@@ -8893,6 +9347,9 @@
             `;
             document.body.insertAdjacentHTML('beforeend', modal);
             
+            // Adicionar modal à pilha para gerenciar ESC
+            addModalToStack('followingModal', closeFollowingModal);
+            
             // Adicionar event listeners para os usernames clicáveis
             setTimeout(() => {
                 const clickableUsernames = document.querySelectorAll('#followingModal .username-clickable');
@@ -8904,16 +9361,15 @@
                         
                         console.log('👤 Clique no username do modal Seguindo:', { userId, userName, userAvatar });
                         
-                        // NÃO fechar modal atual - manter aberto
-                        // Abrir perfil do usuário
-                        openUserProfileById(userId);
+                        // Abrir perfil do usuário (sem fechar modal)
+                        openUserProfileByIdKeepingModals(userId);
                     });
                 });
             }, 100);
         }
 
-        async function showFollowersModal() {
-            console.log('👥 Abrindo modal de seguidores...');
+        async function showFollowersModal(userId = null) {
+            console.log('👥 Abrindo modal de seguidores...', userId ? `para usuário: ${userId}` : 'para usuário atual');
             
             // Verificar se já existe modal de seguidores e fechar apenas ele
             const existingFollowersModal = document.getElementById('followersModal');
@@ -8922,7 +9378,26 @@
                 existingFollowersModal.remove();
             }
             
-            const followersList = await Promise.all(followers.map(async f => {
+            // Determinar qual lista de seguidores usar
+            let followersData;
+            if (userId && userId !== currentUser.id) {
+                // Buscar seguidores de outro usuário
+                const { data: userFollowers, error } = await supabase
+                    .from('follows')
+                    .select('follower_id')
+                    .eq('following_id', userId);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar seguidores:', error);
+                    return;
+                }
+                followersData = (userFollowers || []).map(f => ({ follower_id: f.follower_id }));
+            } else {
+                // Usar lista do usuário atual
+                followersData = followers;
+            }
+            
+            const followersList = await Promise.all(followersData.map(async f => {
                 // Tentar buscar dados reais do usuário incluindo avatar e username
                 let userName = 'Usuário';
                 let userAvatar = '';
@@ -8972,7 +9447,7 @@
                 <div id="followersModal" class="modal-overlay" onclick="closeFollowersModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
-                            <h3>Seguidores (${followers.length})</h3>
+                            <h3>Seguidores (${followersData.length})</h3>
                             <button class="modal-close" onclick="closeFollowersModal()">×</button>
                         </div>
                         <div class="modal-body">
@@ -8985,6 +9460,9 @@
             `;
             document.body.insertAdjacentHTML('beforeend', modal);
             
+            // Adicionar modal à pilha para gerenciar ESC
+            addModalToStack('followersModal', closeFollowersModal);
+            
             // Adicionar event listeners para os usernames clicáveis
             setTimeout(() => {
                 const clickableUsernames = document.querySelectorAll('#followersModal .username-clickable');
@@ -8994,17 +9472,25 @@
                         const userName = this.getAttribute('data-user-name');
                         const userAvatar = this.getAttribute('data-user-avatar');
                         
-                        console.log('👤 Clique no username do modal Seguindo:', { userId, userName, userAvatar });
+                        console.log('👤 Clique no username do modal Seguidores:', { userId, userName, userAvatar });
                         
-                        // NÃO fechar modal atual - manter aberto
-                        // Abrir perfil do usuário
-                        openUserProfileById(userId);
+                        // Abrir perfil do usuário (sem fechar modal)
+                        openUserProfileByIdKeepingModals(userId);
                     });
                 });
             }, 100);
         }
 
         function closeModal() {
+            // Fechar modais temporários de notificação primeiro
+            const tempModals = ['tempPostsModal', 'tempHolofotesModal'];
+            tempModals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.remove();
+                }
+            });
+            
             // Close dynamic modals (remove from DOM) - MAS NÃO OS MODAIS DE IMPACTO, CONQUISTAS, SEGUINDO E SEGUIDORES
             const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal):not(#achievementsModal):not(#levelsModal):not(#progressModal):not(#followingModal):not(#followersModal)');
             if (dynamicModal) {
@@ -9017,6 +9503,8 @@
                 const modal = document.getElementById(modalId);
                 if (modal) {
                     modal.style.display = 'none';
+                    // Remover da pilha ESC se estiver lá
+                    removeModalFromStack(modalId);
                 }
             });
         }
@@ -9025,6 +9513,7 @@
             const modal = document.getElementById('followingModal');
             if (modal) {
                 modal.remove();
+                removeModalFromStack('followingModal');
             }
         }
 
@@ -9032,6 +9521,344 @@
             const modal = document.getElementById('followersModal');
             if (modal) {
                 modal.remove();
+                removeModalFromStack('followersModal');
+            }
+        }
+
+        // Funções para abrir modais de seguindo/seguidores de outros usuários
+        async function openFollowingModal(userId) {
+            await showFollowingModal(userId);
+        }
+
+        async function openFollowersModal(userId) {
+            await showFollowersModal(userId);
+        }
+
+        // Funções auxiliares que fecham modais antes de navegar para perfil
+        function closeAllModals() {
+            // Fechar modais dinâmicos (removidos do DOM)
+            const dynamicModals = document.querySelectorAll('.modal-overlay');
+            dynamicModals.forEach(modal => {
+                // Não fechar modais de impacto, conquistas, níveis e progresso
+                if (!['impactModal', 'achievementsModal', 'levelsModal', 'progressModal'].includes(modal.id)) {
+                    modal.remove();
+                }
+            });
+            
+            // Fechar modais temporários de notificação
+            const tempModals = ['tempPostsModal', 'tempHolofotesModal'];
+            tempModals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Fechar modais estáticos (ocultar com display: none)
+            const staticModals = ['postsReceivedModal', 'commentsReceivedModal', 'feedbacksReceivedModal', 'holofotesRecebidosModal', 'pessoasQueTeDestacaramModal', 'postsModal', 'singlePostModal'];
+            staticModals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Fechar modais específicos
+            closeFollowingModal();
+            closeFollowersModal();
+            closePostsModal();
+            closeUserProfileModal();
+            
+            console.log('🔄 Todos os modais foram fechados');
+        }
+
+        // Funções para navegar entre perfis SEM fechar modais (para cliques em @)
+        function openUserProfileKeepingModals(username) {
+            // Navegar para o perfil sem fechar modais
+            openUserProfile(username);
+        }
+
+        function openUserProfileByIdKeepingModals(userId) {
+            // Navegar para o perfil sem fechar modais
+            openUserProfileById(userId);
+        }
+
+        // Funções para navegar fechando modais (para botão "Visualizar perfil completo")
+        function openUserProfileFromModal(username) {
+            // Fechar TODOS os modais antes de navegar
+            closeAllModals();
+            // Navegar para o perfil
+            openUserProfile(username);
+        }
+
+        function openUserProfileByIdFromModal(userId) {
+            // Fechar TODOS os modais antes de navegar
+            closeAllModals();
+            // Navegar para o perfil
+            openUserProfileById(userId);
+        }
+
+        // ===== FUNÇÕES PARA PÁGINA DO USUÁRIO =====
+        
+        // Função para carregar contagem de emblemas conquistados
+        async function loadUserAchievementsCount(userId) {
+            try {
+                console.log('🏆 Carregando contagem de emblemas para usuário:', userId);
+                
+                // Usar a mesma função que já existe para buscar dados de gamificação
+                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                    p_user_id: userId
+                });
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar dados de gamificação:', error);
+                    return;
+                }
+                
+                const badgesCount = data?.badges ? data.badges.length : 0;
+                console.log(`📊 Usuário tem ${badgesCount} emblemas`);
+                
+                // Atualizar contador no card
+                const countElement = document.getElementById('userAchievementsCount');
+                if (countElement) {
+                    countElement.textContent = badgesCount;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar contagem de emblemas:', error);
+            }
+        }
+        
+        // Função para abrir modal de emblemas de outro usuário (modal separado)
+        async function openUserAchievementsModal(userId) {
+            try {
+                console.log('🏆 Abrindo modal de emblemas para usuário:', userId);
+                
+                // Buscar dados completos de gamificação do usuário
+                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                    p_user_id: userId
+                });
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar dados de gamificação:', error);
+                    showToast('Erro ao carregar emblemas');
+                    return;
+                }
+                
+                // Buscar username do usuário para personalizar título
+                const { data: userData, error: userError } = await supabase
+                    .from('profiles')
+                    .select('name, username')
+                    .eq('id', userId)
+                    .single();
+                
+                const userName = userData?.name || userData?.username || 'Usuário';
+                const userUsername = userData?.username || userName;
+                
+                // Criar modal separado para não afetar o modal original da aba Perfil
+                let userBadgesModal = document.getElementById('userBadgesModal');
+                if (!userBadgesModal) {
+                    userBadgesModal = document.createElement('div');
+                    userBadgesModal.id = 'userBadgesModal';
+                    userBadgesModal.style.cssText = `
+                        display: none;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 10000;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 1rem;
+                    `;
+                    document.body.appendChild(userBadgesModal);
+                }
+                
+                // Criar conteúdo do modal focado apenas em badges
+                userBadgesModal.innerHTML = `
+                    <div class="modal-content" style="max-width: 800px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <h2 style="margin: 0; font-size: 1.5rem;">🎖️ Emblemas de @${userUsername}</h2>
+                            <button class="close-btn" onclick="closeUserBadgesModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'">&times;</button>
+                        </div>
+                        <div class="modal-body" style="padding: 2rem;">
+                            ${data.badges && data.badges.length > 0 ? 
+                                `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                                    ${data.badges.map(badge => `
+                                        <div class="badge-card" style="background: white; border: 2px solid ${getBadgeRarityColor(badge.rarity)}; border-radius: 12px; padding: 15px; text-align: center; transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                            <div style="font-size: 32px; margin-bottom: 8px;">${badge.icon}</div>
+                                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">${badge.name}</div>
+                                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${badge.description}</div>
+                                            <div style="font-size: 10px; color: ${getBadgeRarityColor(badge.rarity)}; font-weight: bold; text-transform: uppercase;">${badge.rarity}</div>
+                                            <div style="font-size: 10px; color: #999; margin-top: 4px;">${formatDate(badge.earned_at)}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>` :
+                                `<div style="text-align: center; padding: 40px; color: #666;">
+                                    <div style="font-size: 48px; margin-bottom: 16px;">🏆</div>
+                                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">Nenhum emblema conquistado</div>
+                                    <div style="font-size: 14px;">@${userUsername} ainda não conquistou nenhum emblema.</div>
+                                </div>`
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                // Mostrar modal
+                userBadgesModal.style.display = 'flex';
+                
+                console.log(`✅ Modal de emblemas aberto para @${userUsername} com ${data.badges?.length || 0} badges`);
+                
+            } catch (error) {
+                console.error('❌ Erro ao abrir modal de emblemas:', error);
+                showToast('Erro ao carregar emblemas');
+            }
+        }
+        
+        // Função para fechar modal de badges do usuário
+        function closeUserBadgesModal() {
+            const modal = document.getElementById('userBadgesModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Função para verificar status de seguir
+        async function checkUserFollowStatus(userId) {
+            try {
+                console.log('👥 Verificando status de seguir para usuário:', userId);
+                
+                // Não mostrar botão para o próprio usuário
+                if (userId === currentUser.id) {
+                    const followButton = document.getElementById('followButton');
+                    if (followButton) {
+                        followButton.style.display = 'none';
+                    }
+                    return;
+                }
+                
+                // Verificar se já está seguindo
+                const { data, error } = await supabase
+                    .from('follows')
+                    .select('id')
+                    .eq('follower_id', currentUser.id)
+                    .eq('following_id', userId)
+                    .single();
+                
+                const isFollowing = !!data;
+                console.log(`📊 Status de seguir: ${isFollowing ? 'Seguindo' : 'Não seguindo'}`);
+                
+                // Atualizar botão
+                const followButton = document.getElementById('followButton');
+                const followButtonText = document.getElementById('followButtonText');
+                
+                if (followButton && followButtonText) {
+                    followButton.dataset.isFollowing = isFollowing;
+                    followButton.dataset.userId = userId;
+                    
+                    if (isFollowing) {
+                        followButton.style.background = '#28a745';
+                        followButtonText.textContent = 'Seguindo';
+                    } else {
+                        followButton.style.background = '#007bff';
+                        followButtonText.textContent = 'Seguir';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao verificar status de seguir:', error);
+            }
+        }
+        
+        // Função para alternar seguir/deixar de seguir usuário
+        async function toggleUserFollow(userId) {
+            try {
+                const followButton = document.getElementById('followButton');
+                const followButtonText = document.getElementById('followButtonText');
+                
+                if (!followButton || !followButtonText) return;
+                
+                const isFollowing = followButton.dataset.isFollowing === 'true';
+                console.log(`👥 ${isFollowing ? 'Deixando de seguir' : 'Seguindo'} usuário:`, userId);
+                
+                // Desabilitar botão temporariamente
+                followButton.disabled = true;
+                followButtonText.textContent = 'Processando...';
+                
+                if (isFollowing) {
+                    // Deixar de seguir
+                    const { error } = await supabase
+                        .from('follows')
+                        .delete()
+                        .eq('follower_id', currentUser.id)
+                        .eq('following_id', userId);
+                    
+                    if (error) throw error;
+                    
+                    // Atualizar UI
+                    followButton.dataset.isFollowing = 'false';
+                    followButton.style.background = '#007bff';
+                    followButtonText.textContent = 'Seguir';
+                    
+                    // Remover da lista local
+                    const index = following.findIndex(f => f.following_id === userId);
+                    if (index > -1) {
+                        following.splice(index, 1);
+                    }
+                    
+                    console.log('✅ Deixou de seguir com sucesso');
+                    
+                } else {
+                    // Seguir
+                    const { error } = await supabase
+                        .from('follows')
+                        .insert({
+                            follower_id: currentUser.id,
+                            following_id: userId
+                        });
+                    
+                    if (error) throw error;
+                    
+                    // Atualizar UI
+                    followButton.dataset.isFollowing = 'true';
+                    followButton.style.background = '#28a745';
+                    followButtonText.textContent = 'Seguindo';
+                    
+                    // Adicionar à lista local
+                    following.push({ following_id: userId });
+                    
+                    console.log('✅ Seguiu com sucesso');
+                }
+                
+                // Reabilitar botão
+                followButton.disabled = false;
+                
+                // Atualizar contadores na página se existirem
+                updateFollowCounters();
+                
+            } catch (error) {
+                console.error('❌ Erro ao alterar status de seguir:', error);
+                
+                // Restaurar botão em caso de erro
+                const followButton = document.getElementById('followButton');
+                const followButtonText = document.getElementById('followButtonText');
+                
+                if (followButton && followButtonText) {
+                    followButton.disabled = false;
+                    const isFollowing = followButton.dataset.isFollowing === 'true';
+                    followButtonText.textContent = isFollowing ? 'Seguindo' : 'Seguir';
+                }
+            }
+        }
+        
+        // Função para atualizar contadores de seguindo/seguidores
+        function updateFollowCounters() {
+            // Atualizar contador de seguindo se existir
+            const followingCountElement = document.querySelector('[onclick*="openFollowingModal"] .stat-number');
+            if (followingCountElement) {
+                followingCountElement.textContent = following.length;
             }
         }
 
@@ -9171,7 +9998,7 @@
                                     💬 
                                     ${username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `<span>@${username}</span>` :
-                                        `<span onclick="openUserProfile('${username}')" 
+                                        `<span onclick="openUserProfileKeepingModals('${username}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -9306,7 +10133,7 @@
                                     💬 
                                     ${username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `<span>@${username}</span>` :
-                                        `<span onclick="openUserProfile('${username}')" 
+                                        `<span onclick="openUserProfileKeepingModals('${username}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -9732,19 +10559,45 @@
                 return;
             }
             
-            const modal = document.getElementById('peopleHighlightedModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                loadPeopleHighlightedInModal();
-            } else {
-                console.error('❌ Modal peopleHighlightedModal não encontrado');
+            let modal = document.getElementById('peopleHighlightedModal');
+            
+            // Se modal não existe, recriar
+            if (!modal) {
+                console.log('🔧 Modal peopleHighlightedModal não encontrado, recriando...');
+                modal = document.createElement('div');
+                modal.id = 'peopleHighlightedModal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.onclick = () => closeModal();
+                
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h2>👥 Pessoas Destacadas</h2>
+                            <button class="close-btn" onclick="closeModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="modalPeopleHighlightedContent">
+                                <p style="text-align: center; color: #666;">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                console.log('✅ Modal peopleHighlightedModal recriado');
             }
+            
+            modal.style.display = 'flex';
+            addModalToStack('peopleHighlightedModal', closePeopleHighlightedModal);
+            loadPeopleHighlightedInModal();
         }
 
         function closePeopleHighlightedModal() {
             const modal = document.getElementById('peopleHighlightedModal');
             if (modal) {
                 modal.style.display = 'none';
+                removeModalFromStack('peopleHighlightedModal');
             }
         }
 
@@ -10100,21 +10953,157 @@
             }, 100);
         }
 
+        function setupModalStatCardListeners() {
+            console.log('🔧 [DEBUG] Iniciando setupModalStatCardListeners...');
+            
+            // Debug: verificar se o modal existe
+            const modal = document.getElementById('userProfileModal');
+            console.log('🔧 [DEBUG] Modal encontrado:', !!modal);
+            console.log('🔧 [DEBUG] Modal display:', modal?.style.display);
+            console.log('🔧 [DEBUG] Modal dataset.userId:', modal?.dataset.userId);
+            
+            // Debug: verificar se os cards existem
+            const modalPostsCreatedCard = document.getElementById('modalPostsCreatedCard');
+            const modalHolofotesCard = document.getElementById('modalHolofotesCard');
+            
+            console.log('🔧 [DEBUG] modalPostsCreatedCard encontrado:', !!modalPostsCreatedCard);
+            console.log('🔧 [DEBUG] modalHolofotesCard encontrado:', !!modalHolofotesCard);
+            
+            if (modalPostsCreatedCard) {
+                console.log('🔧 [DEBUG] modalPostsCreatedCard parent:', modalPostsCreatedCard.parentNode?.tagName);
+                console.log('🔧 [DEBUG] modalPostsCreatedCard innerHTML:', modalPostsCreatedCard.innerHTML);
+                
+                // Adicionar event listener com debug
+                modalPostsCreatedCard.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openPostsModal();
+                });
+                
+                // Adicionar debug para mousedown e mouseup
+                modalPostsCreatedCard.addEventListener('mousedown', function(event) {
+                    console.log('🔄 [DEBUG] MOUSEDOWN detectado no card Posts Criados!');
+                });
+                modalPostsCreatedCard.addEventListener('mouseup', function(event) {
+                    console.log('🔄 [DEBUG] MOUSEUP detectado no card Posts Criados!');
+                });
+                console.log('✅ [DEBUG] Event listener adicionado para Posts Criados');
+            } else {
+                console.error('❌ [DEBUG] modalPostsCreatedCard NÃO ENCONTRADO!');
+            }
+            
+            if (modalHolofotesCard) {
+                console.log('🔧 [DEBUG] modalHolofotesCard parent:', modalHolofotesCard.parentNode?.tagName);
+                console.log('🔧 [DEBUG] modalHolofotesCard innerHTML:', modalHolofotesCard.innerHTML);
+                
+                // Adicionar event listener com debug
+                modalHolofotesCard.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openHolofotesRecebidosModal();
+                });
+                
+                // Adicionar debug para mousedown e mouseup
+                modalHolofotesCard.addEventListener('mousedown', function(event) {
+                    console.log('🔄 [DEBUG] MOUSEDOWN detectado no card Holofotes Recebidos!');
+                });
+                modalHolofotesCard.addEventListener('mouseup', function(event) {
+                    console.log('🔄 [DEBUG] MOUSEUP detectado no card Holofotes Recebidos!');
+                });
+                console.log('✅ [DEBUG] Event listener adicionado para Holofotes Recebidos');
+            } else {
+                console.error('❌ [DEBUG] modalHolofotesCard NÃO ENCONTRADO!');
+            }
+            
+            console.log('🔧 [DEBUG] setupModalStatCardListeners finalizado');
+        }
+
         // ===== FUNÇÕES DOS MODAIS DE MÉTRICAS RECEBIDAS =====
 
         function openHolofotesRecebidosModal() {
-            const modal = document.getElementById('holofotesRecebidosModal');
-            if (modal) {
+            console.log('🔍 [DEBUG] openHolofotesRecebidosModal CHAMADA!');
+            
+            let modal = document.getElementById('holofotesRecebidosModal');
+            
+            // Se modal não existe, recriar
+            if (!modal) {
+                console.log('🔧 [DEBUG] Modal holofotesRecebidosModal não encontrado, recriando...');
+                modal = document.createElement('div');
+                modal.id = 'holofotesRecebidosModal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.onclick = () => closeModal();
+                
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h2><img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
+                            <button class="close-btn" onclick="closeModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="modalHolofotesRecebidosContent">
+                                <p style="text-align: center; color: #666;">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                console.log('✅ [DEBUG] Modal holofotesRecebidosModal recriado');
+            }
+            
+            if (currentUser && currentUser.id) {
+                console.log('🔍 [DEBUG] Usuário válido encontrado, abrindo modal...');
                 modal.style.display = 'flex';
-                loadHolofotesRecebidosInModal();
+                addModalToStack('holofotesRecebidosModal', closeModal);
+                loadHolofotesRecebidosInModal(currentUser.id);
+            } else {
+                console.error('❌ [DEBUG] currentUser não está definido ou não tem ID');
             }
         }
 
         function openPessoasQueTeDestacaramModal() {
+            console.log('🔍 Tentando abrir modal de pessoas que te destacaram...');
+            
+            let modal = document.getElementById('pessoasQueTeDestacaramModal');
+            
+            // Se modal não existe, recriar
+            if (!modal) {
+                console.log('🔧 Modal pessoasQueTeDestacaramModal não encontrado, recriando...');
+                modal = document.createElement('div');
+                modal.id = 'pessoasQueTeDestacaramModal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.onclick = () => closeModal();
+                
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h2>👥 Pessoas que te Destacaram</h2>
+                            <button class="close-btn" onclick="closeModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="modalPessoasQueTeDestacaramContent">
+                                <p style="text-align: center; color: #666;">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                console.log('✅ Modal pessoasQueTeDestacaramModal recriado');
+            }
+            
+            modal.style.display = 'flex';
+            addModalToStack('pessoasQueTeDestacaramModal', closePessoasQueTeDestacaramModal);
+            loadPessoasQueTeDestacaramInModal();
+        }
+
+        function closePessoasQueTeDestacaramModal() {
             const modal = document.getElementById('pessoasQueTeDestacaramModal');
             if (modal) {
-                modal.style.display = 'flex';
-                loadPessoasQueTeDestacaramInModal();
+                modal.style.display = 'none';
+                removeModalFromStack('pessoasQueTeDestacaramModal');
             }
         }
 
@@ -10166,15 +11155,18 @@
             }
         }
 
-        async function loadHolofotesRecebidosInModal() {
+        async function loadHolofotesRecebidosInModal(targetUserId = null) {
+            const postsContainer = document.getElementById('modalHolofotesRecebidosContent');
+            postsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><p>Carregando holofotes...</p></div>';
             try {
-                console.log('📨 Carregando holofotes recebidos no modal...');
+                const userId = targetUserId || currentUser?.id;
+                console.log('📨 Carregando holofotes recebidos no modal para usuário:', userId);
                 
-                // Recarregar posts onde o usuário atual foi mencionado
+                // Recarregar posts onde o usuário especificado foi mencionado
                 const { data: userPosts, error } = await supabase
                     .from('posts')
                     .select('*')
-                    .eq('mentioned_user_id', currentUser.id)
+                    .eq('mentioned_user_id', userId)
                     .order('created_at', { ascending: false });
                 
                 if (error) {
@@ -10183,8 +11175,6 @@
                 }
                 
                 console.log('📊 Holofotes recebidos encontrados:', userPosts?.length || 0);
-                
-                const postsContainer = document.getElementById('modalHolofotesRecebidosContent');
                 
                 if (!userPosts || userPosts.length === 0) {
                     postsContainer.innerHTML = `
@@ -10271,29 +11261,11 @@
                         'admiracao': 'Admiração', 'admiration': 'Admiração'
                     };
                     
-                    // Contar feedbacks para este post
-                    let feedbacksCount = 0;
-                    try {
-                        const { data: feedbacksData } = await supabase
-                            .from('feedbacks')
-                            .select('id')
-                            .eq('post_id', post.id);
-                        feedbacksCount = feedbacksData ? feedbacksData.length : 0;
-                    } catch (error) {
-                        console.log('Erro ao contar feedbacks:', error);
-                    }
+                    // Usar cache para feedbacks (muito mais rápido!)
+                    const feedbacksCount = (feedbacksCache.get(post.id) || []).length;
                     
-                    // Contar comentários para este post
-                    let commentsCount = 0;
-                    try {
-                        const { data: commentsData } = await supabase
-                            .from('comments')
-                            .select('id')
-                            .eq('post_id', post.id);
-                        commentsCount = commentsData ? commentsData.length : 0;
-                    } catch (error) {
-                        console.log('Erro ao contar comentários:', error);
-                    }
+                    // Usar cache para comentários (muito mais rápido!)
+                    const commentsCount = getCommentsCountFromCache(post.id);
                     
                     const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
@@ -10308,7 +11280,7 @@
                                     <div class="post-author-meta">
                                         ${(author.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                             `<span class="post-author-username">@${author.email?.split('@')[0] || 'usuario'}</span>` :
-                                            `<span class="post-author-username" onclick="openUserProfile('${author.email?.split('@')[0] || 'usuario'}')" 
+                                            `<span class="post-author-username" onclick="openUserProfileKeepingModals('${author.email?.split('@')[0] || 'usuario'}')" 
                                                   style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                                   onmouseover="this.style.color='#0056b3'"
                                                   onmouseout="this.style.color='#007bff'">
@@ -10327,7 +11299,7 @@
                                 ${post.mentioned_user_id ? `
                                     ${post.mentioned_user_id === currentUser.id ? 
                                         `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
-                                        `<span onclick="openUserProfileById('${post.mentioned_user_id}')" 
+                                        `<span onclick="openUserProfileByIdKeepingModals('${post.mentioned_user_id}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -10376,15 +11348,8 @@
                 postsContainer.innerHTML = postsHtml.join('');
                 console.log('✅ Holofotes recebidos carregados no modal');
                 
-                // Renderizar estado inicial das reações para cada post
-                for (const post of userPosts) {
-                    await updateModalReactions(post.id);
-                }
-                
-                // Atualizar contadores de comentários após carregar posts
-                setTimeout(() => {
-                    updateAllCommentsCounters();
-                }, 500);
+                // ✅ OTIMIZAÇÃO: Reações e comentários já foram processados no HTML acima
+                // Não precisamos fazer consultas individuais adicionais
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar holofotes recebidos:', error);
@@ -11027,7 +11992,7 @@
                                 username ? 
                                     (username === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
                                         `@${username}` :
-                                        `<span onclick="openUserProfile('${username}')" 
+                                        `<span onclick="openUserProfileKeepingModals('${username}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
@@ -11195,6 +12160,18 @@
                             `).join('')}
                         </div>
                     `;
+                    
+                    // Carregar dados do nível do usuário (reutilizando função existente)
+                    const levelCard = content.querySelector('.level-card');
+                    if (levelCard) {
+                        loadUserLevelData(userData.id, levelCard);
+                    }
+                    
+                    // Carregar dados de emblemas conquistados
+                    loadUserAchievementsCount(userData.id);
+                    
+                    // Verificar status de seguir
+                    checkUserFollowStatus(userData.id);
                 }
             }
             
@@ -11295,6 +12272,616 @@
             return typeNames[type] || 'Destaque';
         }
         
+        // ===== SISTEMA DE URLS DE PERFIL =====
+        
+        class ProfileRouter {
+            static currentProfileData = null;
+            
+            static showFullProfile(userId) {
+                console.log('🔄 ProfileRouter.showFullProfile chamado para userId:', userId);
+                
+                try {
+                    if (!userId || userId === 'undefined' || userId === 'null') {
+                        throw new Error('UserId inválido');
+                    }
+                    
+                    this.hideMainInterface();
+                    this.showProfileContainer();
+                    this.updateURL(userId);
+                    this.loadFullProfile(userId);
+                    
+                    console.log('✅ Perfil completo aberto para userId:', userId);
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao mostrar perfil completo:', error);
+                    this.showError('Erro ao carregar perfil: ' + error.message);
+                }
+            }
+            
+            static closeFullProfile() {
+                console.log('🔄 ProfileRouter.closeFullProfile chamado');
+                
+                try {
+                    this.showMainInterface();
+                    this.hideProfileContainer();
+                    this.clearURL();
+                    this.currentProfileData = null;
+                    
+                    console.log('✅ Perfil completo fechado');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao fechar perfil completo:', error);
+                    this.forceShowMainInterface();
+                }
+            }
+            
+            static hideMainInterface() {
+                const appContainer = document.getElementById('appContainer');
+                const navTabs = document.querySelector('.nav-tabs');
+                
+                if (appContainer) appContainer.style.display = 'none';
+                if (navTabs) navTabs.style.display = 'none';
+                console.log('✅ Interface principal escondida');
+            }
+            
+            static showMainInterface() {
+                const appContainer = document.getElementById('appContainer');
+                const navTabs = document.querySelector('.nav-tabs');
+                
+                if (appContainer) appContainer.style.display = 'block';
+                if (navTabs) navTabs.style.display = 'flex';
+                console.log('✅ Interface principal mostrada');
+            }
+            
+            static forceShowMainInterface() {
+                console.log('🔧 Forçando volta à interface principal...');
+                this.showMainInterface();
+                this.hideProfileContainer();
+                this.clearURL();
+                if (typeof showToast !== 'undefined') {
+                    showToast('Erro ao carregar perfil. Voltando à página principal.');
+                }
+            }
+            
+            static showProfileContainer() {
+                const container = document.getElementById('fullProfileContainer');
+                if (container) {
+                    container.style.display = 'block';
+                    console.log('✅ Container de perfil mostrado');
+                } else {
+                    throw new Error('Container de perfil não encontrado');
+                }
+            }
+            
+            static hideProfileContainer() {
+                const container = document.getElementById('fullProfileContainer');
+                if (container) {
+                    container.style.display = 'none';
+                    console.log('✅ Container de perfil escondido');
+                }
+            }
+            
+            static updateURL(userId) {
+                try {
+                    const url = new URL(window.location);
+                    url.searchParams.set('profile', userId);
+                    window.history.pushState({ profileId: userId }, '', url);
+                    console.log('✅ URL atualizada para:', url.toString());
+                } catch (error) {
+                    console.warn('⚠️ Erro ao atualizar URL:', error);
+                }
+            }
+            
+            static clearURL() {
+                try {
+                    const url = new URL(window.location);
+                    url.searchParams.delete('profile');
+                    window.history.pushState({}, '', url);
+                    console.log('✅ URL limpa');
+                } catch (error) {
+                    console.warn('⚠️ Erro ao limpar URL:', error);
+                }
+            }
+            
+            // Carregar dados do perfil (agora com busca inteligente por username ou ID)
+            static async loadFullProfile(userIdentifier) {
+                console.log('📊 Carregando perfil completo para:', userIdentifier);
+                
+                try {
+                    this.showLoading();
+                    
+                    // Detectar se é ID (UUID) ou username
+                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userIdentifier);
+                    
+                    let userData;
+                    if (isUUID) {
+                        // Buscar por ID usando função existente
+                        console.log('🔍 Buscando por ID:', userIdentifier);
+                        userData = await fetchUserProfileDataById(userIdentifier);
+                    } else {
+                        // Buscar por username
+                        console.log('🔍 Buscando por username:', userIdentifier);
+                        userData = await this.fetchUserDataByUsername(userIdentifier);
+                    }
+                    
+                    if (userData) {
+                        // Buscar estatísticas do usuário
+                        console.log('📊 Carregando estatísticas para:', userData.id);
+                        const stats = await fetchUserStats(userData.id);
+                        
+                        const displayName = userData.username || 
+                                          (userData.email ? userData.email.split('@')[0] : null) || 
+                                          userData.name || 'Usuário';
+                        
+                        this.showFullUserProfile(userData, stats);
+                        // Título será atualizado automaticamente pelo showFullUserProfile
+                    } else {
+                        throw new Error('Usuário não encontrado');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao carregar perfil:', error);
+                    this.showError('Usuário não encontrado ou erro ao carregar dados');
+                }
+            }
+            
+            // Buscar dados do usuário por username
+            static async fetchUserDataByUsername(username) {
+                try {
+                    // Primeiro tentar buscar por campo username
+                    let { data, error } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('username', username)
+                        .single();
+                    
+                    if (!data && !error) {
+                        // Se não encontrou, tentar buscar por email (username@domain)
+                        const { data: emailData, error: emailError } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .like('email', username + '@%')
+                            .single();
+                        
+                        data = emailData;
+                        error = emailError;
+                    }
+                    
+                    if (error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
+                    return data;
+                } catch (error) {
+                    console.error('❌ Erro ao buscar por username:', error);
+                    return null;
+                }
+            }
+            
+            static showLoading() {
+                const content = document.getElementById('fullProfileContent');
+                if (content) {
+                    content.innerHTML = '<div style="text-align: center; padding: 3rem;"><div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div><h3>Carregando perfil...</h3></div>';
+                }
+            }
+            
+            // Mostrar perfil completo com dados reais
+            static showFullUserProfile(userData, stats) {
+                const content = document.getElementById('fullProfileContent');
+                if (content) {
+                    const displayUsername = userData.username || 
+                                          (userData.email ? userData.email.split('@')[0] : null) || 
+                                          'usuario';
+                    
+                    content.innerHTML = `
+                        <div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+                            <!-- Header do Perfil -->
+                            <div style="text-align: center; margin-bottom: 3rem;">
+                                <div style="margin-bottom: 1.5rem;">
+                                    <img src="${userData.avatar_url || ''}" 
+                                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #007bff;"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div style="
+                                        display: none;
+                                        width: 120px; 
+                                        height: 120px; 
+                                        border-radius: 50%; 
+                                        background: linear-gradient(135deg, #e55a2b, #ffb700);
+                                        align-items: center; 
+                                        justify-content: center; 
+                                        color: white; 
+                                        font-size: 48px; 
+                                        font-weight: bold;
+                                        margin: 0 auto;
+                                    ">${(userData.name || 'U').charAt(0).toUpperCase()}</div>
+                                </div>
+                                
+                                <h1 style="margin: 0 0 0.5rem 0; color: #333; font-size: 2.5rem;">${userData.name || 'Usuário'}</h1>
+                                <p style="color: #666; font-size: 1.3rem; margin: 0 0 1rem 0;">@${displayUsername}</p>
+                                
+                                <div style="color: #999; font-size: 0.9rem;">
+                                    Membro desde ${new Date(userData.created_at).toLocaleDateString('pt-BR')}
+                                </div>
+                            </div>
+                            
+                            <!-- Linha 1: Seguindo/Seguidores + Botões de Ação -->
+                            <div style="
+                                display: grid; 
+                                grid-template-columns: 1fr 1fr 1fr; 
+                                gap: 1.5rem; 
+                                margin-bottom: 2rem;
+                            ">
+                                <div onclick="openFollowingModal('${userData.id}')" style="
+                                    background: linear-gradient(135deg, #ff9800, #f57c00); 
+                                    color: white;
+                                    border-radius: 15px; 
+                                    padding: 1.5rem; 
+                                    text-align: center; 
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                    cursor: pointer;
+                                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                                " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(255,152,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'">
+                                    <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">${stats.following}</div>
+                                    <div style="font-weight: 600;">Seguindo</div>
+                                </div>
+                                
+                                <div onclick="openFollowersModal('${userData.id}')" style="
+                                    background: linear-gradient(135deg, #ff9800, #f57c00); 
+                                    color: white;
+                                    border-radius: 15px; 
+                                    padding: 1.5rem; 
+                                    text-align: center; 
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                    cursor: pointer;
+                                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                                " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(255,152,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'">
+                                    <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">${stats.followers}</div>
+                                    <div style="font-weight: 600;">Seguidores</div>
+                                </div>
+                                
+                                <!-- Botões de Ação -->
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <button id="followButton" onclick="toggleUserPageFollow('${userData.id}')" style="
+                                        background: #007bff; 
+                                        color: white; 
+                                        border: none; 
+                                        padding: 0.75rem 1rem; 
+                                        border-radius: 8px; 
+                                        cursor: pointer;
+                                        font-size: 0.9rem;
+                                        font-weight: 600;
+                                        transition: background 0.2s ease;
+                                        flex: 1;
+                                        min-width: 120px;
+                                    " onmouseover="this.style.background='#0056b3'" onmouseout="this.style.background=this.dataset.isFollowing === 'true' ? '#28a745' : '#007bff'">
+                                        <span id="followButtonText">Seguir</span>
+                                    </button>
+                                    
+                                    <button onclick="navigator.clipboard.writeText(window.location.href).then(() => showToast('Link do perfil copiado!'))" style="
+                                        background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); 
+                                        color: white; 
+                                        border: none; 
+                                        padding: 0.75rem 1rem; 
+                                        border-radius: 8px; 
+                                        cursor: pointer;
+                                        font-size: 0.9rem;
+                                        font-weight: 600;
+                                        transition: all 0.2s ease;
+                                        flex: 1;
+                                    " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                        🔗 Compartilhar
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Card de Nível -->
+                            <div class="level-card" style="
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                padding: 15px 20px;
+                                border-radius: 12px;
+                                margin-bottom: 20px;
+                                position: relative;
+                            ">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <div>
+                                        <div class="level-title" style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">Nível 1</div>
+                                        <div class="level-name" style="font-size: 14px; opacity: 0.9;">Iniciante</div>
+                                    </div>
+                                    <div style="font-size: 24px;">📢</div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span class="level-points" style="font-size: 14px;">0 pontos</span>
+                                    <span class="level-next" style="font-size: 14px;">100 para próximo nível</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; overflow: hidden;">
+                                    <div class="level-progress" style="background: white; height: 100%; width: 0%; border-radius: 3px; transition: width 0.3s ease;"></div>
+                                </div>
+                                <div class="level-ranking" style="text-align: center; margin-top: 8px; font-size: 12px; opacity: 0.9;">
+                                    Ranking: #-- de -- usuários
+                                </div>
+                            </div>
+                            
+                            <!-- Linha 3: Posts Criados | Holofotes Recebidos | Emblemas Conquistados -->
+                            <div style="
+                                display: grid; 
+                                grid-template-columns: repeat(3, 1fr); 
+                                gap: 1.5rem; 
+                                margin-bottom: 2rem;
+                            ">
+                                <div onclick="ProfileRouter.loadUserPosts('${userData.id}')" style="
+                                    border-radius: 12px; 
+                                    padding: 1.5rem; 
+                                    text-align: center; 
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                    border: 2px solid transparent;
+                                    background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box;
+                                    cursor: pointer;
+                                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'">
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e65100; margin-bottom: 0.5rem;">${stats.posts}</div>
+                                    <div style="color: #666; font-weight: 600;">Posts Criados</div>
+                                </div>
+                                
+                                <div onclick="ProfileRouter.loadUserHolofotes('${userData.id}')" style="
+                                    border-radius: 12px; 
+                                    padding: 1.5rem; 
+                                    text-align: center; 
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                    border: 2px solid transparent;
+                                    background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box;
+                                    cursor: pointer;
+                                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'">
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e65100; margin-bottom: 0.5rem;">${stats.holofotes}</div>
+                                    <div style="color: #666; font-weight: 600;">Holofotes Recebidos</div>
+                                </div>
+                                
+                                <div onclick="openUserAchievementsModal('${userData.id}')" style="
+                                    border-radius: 12px; 
+                                    padding: 1.5rem; 
+                                    text-align: center; 
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                    border: 2px solid transparent;
+                                    background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #E55A2B, #9C27B0) border-box;
+                                    cursor: pointer;
+                                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'">
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e65100; margin-bottom: 0.5rem;" id="userAchievementsCount">0</div>
+                                    <div style="color: #666; font-weight: 600;">Emblemas Conquistados</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botões de Ação -->
+                            <div style="text-align: center;">
+                                <button onclick="ProfileRouter.closeFullProfile()" style="
+                                    background: #6c757d; 
+                                    color: white; 
+                                    border: none; 
+                                    padding: 0.75rem 2rem; 
+                                    border-radius: 25px; 
+                                    cursor: pointer;
+                                    font-size: 1rem;
+                                    font-weight: 600;
+                                    margin-right: 1rem;
+                                    transition: background 0.2s ease;
+                                " onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">← Voltar para o Feed</button>
+                                
+
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Carregar dados do nível do usuário (reutilizando função existente)
+                    const levelCard = content.querySelector('.level-card');
+                    if (levelCard) {
+                        loadUserLevelData(userData.id, levelCard);
+                    }
+                    
+                    // Carregar dados de emblemas conquistados
+                    loadUserAchievementsCount(userData.id);
+                    
+                    // Verificar status de seguir
+                    checkUserFollowStatus(userData.id);
+                }
+            }
+            
+            static showPlaceholder(userIdentifier, userData = null) {
+                const content = document.getElementById('fullProfileContent');
+                if (content) {
+                    // Fallback para placeholder genérico (caso não tenha userData)
+                    content.innerHTML = '<div style="text-align: center; padding: 3rem;"><div style="font-size: 3rem; margin-bottom: 1rem;">👤</div><h2>Página de Perfil Completo</h2><p style="color: #666; margin: 1rem 0;"><strong>Identificador:</strong> ' + userIdentifier + '</p><p style="color: #666; margin: 1rem 0;">Esta é a nova página completa de perfil!<br>Carregando dados...</p><div style="margin-top: 2rem;"><button onclick="ProfileRouter.closeFullProfile()" style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: 600;">← Voltar para o Feed</button></div></div>';
+                }
+            }
+            
+            static showError(message) {
+                const content = document.getElementById('fullProfileContent');
+                if (content) {
+                    content.innerHTML = '<div style="text-align: center; padding: 3rem; color: #dc3545;"><div style="font-size: 2rem; margin-bottom: 1rem;">😕</div><h3>Ops! Algo deu errado</h3><p style="margin: 1rem 0;">' + message + '</p><button onclick="ProfileRouter.closeFullProfile()" style="background: #dc3545; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: 600;">← Voltar</button></div>';
+                }
+            }
+            
+            // Abrir modal de posts do usuário específico
+            static async loadUserPosts(userId) {
+                console.log('📝 Abrindo modal de posts do usuário:', userId);
+                
+                // Tentar abrir modal diretamente
+                let modal = document.getElementById('postsModal');
+                
+                // Se modal não existe, estamos na página de perfil - criar modal temporariamente
+                if (!modal) {
+                    console.log('📝 Modal não encontrado na página de perfil, usando modal temporário...');
+                    
+                    // Criar modal temporário para a página de perfil (cópia exata do original)
+                    modal = document.createElement('div');
+                    modal.id = 'tempPostsModal';
+                    modal.className = 'modal-overlay';
+                    modal.style.cssText = 'display: flex; z-index: 10001;'; // z-index maior que página de perfil (10000)
+                    
+                    modal.innerHTML = `
+                        <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <h2>📝 Posts</h2>
+                                <button class="close-btn" onclick="document.getElementById('tempPostsModal').remove()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalPostsContent" style="max-height: 400px; overflow-y: auto;">
+                                    <!-- Posts serão carregados aqui -->
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Fechar modal ao clicar no fundo
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                }
+                
+                // Modal existe, abrir diretamente
+                await this.openPostsModalDirect(modal, userId);
+            }
+            
+            static async openPostsModalDirect(modal, userId) {
+                // Personalizar título baseado no usuário
+                const modalHeader = modal.querySelector('.modal-header h2');
+                if (modalHeader) {
+                    if (userId === currentUser?.id) {
+                        modalHeader.textContent = '📝 Seus Posts';
+                    } else {
+                        // Buscar dados do usuário para pegar o username
+                        try {
+                            const { data: userData } = await supabase
+                                .from('profiles')
+                                .select('email')
+                                .eq('id', userId)
+                                .single();
+                            
+                            const username = userData?.email?.split('@')[0] || 'usuario';
+                            modalHeader.textContent = `📝 Posts de @${username}`;
+                        } catch (error) {
+                            modalHeader.textContent = '📝 Posts do Usuário';
+                        }
+                    }
+                }
+                
+                modal.style.display = 'flex';
+                
+                // Usar função original com parâmetro
+                await window.loadPostsInModal(userId);
+            }
+            
+            // Abrir modal de holofotes do usuário específico
+            static async loadUserHolofotes(userId) {
+                console.log('🎯 Abrindo modal de holofotes do usuário:', userId);
+                
+                // Tentar abrir modal diretamente
+                let modal = document.getElementById('holofotesRecebidosModal');
+                
+                // Se modal não existe, estamos na página de perfil - criar modal temporariamente
+                if (!modal) {
+                    console.log('🎯 Modal não encontrado na página de perfil, usando modal temporário...');
+                    
+                    // Criar modal temporário para a página de perfil (cópia exata do original)
+                    modal = document.createElement('div');
+                    modal.id = 'tempHolofotesModal';
+                    modal.className = 'modal-overlay';
+                    modal.style.cssText = 'display: flex; z-index: 10001;'; // z-index maior que página de perfil (10000)
+                    
+                    modal.innerHTML = `
+                        <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <h2><img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
+                                <button class="close-btn" onclick="document.getElementById('tempHolofotesModal').remove()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalHolofotesRecebidosContent">
+                                    <p style="text-align: center; color: #666;">Carregando...</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Fechar modal ao clicar no fundo
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                }
+                
+                // Modal existe, abrir diretamente
+                await this.openHolofotesModalDirect(modal, userId);
+            }
+            
+            static async openHolofotesModalDirect(modal, userId) {
+                // Personalizar título baseado no usuário
+                const modalHeader = modal.querySelector('.modal-header h2');
+                if (modalHeader) {
+                    if (userId === currentUser?.id) {
+                        modalHeader.innerHTML = '<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos';
+                    } else {
+                        // Buscar dados do usuário para pegar o username
+                        try {
+                            const { data: userData } = await supabase
+                                .from('profiles')
+                                .select('email')
+                                .eq('id', userId)
+                                .single();
+                            
+                            const username = userData?.email?.split('@')[0] || 'usuario';
+                            modalHeader.innerHTML = `<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes para @${username}`;
+                        } catch (error) {
+                            modalHeader.innerHTML = '<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos';
+                        }
+                    }
+                }
+                
+                modal.style.display = 'flex';
+                
+                // Usar função original com parâmetro
+                await window.loadHolofotesRecebidosInModal(userId);
+            }
+            
+            // Verificar URL inicial ao carregar a página
+            static checkInitialURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const profileParam = urlParams.get('profile');
+                
+                if (profileParam) {
+                    console.log('🔍 Parâmetro profile encontrado na URL:', profileParam);
+                    // Abrir perfil automaticamente
+                    this.showFullProfile(profileParam);
+                } else {
+                    console.log('ℹ️ Nenhum parâmetro profile na URL');
+                }
+            }
+            
+        }
+        
+        // Event listeners para ProfileRouter
+        window.addEventListener('popstate', function(event) {
+            console.log('🔄 Evento popstate detectado:', event.state);
+            try {
+                if (event.state && event.state.profileId) {
+                    ProfileRouter.showFullProfile(event.state.profileId);
+                } else {
+                    ProfileRouter.closeFullProfile();
+                }
+            } catch (error) {
+                console.error('❌ Erro no popstate:', error);
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                ProfileRouter.checkInitialURL();
+            }, 2000);
+        });
+
         console.log('✅ HoloSpot v8 carregado com sucesso!');
     </script>
 
@@ -11399,6 +12986,50 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Função específica para toggle follow na página do usuário
+        async function toggleUserPageFollow(userId) {
+            const followButton = document.getElementById('followButton');
+            const followButtonText = document.getElementById('followButtonText');
+            
+            if (!followButton || !followButtonText) return;
+            
+            // Mostrar estado de carregamento
+            followButtonText.textContent = 'Processando...';
+            followButton.disabled = true;
+            
+            try {
+                // Chamar função original que faz a ação no banco
+                await toggleFollow(userId);
+                
+                // Recarregar dados da página (igual como funciona na aba Perfil)
+                // Buscar dados atualizados do usuário
+                const { data: userData, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+                
+                if (userData && !error) {
+                    // Recarregar a página do usuário com dados atualizados
+                    ProfileRouter.showFullProfile(userData.id);
+                } else {
+                    // Se não conseguir recarregar, pelo menos atualizar o botão
+                    const isNowFollowing = following.some(f => f.following_id === userId);
+                    followButtonText.textContent = isNowFollowing ? 'Seguindo' : 'Seguir';
+                    followButton.style.background = isNowFollowing ? '#28a745' : '#007bff';
+                    followButton.dataset.isFollowing = isNowFollowing.toString();
+                }
+                
+            } catch (error) {
+                console.error('Erro ao seguir/desseguir:', error);
+                showToast('Erro ao atualizar. Tente novamente.');
+            } finally {
+                followButton.disabled = false;
+            }
+        }
+    </script>
 
 </body>
 </html>
