@@ -13205,35 +13205,20 @@
             }
         }
 
-        // Função para compartilhar posts
+        // Função para compartilhar posts (copiar link)
         function sharePost(postId) {
             try {
-                console.log('🔗 Compartilhando post:', postId);
+                console.log('🔗 Copiando link do post:', postId);
                 
                 // Gerar URL compartilhável
                 const shareURL = `${window.location.origin}${window.location.pathname}?post=${postId}`;
                 
-                // Tentar usar Web Share API se disponível (mobile)
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'HoloSpot - Post',
-                        text: 'Confira este post no HoloSpot!',
-                        url: shareURL
-                    }).then(() => {
-                        console.log('✅ Post compartilhado via Web Share API');
-                    }).catch((error) => {
-                        console.log('ℹ️ Compartilhamento cancelado:', error);
-                        // Fallback para clipboard
-                        copyToClipboard(shareURL);
-                    });
-                } else {
-                    // Fallback para clipboard
-                    copyToClipboard(shareURL);
-                }
+                // Copiar para clipboard
+                copyToClipboard(shareURL);
                 
             } catch (error) {
-                console.error('❌ Erro ao compartilhar post:', error);
-                alert('Erro ao compartilhar post. Tente novamente.');
+                console.error('❌ Erro ao copiar link do post:', error);
+                alert('Erro ao copiar link do post. Tente novamente.');
             }
         }
 
