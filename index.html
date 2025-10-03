@@ -2314,6 +2314,29 @@
                 padding-top: 1.5rem;
             }
         }
+
+        /* Animações para toast de compartilhamento */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -5611,6 +5634,9 @@
                                 💬 ${post.comments_count || 0}
                             </span>
                             ${feedbackButton}
+                            <span class="share-display" style="display: flex; align-items: center; gap: 6px; padding: 12px 18px; background: #f5f5f5; color: #666; border-radius: 25px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.2s ease;" onclick="sharePost('${post.id}')" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.background='#e65100'; this.style.color='white';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'; this.style.background='#f5f5f5'; this.style.color='#666';">
+                                🔗 Compartilhar
+                            </span>
                         </div>
                     </div>
                 `;
@@ -13177,6 +13203,110 @@
                     return 'public';
                 }
             }
+        }
+
+        // Função para compartilhar posts
+        function sharePost(postId) {
+            try {
+                console.log('🔗 Compartilhando post:', postId);
+                
+                // Gerar URL compartilhável
+                const shareURL = `${window.location.origin}${window.location.pathname}?post=${postId}`;
+                
+                // Tentar usar Web Share API se disponível (mobile)
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'HoloSpot - Post',
+                        text: 'Confira este post no HoloSpot!',
+                        url: shareURL
+                    }).then(() => {
+                        console.log('✅ Post compartilhado via Web Share API');
+                    }).catch((error) => {
+                        console.log('ℹ️ Compartilhamento cancelado:', error);
+                        // Fallback para clipboard
+                        copyToClipboard(shareURL);
+                    });
+                } else {
+                    // Fallback para clipboard
+                    copyToClipboard(shareURL);
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao compartilhar post:', error);
+                alert('Erro ao compartilhar post. Tente novamente.');
+            }
+        }
+
+        // Função auxiliar para copiar para clipboard
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('✅ URL copiada para clipboard');
+                    showShareSuccess('Link copiado para a área de transferência!');
+                }).catch((error) => {
+                    console.error('❌ Erro ao copiar para clipboard:', error);
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        // Fallback para navegadores mais antigos
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                console.log('✅ URL copiada via fallback');
+                showShareSuccess('Link copiado para a área de transferência!');
+            } catch (error) {
+                console.error('❌ Erro no fallback de cópia:', error);
+                showShareSuccess(`Link do post: ${text}`);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Mostrar feedback de sucesso
+        function showShareSuccess(message) {
+            // Criar toast de sucesso
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #e65100, #ff8a50);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 25px;
+                    box-shadow: 0 4px 12px rgba(230, 81, 0, 0.3);
+                    z-index: 10002;
+                    font-weight: 600;
+                    animation: slideIn 0.3s ease;
+                ">
+                    ✅ ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
             
             static showError(message) {
                 const content = document.getElementById('singlePostPageContent');
