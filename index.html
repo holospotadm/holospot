@@ -13012,17 +13012,125 @@
                 }
             }
             
-            static loadPostContent(postId) {
+            static async loadPostContent(postId) {
                 console.log('🔄 Carregando conteúdo do post:', postId);
                 
-                // Placeholder para próxima etapa - reutilizar lógica do modal
+                try {
+                    // Reutilizar função existente para buscar dados do post
+                    const postData = await fetchPostDetails(postId);
+                    
+                    if (!postData) {
+                        console.error('❌ Post não encontrado:', postId);
+                        this.showPostNotFound();
+                        return;
+                    }
+                    
+                    // Determinar tipo de modal (reutilizar lógica existente)
+                    const modalType = determineModalType(postData);
+                    
+                    // Renderizar conteúdo na página usando a mesma lógica do modal
+                    this.renderPostInPage(postData, modalType);
+                    
+                    console.log('✅ Conteúdo do post carregado com sucesso');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao carregar conteúdo do post:', error);
+                    this.showPostError();
+                }
+            }
+            
+            static renderPostInPage(postData, modalType) {
+                const content = document.getElementById('singlePostPageContent');
+                if (!content) return;
+                
+                // Criar um container temporário que simula o modal para reutilizar renderSinglePost
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = '<div id="singlePostContent"></div>';
+                
+                // Reutilizar a função renderSinglePost existente
+                renderSinglePost(postData, tempContainer, modalType);
+                
+                // Transferir o conteúdo renderizado para a página
+                const renderedContent = tempContainer.querySelector('#singlePostContent').innerHTML;
+                
+                // Adicionar botão de voltar ao feed no topo
+                content.innerHTML = `
+                    <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0;">
+                        <button onclick="PostRouter.closeSinglePostPage()" style="
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            color: white;
+                            border: none;
+                            padding: 0.75rem 1.5rem;
+                            border-radius: 25px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            font-size: 0.9rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                        " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                            ← Voltar para o Feed
+                        </button>
+                    </div>
+                    ${renderedContent}
+                `;
+                
+                console.log('✅ Post renderizado na página');
+            }
+            
+            static showPostNotFound() {
                 const content = document.getElementById('singlePostPageContent');
                 if (content) {
                     content.innerHTML = `
-                        <div style="text-align: center; padding: 2rem;">
-                            <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
-                            <h2>Post ${postId}</h2>
-                            <p>Conteúdo será carregado na próxima etapa...</p>
+                        <div style="text-align: center; padding: 3rem;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">😕</div>
+                            <h2 style="color: #666; margin-bottom: 1rem;">Post não encontrado</h2>
+                            <p style="color: #999; margin-bottom: 2rem;">O post que você está procurando pode ter sido removido ou não existe.</p>
+                            <button onclick="PostRouter.closeSinglePostPage()" style="
+                                background: linear-gradient(135deg, #667eea, #764ba2);
+                                color: white;
+                                border: none;
+                                padding: 0.75rem 1.5rem;
+                                border-radius: 25px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                            ">← Voltar para o Feed</button>
+                        </div>
+                    `;
+                }
+            }
+            
+            static showPostError() {
+                const content = document.getElementById('singlePostPageContent');
+                if (content) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 3rem;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+                            <h2 style="color: #666; margin-bottom: 1rem;">Erro ao carregar post</h2>
+                            <p style="color: #999; margin-bottom: 2rem;">Ocorreu um erro ao carregar o post. Tente novamente.</p>
+                            <div style="display: flex; gap: 1rem; justify-content: center;">
+                                <button onclick="PostRouter.closeSinglePostPage()" style="
+                                    background: #6c757d;
+                                    color: white;
+                                    border: none;
+                                    padding: 0.75rem 1.5rem;
+                                    border-radius: 25px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">← Voltar para o Feed</button>
+                                <button onclick="location.reload()" style="
+                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                    color: white;
+                                    border: none;
+                                    padding: 0.75rem 1.5rem;
+                                    border-radius: 25px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">🔄 Tentar Novamente</button>
+                            </div>
                         </div>
                     `;
                 }
