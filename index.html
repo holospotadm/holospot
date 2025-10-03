@@ -12948,6 +12948,163 @@
             }
             
         }
+
+        // Classe PostRouter para gerenciar páginas únicas de posts
+        class PostRouter {
+            static currentPostData = null;
+            
+            static showSinglePostPage(postId) {
+                console.log('🔄 PostRouter.showSinglePostPage chamado para postId:', postId);
+                
+                try {
+                    if (!postId || postId === 'undefined' || postId === 'null') {
+                        throw new Error('PostId inválido');
+                    }
+                    
+                    this.hideMainInterface();
+                    this.showPostContainer();
+                    this.updateURL(postId);
+                    this.loadPostContent(postId);
+                    
+                    console.log('✅ Página única de post aberta para postId:', postId);
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao mostrar página única de post:', error);
+                    this.showError('Erro ao carregar post: ' + error.message);
+                }
+            }
+            
+            static closeSinglePostPage() {
+                console.log('🔄 PostRouter.closeSinglePostPage chamado');
+                
+                try {
+                    this.showMainInterface();
+                    this.hidePostContainer();
+                    this.clearURL();
+                    this.currentPostData = null;
+                    
+                    console.log('✅ Página única de post fechada');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao fechar página única de post:', error);
+                    this.forceShowMainInterface();
+                }
+            }
+            
+            static hideMainInterface() {
+                const appContainer = document.getElementById('appContainer');
+                const navTabs = document.querySelector('.nav-tabs');
+                
+                if (appContainer) appContainer.style.display = 'none';
+                if (navTabs) navTabs.style.display = 'none';
+                console.log('✅ Interface principal escondida');
+            }
+            
+            static showMainInterface() {
+                const appContainer = document.getElementById('appContainer');
+                const navTabs = document.querySelector('.nav-tabs');
+                
+                if (appContainer) appContainer.style.display = 'block';
+                if (navTabs) navTabs.style.display = 'flex';
+                console.log('✅ Interface principal mostrada');
+            }
+            
+            static forceShowMainInterface() {
+                this.showMainInterface();
+                this.hidePostContainer();
+                this.clearURL();
+                console.log('🔧 Interface principal forçada a aparecer');
+            }
+            
+            static showPostContainer() {
+                const container = document.getElementById('singlePostPageContainer');
+                if (container) {
+                    container.style.display = 'block';
+                    console.log('✅ Container de post mostrado');
+                }
+            }
+            
+            static hidePostContainer() {
+                const container = document.getElementById('singlePostPageContainer');
+                if (container) {
+                    container.style.display = 'none';
+                    console.log('✅ Container de post escondido');
+                }
+            }
+            
+            static updateURL(postId) {
+                const newURL = `${window.location.origin}${window.location.pathname}?post=${postId}`;
+                window.history.pushState({ postId }, '', newURL);
+                console.log('🔗 URL atualizada para:', newURL);
+            }
+            
+            static clearURL() {
+                const newURL = `${window.location.origin}${window.location.pathname}`;
+                window.history.pushState({}, '', newURL);
+                console.log('🔗 URL limpa para:', newURL);
+            }
+            
+            static loadPostContent(postId) {
+                const content = document.getElementById('singlePostPageContent');
+                if (content) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 3rem;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
+                            <h3>Carregando post...</h3>
+                            <p style="color: #666; margin: 1rem 0;">Post ID: ${postId}</p>
+                            <button onclick="PostRouter.closeSinglePostPage()" style="
+                                background: #e65100; 
+                                color: white; 
+                                border: none; 
+                                padding: 0.75rem 1.5rem; 
+                                border-radius: 25px; 
+                                cursor: pointer; 
+                                font-size: 1rem; 
+                                font-weight: 600;
+                                margin-top: 1rem;
+                            ">← Voltar para o Feed</button>
+                        </div>
+                    `;
+                }
+            }
+            
+            static showError(message) {
+                const content = document.getElementById('singlePostPageContent');
+                if (content) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #dc3545;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">😕</div>
+                            <h3>Ops! Algo deu errado</h3>
+                            <p style="margin: 1rem 0;">${message}</p>
+                            <button onclick="PostRouter.closeSinglePostPage()" style="
+                                background: #dc3545; 
+                                color: white; 
+                                border: none; 
+                                padding: 0.75rem 1.5rem; 
+                                border-radius: 25px; 
+                                cursor: pointer; 
+                                font-size: 1rem; 
+                                font-weight: 600;
+                            ">← Voltar para o Feed</button>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Verificar URL inicial ao carregar a página
+            static checkInitialURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const postParam = urlParams.get('post');
+                
+                if (postParam) {
+                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
+                    // Abrir post automaticamente
+                    this.showSinglePostPage(postParam);
+                } else {
+                    console.log('ℹ️ Nenhum parâmetro post na URL');
+                }
+            }
+        }
         
         // Event listeners para ProfileRouter
         window.addEventListener('popstate', function(event) {
@@ -12963,9 +13120,29 @@
             }
         });
         
+        // Event listeners para PostRouter
+        window.addEventListener('popstate', function(event) {
+            console.log('🔄 Evento popstate detectado para PostRouter:', event.state);
+            try {
+                if (event.state && event.state.postId) {
+                    PostRouter.showSinglePostPage(event.state.postId);
+                } else if (event.state && event.state.profileId) {
+                    // Manter funcionalidade do ProfileRouter
+                    ProfileRouter.showFullProfile(event.state.profileId);
+                } else {
+                    // Fechar ambos se não há parâmetros
+                    PostRouter.closeSinglePostPage();
+                    ProfileRouter.closeFullProfile();
+                }
+            } catch (error) {
+                console.error('❌ Erro no popstate:', error);
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 ProfileRouter.checkInitialURL();
+                PostRouter.checkInitialURL();
             }, 2000);
         });
 
