@@ -13143,8 +13143,8 @@
                         </div>
                     `;
                     
-                    // Buscar dados do post de forma otimizada
-                    const postData = await this.fetchPostDataOptimized(postId);
+                    // Buscar dados do post usando função original que funciona
+                    const postData = await fetchPostDetails(postId);
                     
                     if (!postData) {
                         throw new Error('Post não encontrado');
