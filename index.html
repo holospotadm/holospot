@@ -4554,7 +4554,27 @@
                     const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
                     const postHtml = `
-                        <div class="post">
+                        <div class="post" style="position: relative;">
+                            <button class="share-btn" onclick="sharePost('${post.id}')" style="
+                                position: absolute;
+                                top: 1rem;
+                                right: 1rem;
+                                background: rgba(255, 255, 255, 0.9);
+                                border: 1px solid #ddd;
+                                border-radius: 50%;
+                                width: 36px;
+                                height: 36px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                cursor: pointer;
+                                font-size: 16px;
+                                transition: all 0.2s ease;
+                                z-index: 10;
+                                backdrop-filter: blur(5px);
+                            " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
+                                🔗
+                            </button>
                             <div class="post-header">
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                                 <div class="post-author">
@@ -5564,7 +5584,7 @@
                 const feedbackButton = feedbackData.feedbackButtonHtml;
                 
                 const postHtml = `
-                    <div class="post">
+                    <div class="post" style="position: relative;">
                         <div class="post-header">
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
@@ -5585,7 +5605,9 @@
                                     <span class="post-time">${formatDateShort(post.created_at)}</span>
                                 </div>
                             </div>
-
+                            <div class="post-share-btn" style="position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; padding: 8px; border-radius: 50%; background: rgba(255,255,255,0.9); transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="sharePost('${post.id}')" onmouseover="this.style.background='#e65100'; this.style.color='white'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255,255,255,0.9)'; this.style.color='#666'; this.style.transform='scale(1)';">
+                                🔗
+                            </div>
                         </div>
                         
                         <div class="post-content">
@@ -5614,6 +5636,8 @@
                         
                         ${feedbacksSection}
                         
+                        ${feedbackButton ? `<div class="feedback-button-container" style="margin-top: 1rem;">${feedbackButton}</div>` : ''}
+                        
                         <div class="post-reactions">
                             <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
                                     ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'touched')"`}>
@@ -5632,10 +5656,6 @@
                         <div class="post-footer">
                             <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 6px; padding: 12px 18px; background: #f5f5f5; color: #666; border-radius: 25px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onclick="openCommentsModal('${post.id}')" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
                                 💬 ${post.comments_count || 0}
-                            </span>
-                            ${feedbackButton}
-                            <span class="share-display" style="display: flex; align-items: center; gap: 6px; padding: 12px 18px; background: #f5f5f5; color: #666; border-radius: 25px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.2s ease;" onclick="sharePost('${post.id}')" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.background='#e65100'; this.style.color='white';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'; this.style.background='#f5f5f5'; this.style.color='#666';">
-                                🔗 Compartilhar
                             </span>
                         </div>
                     </div>
@@ -7262,7 +7282,27 @@
             const userInspired = userReactions.some(r => r.type === 'inspired');
             
             container.innerHTML = `
-                <div class="post" style="margin: 0; border: none; box-shadow: none;">
+                <div class="post" style="margin: 0; border: none; box-shadow: none; position: relative;">
+                    <button class="share-btn" onclick="sharePost('${postData.id}')" style="
+                        position: absolute;
+                        top: 1rem;
+                        right: 1rem;
+                        background: rgba(255, 255, 255, 0.9);
+                        border: 1px solid #ddd;
+                        border-radius: 50%;
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        font-size: 16px;
+                        transition: all 0.2s ease;
+                        z-index: 10;
+                        backdrop-filter: blur(5px);
+                    " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
+                        🔗
+                    </button>
                     <div class="post-header" style="padding: 1.5rem 1.5rem 0 1.5rem; position: relative;">
                         <img class="post-avatar" src="${authorAvatar}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                         <div class="post-author" style="flex: 1;">
@@ -11435,29 +11475,49 @@
                     
                     const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
-                    const postHtml = `
-                        <div class="post">
-                            <div class="post-header">
-                                <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
-                                <div class="post-author">
-                                    <div class="post-author-name">
+                const postHtml = `
+                    <div class="post" style="position: relative;">
+                        <button class="share-btn" onclick="sharePost('${post.id}')" style="
+                            position: absolute;
+                            top: 1rem;
+                            right: 1rem;
+                            background: rgba(255, 255, 255, 0.9);
+                            border: 1px solid #ddd;
+                            border-radius: 50%;
+                            width: 36px;
+                            height: 36px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            font-size: 16px;
+                            transition: all 0.2s ease;
+                            z-index: 10;
+                            backdrop-filter: blur(5px);
+                        " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
+                            🔗
+                        </button>
+                        <div class="post-header">
+                            <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
+                            <div class="post-author">
+                                <div class="post-author-name">
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
-                                    <div class="post-author-meta">
-                                        ${(author.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
-                                            `<span class="post-author-username">@${author.email?.split('@')[0] || 'usuario'}</span>` :
-                                            `<span class="post-author-username" onclick="openUserProfileKeepingModals('${author.email?.split('@')[0] || 'usuario'}')" 
-                                                  style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                                  onmouseover="this.style.color='#0056b3'"
-                                                  onmouseout="this.style.color='#007bff'">
-                                                @${author.email?.split('@')[0] || 'usuario'}
-                                            </span>`
-                                        }
-                                        <span class="post-time-separator">•</span>
-                                        <span class="post-time">${formatDateShort(post.created_at)}</span>
-                                    </div>
+                                <div class="post-author-meta">
+                                    ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
+                                        `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
+                                        `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                              onmouseover="this.style.color='#0056b3'"
+                                              onmouseout="this.style.color='#007bff'">
+                                            @${post.user_data?.email?.split('@')[0] || 'usuario'}
+                                        </span>`
+                                    }
+                                    <span class="post-time-separator">•</span>
+                                    <span class="post-time">${formatDateShort(post.created_at)}</span>
                                 </div>
                             </div>
+                        </div>
                             
                             <div class="post-content">
                                 <div class="post-person">
