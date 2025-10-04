@@ -13129,37 +13129,34 @@
                 if (!content) return;
                 
                 try {
+                    // Verificar cache primeiro
+                    if (this.currentPostData && this.currentPostData.id === postId) {
+                        console.log('📋 Usando post do cache');
+                        this.renderCachedPost();
+                        return;
+                    }
+                    
                     // Mostrar loading
                     content.innerHTML = `
                         <div style="text-align: center; padding: 3rem;">
                             <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
                             <h3>Carregando post...</h3>
-                            <p style="color: #666; margin: 1rem 0;">Post ID: ${postId}</p>
+                            <p style="color: #666; margin: 1rem 0;">Aguarde um momento...</p>
                         </div>
                     `;
                     
-                    // Reutilizar função existente para buscar dados do post
-                    const postData = await fetchPostDetails(postId);
+                    // Buscar dados do post de forma otimizada
+                    const postData = await this.fetchPostDataOptimized(postId);
                     
                     if (!postData) {
                         throw new Error('Post não encontrado');
                     }
                     
-                    // Criar mock de modal para reutilizar renderSinglePost
-                    const mockModal = {
-                        querySelector: (selector) => {
-                            if (selector === '#singlePostContent') {
-                                return content;
-                            }
-                            return null;
-                        }
-                    };
+                    // Salvar no cache
+                    this.currentPostData = postData;
                     
-                    // Determinar tipo de modal (mesmo padrão do sistema existente)
-                    const modalType = this.determineModalType(postData);
-                    
-                    // Reutilizar função existente para renderizar o post
-                    renderSinglePost(postData, mockModal, modalType);
+                    // Renderizar post
+                    this.renderPostContent(postData);
                     
                     // Adicionar botão voltar no topo
                     const backButton = document.createElement('div');
@@ -13226,6 +13223,90 @@
                         </div>
                     `;
                 }
+            }
+
+            // Função otimizada para buscar dados do post (reduz requests)
+            static async fetchPostDataOptimized(postId) {
+                try {
+                    console.log('🚀 Buscando post otimizado:', postId);
+                    
+                    // Uma única query com joins para reduzir requests
+                    const { data: postData, error } = await supabase
+                        .from('posts')
+                        .select(`
+                            *,
+                            user_data:profiles!posts_user_id_fkey(id, username, avatar_url, name),
+                            mentioned_user_data:profiles!posts_mentioned_user_id_fkey(id, username, avatar_url, name),
+                            reactions(*),
+                            comments(*),
+                            feedbacks(*)
+                        `)
+                        .eq('id', postId)
+                        .single();
+                    
+                    if (error) {
+                        console.error('❌ Erro ao buscar post otimizado:', error);
+                        return null;
+                    }
+                    
+                    console.log('✅ Post carregado com 1 request otimizado');
+                    return postData;
+                    
+                } catch (error) {
+                    console.error('❌ Erro na busca otimizada:', error);
+                    return null;
+                }
+            }
+
+            // Renderizar post do cache
+            static renderCachedPost() {
+                if (this.currentPostData) {
+                    this.renderPostContent(this.currentPostData);
+                }
+            }
+
+            // Renderizar conteúdo do post
+            static renderPostContent(postData) {
+                const content = document.getElementById('singlePostPageContent');
+                if (!content) return;
+                
+                // Criar mock de modal para reutilizar renderSinglePost
+                const mockModal = {
+                    querySelector: (selector) => {
+                        if (selector === '#singlePostContent') {
+                            return content;
+                        }
+                        return null;
+                    }
+                };
+                
+                // Determinar tipo de modal
+                const modalType = this.determineModalType(postData);
+                
+                // Reutilizar função existente
+                renderSinglePost(postData, mockModal, modalType);
+                
+                // Adicionar botão voltar no topo
+                const backButton = document.createElement('div');
+                backButton.innerHTML = `
+                    <button onclick="PostRouter.closeSinglePostPage()" style="
+                        background: linear-gradient(135deg, #ff6b35, #f7931e);
+                        color: white;
+                        border: none;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        margin-bottom: 1.5rem;
+                        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 53, 0.4)'"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.3)'">
+                        ← Voltar para o Feed
+                    </button>
+                `;
+                content.insertBefore(backButton, content.firstChild);
             }
 
             // Verificar URL inicial ao carregar a página
