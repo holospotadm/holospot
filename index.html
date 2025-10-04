@@ -12856,8 +12856,9 @@
                     content.innerHTML = '<div style="text-align: center; padding: 3rem;"><div style="font-size: 3rem; margin-bottom: 1rem;">👤</div><h2>Página de Perfil Completo</h2><p style="color: #666; margin: 1rem 0;"><strong>Identificador:</strong> ' + userIdentifier + '</p><p style="color: #666; margin: 1rem 0;">Esta é a nova página completa de perfil!<br>Carregando dados...</p><div style="margin-top: 2rem;"><button onclick="ProfileRouter.closeFullProfile()" style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: 600;">← Voltar para o Feed</button></div></div>';
                 }
             }
-            
-            static showError(message) {
+
+        // Função showError movida para dentro da classe PostRouter
+        static showError(message) {
                 const content = document.getElementById('fullProfileContent');
                 if (content) {
                     content.innerHTML = '<div style="text-align: center; padding: 3rem; color: #dc3545;"><div style="font-size: 2rem; margin-bottom: 1rem;">😕</div><h3>Ops! Algo deu errado</h3><p style="margin: 1rem 0;">' + message + '</p><button onclick="ProfileRouter.closeFullProfile()" style="background: #dc3545; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: 600;">← Voltar</button></div>';
@@ -13203,6 +13204,29 @@
                     return 'public';
                 }
             }
+
+            static showError(message) {
+                const content = document.getElementById('singlePostPageContent');
+                if (content) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #dc3545;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">😕</div>
+                            <h3>Ops! Algo deu errado</h3>
+                            <p style="margin: 1rem 0;">${message}</p>
+                            <button onclick="PostRouter.closeSinglePostPage()" style="
+                                background: #dc3545; 
+                                color: white; 
+                                border: none; 
+                                padding: 0.75rem 1.5rem; 
+                                border-radius: 25px; 
+                                cursor: pointer; 
+                                font-size: 1rem; 
+                                font-weight: 600;
+                            ">← Voltar</button>
+                        </div>
+                    `;
+                }
+            }
         }
 
         // Função para compartilhar posts (copiar link)
@@ -13292,30 +13316,7 @@
                 }, 300);
             }, 3000);
         }
-            
-            static showError(message) {
-                const content = document.getElementById('singlePostPageContent');
-                if (content) {
-                    content.innerHTML = `
-                        <div style="text-align: center; padding: 3rem; color: #dc3545;">
-                            <div style="font-size: 2rem; margin-bottom: 1rem;">😕</div>
-                            <h3>Ops! Algo deu errado</h3>
-                            <p style="margin: 1rem 0;">${message}</p>
-                            <button onclick="PostRouter.closeSinglePostPage()" style="
-                                background: #dc3545; 
-                                color: white; 
-                                border: none; 
-                                padding: 0.75rem 1.5rem; 
-                                border-radius: 25px; 
-                                cursor: pointer; 
-                                font-size: 1rem; 
-                                font-weight: 600;
-                            ">← Voltar para o Feed</button>
-                        </div>
-                    `;
-                }
-            }
-            
+
             // Verificar URL inicial ao carregar a página
             static checkInitialURL() {
                 const urlParams = new URLSearchParams(window.location.search);
