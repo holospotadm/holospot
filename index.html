@@ -3369,22 +3369,6 @@
                     mainLogo.style.transform = 'scale(1)';
                 }
             }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
-                }
-            }
         }
 
         function showLogin() {
@@ -3759,22 +3743,6 @@
                     `;
                 }
             }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
-                }
-            }
         }
 
         async function calculateBadgeProgress(userId, allBadges, earnedBadges) {
@@ -4018,22 +3986,6 @@
                     checkUserFollowStatus(userData.id);
                 }
             }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
-                }
-            }
         }
 
         // Preencher interface com dados de gamificação
@@ -4129,22 +4081,6 @@
                 console.log('⚠️ Nenhuma atividade recente encontrada');
                 if (recentActivity) {
                     recentActivity.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Nenhuma atividade recente</div>';
-                }
-            }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
                 }
             }
         }
@@ -6032,22 +5968,6 @@
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
-                }
-            }
         }
 
         async function toggleReaction(postId, type) {
@@ -7074,22 +6994,6 @@
                     markAllBtn.disabled = false;
                     const unreadCount = notifications.filter(n => !n.read).length;
                     markAllBtn.textContent = `Marcar todas como lidas (${unreadCount})`;
-                }
-            }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
                 }
             }
         }
@@ -10111,22 +10015,6 @@
                     followButton.disabled = false;
                     const isFollowing = followButton.dataset.isFollowing === 'true';
                     followButtonText.textContent = isFollowing ? 'Seguindo' : 'Seguir';
-                }
-            }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
                 }
             }
         }
@@ -13337,22 +13225,6 @@
                             ">← Voltar</button>
                         </div>
                     `;
-                }
-            }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
-                    setTimeout(() => {
-                        PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
                 }
             }
         }
