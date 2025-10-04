@@ -7302,6 +7302,19 @@
                     " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
                         🔗
                     </button>
+                    ${modalType === 'own_post' ? `
+                        <span class="close" style="
+                            position: absolute;
+                            top: 1rem;
+                            left: 1rem;
+                            font-size: 28px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            color: #999;
+                            line-height: 1;
+                            z-index: 10;
+                        " onclick="closeSinglePostModal()">&times;</span>
+                    ` : ''}
                     <div class="post-header" style="padding: 1.5rem 1.5rem 0 1.5rem; position: relative;">
                         <img class="post-avatar" src="${authorAvatar}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                         <div class="post-author" style="flex: 1;">
@@ -7320,18 +7333,6 @@
                                 <span class="post-time">${formatDateShort(postData.created_at)}</span>
                             </div>
                         </div>
-                        ${modalType === 'own_post' ? `
-                            <span class="close" style="
-                                position: absolute;
-                                top: 1.5rem;
-                                right: 1.5rem;
-                                font-size: 28px;
-                                font-weight: bold;
-                                cursor: pointer;
-                                color: #999;
-                                line-height: 1;
-                            " onclick="closeSinglePostModal()">&times;</span>
-                        ` : ''}
                     </div>
                     
                     <div class="post-content" style="padding: 1rem 1.5rem;">
