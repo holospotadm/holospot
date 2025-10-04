@@ -12829,8 +12829,6 @@
                                     margin-right: 1rem;
                                     transition: background 0.2s ease;
                                 " onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">← Voltar para o Feed</button>
-                                
-
                             </div>
                         </div>
                     `;
@@ -13158,30 +13156,7 @@
                     // Renderizar post
                     this.renderPostContent(postData);
                     
-                    // Adicionar botão voltar no topo
-                    const backButton = document.createElement('div');
-                    backButton.innerHTML = `
-                        <button onclick="PostRouter.closeSinglePostPage()" style="
-                            background: linear-gradient(135deg, #e65100, #ff8a50); 
-                            color: white; 
-                            border: none; 
-                            padding: 0.75rem 1.5rem; 
-                            border-radius: 25px; 
-                            cursor: pointer; 
-                            font-size: 1rem; 
-                            font-weight: 600;
-                            margin-bottom: 2rem;
-                            display: block;
-                            margin-left: auto;
-                            margin-right: auto;
-                            box-shadow: 0 4px 12px rgba(230, 81, 0, 0.3);
-                            transition: all 0.3s ease;
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(230, 81, 0, 0.4)'" 
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(230, 81, 0, 0.3)'">
-                            ← Voltar para o Feed
-                        </button>
-                    `;
-                    content.insertBefore(backButton, content.firstChild);
+                    // Botão voltar será adicionado pela função renderPostContent
                     
                     console.log('✅ Post carregado com sucesso:', postId);
                     
@@ -13225,24 +13200,35 @@
                 }
             }
 
-            // Função otimizada para buscar dados do post (usa função existente)
+            // Função otimizada para buscar dados do post (reduz requests)
             static async fetchPostDataOptimized(postId) {
                 try {
-                    console.log('🚀 Buscando post (usando função existente):', postId);
+                    console.log('🚀 Buscando post otimizado:', postId);
                     
-                    // Usar função existente que já funciona
-                    const postData = await fetchPostDetails(postId);
+                    // Uma única query com joins para reduzir requests
+                    const { data: postData, error } = await supabase
+                        .from('posts')
+                        .select(`
+                            *,
+                            user_data:profiles!posts_user_id_fkey(id, username, avatar_url, name),
+                            mentioned_user_data:profiles!posts_mentioned_user_id_fkey(id, username, avatar_url, name),
+                            reactions(*),
+                            comments(*),
+                            feedbacks(*)
+                        `)
+                        .eq('id', postId)
+                        .single();
                     
-                    if (!postData) {
-                        console.error('❌ Post não encontrado');
+                    if (error) {
+                        console.error('❌ Erro ao buscar post otimizado:', error);
                         return null;
                     }
                     
-                    console.log('✅ Post carregado com sucesso');
+                    console.log('✅ Post carregado com 1 request otimizado');
                     return postData;
                     
                 } catch (error) {
-                    console.error('❌ Erro na busca do post:', error);
+                    console.error('❌ Erro na busca otimizada:', error);
                     return null;
                 }
             }
@@ -13305,10 +13291,13 @@
                 
                 if (postParam) {
                     console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Aguardar carregamento completo antes de abrir
+                    console.log('🚀 Carregando APENAS o post específico (otimizado)');
+                    
+                    // Carregar APENAS o post específico, não todos os posts
+                    // Aguardar apenas autenticação básica
                     setTimeout(() => {
                         PostRouter.showSinglePostPage(postParam);
-                    }, 1000);
+                    }, 500); // Reduzido de 1000ms para 500ms
                 } else {
                     console.log('ℹ️ Nenhum parâmetro post na URL');
                 }
