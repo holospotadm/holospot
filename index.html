@@ -13225,35 +13225,24 @@
                 }
             }
 
-            // Função otimizada para buscar dados do post (reduz requests)
+            // Função otimizada para buscar dados do post (usa função existente)
             static async fetchPostDataOptimized(postId) {
                 try {
-                    console.log('🚀 Buscando post otimizado:', postId);
+                    console.log('🚀 Buscando post (usando função existente):', postId);
                     
-                    // Uma única query com joins para reduzir requests
-                    const { data: postData, error } = await supabase
-                        .from('posts')
-                        .select(`
-                            *,
-                            user_data:profiles!posts_user_id_fkey(id, username, avatar_url, name),
-                            mentioned_user_data:profiles!posts_mentioned_user_id_fkey(id, username, avatar_url, name),
-                            reactions(*),
-                            comments(*),
-                            feedbacks(*)
-                        `)
-                        .eq('id', postId)
-                        .single();
+                    // Usar função existente que já funciona
+                    const postData = await fetchPostDetails(postId);
                     
-                    if (error) {
-                        console.error('❌ Erro ao buscar post otimizado:', error);
+                    if (!postData) {
+                        console.error('❌ Post não encontrado');
                         return null;
                     }
                     
-                    console.log('✅ Post carregado com 1 request otimizado');
+                    console.log('✅ Post carregado com sucesso');
                     return postData;
                     
                 } catch (error) {
-                    console.error('❌ Erro na busca otimizada:', error);
+                    console.error('❌ Erro na busca do post:', error);
                     return null;
                 }
             }
