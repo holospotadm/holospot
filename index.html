@@ -13316,21 +13316,6 @@
                 }, 300);
             }, 3000);
         }
-
-            // Verificar URL inicial ao carregar a página
-            static checkInitialURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postParam = urlParams.get('post');
-                
-                if (postParam) {
-                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
-                    // Abrir post automaticamente
-                    this.showSinglePostPage(postParam);
-                } else {
-                    console.log('ℹ️ Nenhum parâmetro post na URL');
-                }
-            }
-        }
         
         // Event listeners para ProfileRouter
         window.addEventListener('popstate', function(event) {
