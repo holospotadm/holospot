@@ -5636,8 +5636,6 @@
                         
                         ${feedbacksSection}
                         
-                        ${feedbackButton ? `<div class="feedback-button-container" style="margin-top: 1rem;">${feedbackButton}</div>` : ''}
-                        
                         <div class="post-reactions">
                             <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
                                     ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'touched')"`}>
@@ -5657,6 +5655,7 @@
                             <span class="comments-display" id="comments-${post.id}" style="display: flex; align-items: center; gap: 6px; padding: 12px 18px; background: #f5f5f5; color: #666; border-radius: 25px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" onclick="openCommentsModal('${post.id}')" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
                                 💬 ${post.comments_count || 0}
                             </span>
+                            ${feedbackButton}
                         </div>
                     </div>
                 `;
