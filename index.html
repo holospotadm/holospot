@@ -13227,9 +13227,25 @@
                     `;
                 }
             }
+
+            // Verificar URL inicial ao carregar a página
+            static checkInitialURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const postParam = urlParams.get('post');
+                
+                if (postParam) {
+                    console.log('🔍 Parâmetro post encontrado na URL:', postParam);
+                    // Aguardar carregamento completo antes de abrir
+                    setTimeout(() => {
+                        PostRouter.showSinglePostPage(postParam);
+                    }, 1000);
+                } else {
+                    console.log('ℹ️ Nenhum parâmetro post na URL');
+                }
+            }
         }
 
-        // Função para compartilhar posts (copiar link)
+        // Função para compartilhar posts (copiar link))
         function sharePost(postId) {
             try {
                 console.log('🔗 Copiando link do post:', postId);
