@@ -3316,11 +3316,63 @@
                 console.log('🚪 Fazendo logout...');
                 await supabase.auth.signOut();
                 currentUser = null;
+                
+                // Limpar completamente o conteúdo da página
+                clearAllPageContent();
+                
                 showLogin();
                 console.log('✅ Logout realizado com sucesso');
             } catch (error) {
                 console.error('❌ Erro no logout:', error);
             }
+        }
+
+        function clearAllPageContent() {
+            // Limpar todos os containers de conteúdo
+            const postsContainer = document.getElementById('postsContainer');
+            if (postsContainer) postsContainer.innerHTML = '';
+            
+            // Limpar dados globais
+            posts = [];
+            following = [];
+            followers = [];
+            
+            // Fechar todos os modais abertos
+            const modals = document.querySelectorAll('.modal, .modal-overlay');
+            modals.forEach(modal => {
+                if (modal.style.display !== 'none') {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Limpar caches
+            if (typeof profilesCache !== 'undefined' && profilesCache.clear) {
+                profilesCache.clear();
+            }
+            if (typeof commentsCache !== 'undefined' && commentsCache.clear) {
+                commentsCache.clear();
+            }
+            if (typeof feedbacksCache !== 'undefined' && feedbacksCache.clear) {
+                feedbacksCache.clear();
+            }
+            
+            // Resetar abas para início
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            const inicioTab = document.querySelector('.nav-tab[data-tab="inicio"]');
+            if (inicioTab) inicioTab.classList.add('active');
+            
+            // Limpar formulários
+            const forms = document.querySelectorAll('form, input, textarea');
+            forms.forEach(form => {
+                if (form.tagName === 'FORM') {
+                    form.reset();
+                } else if (form.tagName === 'INPUT' || form.tagName === 'TEXTAREA') {
+                    form.value = '';
+                }
+            });
+            
+            console.log('🧹 Conteúdo da página limpo completamente');
         }
 
         async function handleLogoRefresh() {
