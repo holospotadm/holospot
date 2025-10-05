@@ -3328,9 +3328,26 @@
         }
 
         function clearAllPageContent() {
-            // Limpar todos os containers de conteúdo
+            // Limpar todos os containers de conteúdo de todas as abas
             const postsContainer = document.getElementById('postsContainer');
             if (postsContainer) postsContainer.innerHTML = '';
+            
+            // Limpar conteúdo de todas as abas
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tabContent => {
+                // Resetar classes ativas
+                tabContent.classList.remove('active');
+                
+                // Limpar conteúdo específico de cada aba
+                const containers = tabContent.querySelectorAll('div[id*="Container"], div[id*="Content"]');
+                containers.forEach(container => {
+                    container.innerHTML = '';
+                });
+            });
+            
+            // Reativar apenas a aba início
+            const inicioTabContent = document.getElementById('inicioTab');
+            if (inicioTabContent) inicioTabContent.classList.add('active');
             
             // Limpar dados globais
             posts = [];
@@ -3356,7 +3373,7 @@
                 feedbacksCache.clear();
             }
             
-            // Resetar abas para início
+            // Resetar abas de navegação para início
             const navTabs = document.querySelectorAll('.nav-tab');
             navTabs.forEach(tab => tab.classList.remove('active'));
             const inicioTab = document.querySelector('.nav-tab[data-tab="inicio"]');
@@ -3372,7 +3389,7 @@
                 }
             });
             
-            console.log('🧹 Conteúdo da página limpo completamente');
+            console.log('🧹 Conteúdo de todas as abas limpo completamente');
         }
 
         async function handleLogoRefresh() {
