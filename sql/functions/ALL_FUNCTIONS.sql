@@ -612,41 +612,58 @@ CREATE OR REPLACE FUNCTION public.calculate_user_streak(p_user_id uuid)
 AS $function$
 DECLARE
     v_streak INTEGER := 0;
-    v_current_date DATE := CURRENT_DATE;
+    v_user_timezone TEXT;
+    v_current_date DATE;
     v_check_date DATE;
     v_has_activity BOOLEAN;
 BEGIN
+    -- Buscar timezone do usuário
+    SELECT timezone INTO v_user_timezone
+    FROM profiles 
+    WHERE id = p_user_id;
+    
+    -- Se não encontrar timezone, usar padrão do Brasil
+    IF v_user_timezone IS NULL THEN
+        v_user_timezone := 'America/Sao_Paulo';
+    END IF;
+    
+    -- Calcular data atual no timezone do usuário
+    v_current_date := (NOW() AT TIME ZONE v_user_timezone)::DATE;
     v_check_date := v_current_date;
+    
+    -- Log para debug
+    RAISE NOTICE 'Calculando streak para usuário % no timezone % (data atual: %)', 
+        p_user_id, v_user_timezone, v_current_date;
     
     -- Loop para contar dias consecutivos com atividade
     LOOP
-        -- Verificar atividades do dia (LÓGICA CORRIGIDA CONFORME ESPECIFICAÇÃO)
+        -- Verificar atividades do dia usando timezone do usuário
         SELECT EXISTS (
             SELECT 1 FROM (
-                -- Posts criados mencionando outros (@username)
-                SELECT DATE(created_at) as activity_date 
+                -- Posts criados
+                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
                 FROM public.posts 
                 WHERE user_id = p_user_id 
-                AND (content ~ '@\w+' OR content IS NOT NULL)  -- Posts com menções ou qualquer post
+                AND (content ~ '@\w+' OR content IS NOT NULL)
                 
                 UNION ALL
                 
-                -- Comentários em qualquer post (incluindo próprios)
-                SELECT DATE(created_at) as activity_date 
+                -- Comentários em qualquer post
+                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
                 FROM public.comments 
                 WHERE user_id = p_user_id
                 
                 UNION ALL
                 
                 -- Reações em qualquer post
-                SELECT DATE(created_at) as activity_date 
+                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
                 FROM public.reactions 
                 WHERE user_id = p_user_id
                 
                 UNION ALL
                 
-                -- Feedbacks ESCRITOS (giving feedback on any post)
-                SELECT DATE(created_at) as activity_date 
+                -- Feedbacks escritos
+                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
                 FROM public.feedbacks 
                 WHERE author_id = p_user_id
             ) activities
@@ -673,6 +690,8 @@ BEGIN
             EXIT;
         END IF;
     END LOOP;
+    
+    RAISE NOTICE 'Streak calculado: % dias (timezone: %)', v_streak, v_user_timezone;
     
     RETURN v_streak;
 END;

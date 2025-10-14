@@ -25,7 +25,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMPTZ DEFAULT now(),
     
     -- Username único para menções e URLs
-    username VARCHAR(50)
+    username VARCHAR(50),
+    
+    -- Fuso horário do usuário para cálculo correto de streaks
+    timezone TEXT DEFAULT 'America/Sao_Paulo'
 );
 
 -- ============================================================================
@@ -61,6 +64,10 @@ ON public.profiles USING gin(to_tsvector('portuguese', name));
 -- Índice para ordenação por data de criação
 CREATE INDEX IF NOT EXISTS idx_profiles_created_at 
 ON public.profiles (created_at DESC);
+
+-- Índice para busca por timezone
+CREATE INDEX IF NOT EXISTS idx_profiles_timezone 
+ON public.profiles (timezone);
 
 -- ============================================================================
 -- TRIGGERS DA TABELA PROFILES
