@@ -90,7 +90,7 @@ INSERT INTO public.levels (id, name, points_required, icon, color, benefits, min
 -- - Sem timestamps (tabela de configuração)
 -- 
 -- Características Especiais:
--- - Única tabela com INTEGER como PK (além de debug_feedback_test)
+-- - Única tabela com INTEGER como PK
 -- - Sem gen_random_uuid() ou timestamps
 -- - Cor em formato hexadecimal (#RRGGBB)
 -- - Sistema de ranges com min/max points
