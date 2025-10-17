@@ -5214,7 +5214,21 @@ DECLARE
     v_next_milestone INTEGER;
     v_milestone_reached BOOLEAN := FALSE;
     v_milestone_value INTEGER;
+    v_user_timezone TEXT;
+    v_current_date DATE;
 BEGIN
+    -- Buscar timezone do usuário
+    SELECT timezone INTO v_user_timezone
+    FROM profiles 
+    WHERE id = p_user_id;
+    
+    -- Se não encontrar timezone, usar padrão do Brasil
+    IF v_user_timezone IS NULL THEN
+        v_user_timezone := 'America/Sao_Paulo';
+    END IF;
+    
+    -- Calcular data atual no timezone do usuário
+    v_current_date := (NOW() AT TIME ZONE v_user_timezone)::DATE;
     -- Calcular novo streak
     v_new_streak := calculate_user_streak(p_user_id);
     
@@ -5260,9 +5274,9 @@ BEGIN
         END IF;
     END IF;
     
-    -- Atualizar ou inserir dados na tabela
+    -- Atualizar ou inserir dados na tabela (usando timezone do usuário)
     INSERT INTO user_streaks (user_id, current_streak, next_milestone, last_activity_date, updated_at)
-    VALUES (p_user_id, v_new_streak, v_next_milestone, CURRENT_DATE, NOW())
+    VALUES (p_user_id, v_new_streak, v_next_milestone, v_current_date, NOW())
     ON CONFLICT (user_id)
     DO UPDATE SET
         current_streak = EXCLUDED.current_streak,
@@ -5465,7 +5479,21 @@ DECLARE
     v_completed_milestone INTEGER;
     v_points_period INTEGER;
     v_next_milestone INTEGER;
+    v_user_timezone TEXT;
+    v_current_date DATE;
 BEGIN
+    -- Buscar timezone do usuário
+    SELECT timezone INTO v_user_timezone
+    FROM profiles 
+    WHERE id = p_user_id;
+    
+    -- Se não encontrar timezone, usar padrão do Brasil
+    IF v_user_timezone IS NULL THEN
+        v_user_timezone := 'America/Sao_Paulo';
+    END IF;
+    
+    -- Calcular data atual no timezone do usuário
+    v_current_date := (NOW() AT TIME ZONE v_user_timezone)::DATE;
     -- Buscar streak atual antes da atualização
     SELECT current_streak INTO v_old_streak
     FROM user_streaks WHERE user_id = p_user_id;
@@ -5494,7 +5522,7 @@ BEGIN
         END;
         
         INSERT INTO user_streaks (user_id, current_streak, next_milestone, last_activity_date, updated_at)
-        VALUES (p_user_id, v_new_streak, v_next_milestone, CURRENT_DATE, NOW());
+        VALUES (p_user_id, v_new_streak, v_next_milestone, v_current_date, NOW());
     END IF;
     
     -- Verificar se atingiu milestone (apenas se streak aumentou)
