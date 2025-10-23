@@ -5551,6 +5551,21 @@ BEGIN
             FROM points_history 
             WHERE user_id = p_user_id 
             AND created_at >= CURRENT_DATE - INTERVAL '1 day' * v_completed_milestone;
+            
+            -- CREDITAR OS PONTOS BÔNUS NA CONTA DO USUÁRIO
+            IF v_bonus_points > 0 THEN
+                INSERT INTO points_history (user_id, points_earned, action_type, description, created_at)
+                VALUES (
+                    p_user_id,
+                    v_bonus_points,
+                    'streak_bonus',
+                    'Bônus de ' || v_completed_milestone || ' dias de streak (' || v_bonus_points || ' pontos)',
+                    NOW()
+                );
+                
+                RAISE NOTICE 'Bônus creditado: User % - % pontos por milestone de % dias', 
+                    p_user_id, v_bonus_points, v_completed_milestone;
+            END IF;
         END IF;
     END IF;
     
