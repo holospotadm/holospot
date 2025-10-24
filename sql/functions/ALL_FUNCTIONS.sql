@@ -5563,7 +5563,10 @@ BEGIN
                     NOW()
                 );
                 
-                RAISE NOTICE 'Bônus creditado: User % - % pontos por milestone de % dias', 
+                -- ATUALIZAR PONTOS TOTAIS E NÍVEL DO USUÁRIO
+                PERFORM update_user_points_and_level(p_user_id);
+                
+                RAISE NOTICE 'Bônus creditado e pontos atualizados: User % - % pontos por milestone de % dias', 
                     p_user_id, v_bonus_points, v_completed_milestone;
             END IF;
         END IF;
