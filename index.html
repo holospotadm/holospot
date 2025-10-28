@@ -5531,6 +5531,7 @@
 
         let usernameCheckTimeout = null;
         let currentAvatarFile = null;
+        let currentUsername = null; // Username atual do banco
 
         async function openSettingsModal() {
             const modal = document.getElementById('settingsModal');
@@ -5542,9 +5543,12 @@
                 .eq('id', currentUser.id)
                 .single();
             
+            // Salvar username atual para comparação
+            currentUsername = profile?.username || currentUser.user_metadata?.username || '';
+            
             // Preencher dados atuais
             document.getElementById('settingsFullName').value = profile?.full_name || currentUser.user_metadata?.full_name || '';
-            document.getElementById('settingsUsername').value = profile?.username || currentUser.user_metadata?.username || '';
+            document.getElementById('settingsUsername').value = currentUsername;
             document.getElementById('settingsDefaultFeed').value = profile?.default_feed || 'recommended';
             
             // Avatar preview
@@ -5602,7 +5606,7 @@
             }
             
             // Se vazio ou igual ao atual, limpar
-            if (!username || username === currentUser.user_metadata?.username) {
+            if (!username || username === currentUsername) {
                 statusIcon.textContent = '';
                 message.textContent = '';
                 usernameInput.style.borderColor = '#e0e0e0';
