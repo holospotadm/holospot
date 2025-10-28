@@ -3781,8 +3781,10 @@
                     console.log('📱 window.innerWidth:', window.innerWidth);
                     if (window.innerWidth <= 768) {
                         console.log('✅ Mobile detectado, aplicando grid layout...');
-                        const firstGrid = document.querySelector('#perfilTab .stats-grid:first-of-type');
-                        const lastGrid = document.querySelector('#perfilTab .stats-grid:last-of-type');
+                        const allGrids = document.querySelectorAll('#perfilTab .stats-grid');
+                        console.log('📋 Total de .stats-grid encontrados:', allGrids.length);
+                        const firstGrid = allGrids[0];
+                        const lastGrid = allGrids[1];
                         
                         if (firstGrid) {
                             firstGrid.style.display = 'grid';
