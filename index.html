@@ -2644,10 +2644,13 @@
     <!-- Navigation -->
     <div class="nav-tabs">
         <div class="nav-tab active" data-tab="inicio" id="inicioNavTab">
-            <span id="inicioTabLabel">🌍 Recomendados</span>
-            <svg id="inicioDropdownIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px; vertical-align: middle;">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            <span id="feedEmojiDropdown" style="cursor: pointer; display: inline-flex; align-items: center; gap: 2px;">
+                <span id="feedEmoji">🌍</span>
+                <svg id="inicioDropdownIcon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </span>
+            <span style="margin-left: 4px;">Feed</span>
         </div>
         <div class="nav-tab" data-tab="destacar"><img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
@@ -5452,10 +5455,10 @@
             console.log('🔍 Alterando filtro para:', filter);
             window.currentFeedFilter = filter;
             
-            // Atualizar label do botão
-            const label = document.getElementById('inicioTabLabel');
-            if (label) {
-                label.textContent = filter === 'following' ? '👥 Seguindo' : '🌍 Recomendados';
+            // Atualizar apenas o emoji (texto "Feed" fica fixo)
+            const emoji = document.getElementById('feedEmoji');
+            if (emoji) {
+                emoji.textContent = filter === 'following' ? '👥' : '🌍';
             }
             
             // Atualizar opções do dropdown
@@ -14033,12 +14036,12 @@
 
         // Event listeners para dropdown de filtros
         document.addEventListener('click', function(e) {
-            const dropdownIcon = document.getElementById('inicioDropdownIcon');
+            const feedEmojiDropdown = document.getElementById('feedEmojiDropdown');
             const dropdown = document.getElementById('feedFilterDropdown');
             const inicioNavTab = document.getElementById('inicioNavTab');
             
-            // Toggle dropdown APENAS ao clicar na setinha
-            if (dropdownIcon && (e.target === dropdownIcon || dropdownIcon.contains(e.target))) {
+            // Toggle dropdown ao clicar no emoji+setinha
+            if (feedEmojiDropdown && (e.target === feedEmojiDropdown || feedEmojiDropdown.contains(e.target))) {
                 if (dropdown && inicioNavTab) {
                     const isVisible = dropdown.style.display === 'block';
                     
