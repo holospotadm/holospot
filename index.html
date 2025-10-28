@@ -4367,18 +4367,6 @@
                             <div style="font-size: 14px;">${error.message}</div>
                         </div>
                     `;
-                    
-                    // Carregar dados do nível do usuário (reutilizando função existente)
-                    const levelCard = content.querySelector('.level-card');
-                    if (levelCard) {
-                        loadUserLevelData(userData.id, levelCard);
-                    }
-                    
-                    // Carregar dados de emblemas conquistados
-                    loadUserAchievementsCount(userData.id);
-                    
-                    // Verificar status de seguir
-                    checkUserFollowStatus(userData.id);
                 }
             }
         }
@@ -12844,18 +12832,6 @@
                             `).join('')}
                         </div>
                     `;
-                    
-                    // Carregar dados do nível do usuário (reutilizando função existente)
-                    const levelCard = content.querySelector('.level-card');
-                    if (levelCard) {
-                        loadUserLevelData(userData.id, levelCard);
-                    }
-                    
-                    // Carregar dados de emblemas conquistados
-                    loadUserAchievementsCount(userData.id);
-                    
-                    // Verificar status de seguir
-                    checkUserFollowStatus(userData.id);
                 }
             }
             
