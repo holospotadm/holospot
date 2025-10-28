@@ -2740,6 +2740,10 @@
                     <div class="follow-number" id="followersCount">0</div>
                     <div class="follow-label">Seguidores</div>
                 </div>
+                <div class="follow-stat" onclick="openSettingsModal()" style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 1rem; transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(102, 126, 234, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚙️</div>
+                    <div class="follow-label" style="color: white;">Configurações</div>
+                </div>
             </div>
             
             <div class="stats-grid">
@@ -8655,7 +8659,7 @@
                         
                         <div class="profile-stats" style="
                             display: grid;
-                            grid-template-columns: repeat(3, 1fr);
+                            grid-template-columns: repeat(2, 1fr);
                             gap: 15px;
                             margin-bottom: 20px;
                         ">
@@ -8668,12 +8672,6 @@
                             <div class="stat-card" id="modalFollowersCard">
                                 <div class="stat-number" id="userFollowersCount">0</div>
                                 <div class="stat-label">Seguidores</div>
-                            </div>
-                            
-                            <!-- Botão Settings -->
-                            <div class="stat-card" id="settingsCard" onclick="openSettingsModal()" style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚙️</div>
-                                <div class="stat-label" style="color: white;">Configurações</div>
                             </div>
                             
                             <!-- Segunda linha: Posts Criados | Holofotes Recebidos -->
