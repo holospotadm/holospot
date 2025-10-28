@@ -1423,61 +1423,63 @@
             }
             
             /* Reorganizar APENAS a aba Perfil no mobile */
-            #perfilTab .stats-grid:first-of-type {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 1rem;
-            }
-            
-            /* Posts Criados e Pessoas Destacadas ficam na primeira linha */
-            #perfilTab .stats-grid:first-of-type #postsCreatedCard {
-                grid-column: 1 / 3;
-            }
-            
-            #perfilTab .stats-grid:first-of-type #peopleHighlightedCard {
-                grid-column: 3 / 4;
-            }
-            
-            /* Segunda linha com 3 cards */
-            #perfilTab .stats-grid:first-of-type .stat-card:nth-child(3) {
-                grid-column: 1 / 2;
-            }
-            
-            #perfilTab .stats-grid:first-of-type .stat-card:nth-child(4) {
-                grid-column: 2 / 3;
-            }
-            
-            #perfilTab .stats-grid:first-of-type .stat-card:nth-child(5) {
-                grid-column: 3 / 4;
-            }
-            
-            /* Grid de métricas recebidas */
-            #perfilTab .stats-grid:last-of-type {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 1rem;
-            }
-            
-            /* Holofotes e Pessoas em 2 colunas */
-            #perfilTab .stats-grid:last-of-type #postsReceivedCard {
-                grid-column: 1 / 3;
-            }
-            
-            #perfilTab .stats-grid:last-of-type #peopleWhoHighlightedCard {
-                grid-column: 3 / 4;
-            }
-            
-            /* Feedbacks, Comentários e Reações Recebidas em 3 colunas */
-            #perfilTab .stats-grid:last-of-type .stat-card:nth-child(3) {
-                grid-column: 1 / 2;
-            }
-            
-            #perfilTab .stats-grid:last-of-type .stat-card:nth-child(4) {
-                grid-column: 2 / 3;
-            }
-            
-            #perfilTab .stats-grid:last-of-type .stat-card:nth-child(5) {
-                grid-column: 3 / 4;
+            @supports (display: grid) {
+                body #perfilTab .stats-grid:first-of-type {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 1rem !important;
+                }
+                
+                /* Posts Criados e Pessoas Destacadas ficam na primeira linha */
+                body #perfilTab .stats-grid:first-of-type #postsCreatedCard {
+                    grid-column: 1 / 3 !important;
+                }
+                
+                body #perfilTab .stats-grid:first-of-type #peopleHighlightedCard {
+                    grid-column: 3 / 4 !important;
+                }
+                
+                /* Segunda linha com 3 cards */
+                body #perfilTab .stats-grid:first-of-type .stat-card:nth-child(3) {
+                    grid-column: 1 / 2 !important;
+                }
+                
+                body #perfilTab .stats-grid:first-of-type .stat-card:nth-child(4) {
+                    grid-column: 2 / 3 !important;
+                }
+                
+                body #perfilTab .stats-grid:first-of-type .stat-card:nth-child(5) {
+                    grid-column: 3 / 4 !important;
+                }
+                
+                /* Grid de métricas recebidas */
+                body #perfilTab .stats-grid:last-of-type {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 1rem !important;
+                }
+                
+                /* Holofotes e Pessoas em 2 colunas */
+                body #perfilTab .stats-grid:last-of-type #postsReceivedCard {
+                    grid-column: 1 / 3 !important;
+                }
+                
+                body #perfilTab .stats-grid:last-of-type #peopleWhoHighlightedCard {
+                    grid-column: 3 / 4 !important;
+                }
+                
+                /* Feedbacks, Comentários e Reações Recebidas em 3 colunas */
+                body #perfilTab .stats-grid:last-of-type .stat-card:nth-child(3) {
+                    grid-column: 1 / 2 !important;
+                }
+                
+                body #perfilTab .stats-grid:last-of-type .stat-card:nth-child(4) {
+                    grid-column: 2 / 3 !important;
+                }
+                
+                body #perfilTab .stats-grid:last-of-type .stat-card:nth-child(5) {
+                    grid-column: 3 / 4 !important;
+                }
             }
 
             .highlight-types {
