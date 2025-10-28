@@ -550,9 +550,6 @@
         }
 
         .filter-option {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             padding: 0.75rem 1rem;
             border-radius: 8px;
             cursor: pointer;
@@ -566,12 +563,6 @@
 
         .filter-option.active {
             background: linear-gradient(135deg, rgba(255, 183, 0, 0.2), rgba(229, 90, 43, 0.2));
-        }
-
-        .filter-check {
-            color: #e55a2b;
-            font-weight: bold;
-            font-size: 1.2rem;
         }
 
         /* Tab Content */
@@ -2650,7 +2641,7 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </span>
-            <span style="margin-left: 4px;">Feed</span>
+            <span style="margin-left: 2px;">Feed</span>
         </div>
         <div class="nav-tab" data-tab="destacar"><img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
@@ -5461,15 +5452,12 @@
                 emoji.textContent = filter === 'following' ? '👥' : '🌍';
             }
             
-            // Atualizar opções do dropdown
+            // Atualizar opções do dropdown (apenas cor de fundo)
             document.querySelectorAll('.filter-option').forEach(option => {
-                const check = option.querySelector('.filter-check');
                 if (option.dataset.filter === filter) {
                     option.classList.add('active');
-                    if (check) check.style.display = 'inline';
                 } else {
                     option.classList.remove('active');
-                    if (check) check.style.display = 'none';
                 }
             });
             
@@ -14263,11 +14251,9 @@
     <div id="feedFilterDropdown" class="feed-filter-dropdown" style="display: none;">
         <div class="filter-option" data-filter="recommended">
             <span>🌍 Recomendados</span>
-            <span class="filter-check" style="display: none;">✓</span>
         </div>
         <div class="filter-option" data-filter="following">
             <span>👥 Seguindo</span>
-            <span class="filter-check" style="display: none;">✓</span>
         </div>
     </div>
 
