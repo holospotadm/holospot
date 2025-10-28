@@ -6001,8 +6001,8 @@
                                     ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
                                 </div>
                             ` : ''}
-                            <div class="post-story">${post.content || post.story}</div>
                             ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post">` : ''}
+                            <div class="post-story">${post.content || post.story}</div>
                         </div>
                         
                         ${feedbacksSection}
