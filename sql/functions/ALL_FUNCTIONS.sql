@@ -5683,3 +5683,98 @@ $function$
 COMMENT ON FUNCTION public.get_feed_posts IS 
 'Busca posts do feed com filtros: all (todos), following (apenas quem segue), recommended (recomendados)';
 
+
+
+
+-- ============================================================================
+-- SETTINGS FUNCTIONS
+-- ============================================================================
+
+-- FUNÇÃO: check_username_availability
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.check_username_availability(
+    p_username TEXT,
+    p_current_user_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+DECLARE
+    v_exists BOOLEAN;
+BEGIN
+    -- Verificar se username já existe (ignorando o próprio usuário)
+    SELECT EXISTS(
+        SELECT 1 
+        FROM profiles 
+        WHERE username = p_username 
+        AND id != p_current_user_id
+    ) INTO v_exists;
+    
+    -- Retornar TRUE se disponível (não existe)
+    RETURN NOT v_exists;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.check_username_availability IS 
+'Verifica se um username está disponível (retorna TRUE se disponível)';
+
+-- FUNÇÃO: update_user_profile
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.update_user_profile(
+    p_user_id UUID,
+    p_full_name TEXT DEFAULT NULL,
+    p_username TEXT DEFAULT NULL,
+    p_avatar_url TEXT DEFAULT NULL,
+    p_default_feed TEXT DEFAULT NULL
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+DECLARE
+    v_username_available BOOLEAN;
+    v_result JSON;
+BEGIN
+    -- Se username foi fornecido, verificar disponibilidade
+    IF p_username IS NOT NULL THEN
+        SELECT check_username_availability(p_username, p_user_id) INTO v_username_available;
+        
+        IF NOT v_username_available THEN
+            RETURN json_build_object(
+                'success', false,
+                'error', 'Username já está em uso'
+            );
+        END IF;
+    END IF;
+    
+    -- Atualizar perfil (apenas campos fornecidos)
+    UPDATE profiles
+    SET
+        full_name = COALESCE(p_full_name, full_name),
+        username = COALESCE(p_username, username),
+        avatar_url = COALESCE(p_avatar_url, avatar_url),
+        default_feed = COALESCE(p_default_feed, default_feed),
+        updated_at = NOW()
+    WHERE id = p_user_id;
+    
+    -- Retornar perfil atualizado
+    SELECT json_build_object(
+        'success', true,
+        'profile', row_to_json(p.*)
+    )
+    INTO v_result
+    FROM profiles p
+    WHERE p.id = p_user_id;
+    
+    RETURN v_result;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.update_user_profile IS 
+'Atualiza perfil do usuário (nome, username, avatar, feed padrão) com validações';
+
