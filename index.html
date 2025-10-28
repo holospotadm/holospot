@@ -3803,11 +3803,28 @@
                             const commentsCard = firstGrid.querySelector('.stat-card:nth-child(4)');
                             const reactionsCard = firstGrid.querySelector('.stat-card:nth-child(5)');
                             
-                            if (postsCard) postsCard.style.gridColumn = '1 / 3';
-                            if (peopleCard) peopleCard.style.gridColumn = '3 / 4';
-                            if (feedbackCard) feedbackCard.style.gridColumn = '1 / 2';
-                            if (commentsCard) commentsCard.style.gridColumn = '2 / 3';
-                            if (reactionsCard) reactionsCard.style.gridColumn = '3 / 4';
+                            // Linha 1: Posts e Pessoas em 2 colunas (ocupam 1.5 colunas cada do grid de 3)
+                            if (postsCard) {
+                                postsCard.style.gridColumn = '1 / 2';
+                                postsCard.style.gridRow = '1';
+                            }
+                            if (peopleCard) {
+                                peopleCard.style.gridColumn = '2 / 3';
+                                peopleCard.style.gridRow = '1';
+                            }
+                            // Linha 2: Feedbacks, Comentários e Reações em 3 colunas
+                            if (feedbackCard) {
+                                feedbackCard.style.gridColumn = '1 / 2';
+                                feedbackCard.style.gridRow = '2';
+                            }
+                            if (commentsCard) {
+                                commentsCard.style.gridColumn = '2 / 3';
+                                commentsCard.style.gridRow = '2';
+                            }
+                            if (reactionsCard) {
+                                reactionsCard.style.gridColumn = '3 / 4';
+                                reactionsCard.style.gridRow = '2';
+                            }
                             
                             console.log('✅ Grid layout aplicado no primeiro stats-grid');
                         } else {
@@ -3831,11 +3848,28 @@
                             const commentsRecCard = lastGrid.querySelector('.stat-card:nth-child(4)');
                             const reactionsRecCard = lastGrid.querySelector('.stat-card:nth-child(5)');
                             
-                            if (holofotesCard) holofotesCard.style.gridColumn = '1 / 3';
-                            if (peopleWhoCard) peopleWhoCard.style.gridColumn = '3 / 4';
-                            if (feedbackRecCard) feedbackRecCard.style.gridColumn = '1 / 2';
-                            if (commentsRecCard) commentsRecCard.style.gridColumn = '2 / 3';
-                            if (reactionsRecCard) reactionsRecCard.style.gridColumn = '3 / 4';
+                            // Linha 1: Holofotes e Pessoas em 2 colunas
+                            if (holofotesCard) {
+                                holofotesCard.style.gridColumn = '1 / 2';
+                                holofotesCard.style.gridRow = '1';
+                            }
+                            if (peopleWhoCard) {
+                                peopleWhoCard.style.gridColumn = '2 / 3';
+                                peopleWhoCard.style.gridRow = '1';
+                            }
+                            // Linha 2: Feedbacks, Comentários e Reações em 3 colunas
+                            if (feedbackRecCard) {
+                                feedbackRecCard.style.gridColumn = '1 / 2';
+                                feedbackRecCard.style.gridRow = '2';
+                            }
+                            if (commentsRecCard) {
+                                commentsRecCard.style.gridColumn = '2 / 3';
+                                commentsRecCard.style.gridRow = '2';
+                            }
+                            if (reactionsRecCard) {
+                                reactionsRecCard.style.gridColumn = '3 / 4';
+                                reactionsRecCard.style.gridRow = '2';
+                            }
                             
                             console.log('✅ Grid layout aplicado no segundo stats-grid');
                         } else {
