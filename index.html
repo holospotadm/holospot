@@ -5509,6 +5509,7 @@
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
+                console.log('🔍 [DEBUG] loadPosts chamado de:', new Error().stack);
                 
                 // Marcar como carregando (SEM renderizar ainda)
                 window.isLoadingPosts = true;
