@@ -3656,6 +3656,9 @@
                 profilesCache.clear();
                 reactionsCache.clear();
                 
+                // Marcar como carregando ANTES de renderizar
+                window.isLoadingPosts = true;
+                
                 // Recarregar todos os dados
                 await Promise.all([
                     loadPosts(),
@@ -3663,7 +3666,7 @@
                     loadNotifications()
                 ]);
                 
-                // Atualizar interface
+                // Atualizar interface (isLoadingPosts já foi setado para false dentro de loadPosts)
                 await renderPosts();
                 updateStats();
                 
@@ -11231,6 +11234,9 @@
                 if (isInitialLoad || posts.length === 0) {
                     console.log('🔄 Carregamento inicial ou dados vazios, carregando tudo...');
                     
+                    // Marcar como carregando ANTES de renderizar
+                    window.isLoadingPosts = true;
+                    
                     // Carregar dados do usuário primeiro (mais rápido)
                     await loadUserData();
                     
@@ -12439,8 +12445,7 @@
                 document.getElementById('userFeedbacksReceived').textContent = feedbacksReceivedResult.count || 0;
 
                 console.log('✅ Métricas reais atualizadas:', {
-                    pessoas: uniquePeople.size,
-                    usernames: Array.from(uniquePeople),
+                    pessoas: uniqueRealPeopleCount,
                     comentarios: commentsResult.count || 0,
                     reacoes: reactionsResult.count || 0,
                     streak: currentStreak,
