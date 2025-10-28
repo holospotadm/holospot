@@ -3795,6 +3795,13 @@
                             const allCards = firstGrid.querySelectorAll('.stat-card');
                             allCards.forEach(card => {
                                 card.style.boxSizing = 'border-box';
+                                card.style.textAlign = 'center';
+                                
+                                // Ajustar tamanho dos textos
+                                const statNumber = card.querySelector('.stat-number');
+                                const statLabel = card.querySelector('.stat-label');
+                                if (statNumber) statNumber.style.fontSize = '2rem';
+                                if (statLabel) statLabel.style.fontSize = '0.75rem';
                             });
                             
                             const postsCard = firstGrid.querySelector('#postsCreatedCard');
@@ -3840,6 +3847,13 @@
                             const allCardsLast = lastGrid.querySelectorAll('.stat-card');
                             allCardsLast.forEach(card => {
                                 card.style.boxSizing = 'border-box';
+                                card.style.textAlign = 'center';
+                                
+                                // Ajustar tamanho dos textos
+                                const statNumber = card.querySelector('.stat-number');
+                                const statLabel = card.querySelector('.stat-label');
+                                if (statNumber) statNumber.style.fontSize = '2rem';
+                                if (statLabel) statLabel.style.fontSize = '0.75rem';
                             });
                             
                             const holofotesCard = lastGrid.querySelector('#postsReceivedCard');
