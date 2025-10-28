@@ -1507,6 +1507,17 @@
             .progress-modal-title {
                 font-size: 1.2rem !important;
             }
+            
+            /* Filtros de Feed - Mobile */
+            .feed-filters {
+                padding: 0.75rem !important;
+                gap: 0.25rem !important;
+            }
+            
+            .filter-btn {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.8rem !important;
+            }
         }
 
         /* Hidden file input */
@@ -2616,6 +2627,61 @@
 
         <!-- Tab Contents -->
         <div id="inicioTab" class="tab-content active">
+            <!-- Filtros de Feed -->
+            <div class="feed-filters" style="
+                display: flex;
+                gap: 0.5rem;
+                padding: 1rem;
+                background: white;
+                border-bottom: 1px solid #eee;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            ">
+                <button class="filter-btn active" data-filter="all" onclick="setFeedFilter('all')" style="
+                    flex: 1;
+                    padding: 0.75rem 1rem;
+                    background: linear-gradient(135deg, #e55a2b, #ffb700);
+                    color: white;
+                    border: 2px solid #e55a2b;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                ">
+                    🌍 Todos
+                </button>
+                <button class="filter-btn" data-filter="following" onclick="setFeedFilter('following')" style="
+                    flex: 1;
+                    padding: 0.75rem 1rem;
+                    background: #f5f5f5;
+                    color: #666;
+                    border: 2px solid transparent;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                ">
+                    👥 Seguindo
+                </button>
+                <button class="filter-btn" data-filter="recommended" onclick="setFeedFilter('recommended')" style="
+                    flex: 1;
+                    padding: 0.75rem 1rem;
+                    background: #f5f5f5;
+                    color: #666;
+                    border: 2px solid transparent;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                ">
+                    ✨ Recomendados
+                </button>
+            </div>
+            
             <div id="postsContainer" class="posts-container">
                 <!-- Posts will be loaded here -->
             </div>
@@ -5404,6 +5470,72 @@
             console.log(`📊 Contadores atualizados: ${following.length} seguindo, ${followers.length} seguidores`);
         }
 
+        // Funções de Filtro de Feed
+        function setFeedFilter(filter) {
+            console.log('🔍 Alterando filtro para:', filter);
+            window.currentFeedFilter = filter;
+            
+            // Atualizar UI dos botões
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === filter) {
+                    btn.style.background = 'linear-gradient(135deg, #e55a2b, #ffb700)';
+                    btn.style.color = 'white';
+                    btn.style.borderColor = '#e55a2b';
+                    btn.classList.add('active');
+                } else {
+                    btn.style.background = '#f5f5f5';
+                    btn.style.color = '#666';
+                    btn.style.borderColor = 'transparent';
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Salvar preferência
+            localStorage.setItem('feedFilter', filter);
+            
+            // Recarregar feed
+            loadPosts();
+        }
+
+        function getEmptyFeedMessage(filter) {
+            switch (filter) {
+                case 'following':
+                    return `
+                        <div style="text-align: center; padding: 4rem 2rem; color: #666;">
+                            <div style="font-size: 64px; margin-bottom: 1rem;">👥</div>
+                            <h3 style="color: #333; margin-bottom: 1rem;">Nenhum post de quem você segue</h3>
+                            <p style="margin-bottom: 2rem;">Comece seguindo pessoas para ver os posts delas aqui!</p>
+                            <button onclick="showTab('buscar')" style="
+                                background: #e55a2b;
+                                color: white;
+                                border: none;
+                                padding: 1rem 2rem;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                font-size: 1rem;
+                            ">🔍 Buscar Pessoas</button>
+                        </div>
+                    `;
+                case 'recommended':
+                    return `
+                        <div style="text-align: center; padding: 4rem 2rem; color: #666;">
+                            <div style="font-size: 64px; margin-bottom: 1rem;">✨</div>
+                            <h3 style="color: #333; margin-bottom: 1rem;">Nenhuma recomendação disponível</h3>
+                            <p>Interaja mais com posts para receber recomendações personalizadas!</p>
+                        </div>
+                    `;
+                default:
+                    return `
+                        <div style="text-align: center; padding: 4rem 2rem; color: #666;">
+                            <div style="font-size: 64px; margin-bottom: 1rem;">📝</div>
+                            <h3 style="color: #333; margin-bottom: 1rem;">Nenhum post ainda</h3>
+                            <p>Seja o primeiro a destacar alguém!</p>
+                        </div>
+                    `;
+            }
+        }
+
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
@@ -5412,11 +5544,15 @@
                 window.isLoadingPosts = true;
                 
                 console.log('🔍 Carregando posts reais do Supabase com timeout...');
+                console.log('🔍 Filtro atual:', window.currentFeedFilter || 'all');
                 
-                const postsQuery = supabase
-                    .from('posts')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                // Usar função SQL com filtro
+                const postsQuery = supabase.rpc('get_feed_posts', {
+                    p_user_id: currentUser.id,
+                    p_filter_type: window.currentFeedFilter || 'all',
+                    p_limit: 50,
+                    p_offset: 0
+                });
                 
                 const { data, error } = await withTimeout(postsQuery, 5000);
                 
@@ -5925,9 +6061,9 @@
                 return;
             }
             
-            // Se não há posts, mostrar container vazio (sem mensagem)
+            // Se não há posts, mostrar mensagem customizada baseada no filtro
             if (posts.length === 0) {
-                container.innerHTML = '';
+                container.innerHTML = getEmptyFeedMessage(window.currentFeedFilter || 'all');
                 return;
             }
 
@@ -13920,6 +14056,10 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar filtro de feed
+            const savedFilter = localStorage.getItem('feedFilter') || 'all';
+            window.currentFeedFilter = savedFilter;
+            
             setTimeout(() => {
                 ProfileRouter.checkInitialURL();
                 PostRouter.checkInitialURL();
