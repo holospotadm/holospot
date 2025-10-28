@@ -3789,7 +3789,13 @@
                         if (firstGrid) {
                             firstGrid.style.display = 'grid';
                             firstGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                            firstGrid.style.gap = '1rem';
+                            firstGrid.style.gap = '0.5rem';
+                            
+                            // Garantir box-sizing em todos os cards
+                            const allCards = firstGrid.querySelectorAll('.stat-card');
+                            allCards.forEach(card => {
+                                card.style.boxSizing = 'border-box';
+                            });
                             
                             const postsCard = firstGrid.querySelector('#postsCreatedCard');
                             const peopleCard = firstGrid.querySelector('#peopleHighlightedCard');
@@ -3811,7 +3817,13 @@
                         if (lastGrid) {
                             lastGrid.style.display = 'grid';
                             lastGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                            lastGrid.style.gap = '1rem';
+                            lastGrid.style.gap = '0.5rem';
+                            
+                            // Garantir box-sizing em todos os cards
+                            const allCardsLast = lastGrid.querySelectorAll('.stat-card');
+                            allCardsLast.forEach(card => {
+                                card.style.boxSizing = 'border-box';
+                            });
                             
                             const holofotesCard = lastGrid.querySelector('#postsReceivedCard');
                             const peopleWhoCard = lastGrid.querySelector('#peopleWhoHighlightedCard');
