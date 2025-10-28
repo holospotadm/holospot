@@ -2344,7 +2344,7 @@
     <div id="loginScreen" class="login-screen">
         <div class="login-container">
             <div class="login-logo">
-                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 220px; height: auto;">
+                <img src="./holospot_logo_cropped-Photoroom.png" style="width: 220px; height: auto;">
             </div>
             <p class="login-subtitle">Colocando os holofotes nos outros</p>
             <button id="loginBtn" class="google-login-btn">
@@ -2373,7 +2373,7 @@
 
             <!-- Logo (centro no desktop) -->
             <div class="logo" id="mainLogo" style="cursor: pointer; transition: all 0.2s ease;">
-                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+                <img src="./holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
             </div>
 
             <!-- Actions (direita no desktop) -->
@@ -2399,7 +2399,7 @@
     <!-- Navigation -->
     <div class="nav-tabs">
         <div class="nav-tab active" data-tab="inicio">🏠 Início</div>
-        <div class="nav-tab" data-tab="destacar"><img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
+        <div class="nav-tab" data-tab="destacar"><img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
         <div class="nav-tab" data-tab="buscar">🔍</div>
     </div>
@@ -2416,7 +2416,7 @@
 
         <div id="destacarTab" class="tab-content">
             <div class="create-post-form">
-                <h2 style="margin-bottom: 1.5rem; color: #e65100;"><img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;"> Destacar Alguém</h2>
+                <h2 style="margin-bottom: 1.5rem; color: #e65100;"><img src="./holofote.png" style="width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;"> Destacar Alguém</h2>
                 
                 <div class="form-group">
                     <label class="form-label">Nome da pessoa</label>
@@ -2481,7 +2481,7 @@
                 </div>
 
                 <button id="createPostBtn" class="submit-btn" onclick="createPost()">
-                    <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa
+                    <img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa
                 </button>
             </div>
         </div>
@@ -2858,7 +2858,7 @@
     <div id="fullProfileContainer" class="full-profile-container" style="display: none;">
         <div class="full-profile-header">
             <div class="profile-logo" onclick="ProfileRouter.closeFullProfile()" style="cursor: pointer;">
-                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+                <img src="./holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
             </div>
         </div>
         <div id="fullProfileContent" class="full-profile-content">
@@ -2870,7 +2870,7 @@
     <div id="singlePostPageContainer" class="single-post-page-container" style="display: none;">
         <div class="single-post-page-header">
             <div class="post-page-logo" onclick="PostRouter.closeSinglePostPage()" style="cursor: pointer;">
-                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+                <img src="./holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
             </div>
         </div>
         <div id="singlePostPageContent" class="single-post-page-content">
@@ -6682,7 +6682,7 @@
                         
                         if (!continueWithoutPhoto) {
                             createBtn.disabled = false;
-                            createBtn.innerHTML = '<img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
+                            createBtn.innerHTML = '<img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
                             return;
                         }
                         
@@ -6822,7 +6822,7 @@
                 alert('Erro ao criar post: ' + error.message);
             } finally {
                 createBtn.disabled = false;
-                createBtn.innerHTML = '<img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
+                createBtn.innerHTML = '<img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar Pessoa';
             }
         }
 
@@ -7229,7 +7229,7 @@
                 // Para outros posts: mostrar header normal
                 modalHeader.style.display = 'flex';
                 const titles = {
-                    'received_holofote': '<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofote Recebido',
+                    'received_holofote': '<img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofote Recebido',
                     'other_post': 'Post'
                 };
                 modalTitle.innerHTML = titles[modalType] || 'Post';
@@ -11313,7 +11313,7 @@
                 modal.innerHTML = `
                     <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
                         <div class="modal-header">
-                            <h2><img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
+                            <h2><img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
                             <button class="close-btn" onclick="closeModal()">&times;</button>
                         </div>
                         <div class="modal-body">
@@ -13057,7 +13057,7 @@
                     modal.innerHTML = `
                         <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
                             <div class="modal-header">
-                                <h2><img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
+                                <h2><img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
                                 <button class="close-btn" onclick="document.getElementById('tempHolofotesModal').remove()">&times;</button>
                             </div>
                             <div class="modal-body">
@@ -13087,7 +13087,7 @@
                 const modalHeader = modal.querySelector('.modal-header h2');
                 if (modalHeader) {
                     if (userId === currentUser?.id) {
-                        modalHeader.innerHTML = '<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos';
+                        modalHeader.innerHTML = '<img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos';
                     } else {
                         // Buscar dados do usuário para pegar o username
                         try {
@@ -13098,9 +13098,9 @@
                                 .single();
                             
                             const username = userData?.email?.split('@')[0] || 'usuario';
-                            modalHeader.innerHTML = `<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes para @${username}`;
+                            modalHeader.innerHTML = `<img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes para @${username}`;
                         } catch (error) {
-                            modalHeader.innerHTML = '<img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos';
+                            modalHeader.innerHTML = '<img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos';
                         }
                     }
                 }
@@ -13582,7 +13582,7 @@
     <div id="holofotesRecebidosModal" class="modal-overlay" style="display: none;" onclick="closeModal()">
         <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 80vh;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2><img src="https://github.com/holospotadm/holospot/blob/main/public/holofote.png?raw=true" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
+                <h2><img src="./holofote.png" alt="Holofote" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;"> Holofotes Recebidos</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -13641,7 +13641,7 @@
     <div id="singlePostPageContainer" class="single-post-page-container" style="display: none;">
         <div class="single-post-page-header">
             <div class="post-page-logo" onclick="PostRouter.closeSinglePostPage()" style="cursor: pointer;">
-                <img src="https://raw.githubusercontent.com/holospotadm/holospot/main/holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
+                <img src="./holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
             </div>
         </div>
         <div id="singlePostPageContent" class="single-post-page-content">
