@@ -538,27 +538,24 @@
 
         /* Feed Filter Dropdown */
         .feed-filter-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed;
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 0.5rem;
             min-width: 180px;
-            z-index: 1000;
+            z-index: 10000;
             animation: dropdownFadeIn 0.2s ease;
         }
 
         @keyframes dropdownFadeIn {
             from {
                 opacity: 0;
-                transform: translateX(-50%) translateY(-10px);
+                transform: translateY(-10px);
             }
             to {
                 opacity: 1;
-                transform: translateX(-50%) translateY(0);
+                transform: translateY(0);
             }
         }
 
@@ -14056,13 +14053,25 @@
 
         // Event listeners para dropdown de filtros
         document.addEventListener('click', function(e) {
-            const inicioNavTab = document.getElementById('inicioNavTab');
+            const dropdownIcon = document.getElementById('inicioDropdownIcon');
             const dropdown = document.getElementById('feedFilterDropdown');
+            const inicioNavTab = document.getElementById('inicioNavTab');
             
-            // Toggle dropdown ao clicar no botão Início
-            if (inicioNavTab && inicioNavTab.contains(e.target) && !e.target.closest('.filter-option')) {
-                if (dropdown) {
-                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            // Toggle dropdown APENAS ao clicar na setinha
+            if (dropdownIcon && (e.target === dropdownIcon || dropdownIcon.contains(e.target))) {
+                if (dropdown && inicioNavTab) {
+                    const isVisible = dropdown.style.display === 'block';
+                    
+                    if (!isVisible) {
+                        // Calcular posição do botão
+                        const rect = inicioNavTab.getBoundingClientRect();
+                        dropdown.style.top = `${rect.bottom + 8}px`;
+                        dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
+                        dropdown.style.transform = 'translateX(-50%)';
+                        dropdown.style.display = 'block';
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
                 }
                 e.stopPropagation();
             }
