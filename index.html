@@ -2184,8 +2184,8 @@
             }
             
             .full-profile-content {
-                margin: 0.25rem;
-                padding: 0.75rem;
+                margin: 1rem;
+                padding: 1rem;
                 border-radius: 8px;
             }
             
@@ -2237,9 +2237,19 @@
             }
             
             /* Grids da página de perfil dinâmica */
+            #fullProfileContent > div {
+                padding: 1rem !important;
+            }
+            
+            /* Header do perfil - reduzir espaço inferior */
+            #fullProfileContent > div > div:nth-child(1) {
+                margin-bottom: 1.5rem !important;
+            }
+            
             #fullProfileContent > div > div:nth-child(2) {
                 grid-template-columns: 1fr 1fr !important;
                 gap: 0.75rem !important;
+                margin-bottom: 0.75rem !important;
             }
             
             /* Botões (3º elemento) vão para o topo */
@@ -2256,9 +2266,15 @@
                 flex: none !important;
             }
             
+            /* Card de nível - ajustar margens */
+            #fullProfileContent > div > div:nth-child(3) {
+                margin-bottom: 0.75rem !important;
+            }
+            
             #fullProfileContent > div > div:nth-child(4) {
                 grid-template-columns: repeat(3, minmax(90px, 1fr)) !important;
-                gap: 0.5rem !important;
+                gap: 0.75rem !important;
+                margin-bottom: 0.75rem !important;
             }
             
             #fullProfileContent > div > div:nth-child(4) > div {
