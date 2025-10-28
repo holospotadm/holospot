@@ -5004,8 +5004,8 @@
                                         ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
                                     </div>
                                 ` : ''}
+                                ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post" style="height: auto; object-fit: contain;">` : ''}
                                 <div class="post-story">${post.content || post.story}</div>
-                                ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post">` : ''}
                             </div>
                             
                             <div class="post-reactions">
@@ -6025,7 +6025,7 @@
                                     ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
                                 </div>
                             ` : ''}
-                            ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post">` : ''}
+                            ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post" style="height: auto; object-fit: contain;">` : ''}
                             <div class="post-story">${post.content || post.story}</div>
                         </div>
                         
@@ -7751,18 +7751,18 @@
                                 ${typeEmojis[postData.type || postData.highlight_type] || '✨'} ${typeNames[postData.type || postData.highlight_type] || 'Destaque'}
                             </div>
                         ` : ''}
-                        <div class="post-story" style="line-height: 1.5; color: #333; margin-bottom: 1rem;">
-                            ${postData.content || postData.story || ''}
-                        </div>
                         ${postData.photo_url ? `
                             <img class="post-image" src="${postData.photo_url}" alt="Foto do post" style="
                                 width: 100%;
                                 border-radius: 8px;
                                 margin-bottom: 1rem;
-                                max-height: 400px;
-                                object-fit: cover;
+                                height: auto;
+                                object-fit: contain;
                             ">
                         ` : ''}
+                        <div class="post-story" style="line-height: 1.5; color: #333; margin-bottom: 1rem;">
+                            ${postData.content || postData.story || ''}
+                        </div>
                     </div>
                     
                     <div class="post-reactions" style="padding: 0 1.5rem; display: flex; gap: 10px; margin-bottom: 1rem;">
@@ -11965,8 +11965,8 @@
                                         ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
                                     </div>
                                 ` : ''}
+                                ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post" style="height: auto; object-fit: contain;">` : ''}
                                 <div class="post-story">${post.content || post.story}</div>
-                                ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post">` : ''}
                             </div>
                             
                             <div class="post-reactions">
