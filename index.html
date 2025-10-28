@@ -2653,21 +2653,11 @@
 
     <!-- Navigation -->
     <div class="nav-tabs">
-        <div class="nav-tab active" data-tab="inicio" id="inicioNavTab" style="position: relative;">
+        <div class="nav-tab active" data-tab="inicio" id="inicioNavTab">
             <span id="inicioTabLabel">🌍 Recomendados</span>
             <svg id="inicioDropdownIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px; vertical-align: middle;">
                 <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
-            <div id="feedFilterDropdown" class="feed-filter-dropdown" style="display: none;">
-                <div class="filter-option" data-filter="recommended">
-                    <span>🌍 Recomendados</span>
-                    <span class="filter-check" style="display: none;">✓</span>
-                </div>
-                <div class="filter-option" data-filter="following">
-                    <span>👥 Seguindo</span>
-                    <span class="filter-check" style="display: none;">✓</span>
-                </div>
-            </div>
         </div>
         <div class="nav-tab" data-tab="destacar"><img src="./holofote.png" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"> Destacar</div>
         <div class="nav-tab" data-tab="perfil">👤 Perfil</div>
@@ -14268,6 +14258,18 @@
             }
         }
     </script>
+
+    <!-- Feed Filter Dropdown (fora do container das abas) -->
+    <div id="feedFilterDropdown" class="feed-filter-dropdown" style="display: none;">
+        <div class="filter-option" data-filter="recommended">
+            <span>🌍 Recomendados</span>
+            <span class="filter-check" style="display: none;">✓</span>
+        </div>
+        <div class="filter-option" data-filter="following">
+            <span>👥 Seguindo</span>
+            <span class="filter-check" style="display: none;">✓</span>
+        </div>
+    </div>
 
 </body>
 </html>
