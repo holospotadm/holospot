@@ -9721,11 +9721,17 @@
                     userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                 }
                 
+                // Verificar se é o próprio usuário logado
+                const isCurrentUser = f.following_id === currentUser.id;
+                
                 return `
                     <div class="follow-item">
                         <img src="${userAvatar}" 
                              alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
-                        <span class="username-clickable" data-user-id="${f.following_id}" data-user-name="${userName}" data-user-avatar="${userAvatar}" style="cursor: pointer; color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>
+                        ${isCurrentUser ? 
+                            `<span style="color: #666;">@${username} (Você)</span>` :
+                            `<span class="username-clickable" data-user-id="${f.following_id}" data-user-name="${userName}" data-user-avatar="${userAvatar}" style="cursor: pointer; color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>`
+                        }
                     </div>
                 `;
             }));
@@ -9834,11 +9840,17 @@
                     userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                 }
                 
+                // Verificar se é o próprio usuário logado
+                const isCurrentUser = f.follower_id === currentUser.id;
+                
                 return `
                     <div class="follow-item">
                         <img src="${userAvatar}" 
                              alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
-                        <span class="username-clickable" data-user-id="${f.follower_id}" data-user-name="${userName}" data-user-avatar="${userAvatar}" style="cursor: pointer; color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>
+                        ${isCurrentUser ? 
+                            `<span style="color: #666;">@${username} (Você)</span>` :
+                            `<span class="username-clickable" data-user-id="${f.follower_id}" data-user-name="${userName}" data-user-avatar="${userAvatar}" style="cursor: pointer; color: #007bff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>`
+                        }
                     </div>
                 `;
             }));
