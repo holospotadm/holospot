@@ -5565,6 +5565,16 @@
             const modal = document.getElementById('settingsModal');
             modal.style.display = 'none';
             currentAvatarFile = null;
+            
+            // Limpar validação do username
+            const usernameInput = document.getElementById('settingsUsername');
+            const statusIcon = document.getElementById('usernameStatus');
+            const message = document.getElementById('usernameMessage');
+            
+            if (usernameInput) usernameInput.style.borderColor = '#e0e0e0';
+            if (statusIcon) statusIcon.textContent = '';
+            if (message) message.textContent = '';
+            
             console.log('❌ Modal de configurações fechado');
         }
 
@@ -14567,7 +14577,7 @@
                     <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">@username</label>
                     <div style="position: relative;">
                         <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1rem; pointer-events: none; font-weight: 500;">@</span>
-                        <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px 40px 12px 24px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; letter-spacing: 0.02em;" placeholder="seu.username" oninput="checkUsernameAvailability()">
+                        <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px 40px 12px 24px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; letter-spacing: 0.02em;" placeholder="seu.username" oninput="this.value = this.value.replace(/@/g, ''); checkUsernameAvailability();">
                         <span id="usernameStatus" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.2rem;"></span>
                     </div>
                     <p id="usernameMessage" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;"></p>
