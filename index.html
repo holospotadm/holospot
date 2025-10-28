@@ -5553,15 +5553,12 @@
                 
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar posts:', error);
+                console.log('⚠️ [DEBUG] Erro (provavelmente timeout), ignorando e deixando loading ativo');
+                console.log('⚠️ [DEBUG] Outra chamada de loadPosts deve resolver isso');
                 
-                // Não usar fallback de posts fictícios - manter array vazio
-                console.log('⚠️ Mantendo array de posts vazio devido ao erro');
-                posts = [];
-                
-                // Finalizar loading mesmo em caso de erro
-                window.isLoadingPosts = false;
-                await renderPosts();
-                console.log('✅ Interface renderizada sem posts');
+                // NÃO setar isLoadingPosts = false aqui!
+                // Deixar o loading spinner ativo até uma chamada bem-sucedida
+                // Isso evita o "flash" de mensagem "sem posts"
             }
         }
 
