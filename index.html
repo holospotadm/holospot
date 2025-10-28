@@ -3788,7 +3788,7 @@
                         
                         if (firstGrid) {
                             firstGrid.style.display = 'grid';
-                            firstGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                            firstGrid.style.gridTemplateColumns = 'repeat(6, 1fr)';
                             firstGrid.style.gap = '0.5rem';
                             
                             // Garantir box-sizing em todos os cards
@@ -3803,26 +3803,26 @@
                             const commentsCard = firstGrid.querySelector('.stat-card:nth-child(4)');
                             const reactionsCard = firstGrid.querySelector('.stat-card:nth-child(5)');
                             
-                            // Linha 1: Posts e Pessoas em 2 colunas (ocupam 1.5 colunas cada do grid de 3)
+                            // Linha 1: Posts e Pessoas em 2 colunas (ocupam 3 colunas cada do grid de 6)
                             if (postsCard) {
-                                postsCard.style.gridColumn = '1 / span 1.5';
+                                postsCard.style.gridColumn = '1 / 4';
                                 postsCard.style.gridRow = '1';
                             }
                             if (peopleCard) {
-                                peopleCard.style.gridColumn = '2.5 / span 1.5';
+                                peopleCard.style.gridColumn = '4 / 7';
                                 peopleCard.style.gridRow = '1';
                             }
-                            // Linha 2: Feedbacks, Comentários e Reações em 3 colunas
+                            // Linha 2: Feedbacks, Comentários e Reações em 3 colunas (ocupam 2 colunas cada)
                             if (feedbackCard) {
-                                feedbackCard.style.gridColumn = '1 / 2';
+                                feedbackCard.style.gridColumn = '1 / 3';
                                 feedbackCard.style.gridRow = '2';
                             }
                             if (commentsCard) {
-                                commentsCard.style.gridColumn = '2 / 3';
+                                commentsCard.style.gridColumn = '3 / 5';
                                 commentsCard.style.gridRow = '2';
                             }
                             if (reactionsCard) {
-                                reactionsCard.style.gridColumn = '3 / 4';
+                                reactionsCard.style.gridColumn = '5 / 7';
                                 reactionsCard.style.gridRow = '2';
                             }
                             
@@ -3833,7 +3833,7 @@
                         
                         if (lastGrid) {
                             lastGrid.style.display = 'grid';
-                            lastGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                            lastGrid.style.gridTemplateColumns = 'repeat(6, 1fr)';
                             lastGrid.style.gap = '0.5rem';
                             
                             // Garantir box-sizing em todos os cards
@@ -3848,26 +3848,26 @@
                             const commentsRecCard = lastGrid.querySelector('.stat-card:nth-child(4)');
                             const reactionsRecCard = lastGrid.querySelector('.stat-card:nth-child(5)');
                             
-                            // Linha 1: Holofotes e Pessoas em 2 colunas
+                            // Linha 1: Holofotes e Pessoas em 2 colunas (ocupam 3 colunas cada do grid de 6)
                             if (holofotesCard) {
-                                holofotesCard.style.gridColumn = '1 / span 1.5';
+                                holofotesCard.style.gridColumn = '1 / 4';
                                 holofotesCard.style.gridRow = '1';
                             }
                             if (peopleWhoCard) {
-                                peopleWhoCard.style.gridColumn = '2.5 / span 1.5';
+                                peopleWhoCard.style.gridColumn = '4 / 7';
                                 peopleWhoCard.style.gridRow = '1';
                             }
-                            // Linha 2: Feedbacks, Comentários e Reações em 3 colunas
+                            // Linha 2: Feedbacks, Comentários e Reações em 3 colunas (ocupam 2 colunas cada)
                             if (feedbackRecCard) {
-                                feedbackRecCard.style.gridColumn = '1 / 2';
+                                feedbackRecCard.style.gridColumn = '1 / 3';
                                 feedbackRecCard.style.gridRow = '2';
                             }
                             if (commentsRecCard) {
-                                commentsRecCard.style.gridColumn = '2 / 3';
+                                commentsRecCard.style.gridColumn = '3 / 5';
                                 commentsRecCard.style.gridRow = '2';
                             }
                             if (reactionsRecCard) {
-                                reactionsRecCard.style.gridColumn = '3 / 4';
+                                reactionsRecCard.style.gridColumn = '5 / 7';
                                 reactionsRecCard.style.gridRow = '2';
                             }
                             
