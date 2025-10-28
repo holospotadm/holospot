@@ -12007,11 +12007,41 @@
                     
                     // Adicionar pessoas sem userId (fallback @username)
                     const peopleWithUsernames = peopleDetailsForCard.filter(p => p.username);
-                    peopleWithUsernames.forEach(p => {
-                        if (!Array.from(uniquePeopleMap.keys()).includes(p.username)) {
-                            uniquePeopleMap.set(`@${p.username}`, true);
+                    
+                    if (peopleWithUsernames.length > 0) {
+                        // Buscar IDs reais dos usernames para evitar duplicação
+                        const { data: allProfiles } = await supabase
+                            .from('profiles')
+                            .select('id, username, email');
+                        
+                        if (allProfiles) {
+                            peopleWithUsernames.forEach(p => {
+                                // Tentar encontrar o perfil real pelo username
+                                const realProfile = allProfiles.find(profile => {
+                                    const emailUsername = profile.email?.split('@')[0] || '';
+                                    const profileUsername = profile.username || '';
+                                    return emailUsername.toLowerCase() === p.username.toLowerCase() ||
+                                           profileUsername.toLowerCase() === p.username.toLowerCase();
+                                });
+                                
+                                if (realProfile) {
+                                    // Verificar se o ID real já existe no Map
+                                    if (!uniquePeopleMap.has(realProfile.id)) {
+                                        uniquePeopleMap.set(realProfile.id, true);
+                                        console.log(`✅ Card: Adicionado @${p.username} com ID real: ${realProfile.id}`);
+                                    } else {
+                                        console.log(`⚠️ Card: @${p.username} já existe como ID ${realProfile.id}, ignorando`);
+                                    }
+                                } else {
+                                    // Se não encontrou perfil real, adicionar como @username
+                                    if (!uniquePeopleMap.has(`@${p.username}`)) {
+                                        uniquePeopleMap.set(`@${p.username}`, true);
+                                        console.log(`✅ Card: Adicionado @${p.username} (sem perfil real)`);
+                                    }
+                                }
+                            });
                         }
-                    });
+                    }
                     
                     uniqueRealPeopleCount = uniquePeopleMap.size;
                     console.log('📊 Pessoas únicas após deduplication (card):', uniqueRealPeopleCount);
