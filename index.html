@@ -5506,6 +5506,225 @@
             }
         }
 
+        // ============================================================================
+        // SETTINGS FUNCTIONS
+        // ============================================================================
+
+        let usernameCheckTimeout = null;
+        let currentAvatarFile = null;
+
+        function openSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            
+            // Preencher dados atuais
+            document.getElementById('settingsFullName').value = currentUser.user_metadata?.full_name || '';
+            document.getElementById('settingsUsername').value = currentUser.user_metadata?.username || '';
+            document.getElementById('settingsDefaultFeed').value = currentUser.user_metadata?.default_feed || 'recommended';
+            
+            // Avatar preview
+            const avatarUrl = currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.user_metadata?.full_name || 'User')}&background=667eea&color=fff&size=200`;
+            document.getElementById('settingsAvatarPreview').src = avatarUrl;
+            
+            modal.style.display = 'flex';
+            console.log('⚙️ Modal de configurações aberto');
+        }
+
+        function closeSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.style.display = 'none';
+            currentAvatarFile = null;
+            console.log('❌ Modal de configurações fechado');
+        }
+
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validar tamanho (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('🚨 Imagem muito grande! Máximo 5MB.');
+                return;
+            }
+            
+            // Validar tipo
+            if (!file.type.startsWith('image/')) {
+                alert('🚨 Apenas imagens são permitidas!');
+                return;
+            }
+            
+            currentAvatarFile = file;
+            
+            // Preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('settingsAvatarPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            console.log('📷 Avatar selecionado:', file.name);
+        }
+
+        async function checkUsernameAvailability() {
+            const usernameInput = document.getElementById('settingsUsername');
+            const statusIcon = document.getElementById('usernameStatus');
+            const message = document.getElementById('usernameMessage');
+            const username = usernameInput.value.trim();
+            
+            // Limpar timeout anterior
+            if (usernameCheckTimeout) {
+                clearTimeout(usernameCheckTimeout);
+            }
+            
+            // Se vazio ou igual ao atual, limpar
+            if (!username || username === currentUser.user_metadata?.username) {
+                statusIcon.textContent = '';
+                message.textContent = '';
+                usernameInput.style.borderColor = '#e0e0e0';
+                return;
+            }
+            
+            // Validar formato
+            if (!/^[a-zA-Z0-9._]+$/.test(username)) {
+                statusIcon.textContent = '❌';
+                message.textContent = 'Apenas letras, números, . e _';
+                message.style.color = '#e74c3c';
+                usernameInput.style.borderColor = '#e74c3c';
+                return;
+            }
+            
+            // Mostrar loading
+            statusIcon.textContent = '⏳';
+            message.textContent = 'Verificando...';
+            message.style.color = '#666';
+            
+            // Verificar disponibilidade com debounce
+            usernameCheckTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await supabase.rpc('check_username_availability', {
+                        p_username: username,
+                        p_current_user_id: currentUser.id
+                    });
+                    
+                    if (error) throw error;
+                    
+                    if (data) {
+                        // Disponível
+                        statusIcon.textContent = '✅';
+                        message.textContent = 'Username disponível!';
+                        message.style.color = '#27ae60';
+                        usernameInput.style.borderColor = '#27ae60';
+                    } else {
+                        // Já em uso
+                        statusIcon.textContent = '❌';
+                        message.textContent = 'Username já está em uso';
+                        message.style.color = '#e74c3c';
+                        usernameInput.style.borderColor = '#e74c3c';
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao verificar username:', error);
+                    statusIcon.textContent = '⚠️';
+                    message.textContent = 'Erro ao verificar';
+                    message.style.color = '#f39c12';
+                }
+            }, 500);
+        }
+
+        async function saveSettings(event) {
+            event.preventDefault();
+            
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            const originalText = saveBtn.textContent;
+            
+            try {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Salvando...';
+                
+                const fullName = document.getElementById('settingsFullName').value.trim();
+                const username = document.getElementById('settingsUsername').value.trim();
+                const defaultFeed = document.getElementById('settingsDefaultFeed').value;
+                
+                let avatarUrl = currentUser.user_metadata?.avatar_url;
+                
+                // Upload de avatar se houver
+                if (currentAvatarFile) {
+                    console.log('📷 Fazendo upload do avatar...');
+                    
+                    const fileExt = currentAvatarFile.name.split('.').pop();
+                    const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+                    const filePath = `avatars/${fileName}`;
+                    
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('avatars')
+                        .upload(filePath, currentAvatarFile, {
+                            cacheControl: '3600',
+                            upsert: false
+                        });
+                    
+                    if (uploadError) throw uploadError;
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('avatars')
+                        .getPublicUrl(filePath);
+                    
+                    avatarUrl = urlData.publicUrl;
+                    console.log('✅ Avatar uploaded:', avatarUrl);
+                }
+                
+                // Atualizar perfil
+                console.log('🔄 Atualizando perfil...');
+                
+                const { data, error } = await supabase.rpc('update_user_profile', {
+                    p_user_id: currentUser.id,
+                    p_full_name: fullName,
+                    p_username: username,
+                    p_avatar_url: avatarUrl,
+                    p_default_feed: defaultFeed
+                });
+                
+                if (error) throw error;
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Erro ao atualizar perfil');
+                }
+                
+                console.log('✅ Perfil atualizado com sucesso!');
+                
+                // Atualizar currentUser
+                currentUser.user_metadata = {
+                    ...currentUser.user_metadata,
+                    full_name: fullName,
+                    username: username,
+                    avatar_url: avatarUrl,
+                    default_feed: defaultFeed
+                };
+                
+                // Atualizar localStorage do filtro
+                localStorage.setItem('feedFilter', defaultFeed);
+                window.currentFeedFilter = defaultFeed;
+                
+                // Atualizar UI
+                await loadUserData();
+                
+                // Fechar modal
+                closeSettingsModal();
+                
+                // Mostrar sucesso
+                alert('✅ Configurações salvas com sucesso!');
+                
+            } catch (error) {
+                console.error('❌ Erro ao salvar configurações:', error);
+                alert('🚨 Erro ao salvar: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            }
+        }
+
+        // ============================================================================
+        // POSTS FUNCTIONS
+        // ============================================================================
+
         async function loadPosts() {
             try {
                 console.log('📝 Carregando posts...');
@@ -8449,6 +8668,12 @@
                             <div class="stat-card" id="modalFollowersCard">
                                 <div class="stat-number" id="userFollowersCount">0</div>
                                 <div class="stat-label">Seguidores</div>
+                            </div>
+                            
+                            <!-- Botão Settings -->
+                            <div class="stat-card" id="settingsCard" onclick="openSettingsModal()" style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚙️</div>
+                                <div class="stat-label" style="color: white;">Configurações</div>
                             </div>
                             
                             <!-- Segunda linha: Posts Criados | Holofotes Recebidos -->
@@ -14272,6 +14497,64 @@
         </div>
         <div class="filter-option" data-filter="following">
             <span>👥 Seguindo</span>
+        </div>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeSettingsModal()">&times;</span>
+            <h2 style="margin-bottom: 2rem; color: #333;">⚙️ Configurações do Perfil</h2>
+            
+            <form id="settingsForm" onsubmit="saveSettings(event)">
+                <!-- Avatar -->
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="position: relative; display: inline-block;">
+                        <img id="settingsAvatarPreview" src="" alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #667eea;">
+                        <label for="avatarUpload" style="position: absolute; bottom: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                            📷
+                        </label>
+                        <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="previewAvatar(event)">
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">Clique na câmera para alterar</p>
+                </div>
+                
+                <!-- Nome Completo -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Nome Completo</label>
+                    <input type="text" id="settingsFullName" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="Seu nome completo">
+                </div>
+                
+                <!-- Username -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">@Username</label>
+                    <div style="position: relative;">
+                        <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="seu.username" oninput="checkUsernameAvailability()">
+                        <span id="usernameStatus" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.2rem;"></span>
+                    </div>
+                    <p id="usernameMessage" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;"></p>
+                </div>
+                
+                <!-- Feed Padrão -->
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Feed Padrão</label>
+                    <select id="settingsDefaultFeed" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
+                        <option value="recommended">🌍 Recomendados (todos os posts)</option>
+                        <option value="following">👥 Seguindo (apenas quem você segue)</option>
+                    </select>
+                    <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;">Escolha qual feed aparecerá ao abrir o app</p>
+                </div>
+                
+                <!-- Botões -->
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeSettingsModal()" style="padding: 12px 24px; border: 2px solid #e0e0e0; background: white; color: #666; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="saveSettingsBtn" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
