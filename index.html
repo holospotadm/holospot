@@ -14564,9 +14564,10 @@
                 
                 <!-- Username -->
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">@Username</label>
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">@username</label>
                     <div style="position: relative;">
-                        <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px; padding-right: 40px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="seu.username" oninput="checkUsernameAvailability()">
+                        <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1rem; pointer-events: none;">@</span>
+                        <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px 40px 12px 28px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="seu.username" oninput="checkUsernameAvailability()">
                         <span id="usernameStatus" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.2rem;"></span>
                     </div>
                     <p id="usernameMessage" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;"></p>
