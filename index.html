@@ -1948,6 +1948,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             display: none; /* Inicialmente oculto */
+            scrollbar-gutter: stable;
         }
 
         .full-profile-header {
@@ -2184,7 +2185,7 @@
             }
             
             .full-profile-content {
-                margin: 1rem;
+                margin: 1rem 1rem 1rem 1rem;
                 padding: 1rem;
                 border-radius: 8px;
             }
@@ -2287,6 +2288,11 @@
             
             #fullProfileContent > div > div:nth-child(4) > div > div:last-child {
                 font-size: 0.75rem !important;
+            }
+            
+            /* Botão Voltar para o Feed - aumentar espaço superior */
+            #fullProfileContent > div > div:nth-child(5) {
+                margin-top: 2rem !important;
             }
         }
 
