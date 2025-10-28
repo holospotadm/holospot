@@ -11186,6 +11186,8 @@
 
                     if (realUsers && realUsers.length > 0) {
                         // Combinar dados reais com os dados extraídos
+                        const uniquePeopleMap = new Map();
+                        
                         peopleDetails.forEach(person => {
                             let realUser = null;
                             
@@ -11219,10 +11221,26 @@
                                     name: realUser.name,
                                     avatar: realUser.avatar_url
                                 });
+                                
+                                // Adicionar ao Map para remover duplicatas
+                                if (uniquePeopleMap.has(realUser.id)) {
+                                    // Se já existe, somar o postCount
+                                    const existing = uniquePeopleMap.get(realUser.id);
+                                    existing.postCount += person.postCount;
+                                    console.log(`🔄 Duplicata encontrada! Somando postCount: ${existing.postCount}`);
+                                } else {
+                                    // Primeira ocorrência, adicionar ao Map
+                                    uniquePeopleMap.set(realUser.id, person);
+                                }
                             } else {
                                 console.log(`⚠️ Perfil REAL não encontrado para ${person.userId || person.username}`);
                             }
                         });
+                        
+                        // Substituir peopleDetails pelo array sem duplicatas
+                        peopleDetails.length = 0;
+                        peopleDetails.push(...Array.from(uniquePeopleMap.values()));
+                        console.log(`✅ Pessoas únicas após deduplication: ${peopleDetails.length}`);
                     }
                 }
 
