@@ -5705,10 +5705,11 @@ DECLARE
     v_exists BOOLEAN;
 BEGIN
     -- Verificar se username já existe (ignorando o próprio usuário)
+    -- Case-insensitive: João = joão = JOÃO
     SELECT EXISTS(
         SELECT 1 
         FROM profiles 
-        WHERE username = p_username 
+        WHERE LOWER(username) = LOWER(p_username) 
         AND id != p_current_user_id
     ) INTO v_exists;
     
