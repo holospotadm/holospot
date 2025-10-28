@@ -14300,8 +14300,15 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Inicializar filtro de feed
-            const savedFilter = localStorage.getItem('feedFilter') || 'recommended';
+            // Prioridade: default_feed do perfil > localStorage > 'recommended'
+            const userDefaultFeed = currentUser?.user_metadata?.default_feed;
+            const savedFilter = userDefaultFeed || localStorage.getItem('feedFilter') || 'recommended';
             window.currentFeedFilter = savedFilter;
+            
+            // Sincronizar localStorage com preferência do usuário
+            if (userDefaultFeed) {
+                localStorage.setItem('feedFilter', userDefaultFeed);
+            }
             
             // Atualizar APENAS a UI inicial (sem chamar loadPosts)
             setTimeout(() => {
