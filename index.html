@@ -545,18 +545,8 @@
             padding: 0.5rem;
             min-width: 180px;
             z-index: 10000;
-            animation: dropdownFadeIn 0.2s ease;
-        }
-
-        @keyframes dropdownFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         .filter-option {
@@ -14053,12 +14043,19 @@
                     const isVisible = dropdown.style.display === 'block';
                     
                     if (!isVisible) {
-                        // Calcular posição do botão
+                        // Calcular posição do botão ANTES de mostrar
                         const rect = inicioNavTab.getBoundingClientRect();
                         dropdown.style.top = `${rect.bottom + 8}px`;
                         dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
                         dropdown.style.transform = 'translateX(-50%)';
+                        dropdown.style.opacity = '0';
                         dropdown.style.display = 'block';
+                        
+                        // Forçar reflow para aplicar posição antes da animação
+                        dropdown.offsetHeight;
+                        
+                        // Agora mostrar com animação
+                        dropdown.style.opacity = '1';
                     } else {
                         dropdown.style.display = 'none';
                     }
