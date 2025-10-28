@@ -5726,7 +5726,7 @@ COMMENT ON FUNCTION public.check_username_availability IS
 
 CREATE OR REPLACE FUNCTION public.update_user_profile(
     p_user_id UUID,
-    p_full_name TEXT DEFAULT NULL,
+    p_name TEXT DEFAULT NULL,
     p_username TEXT DEFAULT NULL,
     p_avatar_url TEXT DEFAULT NULL,
     p_default_feed TEXT DEFAULT NULL
@@ -5754,7 +5754,7 @@ BEGIN
     -- Atualizar perfil (apenas campos fornecidos)
     UPDATE profiles
     SET
-        full_name = COALESCE(p_full_name, full_name),
+        name = COALESCE(p_name, name),
         username = COALESCE(p_username, username),
         avatar_url = COALESCE(p_avatar_url, avatar_url),
         default_feed = COALESCE(p_default_feed, default_feed),

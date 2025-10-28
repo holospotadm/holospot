@@ -5537,22 +5537,24 @@
             const modal = document.getElementById('settingsModal');
             
             // Buscar dados do perfil do Supabase
-            const { data: profile } = await supabase
+            const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('full_name, username, avatar_url, default_feed')
+                .select('name, username, avatar_url, default_feed')
                 .eq('id', currentUser.id)
                 .single();
+            
+            console.log('🔍 Dados do perfil:', profile, error);
             
             // Salvar username atual para comparação
             currentUsername = profile?.username || currentUser.user_metadata?.username || '';
             
             // Preencher dados atuais
-            document.getElementById('settingsFullName').value = profile?.full_name || currentUser.user_metadata?.full_name || '';
+            document.getElementById('settingsFullName').value = profile?.name || currentUser.user_metadata?.full_name || '';
             document.getElementById('settingsUsername').value = currentUsername;
             document.getElementById('settingsDefaultFeed').value = profile?.default_feed || 'recommended';
             
             // Avatar preview
-            const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'User')}&background=667eea&color=fff&size=200`;
+            const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=667eea&color=fff&size=200`;
             document.getElementById('settingsAvatarPreview').src = avatarUrl;
             
             modal.style.display = 'flex';
@@ -5706,7 +5708,7 @@
                 
                 const { data, error } = await supabase.rpc('update_user_profile', {
                     p_user_id: currentUser.id,
-                    p_full_name: fullName,
+                    p_name: fullName,
                     p_username: username,
                     p_avatar_url: avatarUrl,
                     p_default_feed: defaultFeed
