@@ -3776,6 +3776,52 @@
                 setTimeout(() => {
                     setupStatCardListeners();
                     console.log('🔄 Event listeners dos cards reconfigurados na aba perfil');
+                    
+                    // Aplicar grid layout mobile via JavaScript
+                    if (window.innerWidth <= 768) {
+                        const firstGrid = document.querySelector('#perfilTab .stats-grid:first-of-type');
+                        const lastGrid = document.querySelector('#perfilTab .stats-grid:last-of-type');
+                        
+                        if (firstGrid) {
+                            firstGrid.style.display = 'grid';
+                            firstGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                            firstGrid.style.gap = '1rem';
+                            
+                            const postsCard = firstGrid.querySelector('#postsCreatedCard');
+                            const peopleCard = firstGrid.querySelector('#peopleHighlightedCard');
+                            const feedbackCard = firstGrid.querySelector('.stat-card:nth-child(3)');
+                            const commentsCard = firstGrid.querySelector('.stat-card:nth-child(4)');
+                            const reactionsCard = firstGrid.querySelector('.stat-card:nth-child(5)');
+                            
+                            if (postsCard) postsCard.style.gridColumn = '1 / 3';
+                            if (peopleCard) peopleCard.style.gridColumn = '3 / 4';
+                            if (feedbackCard) feedbackCard.style.gridColumn = '1 / 2';
+                            if (commentsCard) commentsCard.style.gridColumn = '2 / 3';
+                            if (reactionsCard) reactionsCard.style.gridColumn = '3 / 4';
+                            
+                            console.log('✅ Grid layout aplicado no primeiro stats-grid');
+                        }
+                        
+                        if (lastGrid) {
+                            lastGrid.style.display = 'grid';
+                            lastGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                            lastGrid.style.gap = '1rem';
+                            
+                            const holofotesCard = lastGrid.querySelector('#postsReceivedCard');
+                            const peopleWhoCard = lastGrid.querySelector('#peopleWhoHighlightedCard');
+                            const feedbackRecCard = lastGrid.querySelector('.stat-card:nth-child(3)');
+                            const commentsRecCard = lastGrid.querySelector('.stat-card:nth-child(4)');
+                            const reactionsRecCard = lastGrid.querySelector('.stat-card:nth-child(5)');
+                            
+                            if (holofotesCard) holofotesCard.style.gridColumn = '1 / 3';
+                            if (peopleWhoCard) peopleWhoCard.style.gridColumn = '3 / 4';
+                            if (feedbackRecCard) feedbackRecCard.style.gridColumn = '1 / 2';
+                            if (commentsRecCard) commentsRecCard.style.gridColumn = '2 / 3';
+                            if (reactionsRecCard) reactionsRecCard.style.gridColumn = '3 / 4';
+                            
+                            console.log('✅ Grid layout aplicado no segundo stats-grid');
+                        }
+                    }
                 }, 100);
             }
             
