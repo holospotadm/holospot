@@ -3778,7 +3778,9 @@
                     console.log('🔄 Event listeners dos cards reconfigurados na aba perfil');
                     
                     // Aplicar grid layout mobile via JavaScript
+                    console.log('📱 window.innerWidth:', window.innerWidth);
                     if (window.innerWidth <= 768) {
+                        console.log('✅ Mobile detectado, aplicando grid layout...');
                         const firstGrid = document.querySelector('#perfilTab .stats-grid:first-of-type');
                         const lastGrid = document.querySelector('#perfilTab .stats-grid:last-of-type');
                         
@@ -3800,6 +3802,8 @@
                             if (reactionsCard) reactionsCard.style.gridColumn = '3 / 4';
                             
                             console.log('✅ Grid layout aplicado no primeiro stats-grid');
+                        } else {
+                            console.error('❌ firstGrid não encontrado');
                         }
                         
                         if (lastGrid) {
@@ -3820,7 +3824,11 @@
                             if (reactionsRecCard) reactionsRecCard.style.gridColumn = '3 / 4';
                             
                             console.log('✅ Grid layout aplicado no segundo stats-grid');
+                        } else {
+                            console.error('❌ lastGrid não encontrado');
                         }
+                    } else {
+                        console.log('ℹ️ Desktop detectado, grid layout não aplicado');
                     }
                 }, 100);
             }
