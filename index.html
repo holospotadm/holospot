@@ -5532,20 +5532,27 @@
         let usernameCheckTimeout = null;
         let currentAvatarFile = null;
 
-        function openSettingsModal() {
+        async function openSettingsModal() {
             const modal = document.getElementById('settingsModal');
             
+            // Buscar dados do perfil do Supabase
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, username, avatar_url, default_feed')
+                .eq('id', currentUser.id)
+                .single();
+            
             // Preencher dados atuais
-            document.getElementById('settingsFullName').value = currentUser.user_metadata?.full_name || '';
-            document.getElementById('settingsUsername').value = currentUser.user_metadata?.username || '';
-            document.getElementById('settingsDefaultFeed').value = currentUser.user_metadata?.default_feed || 'recommended';
+            document.getElementById('settingsFullName').value = profile?.full_name || currentUser.user_metadata?.full_name || '';
+            document.getElementById('settingsUsername').value = profile?.username || currentUser.user_metadata?.username || '';
+            document.getElementById('settingsDefaultFeed').value = profile?.default_feed || 'recommended';
             
             // Avatar preview
-            const avatarUrl = currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.user_metadata?.full_name || 'User')}&background=667eea&color=fff&size=200`;
+            const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.full_name || 'User')}&background=667eea&color=fff&size=200`;
             document.getElementById('settingsAvatarPreview').src = avatarUrl;
             
             modal.style.display = 'flex';
-            console.log('⚙️ Modal de configurações aberto');
+            console.log('⚙️ Modal de configurações aberto', profile);
         }
 
         function closeSettingsModal() {
@@ -14522,13 +14529,13 @@
 
     <!-- Modal de Configurações -->
     <div id="settingsModal" class="modal-overlay" style="display: none;" onclick="closeSettingsModal()">
-        <div class="modal-content" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0; margin-bottom: 1.5rem;">
-                <h2 style="margin: 0; color: #333;">⚙️ Configurações do Perfil</h2>
-                <span class="close" onclick="closeSettingsModal()" style="position: static; margin: 0; cursor: pointer; font-size: 2rem; color: #999; line-height: 1;">&times;</span>
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>⚙️ Configurações do Perfil</h3>
+                <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
             </div>
             
-            <div style="overflow-y: auto; flex: 1; padding-right: 10px;">
+            <div style="overflow-y: auto; flex: 1; padding: 24px;">
             
             <form id="settingsForm" onsubmit="saveSettings(event)">
                 <!-- Avatar -->
@@ -14573,7 +14580,7 @@
             </div>
             
             <!-- Botões fixos no rodapé -->
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 2px solid #f0f0f0; margin-top: 1rem;">
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; padding: 20px 24px; border-top: 2px solid #f0f0f0; background: #fafafa;">
                 <button type="button" onclick="closeSettingsModal()" style="padding: 12px 24px; border: 2px solid #e0e0e0; background: white; color: #666; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
                     Cancelar
                 </button>
