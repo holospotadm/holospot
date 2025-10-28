@@ -14081,9 +14081,24 @@
             const savedFilter = localStorage.getItem('feedFilter') || 'recommended';
             window.currentFeedFilter = savedFilter;
             
-            // Atualizar UI inicial
+            // Atualizar APENAS a UI inicial (sem chamar loadPosts)
             setTimeout(() => {
-                setFeedFilter(savedFilter);
+                // Atualizar emoji
+                const emoji = document.getElementById('feedEmoji');
+                if (emoji) {
+                    emoji.textContent = savedFilter === 'following' ? '👥' : '🌍';
+                }
+                
+                // Atualizar dropdown
+                document.querySelectorAll('.filter-option').forEach(option => {
+                    if (option.dataset.filter === savedFilter) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+                
+                console.log('✅ [DEBUG] UI do filtro inicializada sem chamar loadPosts');
             }, 100);
             
             setTimeout(() => {
