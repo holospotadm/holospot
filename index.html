@@ -11954,26 +11954,30 @@
                 document.getElementById('userPostsCount').textContent = userPosts?.length || 0;
                 
                 // 2. Pessoas Destacadas (usar mentioned_user_id + fallback para @username)
-                const uniquePeople = new Set();
+                const peopleDetailsForCard = [];
+                const peopleHighlightedSet = new Set();
                 
                 console.log('📊 Calculando pessoas destacadas para o card...');
                 
                 userPosts.forEach(post => {
                     if (post.mentioned_user_id) {
                         // Usar mentioned_user_id (mais confiável)
-                        uniquePeople.add(post.mentioned_user_id);
-                        console.log(`✅ Card: Adicionado via mentioned_user_id: ${post.mentioned_user_id}`);
+                        if (!peopleHighlightedSet.has(post.mentioned_user_id)) {
+                            peopleHighlightedSet.add(post.mentioned_user_id);
+                            peopleDetailsForCard.push({ userId: post.mentioned_user_id });
+                            console.log(`✅ Card: Adicionado via mentioned_user_id: ${post.mentioned_user_id}`);
+                        }
                     } else {
                         // Fallback: extrair @username se não tiver mentioned_user_id
                         const personName = post.celebrated_person_name || post.person_name;
                         if (personName && personName.includes('@')) {
-                            // Regex melhorada para capturar usernames com pontos, underscores e hífens
                             const usernameMatch = personName.match(/@([a-zA-Z0-9._-]+)/g);
                             if (usernameMatch) {
                                 usernameMatch.forEach(match => {
-                                    const username = match.substring(1); // Remove o @
-                                    if (username) {
-                                        uniquePeople.add(`@${username}`); // Prefixar com @ para diferenciar de IDs
+                                    const username = match.substring(1);
+                                    if (username && !peopleHighlightedSet.has(`@${username}`)) {
+                                        peopleHighlightedSet.add(`@${username}`);
+                                        peopleDetailsForCard.push({ username: username });
                                         console.log(`✅ Card: Adicionado via @username: ${username}`);
                                     }
                                 });
@@ -11982,10 +11986,38 @@
                     }
                 });
                 
-                console.log('📊 Total pessoas destacadas (card):', uniquePeople.size);
-                console.log('📊 Lista pessoas destacadas (card):', Array.from(uniquePeople));
+                // Buscar dados reais e deduplicação (mesma lógica do modal)
+                let uniqueRealPeopleCount = peopleDetailsForCard.length;
                 
-                document.getElementById('userPeopleHighlighted').textContent = uniquePeople.size;
+                if (peopleDetailsForCard.length > 0) {
+                    const peopleWithIds = peopleDetailsForCard.filter(p => p.userId);
+                    const uniquePeopleMap = new Map();
+                    
+                    if (peopleWithIds.length > 0) {
+                        const userIds = peopleWithIds.map(p => p.userId);
+                        const { data: usersByIds } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .in('id', userIds);
+                        
+                        if (usersByIds) {
+                            usersByIds.forEach(user => uniquePeopleMap.set(user.id, true));
+                        }
+                    }
+                    
+                    // Adicionar pessoas sem userId (fallback @username)
+                    const peopleWithUsernames = peopleDetailsForCard.filter(p => p.username);
+                    peopleWithUsernames.forEach(p => {
+                        if (!Array.from(uniquePeopleMap.keys()).includes(p.username)) {
+                            uniquePeopleMap.set(`@${p.username}`, true);
+                        }
+                    });
+                    
+                    uniqueRealPeopleCount = uniquePeopleMap.size;
+                    console.log('📊 Pessoas únicas após deduplication (card):', uniqueRealPeopleCount);
+                }
+                
+                document.getElementById('userPeopleHighlighted').textContent = uniqueRealPeopleCount;
 
                 // Buscar métricas de reconhecimento DADO
                 const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
