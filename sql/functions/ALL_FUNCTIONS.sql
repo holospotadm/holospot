@@ -6053,9 +6053,9 @@ RETURNS TABLE (
     person_name TEXT,
     content TEXT,
     photo_url TEXT,
-    created_at TIMESTAMP,
-    likes_count INTEGER,
-    comments_count INTEGER,
+    created_at TIMESTAMPTZ,
+    likes_count BIGINT,
+    comments_count BIGINT,
     user_has_liked BOOLEAN
 )
 LANGUAGE plpgsql
@@ -6084,8 +6084,8 @@ BEGIN
         p.content,
         p.photo_url,
         p.created_at,
-        p.likes_count,
-        p.comments_count,
+        (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id)::BIGINT as likes_count,
+        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id)::BIGINT as comments_count,
         EXISTS(
             SELECT 1 
             FROM likes l 
