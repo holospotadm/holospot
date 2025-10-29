@@ -276,6 +276,7 @@ async function loadCommunityMembers(communityId) {
         .select(`
             user_id,
             role,
+            joined_at,
             profiles:user_id (
                 id,
                 name,
@@ -284,7 +285,8 @@ async function loadCommunityMembers(communityId) {
             )
         `)
         .eq('community_id', communityId)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .order('joined_at', { ascending: true });
     
     if (error) {
         console.error('Erro ao carregar membros:', error);
