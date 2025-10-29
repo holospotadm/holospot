@@ -105,6 +105,7 @@ function showCommunityInfo(community) {
         form.community_id.value = community.id;
         form.emoji.value = community.emoji || '🏢';
         form.name.value = community.name;
+        form.slug.value = community.slug || '';
         form.description.value = community.description || '';
     }
     
@@ -210,6 +211,13 @@ function setupNewCommunityForm() {
         const formData = new FormData(e.target);
         const slug = formData.get('slug');
         
+        // Validar formato do slug
+        if (!/^[a-z0-9-]+$/.test(slug)) {
+            alert('❌ Slug inválido! Use apenas letras minúsculas, números e hífens.');
+            isSubmitting = false;
+            return;
+        }
+        
         // Validar slug único
         const { data: existing, error: checkError } = await supabase
             .from('communities')
@@ -286,7 +294,7 @@ function setupEditCommunityForm() {
         const { error } = await supabase.rpc('update_community', {
             p_community_id: formData.get('community_id'),
             p_name: formData.get('name'),
-            p_slug: null,
+            p_slug: formData.get('slug'),
             p_description: formData.get('description') || null,
             p_emoji: formData.get('emoji') || '🏢',
             p_logo_url: null
