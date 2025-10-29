@@ -6054,8 +6054,8 @@ BEGIN
     -- Verificar se o usuário é membro
     IF NOT EXISTS (
         SELECT 1 FROM community_members cm
-        WHERE cm.community_id = p_community_id 
-        AND cm.user_id = p_user_id 
+        WHERE cm.community_id = get_community_feed.p_community_id 
+        AND cm.user_id = get_community_feed.p_user_id 
         AND cm.is_active = true
     ) THEN
         RAISE EXCEPTION 'User is not a member of this community';
@@ -6065,7 +6065,7 @@ BEGIN
     RETURN QUERY
     SELECT p.*
     FROM posts p
-    WHERE p.community_id = p_community_id
+    WHERE p.community_id = get_community_feed.p_community_id
     ORDER BY p.created_at DESC
     LIMIT p_limit
     OFFSET p_offset;
