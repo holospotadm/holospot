@@ -2669,6 +2669,23 @@
             <div class="create-post-form">
                 <h2 style="margin-bottom: 1.5rem; color: #e65100;"><img src="./holofote.png" style="width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;"> Destacar Alguém</h2>
                 
+                <!-- Dropdown de Comunidade -->
+                <div class="form-group" id="destacarCommunityDropdownContainer" style="display: none;">
+                    <label class="form-label">Comunidade (opcional)</label>
+                    <select id="destacarCommunitySelect" class="form-input" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        background: white;
+                        cursor: pointer;
+                    ">
+                        <option value="">Feed Geral (público)</option>
+                    </select>
+                    <small style="color: #666; display: block; margin-top: 5px;">Deixe em branco para post geral ou escolha uma comunidade</small>
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label">Nome da pessoa</label>
                     <div class="textarea-container">
@@ -8298,8 +8315,14 @@
                     console.warn('⚠️ Erro ao buscar ID do usuário mencionado:', error);
                 }
                 
-                // Detectar comunidade ativa
-                const activeCommunityId = typeof getActiveCommunityId === 'function' ? getActiveCommunityId() : null;
+                // Detectar comunidade selecionada no dropdown do Destacar
+                const activeCommunityId = typeof getSelectedCommunityId === 'function' ? getSelectedCommunityId() : null;
+                
+                if (activeCommunityId) {
+                    console.log('🏢 Post será criado na comunidade:', activeCommunityId);
+                } else {
+                    console.log('🌍 Post será criado no feed geral');
+                }
                 
                 try {
                     const { data, error } = await supabase
@@ -15804,6 +15827,7 @@
         <div class="filter-option" data-filter="following">
             <span>👥 Seguindo</span>
         </div>
+        <!-- Comunidades serão adicionadas dinamicamente aqui -->
     </div>
 
 

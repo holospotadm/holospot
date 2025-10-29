@@ -1,195 +1,211 @@
-/**
- * ============================================
- * MÓDULO: Community Feeds
- * Descrição: Gerencia tabs dinâmicas de feeds de comunidades
- * Autor: HoloSpot Team
- * Data: 2024-10-29
- * ============================================
- */
+// ============================================
+// COMMUNITY FEEDS
+// Integra feeds de comunidades no dropdown existente
+// ============================================
 
-// Carregar comunidades do usuário e criar tabs
+let userCommunities = [];
+
+// Carregar comunidades do usuário e popular dropdowns
 async function loadUserCommunities() {
     if (!currentUser || !currentUser.id) {
-        console.log('Usuário não autenticado');
+        console.log('⚠️ Usuário não logado');
         return;
     }
 
-    const { data: memberships, error } = await supabase
-        .from('community_members')
-        .select(`
-            community_id,
-            role,
-            communities (
-                id,
-                name,
-                slug,
-                emoji,
-                logo_url
-            )
-        `)
-        .eq('user_id', currentUser.id)
-        .eq('is_active', true);
-    
-    if (error) {
-        console.error('Erro ao carregar comunidades:', error);
-        return;
-    }
-    
-    // Armazenar comunidades do usuário
-    currentUser.communities = memberships || [];
-    
-    // Adicionar tabs de comunidades
-    const feedTabs = document.getElementById('feedTabs');
-    
-    if (!feedTabs) {
-        console.error('Elemento feedTabs não encontrado');
-        return;
-    }
-    
-    // Remover tabs antigas de comunidades (manter apenas Para Você e Seguindo)
-    const existingTabs = feedTabs.querySelectorAll('.tab');
-    existingTabs.forEach(tab => {
-        if (tab.dataset.feed && tab.dataset.feed.startsWith('community-')) {
-            tab.remove();
-        }
-    });
-    
-    // Adicionar nova tab para cada comunidade
-    memberships.forEach(m => {
-        const tab = document.createElement('button');
-        tab.className = 'tab';
-        tab.dataset.feed = `community-${m.community_id}`;
-        tab.dataset.communityId = m.community_id;
-        tab.dataset.role = m.role;
-        tab.textContent = `${m.communities.emoji || '🏢'} ${m.communities.name}`;
-        
-        tab.addEventListener('click', () => {
-            // Remover active de todas as tabs
-            feedTabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            
-            // Adicionar active na tab clicada
-            tab.classList.add('active');
-            
-            // Carregar feed da comunidade
-            loadCommunityFeed(m.community_id);
-        });
-        
-        feedTabs.appendChild(tab);
-    });
-    
-    // Restaurar feed ativo (localStorage)
-    const activeFeed = localStorage.getItem('activeFeed') || 'for-you';
-    const activeTab = feedTabs.querySelector(`[data-feed="${activeFeed}"]`);
-    if (activeTab) {
-        activeTab.click();
-    } else {
-        // Se não encontrar, ativar "Para Você"
-        const defaultTab = feedTabs.querySelector('[data-feed="for-you"]');
-        if (defaultTab) {
-            defaultTab.click();
-        }
+    try {
+        // Buscar comunidades que o usuário é membro
+        const { data: communities, error } = await supabase
+            .from('community_members')
+            .select(`
+                community_id,
+                communities (
+                    id,
+                    name,
+                    slug,
+                    emoji
+                )
+            `)
+            .eq('user_id', currentUser.id)
+            .eq('is_active', true);
+
+        if (error) throw error;
+
+        userCommunities = communities
+            .map(c => c.communities)
+            .filter(c => c !== null);
+
+        console.log('✅ Comunidades carregadas:', userCommunities.length);
+
+        // Popular dropdown do Feed
+        populateFeedDropdown();
+
+        // Popular dropdown do Destacar
+        populateDestacarDropdown();
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar comunidades:', error);
     }
 }
 
-// Carregar feed da comunidade
+// Popular dropdown do Feed (aba Início)
+function populateFeedDropdown() {
+    const dropdown = document.getElementById('feedFilterDropdown');
+    if (!dropdown) return;
+
+    // Remover opções de comunidades antigas
+    const oldCommunityOptions = dropdown.querySelectorAll('[data-filter^="community-"]');
+    oldCommunityOptions.forEach(opt => opt.remove());
+
+    // Adicionar comunidades
+    if (userCommunities.length > 0) {
+        userCommunities.forEach(community => {
+            const option = document.createElement('div');
+            option.className = 'filter-option';
+            option.setAttribute('data-filter', `community-${community.id}`);
+            option.innerHTML = `<span>${community.emoji || '🏢'} ${community.name}</span>`;
+            dropdown.appendChild(option);
+        });
+
+        console.log('✅ Dropdown do Feed atualizado com', userCommunities.length, 'comunidades');
+    }
+}
+
+// Popular dropdown do Destacar
+function populateDestacarDropdown() {
+    const container = document.getElementById('destacarCommunityDropdownContainer');
+    const select = document.getElementById('destacarCommunitySelect');
+
+    if (!container || !select) return;
+
+    // Limpar opções antigas (exceto a primeira)
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+
+    if (userCommunities.length > 0) {
+        // Mostrar dropdown
+        container.style.display = 'block';
+
+        // Adicionar comunidades
+        userCommunities.forEach(community => {
+            const option = document.createElement('option');
+            option.value = community.id;
+            option.textContent = `${community.emoji || '🏢'} ${community.name}`;
+            select.appendChild(option);
+        });
+
+        console.log('✅ Dropdown do Destacar atualizado com', userCommunities.length, 'comunidades');
+    } else {
+        // Esconder dropdown se não tem comunidades
+        container.style.display = 'none';
+    }
+}
+
+// Carregar feed de comunidade específica
 async function loadCommunityFeed(communityId) {
     if (!currentUser || !currentUser.id) {
-        console.error('Usuário não autenticado');
+        console.log('⚠️ Usuário não logado');
         return;
     }
 
-    localStorage.setItem('activeFeed', `community-${communityId}`);
-    
-    // Mostrar loading
-    const postsContainer = document.getElementById('postsContainer');
-    if (postsContainer) {
-        postsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Carregando...</div>';
-    }
-    
-    const { data: posts, error } = await supabase.rpc('get_community_feed', {
-        p_community_id: communityId,
-        p_user_id: currentUser.id,
-        p_limit: 20,
-        p_offset: 0
-    });
-    
-    if (error) {
-        console.error('Erro ao carregar feed da comunidade:', error);
-        if (postsContainer) {
-            postsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #ff4444;">❌ Erro ao carregar feed da comunidade</div>';
-        }
-        return;
-    }
-    
-    // Processar dados dos usuários
-    if (typeof processPostsUserData === 'function') {
-        await processPostsUserData(posts);
-    }
-    
-    // Renderizar posts
-    if (typeof renderPosts === 'function') {
-        renderPosts(posts);
-    } else {
-        console.error('Função renderPosts não encontrada');
-    }
-}
+    try {
+        console.log('📥 Carregando feed da comunidade:', communityId);
 
-// Modificar event listeners das tabs existentes
-function setupFeedTabs() {
-    const feedTabs = document.getElementById('feedTabs');
-    if (!feedTabs) return;
-
-    document.querySelectorAll('.tab').forEach(tab => {
-        // Remover listeners antigos
-        const newTab = tab.cloneNode(true);
-        tab.parentNode.replaceChild(newTab, tab);
-        
-        newTab.addEventListener('click', () => {
-            const feed = newTab.dataset.feed;
-            
-            if (!feed) return;
-            
-            localStorage.setItem('activeFeed', feed);
-            
-            // Remover active de todas
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            newTab.classList.add('active');
-            
-            if (feed === 'for-you' || feed === 'following') {
-                // Carregar feed global (função existente)
-                if (typeof loadPosts === 'function') {
-                    loadPosts();
-                }
-            } else if (feed.startsWith('community-')) {
-                // Carregar feed de comunidade
-                const communityId = newTab.dataset.communityId;
-                if (communityId) {
-                    loadCommunityFeed(communityId);
-                }
-            }
+        const { data: posts, error } = await supabase.rpc('get_community_feed', {
+            p_community_id: communityId,
+            p_user_id: currentUser.id,
+            p_limit: 20,
+            p_offset: 0
         });
-    });
+
+        if (error) throw error;
+
+        console.log('✅ Posts da comunidade carregados:', posts.length);
+
+        // Renderizar posts (usa função existente do index.html)
+        const postsContainer = document.getElementById('postsContainer');
+        if (postsContainer) {
+            if (posts.length === 0) {
+                postsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Nenhum post nesta comunidade ainda.</p>
+                        <p style="font-size: 0.9rem; color: #666;">Seja o primeiro a postar!</p>
+                    </div>
+                `;
+            } else {
+                postsContainer.innerHTML = '';
+                posts.forEach(post => {
+                    if (typeof renderPost === 'function') {
+                        renderPost(post);
+                    }
+                });
+            }
+        }
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar feed da comunidade:', error);
+        showToast('Erro ao carregar feed da comunidade');
+    }
 }
 
-// Detectar feed ativo ao criar post
-function getActiveCommunityId() {
-    const activeFeed = localStorage.getItem('activeFeed');
-    
-    if (activeFeed && activeFeed.startsWith('community-')) {
-        const activeTab = document.querySelector(`[data-feed="${activeFeed}"]`);
-        if (activeTab && activeTab.dataset.communityId) {
-            return activeTab.dataset.communityId;
+// Interceptar mudança de filtro do Feed
+function setupCommunityFeedFilter() {
+    const dropdown = document.getElementById('feedFilterDropdown');
+    if (!dropdown) return;
+
+    // Usar event delegation para capturar cliques em opções de comunidade
+    dropdown.addEventListener('click', async (e) => {
+        const option = e.target.closest('.filter-option');
+        if (!option) return;
+
+        const filter = option.getAttribute('data-filter');
+
+        // Se for filtro de comunidade
+        if (filter && filter.startsWith('community-')) {
+            const communityId = filter.replace('community-', '');
+
+            // Marcar como ativo
+            dropdown.querySelectorAll('.filter-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            option.classList.add('active');
+
+            // Fechar dropdown
+            dropdown.style.display = 'none';
+
+            // Carregar feed da comunidade
+            await loadCommunityFeed(communityId);
+
+            // Salvar preferência
+            localStorage.setItem('feedFilter', filter);
         }
+    });
+
+    console.log('✅ Filtro de comunidades configurado');
+}
+
+// Detectar comunidade selecionada ao criar post no Destacar
+function getSelectedCommunityId() {
+    const select = document.getElementById('destacarCommunitySelect');
+    if (select && select.value) {
+        return select.value;
     }
-    
     return null;
+}
+
+// Inicializar ao carregar
+if (typeof window !== 'undefined') {
+    // Aguardar DOM e usuário logado
+    document.addEventListener('DOMContentLoaded', () => {
+        setupCommunityFeedFilter();
+    });
 }
 
 // Exportar funções globalmente
 window.loadUserCommunities = loadUserCommunities;
 window.loadCommunityFeed = loadCommunityFeed;
-window.setupFeedTabs = setupFeedTabs;
-window.getActiveCommunityId = getActiveCommunityId;
+window.getSelectedCommunityId = getSelectedCommunityId;
 
-console.log('✅ Módulo community_feeds.js carregado');
+console.log('✅ community_feeds.js carregado');
 

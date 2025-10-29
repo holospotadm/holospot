@@ -6086,7 +6086,7 @@ BEGIN
         p.created_at,
         p.likes_count,
         p.comments_count,
-        EXISTS(SELECT 1 FROM likes WHERE post_id = p.id AND user_id = p_user_id) as user_has_liked
+        EXISTS(SELECT 1 FROM likes l WHERE l.post_id = p.id AND l.user_id = p_user_id) as user_has_liked
     FROM posts p
     WHERE p.community_id = p_community_id
     ORDER BY p.created_at DESC
