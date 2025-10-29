@@ -3252,7 +3252,7 @@
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0;" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3>💬 Mensagens</h3>
-                <button onclick="closeChatListModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: color 0.3s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#666'">×</button>
+                <button class="modal-close" onclick="closeChatListModal()">&times;</button>
             </div>
             
             <!-- Campo de busca -->
@@ -3288,8 +3288,8 @@
     <!-- Modal de Conversa Individual -->
     <div id="chatModal" class="modal-overlay" style="display: none;" onclick="closeChatModal()">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0;" onclick="event.stopPropagation()">
-            <div class="modal-header" style="display: flex; align-items: center; gap: 12px;">
-                <button onclick="closeChatModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: color 0.3s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#666'">×</button>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 20px 24px; background: white; border-bottom: 2px solid #f0f0f0;">
+                <button onclick="closeChatModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: color 0.3s; padding: 0; margin: 0;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#666'">←</button>
                 <img id="chatUserAvatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 <div style="flex: 1;">
                     <h3 id="chatUserName" style="margin: 0; font-size: 1.1rem;">Usuário</h3>
