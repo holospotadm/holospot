@@ -105,7 +105,6 @@ function showCommunityInfo(community) {
         form.community_id.value = community.id;
         form.emoji.value = community.emoji || '🏢';
         form.name.value = community.name;
-        form.slug.value = community.slug;
         form.description.value = community.description || '';
         form.logo_url.value = community.logo_url || '';
     }
@@ -197,7 +196,7 @@ function setupNewCommunityForm() {
         
         const { data: communityId, error } = await supabase.rpc('create_community', {
             p_name: formData.get('name'),
-            p_slug: formData.get('slug'),
+            p_slug: null,
             p_description: formData.get('description') || null,
             p_emoji: formData.get('emoji') || '🏢',
             p_owner_id: currentUser.id
@@ -241,7 +240,7 @@ function setupEditCommunityForm() {
         const { error } = await supabase.rpc('update_community', {
             p_community_id: formData.get('community_id'),
             p_name: formData.get('name'),
-            p_slug: formData.get('slug'),
+            p_slug: null,
             p_description: formData.get('description') || null,
             p_emoji: formData.get('emoji') || '🏢',
             p_logo_url: formData.get('logo_url') || null
