@@ -11163,8 +11163,18 @@
             // Fechar modais dinâmicos (removidos do DOM)
             const dynamicModals = document.querySelectorAll('.modal-overlay');
             dynamicModals.forEach(modal => {
-                // Não fechar modais de impacto, conquistas, níveis e progresso
-                if (!['impactModal', 'achievementsModal', 'levelsModal', 'progressModal'].includes(modal.id)) {
+                // Não fechar modais permanentes (impacto, conquistas, níveis, progresso, settings, chat)
+                const permanentModals = [
+                    'impactModal', 
+                    'achievementsModal', 
+                    'levelsModal', 
+                    'progressModal',
+                    'settingsModal',      // ✅ Modal de configurações
+                    'chatListModal',      // ✅ Modal de lista de conversas
+                    'chatModal'           // ✅ Modal de conversa individual
+                ];
+                
+                if (!permanentModals.includes(modal.id)) {
                     modal.remove();
                 }
             });
