@@ -106,7 +106,6 @@ function showCommunityInfo(community) {
         form.emoji.value = community.emoji || '🏢';
         form.name.value = community.name;
         form.description.value = community.description || '';
-        form.logo_url.value = community.logo_url || '';
     }
     
     // Carregar membros
@@ -184,13 +183,23 @@ function setupNewCommunityForm() {
     const form = document.getElementById('newCommunityForm');
     if (!form) return;
     
+    let isSubmitting = false;
+    
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Prevenir submit duplo
+        if (isSubmitting) {
+            console.log('⚠️ Já está criando comunidade...');
+            return;
+        }
         
         if (!currentUser || !currentUser.id) {
             alert('❌ Você precisa estar logado');
             return;
         }
+        
+        isSubmitting = true;
         
         const formData = new FormData(e.target);
         const slug = formData.get('slug');
@@ -204,11 +213,13 @@ function setupNewCommunityForm() {
         
         if (checkError) {
             alert('❌ Erro ao validar slug: ' + checkError.message);
+            isSubmitting = false;
             return;
         }
         
         if (existing) {
             alert('❌ Este slug já está em uso! Escolha outro.');
+            isSubmitting = false;
             return;
         }
         
@@ -222,6 +233,7 @@ function setupNewCommunityForm() {
         
         if (error) {
             alert('❌ Erro ao criar comunidade: ' + error.message);
+            isSubmitting = false;
             return;
         }
         
@@ -246,6 +258,8 @@ function setupNewCommunityForm() {
             select.value = communityId;
             select.dispatchEvent(new Event('change'));
         }
+        
+        isSubmitting = false;
     });
 }
 
