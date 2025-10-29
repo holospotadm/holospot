@@ -351,7 +351,7 @@ async function loadCommunityMembers(communityId) {
                 ">
                     Remover
                 </button>
-            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'
+            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'}
         `;
         
         container.appendChild(memberDiv);
