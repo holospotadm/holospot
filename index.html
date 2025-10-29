@@ -3806,9 +3806,8 @@
             
             // Update user info in header
             if (currentUser) {
-                document.getElementById('userName').textContent = currentUser.user_metadata.name || currentUser.email || 'Usuário';
-                document.getElementById('userUsername').textContent = '@' + (currentUser.email?.split('@')[0] || 'usuario');
-                document.getElementById('userAvatar').src = currentUser.user_metadata.avatar_url || '';
+                // Atualizar header com dados do banco
+                await updateHeaderUI();
                 console.log('✅ Usuário logado:', currentUser.email);
                 
                 // Carregar dados de gamificação no carregamento inicial
@@ -5024,7 +5023,7 @@
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
                                     <div class="post-author-meta">
-                                        <span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>
+                                        <span class="post-author-username">@${post.user_data?.username || 'usuario'}</span>
                                         <span class="post-time-separator">•</span>
                                         <span class="post-time">${formatDateShort(post.created_at)}</span>
                                     </div>
@@ -5463,6 +5462,40 @@
             console.log(`📊 Contadores atualizados: ${following.length} seguindo, ${followers.length} seguidores`);
         }
 
+        async function updateHeaderUI() {
+            try {
+                console.log('🔄 Atualizando header com dados do banco...');
+                
+                // Buscar dados atualizados da tabela profiles
+                const { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('name, username, avatar_url')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (profile) {
+                    // Atualizar header
+                    document.getElementById('userName').textContent = profile.name || 'Usuário';
+                    document.getElementById('userUsername').textContent = '@' + (profile.username || 'usuario');
+                    document.getElementById('userAvatar').src = profile.avatar_url || '';
+                    
+                    // Atualizar currentUser.user_metadata para manter consistência
+                    currentUser.user_metadata = {
+                        ...currentUser.user_metadata,
+                        name: profile.name,
+                        username: profile.username,
+                        avatar_url: profile.avatar_url
+                    };
+                    
+                    console.log('✅ Header atualizado:', profile);
+                }
+            } catch (error) {
+                console.error('❌ Erro ao atualizar header:', error);
+            }
+        }
+
         // Funções de Filtro de Feed
         function setFeedFilter(filter) {
             console.log('🔍 Alterando filtro para:', filter);
@@ -5732,30 +5765,20 @@
                 
                 console.log('✅ Perfil atualizado com sucesso!');
                 
-                // Atualizar currentUser
-                currentUser.user_metadata = {
-                    ...currentUser.user_metadata,
-                    full_name: fullName,
-                    username: username,
-                    avatar_url: avatarUrl,
-                    default_feed: defaultFeed
-                };
-                
                 // Atualizar localStorage do filtro
                 localStorage.setItem('feedFilter', defaultFeed);
                 window.currentFeedFilter = defaultFeed;
                 
-                // Atualizar UI
-                await loadUserData();
+                // Atualizar UI sem reload
+                await updateHeaderUI();  // Atualiza header com dados do banco
+                await loadUserData();     // Atualiza contadores
+                await loadPosts();        // Recarrega posts com novos dados
                 
-                // Recarregar posts para refletir mudanças de nome/username
-                await loadPosts();
-                
-                // Forçar refresh da página para atualizar todos os elementos
-                location.reload();
-                
-                // Fechar modal (não será executado devido ao reload, mas deixar por segurança)
+                // Fechar modal
                 closeSettingsModal();
+                
+                // Mostrar sucesso
+                alert('✅ Configurações salvas com sucesso!');
                 
             } catch (error) {
                 console.error('❌ Erro ao salvar configurações:', error);
@@ -6343,13 +6366,13 @@
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
                                 <div class="post-author-meta">
-                                    ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
-                                        `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
-                                        `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                    ${(post.user_data?.username || 'usuario') === (currentUser.user_metadata?.username || currentUser.email?.split('@')[0]) ? 
+                                        `<span class="post-author-username">@${post.user_data?.username || 'usuario'}</span>` :
+                                        `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.username || 'usuario'}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
-                                            @${post.user_data?.email?.split('@')[0] || 'usuario'}
+                                            @${post.user_data?.username || 'usuario'}
                                         </span>`
                                     }
                                     <span class="post-time-separator">•</span>
@@ -12202,7 +12225,7 @@
                     try {
                         const { data: authorsData, error: authorsError } = await supabase
                             .from('profiles')
-                            .select('id, name, email, avatar_url')
+                            .select('id, name, username, email, avatar_url')
                             .filter('id', 'in', `(${authorIds.join(',')})`);
                         
                         if (authorsError) {
@@ -12230,6 +12253,7 @@
                     const author = authorMap[post.user_id] || {};
                     post.user_data = {
                         name: author.name || 'Usuário',
+                        username: author.username || author.email?.split('@')[0] || 'usuario',
                         email: author.email || 'usuario@example.com',
                         avatar_url: author.avatar_url || ''
                     };
@@ -12289,13 +12313,13 @@
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
                                 <div class="post-author-meta">
-                                    ${(post.user_data?.email?.split('@')[0] || 'usuario') === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
-                                        `<span class="post-author-username">@${post.user_data?.email?.split('@')[0] || 'usuario'}</span>` :
-                                        `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.email?.split('@')[0] || 'usuario'}')" 
+                                    ${(post.user_data?.username || 'usuario') === (currentUser.user_metadata?.username || currentUser.email?.split('@')[0]) ? 
+                                        `<span class="post-author-username">@${post.user_data?.username || 'usuario'}</span>` :
+                                        `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.username || 'usuario'}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
                                               onmouseover="this.style.color='#0056b3'"
                                               onmouseout="this.style.color='#007bff'">
-                                            @${post.user_data?.email?.split('@')[0] || 'usuario'}
+                                            @${post.user_data?.username || 'usuario'}
                                         </span>`
                                     }
                                     <span class="post-time-separator">•</span>
