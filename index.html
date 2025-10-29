@@ -2683,7 +2683,7 @@
                     ">
                         <option value="">Feed Geral (público)</option>
                     </select>
-                    <small style="color: #666; display: block; margin-top: 5px;">Deixe em branco para post geral ou escolha uma comunidade</small>
+                    <small style="color: #666; display: block; margin-top: 5px;">Selecione onde você quer postar</small>
                 </div>
                 
                 <div class="form-group">
@@ -8205,8 +8205,9 @@
             const personName = personNameInput.value.trim();
             const storyText = document.getElementById('storyText').value.trim();
             
-            if (!personName || !storyText) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+            // Apenas storyText é obrigatório (personName é opcional)
+            if (!storyText) {
+                alert('Por favor, escreva uma história.');
                 return;
             }
 
@@ -12272,13 +12273,42 @@
         }
 
         // Sistema de Menções - Mostrar lista de usuários
-        function showMentionsAutocomplete(query) {
+        async function showMentionsAutocomplete(query) {
             const autocomplete = document.getElementById('mentionsAutocomplete');
+            
+            // Verificar se há comunidade selecionada
+            const communitySelect = document.getElementById('destacarCommunitySelect');
+            const selectedCommunityId = communitySelect ? communitySelect.value : null;
+            
+            let allowedUserIds = null;
+            
+            // Se comunidade selecionada, buscar apenas membros
+            if (selectedCommunityId) {
+                try {
+                    const { data: members, error } = await supabase
+                        .from('community_members')
+                        .select('user_id')
+                        .eq('community_id', selectedCommunityId)
+                        .eq('is_active', true);
+                    
+                    if (!error && members) {
+                        allowedUserIds = new Set(members.map(m => m.user_id));
+                        console.log(`🏢 Filtrando menções por ${allowedUserIds.size} membros da comunidade`);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao buscar membros da comunidade:', error);
+                }
+            }
             
             // Filtrar usuários baseado na query E excluir o usuário atual
             const filteredUsers = mentionUsers.filter(user => {
                 // Excluir o próprio usuário logado
                 if (currentUser && (user.id === currentUser.id || user.username === (currentUser.email ? currentUser.email.split('@')[0] : ''))) {
+                    return false;
+                }
+                
+                // Se comunidade selecionada, filtrar apenas membros
+                if (allowedUserIds && !allowedUserIds.has(user.id)) {
                     return false;
                 }
                 
