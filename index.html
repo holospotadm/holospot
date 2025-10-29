@@ -3255,6 +3255,27 @@
                 <button onclick="closeChatListModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: color 0.3s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#666'">×</button>
             </div>
             
+            <!-- Campo de busca -->
+            <div style="padding: 15px 20px; border-bottom: 1px solid #eee;">
+                <input 
+                    type="text" 
+                    id="chatSearchInput" 
+                    placeholder="🔍 Buscar por nome ou @username..." 
+                    style="
+                        width: 100%;
+                        padding: 12px 15px;
+                        border: 2px solid #e0e0e0;
+                        border-radius: 25px;
+                        font-size: 14px;
+                        outline: none;
+                        transition: border-color 0.3s;
+                    "
+                    oninput="searchUsersInChat(this.value)"
+                    onfocus="this.style.borderColor='#f093fb'"
+                    onblur="this.style.borderColor='#e0e0e0'"
+                />
+            </div>
+            
             <div style="flex: 1; overflow-y: auto; padding: 20px;" id="chatListContent">
                 <div style="text-align: center; padding: 40px; color: #666;">
                     <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
@@ -5973,6 +5994,120 @@
         function closeChatListModal() {
             const modal = document.getElementById('chatListModal');
             modal.style.display = 'none';
+        }
+        
+        async function searchUsersInChat(query) {
+            const content = document.getElementById('chatListContent');
+            
+            if (!content) return;
+            
+            // Se busca vazia, recarregar conversas normais
+            if (!query || query.trim() === '') {
+                openChatListModal();
+                return;
+            }
+            
+            content.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><p>🔍 Buscando...</p></div>';
+            
+            try {
+                // Buscar usuários por nome ou username
+                const searchTerm = query.trim().toLowerCase().replace('@', '');
+                
+                const { data: users, error } = await supabase
+                    .from('profiles')
+                    .select('id, name, username, avatar_url')
+                    .or(`name.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
+                    .neq('id', currentUser.id) // Não mostrar o próprio usuário
+                    .limit(10);
+                
+                if (error) throw error;
+                
+                if (!users || users.length === 0) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                            <p>Nenhum usuário encontrado</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Tente buscar por nome ou @username</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Buscar conversas existentes com esses usuários
+                const { data: existingConversations, error: convError } = await supabase
+                    .from('conversations')
+                    .select('*')
+                    .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
+                
+                if (convError) throw convError;
+                
+                // Buscar últimas mensagens das conversas existentes
+                const conversationIds = existingConversations?.map(c => c.id) || [];
+                let lastMessages = [];
+                
+                if (conversationIds.length > 0) {
+                    const { data: messages, error: msgError } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .in('conversation_id', conversationIds)
+                        .order('created_at', { ascending: false });
+                    
+                    if (!msgError) lastMessages = messages || [];
+                }
+                
+                // Renderizar resultados
+                let html = '';
+                
+                for (const user of users) {
+                    const avatarUrl = user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`;
+                    
+                    // Verificar se já tem conversa com esse usuário
+                    const existingConv = existingConversations?.find(c => 
+                        (c.user1_id === currentUser.id && c.user2_id === user.id) ||
+                        (c.user2_id === currentUser.id && c.user1_id === user.id)
+                    );
+                    
+                    const lastMessage = existingConv ? lastMessages.find(m => m.conversation_id === existingConv.id) : null;
+                    const timeAgo = lastMessage ? getTimeAgo(lastMessage.created_at) : '';
+                    const messagePreview = lastMessage ? 
+                        (lastMessage.content.length > 50 ? lastMessage.content.substring(0, 50) + '...' : lastMessage.content) :
+                        '💬 Iniciar conversa';
+                    
+                    html += `
+                        <div onclick="openChat('${user.id}')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            padding: 16px;
+                            border-bottom: 1px solid #eee;
+                            cursor: pointer;
+                            transition: background 0.2s;
+                        " onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='white'">
+                            <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="font-size: 16px;">${user.name}</strong>
+                                    ${timeAgo ? `<span style="font-size: 12px; color: #999;">${timeAgo}</span>` : ''}
+                                </div>
+                                <div style="font-size: 14px; color: #666;">@${user.username}</div>
+                                <div style="font-size: 14px; color: ${lastMessage ? '#666' : '#f093fb'}; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    ${messagePreview}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar usuários:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p>❌ Erro ao buscar usuários</p>
+                    </div>
+                `;
+            }
         }
         
         async function openChat(userId) {
