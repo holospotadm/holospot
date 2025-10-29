@@ -339,25 +339,28 @@ async function loadCommunityMembers(communityId) {
         `;
         
         membersDiv.appendChild(memberDiv);
-    });// Buscar usuários para adicionar
+    });
+}
+
+// Buscar usuários para adicionar
 let communitySearchTimeout;
 function setupUserSearch() {
     const searchInput = document.getElementById('searchUsers');
     if (!searchInput) return;
     
-    searchInput.addEventListener('input', async (e) => {
+    searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         
-        clearTimeout(communitySearchTimeout);
-        communitySearchTimeout = setTimeout(async () => {'searchResults');
+        if (query.length < 2) {
+            const resultsDiv = document.getElementById('searchResults');
             if (resultsDiv) {
                 resultsDiv.innerHTML = '';
             }
             return;
         }
         
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchUsers(query), 300);
+        clearTimeout(communitySearchTimeout);
+        communitySearchTimeout = setTimeout(() => searchUsers(query), 300);
     });
 }
 
