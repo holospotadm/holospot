@@ -136,11 +136,48 @@ async function loadCommunityFeed(communityId) {
         if (postsContainer) {
             if (posts.length === 0) {
                 const communityName = community ? community.name : 'esta comunidade';
+                const communityEmoji = community ? community.emoji : '🏢';
                 postsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📬</div>
-                        <p style="font-size: 1.1rem; margin-bottom: 8px; color: #333;">Nenhum post em ${communityName} ainda</p>
-                        <p style="font-size: 0.95rem; color: #999;">Seja o primeiro a postar!</p>
+                    <div style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 80px 20px;
+                        min-height: 400px;
+                    ">
+                        <div style="
+                            font-size: 72px;
+                            margin-bottom: 24px;
+                            opacity: 0.3;
+                        ">${communityEmoji}</div>
+                        <h3 style="
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            color: #333;
+                            margin-bottom: 12px;
+                            text-align: center;
+                        ">Nenhum post em ${communityName}</h3>
+                        <p style="
+                            font-size: 1rem;
+                            color: #666;
+                            margin-bottom: 32px;
+                            text-align: center;
+                        ">Seja o primeiro a compartilhar algo especial!</p>
+                        <button onclick="document.querySelector('[data-tab=\"destacar\"]').click()" style="
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            border: none;
+                            padding: 14px 32px;
+                            border-radius: 12px;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                            transition: transform 0.2s, box-shadow 0.2s;
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
+                            ✨ Criar Primeiro Post
+                        </button>
                     </div>
                 `;
             } else {
@@ -155,10 +192,34 @@ async function loadCommunityFeed(communityId) {
 
     } catch (error) {
         console.error('❌ Erro ao carregar feed da comunidade:', error);
-        if (typeof showToast === 'function') {
-            showToast('Erro ao carregar feed da comunidade');
-        } else {
-            alert('Erro ao carregar feed da comunidade');
+        const postsContainer = document.getElementById('postsContainer');
+        if (postsContainer) {
+            postsContainer.innerHTML = `
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 80px 20px;
+                    min-height: 400px;
+                ">
+                    <div style="font-size: 72px; margin-bottom: 24px; opacity: 0.3;">⚠️</div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 12px; text-align: center;">Erro ao carregar feed</h3>
+                    <p style="font-size: 1rem; color: #666; margin-bottom: 32px; text-align: center;">${error.message || 'Tente novamente mais tarde'}</p>
+                    <button onclick="location.reload()" style="
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        padding: 14px 32px;
+                        border-radius: 12px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">
+                        🔄 Recarregar Página
+                    </button>
+                </div>
+            `;
         }
     }
 }
