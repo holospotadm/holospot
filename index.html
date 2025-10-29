@@ -5748,11 +5748,14 @@
                 // Atualizar UI
                 await loadUserData();
                 
-                // Fechar modal
-                closeSettingsModal();
+                // Recarregar posts para refletir mudanças de nome/username
+                await loadPosts();
                 
-                // Mostrar sucesso
-                alert('✅ Configurações salvas com sucesso!');
+                // Forçar refresh da página para atualizar todos os elementos
+                location.reload();
+                
+                // Fechar modal (não será executado devido ao reload, mas deixar por segurança)
+                closeSettingsModal();
                 
             } catch (error) {
                 console.error('❌ Erro ao salvar configurações:', error);
