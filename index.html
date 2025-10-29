@@ -13555,6 +13555,7 @@
                 document.getElementById('userReactionsGiven').textContent = reactionsCount;
                 
                 // 🔥 SISTEMA DE STREAK CORRIGIDO - USANDO BACKEND RPC
+                let currentStreak = 0; // Definir fora do try/catch para usar depois
                 try {
                     console.log('🔥 Atualizando sistema de streak via backend...');
                     
@@ -13570,7 +13571,7 @@
                     } else if (streakResult) {
                         console.log('✅ Streak atualizado via backend:', streakResult);
                         
-                        const currentStreak = streakResult.current_streak || 0;
+                        currentStreak = streakResult.current_streak || 0;
                         
                         // Atualizar display principal
                         updateStreakDisplay(currentStreak);
