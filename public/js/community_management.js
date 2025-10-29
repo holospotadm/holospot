@@ -421,10 +421,13 @@ async function searchUsers(query) {
     const communityId = document.getElementById('communitySelect')?.value;
     if (!communityId) return;
     
+    // Remover @ se presente no início da query
+    const cleanQuery = query.startsWith('@') ? query.substring(1) : query;
+    
     const { data: users, error } = await supabase
         .from('profiles')
         .select('id, name, username, avatar_url')
-        .or(`name.ilike.%${query}%,username.ilike.%${query}%`)
+        .or(`name.ilike.%${cleanQuery}%,username.ilike.%${cleanQuery}%`)
         .limit(10);
     
     if (error) {
@@ -440,7 +443,11 @@ async function searchUsers(query) {
         .eq('is_active', true);
     
     const memberIds = members ? members.map(m => m.user_id) : [];
-    const availableUsers = users.filter(u => !memberIds.includes(u.id));
+    
+    // Filtrar: excluir membros existentes E o usuário logado
+    const availableUsers = users.filter(u => 
+        !memberIds.includes(u.id) && u.id !== currentUser?.id
+    );
     
     const resultsDiv = document.getElementById('searchResults');
     if (!resultsDiv) return;
