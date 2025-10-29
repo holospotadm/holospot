@@ -153,7 +153,6 @@ async function loadCommunityFeed(communityId) {
                         <div style="
                             font-size: 72px;
                             margin-bottom: 24px;
-                            opacity: 0.3;
                         ">${communityEmoji}</div>
                         <h3 style="
                             font-size: 1.5rem;
