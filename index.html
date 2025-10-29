@@ -2747,7 +2747,7 @@
                 <div style="display: flex; gap: 12px;">
                     <!-- Botão Chat -->
                     <button id="chatBtn" data-action="open-chat" style="
-                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                        background: linear-gradient(135deg, #ff4444 0%, #9333ea 100%);
                         color: white;
                         border: none;
                         border-radius: 50%;
@@ -2755,11 +2755,11 @@
                         height: 48px;
                         font-size: 1.5rem;
                         cursor: pointer;
-                        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+                        box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
                         transition: all 0.3s ease;
                         flex-shrink: 0;
                         position: relative;
-                    " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(245, 87, 108, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(245, 87, 108, 0.4)';">
+                    " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(255, 68, 68, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(255, 68, 68, 0.4)';">
                         💬
                         <span id="unreadBadge" style="
                             display: none;
@@ -3289,7 +3289,7 @@
     <div id="chatModal" class="modal-overlay" style="display: none;" onclick="closeChatModal()">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0;" onclick="event.stopPropagation()">
             <div class="modal-header" style="display: flex; align-items: center; gap: 12px;">
-                <button onclick="closeChatModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: color 0.3s; padding: 0; margin: 0;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#666'">←</button>
+                <button onclick="closeChatModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: color 0.3s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#666'">×</button>
                 <img id="chatUserAvatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 <div style="flex: 1;">
                     <h3 id="chatUserName" style="margin: 0; font-size: 1.1rem;">Usuário</h3>
@@ -3306,7 +3306,7 @@
             <div style="padding: 20px; border-top: 2px solid #f0f0f0; background: white;">
                 <form id="sendMessageForm" style="display: flex; gap: 12px;">
                     <input type="text" id="messageInput" placeholder="Digite sua mensagem..." required style="flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
-                    <button type="submit" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);">
+                    <button type="submit" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #ff4444 0%, #9333ea 100%); color: white; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);">
                         Enviar
                     </button>
                 </form>
@@ -6216,7 +6216,7 @@
                                 max-width: 70%;
                                 padding: 12px 16px;
                                 border-radius: ${isMine ? '16px 16px 0 16px' : '16px 16px 16px 0'};
-                                background: ${isMine ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#e0e0e0'};
+                                background: ${isMine ? 'linear-gradient(135deg, #ff4444 0%, #9333ea 100%)' : '#e0e0e0'};
                                 color: ${isMine ? 'white' : '#333'};
                             ">
                                 <div>${msg.content}</div>
@@ -6301,7 +6301,7 @@
                                 max-width: 70%;
                                 padding: 12px 16px;
                                 border-radius: 16px 16px 0 16px;
-                                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                background: linear-gradient(135deg, #ff4444 0%, #9333ea 100%);
                                 color: white;
                             ">
                                 <div>${content}</div>
