@@ -1097,6 +1097,8 @@
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            flex: 1;
         }
 
         .follow-stat:hover {
@@ -2732,7 +2734,7 @@
 
         <div id="perfilTab" class="tab-content">
             <div class="follow-stats" style="justify-content: space-between; align-items: flex-start;">
-                <div style="display: flex; gap: 1rem;">
+                <div style="display: flex; gap: 0.5rem;">
                     <div class="follow-stat" onclick="showFollowingModal()">
                         <div class="follow-number" id="followingCount">0</div>
                         <div class="follow-label">Seguindo</div>
