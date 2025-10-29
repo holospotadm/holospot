@@ -5738,6 +5738,7 @@ SECURITY DEFINER
 AS $function$
 DECLARE
     v_username_available BOOLEAN;
+    v_old_username TEXT;
     v_result JSON;
 BEGIN
     -- Se username foi fornecido, verificar disponibilidade
@@ -5750,6 +5751,9 @@ BEGIN
                 'error', 'Username já está em uso'
             );
         END IF;
+        
+        -- Buscar username antigo para atualizar posts
+        SELECT username INTO v_old_username FROM profiles WHERE id = p_user_id;
     END IF;
     
     -- Atualizar perfil (apenas campos fornecidos)
@@ -5761,6 +5765,21 @@ BEGIN
         default_feed = COALESCE(p_default_feed, default_feed),
         updated_at = NOW()
     WHERE id = p_user_id;
+    
+    -- Se username mudou, atualizar menções nos posts
+    IF p_username IS NOT NULL AND v_old_username IS NOT NULL AND v_old_username != p_username THEN
+        -- Atualizar celebrated_person_name
+        UPDATE posts
+        SET celebrated_person_name = REPLACE(celebrated_person_name, '@' || v_old_username, '@' || p_username)
+        WHERE mentioned_user_id = p_user_id
+        AND celebrated_person_name LIKE '%@' || v_old_username || '%';
+        
+        -- Atualizar person_name
+        UPDATE posts
+        SET person_name = REPLACE(person_name, '@' || v_old_username, '@' || p_username)
+        WHERE mentioned_user_id = p_user_id
+        AND person_name LIKE '%@' || v_old_username || '%';
+    END IF;
     
     -- Retornar perfil atualizado
     SELECT json_build_object(
