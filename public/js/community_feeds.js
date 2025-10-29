@@ -111,6 +111,15 @@ async function loadCommunityFeed(communityId) {
     try {
         console.log('📥 Carregando feed da comunidade:', communityId);
 
+        // Buscar informações da comunidade
+        const community = userCommunities.find(c => c.id === communityId);
+        
+        // Atualizar texto do botão Feed com emoji da comunidade
+        const feedButton = document.querySelector('[data-tab="inicio"]');
+        if (feedButton && community) {
+            feedButton.textContent = `${community.emoji || '🏢'} Feed`;
+        }
+
         const { data: posts, error } = await supabase.rpc('get_community_feed', {
             p_community_id: communityId,
             p_user_id: currentUser.id,
@@ -126,11 +135,12 @@ async function loadCommunityFeed(communityId) {
         const postsContainer = document.getElementById('postsContainer');
         if (postsContainer) {
             if (posts.length === 0) {
+                const communityName = community ? community.name : 'esta comunidade';
                 postsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <p>Nenhum post nesta comunidade ainda.</p>
-                        <p style="font-size: 0.9rem; color: #666;">Seja o primeiro a postar!</p>
+                    <div style="text-align: center; padding: 60px 20px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📬</div>
+                        <p style="font-size: 1.1rem; margin-bottom: 8px; color: #333;">Nenhum post em ${communityName} ainda</p>
+                        <p style="font-size: 0.95rem; color: #999;">Seja o primeiro a postar!</p>
                     </div>
                 `;
             } else {
@@ -145,7 +155,11 @@ async function loadCommunityFeed(communityId) {
 
     } catch (error) {
         console.error('❌ Erro ao carregar feed da comunidade:', error);
-        showToast('Erro ao carregar feed da comunidade');
+        if (typeof showToast === 'function') {
+            showToast('Erro ao carregar feed da comunidade');
+        } else {
+            alert('Erro ao carregar feed da comunidade');
+        }
     }
 }
 
