@@ -166,7 +166,10 @@ async function loadCommunityFeed(communityId) {
 // Interceptar mudança de filtro do Feed
 function setupCommunityFeedFilter() {
     const dropdown = document.getElementById('feedFilterDropdown');
-    if (!dropdown) return;
+    if (!dropdown) {
+        console.error('❌ feedFilterDropdown não encontrado');
+        return;
+    }
 
     // Usar event delegation para capturar cliques em opções de comunidade
     dropdown.addEventListener('click', async (e) => {
@@ -174,10 +177,12 @@ function setupCommunityFeedFilter() {
         if (!option) return;
 
         const filter = option.getAttribute('data-filter');
+        console.log('👆 Filtro clicado:', filter);
 
         // Se for filtro de comunidade
         if (filter && filter.startsWith('community-')) {
             const communityId = filter.replace('community-', '');
+            console.log('🏢 Carregando comunidade:', communityId);
 
             // Marcar como ativo
             dropdown.querySelectorAll('.filter-option').forEach(opt => {
