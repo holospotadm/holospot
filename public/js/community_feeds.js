@@ -114,10 +114,10 @@ async function loadCommunityFeed(communityId) {
         // Buscar informações da comunidade
         const community = userCommunities.find(c => c.id === communityId);
         
-        // Atualizar texto do botão Feed com emoji da comunidade
-        const feedButton = document.querySelector('[data-tab="inicio"]');
-        if (feedButton && community) {
-            feedButton.textContent = `${community.emoji || '🏢'} Feed`;
+        // Atualizar emoji do botão Feed (sem remover a setinha)
+        const feedEmoji = document.getElementById('feedEmoji');
+        if (feedEmoji && community) {
+            feedEmoji.textContent = community.emoji || '🏢';
         }
 
         const { data: posts, error } = await supabase.rpc('get_community_feed', {
