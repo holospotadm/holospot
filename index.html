@@ -3647,6 +3647,7 @@
                         try {
                             // Adicionar mensagem imediatamente na UI (otimista)
                             const messagesContent = document.getElementById('chatMessagesContent');
+                            console.log('💬 Adicionando mensagem na UI:', { content, messagesContent: !!messagesContent });
                             const tempMessageHtml = `
                                 <div style="
                                     display: flex;
@@ -3667,8 +3668,13 @@
                             `;
                             
                             if (messagesContent) {
-                                messagesContent.innerHTML += tempMessageHtml;
-                                messagesContent.scrollTop = messagesContent.scrollHeight;
+                                // Usar insertAdjacentHTML para adicionar sem recriar todo o HTML
+                                messagesContent.insertAdjacentHTML('beforeend', tempMessageHtml);
+                                // Scroll suave para o final
+                                messagesContent.scrollTo({
+                                    top: messagesContent.scrollHeight,
+                                    behavior: 'smooth'
+                                });
                             }
                             
                             // Limpar input imediatamente
