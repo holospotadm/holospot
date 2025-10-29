@@ -5798,19 +5798,10 @@
         let currentUsername = null; // Username atual do banco
 
         async function openSettingsModal() {
-            console.log('🔍 Tentando abrir settingsModal...');
-            console.log('🔍 document:', document);
-            console.log('🔍 document.body:', document.body);
-            console.log('🔍 Todos os elementos com ID:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
-            
             const modal = document.getElementById('settingsModal');
-            console.log('🔍 Modal encontrado:', modal);
             
             if (!modal) {
                 console.error('❌ Modal settingsModal não encontrado no DOM');
-                console.error('🔍 Tentando querySelector...');
-                const modalByQuery = document.querySelector('#settingsModal');
-                console.error('🔍 querySelector result:', modalByQuery);
                 return;
             }
             
@@ -5874,24 +5865,11 @@
         let chatRealtimeSubscription = null;
         
         async function openChatListModal() {
-            console.log('🔍 Tentando abrir chatListModal...');
-            console.log('🔍 Todos os modals no DOM:', {
-                settings: document.getElementById('settingsModal'),
-                chatList: document.getElementById('chatListModal'),
-                chat: document.getElementById('chatModal')
-            });
-            
             const modal = document.getElementById('chatListModal');
             const content = document.getElementById('chatListContent');
             
-            console.log('🔍 chatListModal:', modal);
-            console.log('🔍 chatListContent:', content);
-            
             if (!modal) {
                 console.error('❌ Modal chatListModal não encontrado no DOM');
-                console.error('🔍 Tentando querySelector...');
-                const modalByQuery = document.querySelector('#chatListModal');
-                console.error('🔍 querySelector result:', modalByQuery);
                 return;
             }
             
