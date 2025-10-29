@@ -183,9 +183,15 @@ function setupNewCommunityForm() {
     const form = document.getElementById('newCommunityForm');
     if (!form) return;
     
+    // Remover listener anterior se existir
+    const oldListener = form._submitListener;
+    if (oldListener) {
+        form.removeEventListener('submit', oldListener);
+    }
+    
     let isSubmitting = false;
     
-    form.addEventListener('submit', async (e) => {
+    const submitListener = async (e) => {
         e.preventDefault();
         
         // Prevenir submit duplo
@@ -260,7 +266,11 @@ function setupNewCommunityForm() {
         }
         
         isSubmitting = false;
-    });
+    };
+    
+    // Guardar referência para poder remover depois
+    form._submitListener = submitListener;
+    form.addEventListener('submit', submitListener);
 }
 
 // Editar comunidade
