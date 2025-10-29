@@ -3645,6 +3645,36 @@
                         if (!content || !currentConversationId) return;
                         
                         try {
+                            // Adicionar mensagem imediatamente na UI (otimista)
+                            const messagesContent = document.getElementById('chatMessagesContent');
+                            const tempMessageHtml = `
+                                <div style="
+                                    display: flex;
+                                    justify-content: flex-end;
+                                    margin-bottom: 12px;
+                                ">
+                                    <div style="
+                                        max-width: 70%;
+                                        padding: 12px 16px;
+                                        border-radius: 16px 16px 0 16px;
+                                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                        color: white;
+                                    ">
+                                        <div>${content}</div>
+                                        <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">agora</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            if (messagesContent) {
+                                messagesContent.innerHTML += tempMessageHtml;
+                                messagesContent.scrollTop = messagesContent.scrollHeight;
+                            }
+                            
+                            // Limpar input imediatamente
+                            messageInput.value = '';
+                            
+                            // Enviar para o banco
                             const { error } = await supabase
                                 .from('messages')
                                 .insert({
@@ -3654,8 +3684,6 @@
                                 });
                             
                             if (error) throw error;
-                            
-                            messageInput.value = '';
                             
                         } catch (error) {
                             console.error('❌ Erro ao enviar mensagem:', error);
