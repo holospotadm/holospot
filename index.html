@@ -15544,6 +15544,18 @@
                         </div>
                         
                         <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
+                            <input type="text" name="slug" placeholder="empresa-xyz" required pattern="[a-z0-9-]+" style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                            ">
+                            <small style="color: #666;">Apenas letras minúsculas, números e hífens. Deve ser único!</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
                             <textarea name="description" placeholder="Descreva sua comunidade..." rows="3" style="
                                 width: 100%;
@@ -15684,31 +15696,34 @@
                                 "></textarea>
                             </div>
                             
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Logo URL</label>
-                                <input type="url" name="logo_url" placeholder="https://..." style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" style="
+                                    flex: 1;
+                                    padding: 12px;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
                                     border-radius: 8px;
-                                    font-size: 14px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
                                 ">
-                                <small style="color: #666;">URL da imagem do logo</small>
+                                    💾 Salvar Alterações
+                                </button>
+                                
+                                <button type="button" onclick="deleteCommunity()" style="
+                                    padding: 12px 20px;
+                                    background: #dc3545;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    🗑️ Deletar
+                                </button>
                             </div>
-                            
-                            <button type="submit" style="
-                                width: 100%;
-                                padding: 12px;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                border: none;
-                                border-radius: 8px;
-                                font-size: 16px;
-                                font-weight: 600;
-                                cursor: pointer;
-                            ">
-                                💾 Salvar Alterações
-                            </button>
                         </form>
                     </div>
                     

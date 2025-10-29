@@ -193,10 +193,28 @@ function setupNewCommunityForm() {
         }
         
         const formData = new FormData(e.target);
+        const slug = formData.get('slug');
+        
+        // Validar slug único
+        const { data: existing, error: checkError } = await supabase
+            .from('communities')
+            .select('id')
+            .eq('slug', slug)
+            .maybeSingle();
+        
+        if (checkError) {
+            alert('❌ Erro ao validar slug: ' + checkError.message);
+            return;
+        }
+        
+        if (existing) {
+            alert('❌ Este slug já está em uso! Escolha outro.');
+            return;
+        }
         
         const { data: communityId, error } = await supabase.rpc('create_community', {
             p_name: formData.get('name'),
-            p_slug: null,
+            p_slug: slug,
             p_description: formData.get('description') || null,
             p_emoji: formData.get('emoji') || '🏢',
             p_owner_id: currentUser.id
@@ -208,6 +226,10 @@ function setupNewCommunityForm() {
         }
         
         alert('✅ Comunidade criada com sucesso!');
+        
+        // Resetar formulário
+        e.target.reset();
+        
         hideCreateCommunityForm();
         
         // Recarregar lista de comunidades
@@ -243,7 +265,7 @@ function setupEditCommunityForm() {
             p_slug: null,
             p_description: formData.get('description') || null,
             p_emoji: formData.get('emoji') || '🏢',
-            p_logo_url: formData.get('logo_url') || null
+            p_logo_url: null
         });
         
         if (error) {
@@ -625,4 +647,47 @@ window.deletePost = deletePost;
 window.initCommunityManagement = initCommunityManagement;
 
 console.log('✅ Módulo community_management.js carregado');
+
+
+
+
+// Deletar comunidade
+async function deleteCommunity() {
+    const select = document.getElementById('communitySelect');
+    if (!select || !select.value) {
+        alert('❌ Nenhuma comunidade selecionada');
+        return;
+    }
+    
+    const communityId = select.value;
+    const communityName = select.options[select.selectedIndex].text;
+    
+    if (!confirm(`⚠️ Tem certeza que deseja deletar a comunidade "${communityName}"?\n\nEsta ação não pode ser desfeita!`)) {
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('communities')
+        .delete()
+        .eq('id', communityId);
+    
+    if (error) {
+        alert('❌ Erro ao deletar comunidade: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Comunidade deletada com sucesso!');
+    
+    // Limpar seleção
+    select.value = '';
+    document.getElementById('communityInfo').style.display = 'none';
+    
+    // Recarregar lista
+    await loadOwnedCommunities();
+    
+    // Atualizar tabs de feed
+    if (typeof loadUserCommunities === 'function') {
+        await loadUserCommunities();
+    }
+}
 
