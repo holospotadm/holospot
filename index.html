@@ -4931,16 +4931,18 @@
                     }
                 }
 
-                // Buscar dados dos autores dos posts (incluindo avatar)
+                // Buscar dados dos autores e mencionados (incluindo avatar e username)
                 const authorIds = [...new Set(userPosts.map(p => p.user_id))];
+                const mentionedIds = [...new Set(userPosts.filter(p => p.mentioned_user_id).map(p => p.mentioned_user_id))];
+                const allUserIds = [...new Set([...authorIds, ...mentionedIds])];
                 let authorsData = [];
                 
-                if (authorIds.length > 0) {
+                if (allUserIds.length > 0) {
                     try {
                         const { data: profiles, error } = await supabase
                             .from('profiles')
-                            .select('id, name, email, avatar_url')
-                            .in('id', authorIds);
+                            .select('id, name, username, email, avatar_url')
+                            .in('id', allUserIds);
                         
                         if (!error && profiles) {
                             authorsData = profiles;
@@ -4964,12 +4966,14 @@
                     if (postAuthor) {
                         post.user_data = {
                             name: postAuthor.name || postAuthor.email?.split('@')[0] || 'Usuário',
+                            username: postAuthor.username || postAuthor.email?.split('@')[0] || 'usuario',
                             email: postAuthor.email,
-                            avatar_url: postAuthor.avatar_url || '' // Agora tem avatar_url do profiles
+                            avatar_url: postAuthor.avatar_url || ''
                         };
                     } else if (post.user_id === currentUser.id) {
                         post.user_data = {
                             name: currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Usuário',
+                            username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario',
                             email: currentUser.email,
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         };
@@ -4977,9 +4981,32 @@
                         // Fallback para autor desconhecido
                         post.user_data = {
                             name: 'Usuário',
+                            username: 'usuario',
                             email: '',
                             avatar_url: ''
                         };
+                    }
+                    
+                    // Buscar dados do usuário mencionado (se existir)
+                    if (post.mentioned_user_id) {
+                        const mentionedUser = authorsData.find(author => author.id === post.mentioned_user_id);
+                        if (mentionedUser) {
+                            post.mentioned_user = {
+                                id: mentionedUser.id,
+                                name: mentionedUser.name || mentionedUser.email?.split('@')[0] || 'Usuário',
+                                username: mentionedUser.username || mentionedUser.email?.split('@')[0] || 'usuario',
+                                email: mentionedUser.email,
+                                avatar_url: mentionedUser.avatar_url || ''
+                            };
+                        } else if (post.mentioned_user_id === currentUser.id) {
+                            post.mentioned_user = {
+                                id: currentUser.id,
+                                name: currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Você',
+                                username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario',
+                                email: currentUser.email,
+                                avatar_url: currentUser.user_metadata?.avatar_url || ''
+                            };
+                        }
                     }
                     
                     const typeEmojis = {
@@ -5944,14 +5971,18 @@
         async function processPostsUserData() {
             console.log('👥 Processando dados de usuários...');
             
-            // Coletar todos os user_ids únicos (exceto o usuário atual)
-            const uniqueUserIds = [...new Set(
-                posts
-                    .filter(post => post.user_id !== currentUser.id)
-                    .map(post => post.user_id)
-            )];
+            // Coletar todos os user_ids únicos (autores + mencionados)
+            const authorIds = posts
+                .filter(post => post.user_id !== currentUser.id)
+                .map(post => post.user_id);
             
-            console.log(`🔍 Buscando ${uniqueUserIds.length} perfis únicos em lote...`);
+            const mentionedIds = posts
+                .filter(post => post.mentioned_user_id && post.mentioned_user_id !== currentUser.id)
+                .map(post => post.mentioned_user_id);
+            
+            const uniqueUserIds = [...new Set([...authorIds, ...mentionedIds])];
+            
+            console.log(`🔍 Buscando ${uniqueUserIds.length} perfis únicos em lote (autores + mencionados)...`);
             
             // Cache para armazenar dados dos usuários
             const userDataCache = new Map();
@@ -6018,6 +6049,29 @@
                                 name: userName,
                                 avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`
                             };
+                        }
+                    }
+                    
+                    // Buscar dados do usuário mencionado (se existir)
+                    if (post.mentioned_user_id) {
+                        if (post.mentioned_user_id === currentUser.id) {
+                            // Usuário atual foi mencionado
+                            post.mentioned_user = {
+                                id: currentUser.id,
+                                name: currentUser.user_metadata?.name || currentUser.email || 'Você',
+                                username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario',
+                                email: currentUser.email,
+                                avatar_url: currentUser.user_metadata?.avatar_url || ''
+                            };
+                        } else {
+                            // Outro usuário foi mencionado - buscar do cache
+                            const mentionedUserData = userDataCache.get(post.mentioned_user_id);
+                            if (mentionedUserData) {
+                                post.mentioned_user = {
+                                    id: post.mentioned_user_id,
+                                    ...mentionedUserData
+                                };
+                            }
                         }
                     }
                     
