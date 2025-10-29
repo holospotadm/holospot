@@ -15255,10 +15255,17 @@
             
             // Toggle dropdown ao clicar no emoji+setinha
             if (feedEmojiDropdown && (e.target === feedEmojiDropdown || feedEmojiDropdown.contains(e.target))) {
+                console.log('👆 Clicou no dropdown toggle');
+                console.log('📦 feedEmojiDropdown existe?', !!feedEmojiDropdown);
+                console.log('📦 dropdown existe?', !!dropdown);
+                console.log('📦 inicioNavTab existe?', !!inicioNavTab);
+                
                 if (dropdown && inicioNavTab) {
                     const isVisible = dropdown.style.display === 'block';
+                    console.log('👁️ Dropdown visível?', isVisible);
                     
                     if (!isVisible) {
+                        console.log('✅ Abrindo dropdown...');
                         // Calcular posição do botão ANTES de mostrar
                         const rect = inicioNavTab.getBoundingClientRect();
                         dropdown.style.top = `${rect.bottom + 8}px`;
@@ -15272,15 +15279,22 @@
                         
                         // Agora mostrar com animação
                         dropdown.style.opacity = '1';
+                        console.log('✅ Dropdown aberto!');
                     } else {
+                        console.log('❌ Fechando dropdown...');
                         dropdown.style.display = 'none';
                     }
+                } else {
+                    console.log('⚠️ Dropdown ou inicioNavTab não encontrado!');
                 }
                 e.stopPropagation();
             }
             // Fechar dropdown ao clicar fora
             else if (dropdown && !dropdown.contains(e.target)) {
-                dropdown.style.display = 'none';
+                if (dropdown.style.display === 'block') {
+                    console.log('👉 Clicou fora, fechando dropdown...');
+                    dropdown.style.display = 'none';
+                }
             }
         });
 

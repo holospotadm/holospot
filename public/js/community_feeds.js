@@ -145,6 +145,7 @@ async function loadCommunityFeed(communityId) {
                         justify-content: center;
                         padding: 80px 20px;
                         min-height: 400px;
+                        background: white;
                     ">
                         <div style="
                             font-size: 72px;
@@ -161,23 +162,8 @@ async function loadCommunityFeed(communityId) {
                         <p style="
                             font-size: 1rem;
                             color: #666;
-                            margin-bottom: 32px;
                             text-align: center;
                         ">Seja o primeiro a compartilhar algo especial!</p>
-                        <button onclick="document.querySelector('[data-tab=\"destacar\"]').click()" style="
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            border: none;
-                            padding: 14px 32px;
-                            border-radius: 12px;
-                            font-size: 1rem;
-                            font-weight: 600;
-                            cursor: pointer;
-                            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-                            transition: transform 0.2s, box-shadow 0.2s;
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
-                            ✨ Criar Primeiro Post
-                        </button>
                     </div>
                 `;
             } else {
