@@ -99,66 +99,24 @@ function showCommunityInfo(community) {
         info.style.display = 'block';
     }
     
-    // Preencher formulário de edição
-    const form = document.getElementById('editCommunityForm');
-    if (form) {
-        form.community_id.value = community.id;
-        form.emoji.value = community.emoji || '🏢';
-        form.name.value = community.name;
-        form.slug.value = community.slug || '';
-        form.description.value = community.description || '';
-    }
+    // Preencher dados da comunidade
+    document.getElementById('editCommunityName').value = community.name;
+    document.getElementById('editCommunityDescription').value = community.description || '';
+    document.getElementById('selectedEmoji').textContent = community.emoji || '🏢';
     
     // Carregar membros
     loadCommunityMembers(community.id);
     
     // Carregar posts
     loadCommunityPosts(community.id);
-    
-    // Mostrar tab de edição
-    switchManagementTab('edit');
 }
 
-// Trocar tab de gerenciamento
-function switchManagementTab(tab) {
-    // Atualizar botões
-    document.querySelectorAll('.management-tab').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.borderBottom = '3px solid transparent';
-    });
-    
-    const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-        activeBtn.style.borderBottom = '3px solid #667eea';
-    }
-    
-    // Mostrar/esconder conteúdo
-    document.querySelectorAll('.management-tab-content').forEach(content => {
-        content.style.display = 'none';
-    });
-    
-    const tabContent = document.getElementById(`${tab}Tab`);
-    if (tabContent) {
-        tabContent.style.display = 'block';
-    }
-}
+// ========== CRIAR COMUNIDADE ==========
 
-// Mostrar/esconder formulário de criar comunidade
 function showCreateCommunityForm() {
     const form = document.getElementById('createCommunityForm');
     if (form) {
         form.style.display = 'block';
-    }
-    
-    const select = document.getElementById('communitySelect');
-    if (select) {
-        select.value = '';
-    }
-    
-    const info = document.getElementById('communityInfo');
-    if (info) {
-        info.style.display = 'none';
     }
 }
 
@@ -166,166 +124,134 @@ function hideCreateCommunityForm() {
     const form = document.getElementById('createCommunityForm');
     if (form) {
         form.style.display = 'none';
-    }
-    
-    const newForm = document.getElementById('newCommunityForm');
-    if (newForm) {
-        newForm.reset();
-    }
-    
-    const emojiInput = document.getElementById('newCommunityEmoji');
-    if (emojiInput) {
-        emojiInput.value = '🏢';
+        form.reset();
     }
 }
 
-// Criar nova comunidade
-function setupNewCommunityForm() {
-    const form = document.getElementById('newCommunityForm');
-    if (!form) return;
+async function createCommunity() {
+    const name = document.getElementById('newCommunityName').value.trim();
+    const description = document.getElementById('newCommunityDescription').value.trim();
+    const emoji = document.getElementById('newCommunityEmoji').textContent;
     
-    // Remover listener anterior se existir
-    const oldListener = form._submitListener;
-    if (oldListener) {
-        form.removeEventListener('submit', oldListener);
+    if (!name) {
+        alert('Por favor, preencha o nome da comunidade');
+        return;
     }
     
-    let isSubmitting = false;
+    const { data, error } = await supabase
+        .from('communities')
+        .insert({
+            name,
+            description,
+            emoji,
+            owner_id: currentUser.id
+        })
+        .select()
+        .single();
     
-    const submitListener = async (e) => {
-        e.preventDefault();
-        
-        // Prevenir submit duplo
-        if (isSubmitting) {
-            console.log('⚠️ Já está criando comunidade...');
-            return;
-        }
-        
-        if (!currentUser || !currentUser.id) {
-            alert('❌ Você precisa estar logado');
-            return;
-        }
-        
-        isSubmitting = true;
-        
-        const formData = new FormData(e.target);
-        const slug = formData.get('slug');
-        
-        // Validar formato do slug
-        if (!/^[a-z0-9-]+$/.test(slug)) {
-            alert('❌ Slug inválido! Use apenas letras minúsculas, números e hífens.');
-            isSubmitting = false;
-            return;
-        }
-        
-        // Validar slug único
-        const { data: existing, error: checkError } = await supabase
-            .from('communities')
-            .select('id')
-            .eq('slug', slug)
-            .maybeSingle();
-        
-        if (checkError) {
-            alert('❌ Erro ao validar slug: ' + checkError.message);
-            isSubmitting = false;
-            return;
-        }
-        
-        if (existing) {
-            alert('❌ Este slug já está em uso! Escolha outro.');
-            isSubmitting = false;
-            return;
-        }
-        
-        const { data: communityId, error } = await supabase.rpc('create_community', {
-            p_name: formData.get('name'),
-            p_slug: slug,
-            p_description: formData.get('description') || null,
-            p_emoji: formData.get('emoji') || '🏢',
-            p_owner_id: currentUser.id
-        });
-        
-        if (error) {
-            alert('❌ Erro ao criar comunidade: ' + error.message);
-            isSubmitting = false;
-            return;
-        }
-        
-        alert('✅ Comunidade criada com sucesso!');
-        
-        // Resetar formulário
-        e.target.reset();
-        
-        hideCreateCommunityForm();
-        
-        // Recarregar lista de comunidades
-        await loadOwnedCommunities();
-        
-        // Atualizar tabs de feed
-        if (typeof loadUserCommunities === 'function') {
-            await loadUserCommunities();
-        }
-        
-        // Selecionar nova comunidade
-        const select = document.getElementById('communitySelect');
-        if (select) {
-            select.value = communityId;
-            select.dispatchEvent(new Event('change'));
-        }
-        
-        isSubmitting = false;
-    };
+    if (error) {
+        console.error('Erro ao criar comunidade:', error);
+        alert('Erro ao criar comunidade: ' + error.message);
+        return;
+    }
     
-    // Guardar referência para poder remover depois
-    form._submitListener = submitListener;
-    form.addEventListener('submit', submitListener);
+    alert('✅ Comunidade criada com sucesso!');
+    hideCreateCommunityForm();
+    loadOwnedCommunities();
 }
 
-// Editar comunidade
-function setupEditCommunityForm() {
-    const form = document.getElementById('editCommunityForm');
-    if (!form) return;
+// ========== EDITAR COMUNIDADE ==========
+
+async function updateCommunity() {
+    const communityId = document.getElementById('communitySelect').value;
+    if (!communityId) return;
     
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        
-        const { error } = await supabase.rpc('update_community', {
-            p_community_id: formData.get('community_id'),
-            p_name: formData.get('name'),
-            p_slug: formData.get('slug'),
-            p_description: formData.get('description') || null,
-            p_emoji: formData.get('emoji') || '🏢',
-            p_logo_url: null
-        });
-        
-        if (error) {
-            alert('❌ Erro ao atualizar comunidade: ' + error.message);
-            return;
-        }
-        
-        alert('✅ Comunidade atualizada com sucesso!');
-        
-        // Recarregar lista
-        await loadOwnedCommunities();
-        
-        // Atualizar tabs de feed
-        if (typeof loadUserCommunities === 'function') {
-            await loadUserCommunities();
-        }
+    const name = document.getElementById('editCommunityName').value.trim();
+    const description = document.getElementById('editCommunityDescription').value.trim();
+    const emoji = document.getElementById('selectedEmoji').textContent;
+    
+    if (!name) {
+        alert('Por favor, preencha o nome da comunidade');
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('communities')
+        .update({ name, description, emoji })
+        .eq('id', communityId);
+    
+    if (error) {
+        console.error('Erro ao atualizar comunidade:', error);
+        alert('Erro ao atualizar comunidade: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Comunidade atualizada com sucesso!');
+    loadOwnedCommunities();
+}
+
+// ========== EMOJI PICKER ==========
+
+function openEmojiPicker(targetId) {
+    const picker = document.getElementById('emojiPicker');
+    if (!picker) return;
+    
+    picker.dataset.target = targetId;
+    picker.style.display = 'block';
+}
+
+function closeEmojiPicker() {
+    const picker = document.getElementById('emojiPicker');
+    if (picker) {
+        picker.style.display = 'none';
+    }
+}
+
+function selectEmoji(emoji) {
+    const picker = document.getElementById('emojiPicker');
+    const targetId = picker.dataset.target;
+    
+    const target = document.getElementById(targetId);
+    if (target) {
+        target.textContent = emoji;
+    }
+    
+    closeEmojiPicker();
+}
+
+// ========== TABS ==========
+
+function switchManagementTab(tabName) {
+    // Esconder todas as tabs
+    document.querySelectorAll('.management-tab-content').forEach(tab => {
+        tab.style.display = 'none';
     });
+    
+    // Remover active de todos os botões
+    document.querySelectorAll('.management-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Mostrar tab selecionada
+    const selectedTab = document.getElementById(tabName + 'Tab');
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+    }
+    
+    // Adicionar active ao botão
+    event.target.classList.add('active');
 }
 
-// Carregar membros da comunidade
+// ========== MEMBROS ==========
+
 async function loadCommunityMembers(communityId) {
     const { data: members, error } = await supabase
         .from('community_members')
         .select(`
             user_id,
-            role,
-            joined_at,
-            profiles (
+            created_at,
+            profiles:user_id (
+                id,
                 name,
                 username,
                 avatar_url
@@ -333,24 +259,27 @@ async function loadCommunityMembers(communityId) {
         `)
         .eq('community_id', communityId)
         .eq('is_active', true)
-        .order('joined_at', { ascending: false });
+        .order('created_at', { ascending: false });
     
     if (error) {
         console.error('Erro ao carregar membros:', error);
         return;
     }
     
-    const membersDiv = document.getElementById('currentMembers');
-    if (!membersDiv) return;
+    const container = document.getElementById('currentMembers');
+    if (!container) return;
     
-    membersDiv.innerHTML = '';
+    container.innerHTML = '';
     
-    if (members.length === 0) {
-        membersDiv.innerHTML = '<p style="text-align: center; color: #666;">Nenhum membro ainda</p>';
+    if (!members || members.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum membro ainda</p>';
         return;
     }
     
     members.forEach(member => {
+        const user = member.profiles;
+        if (!user) return;
+        
         const memberDiv = document.createElement('div');
         memberDiv.style.cssText = `
             display: flex;
@@ -360,116 +289,7 @@ async function loadCommunityMembers(communityId) {
             border-bottom: 1px solid #eee;
         `;
         
-        const isOwner = member.role === 'owner';
-        
         memberDiv.innerHTML = `
-            <img src="${member.profiles.avatar_url || 'https://via.placeholder.com/40'}" style="
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                object-fit: cover;
-            ">
-            <div style="flex: 1;">
-                <div style="font-weight: 600;">
-                    ${member.profiles.name}
-                    ${isOwner ? '<span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">OWNER</span>' : ''}
-                </div>
-                <div style="color: #666; font-size: 14px;">@${member.profiles.username}</div>
-            </div>
-            ${!isOwner ? `
-                <button onclick="removeMember('${communityId}', '${member.user_id}')" style="
-                    padding: 8px 16px;
-                    background: #ff4444;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    cursor: pointer;
-                ">
-                    Remover
-                </button>
-            ` : ''}
-        `;
-        
-        membersDiv.appendChild(memberDiv);
-    });
-}
-
-// Buscar usuários para adicionar
-let communitySearchTimeout;
-function setupUserSearch() {
-    const searchInput = document.getElementById('searchUsers');
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim();
-        
-        if (query.length < 2) {
-            const resultsDiv = document.getElementById('searchResults');
-            if (resultsDiv) {
-                resultsDiv.innerHTML = '';
-            }
-            return;
-        }
-        
-        clearTimeout(communitySearchTimeout);
-        communitySearchTimeout = setTimeout(() => searchUsers(query), 300);
-    });
-}
-
-async function searchUsers(query) {
-    const communityId = document.getElementById('communitySelect')?.value;
-    if (!communityId) return;
-    
-    // Remover @ se presente no início da query
-    const cleanQuery = query.startsWith('@') ? query.substring(1) : query;
-    
-    const { data: users, error } = await supabase
-        .from('profiles')
-        .select('id, name, username, avatar_url')
-        .or(`name.ilike.%${cleanQuery}%,username.ilike.%${cleanQuery}%`)
-        .limit(10);
-    
-    if (error) {
-        console.error('Erro ao buscar usuários:', error);
-        return;
-    }
-    
-    // Filtrar usuários que já são membros
-    const { data: members } = await supabase
-        .from('community_members')
-        .select('user_id')
-        .eq('community_id', communityId)
-        .eq('is_active', true);
-    
-    const memberIds = members ? members.map(m => m.user_id) : [];
-    
-    // Filtrar: excluir membros existentes E o usuário logado
-    const availableUsers = users.filter(u => 
-        !memberIds.includes(u.id) && u.id !== currentUser?.id
-    );
-    
-    const resultsDiv = document.getElementById('searchResults');
-    if (!resultsDiv) return;
-    
-    resultsDiv.innerHTML = '';
-    
-    if (availableUsers.length === 0) {
-        resultsDiv.innerHTML = '<p style="text-align: center; color: #666;">Nenhum usuário encontrado</p>';
-        return;
-    }
-    
-    availableUsers.forEach(user => {
-        const userDiv = document.createElement('div');
-        userDiv.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        `;
-        
-        userDiv.innerHTML = `
             <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" style="
                 width: 40px;
                 height: 40px;
@@ -480,24 +300,214 @@ async function searchUsers(query) {
                 <div style="font-weight: 600;">${user.name}</div>
                 <div style="color: #666; font-size: 14px;">@${user.username}</div>
             </div>
-            <button onclick="addMember('${communityId}', '${user.id}')" style="
+            <button onclick="removeMember('${communityId}', '${user.id}')" style="
                 padding: 8px 16px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: #dc3545;
                 color: white;
                 border: none;
                 border-radius: 6px;
                 font-size: 14px;
                 cursor: pointer;
             ">
-                Adicionar
+                Remover
             </button>
         `;
         
-        resultsDiv.appendChild(userDiv);
+        container.appendChild(memberDiv);
     });
 }
 
-async function addMember(communityId, userId) {
+// ========== AUTOCOMPLETE PARA ADICIONAR MEMBROS ==========
+
+let memberAutocompleteUsers = [];
+let selectedMemberIndex = -1;
+
+function setupUserSearch() {
+    const searchInput = document.getElementById('searchUsers');
+    if (!searchInput) return;
+    
+    // Carregar todos os usuários uma vez
+    loadAllUsersForAutocomplete();
+    
+    searchInput.addEventListener('input', (e) => {
+        const value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        
+        // Detectar @ e extrair query
+        const textBeforeCursor = value.substring(0, cursorPos);
+        const atMatch = textBeforeCursor.match(/@(\w*)$/);
+        
+        if (atMatch) {
+            const query = atMatch[1].toLowerCase();
+            showMemberAutocomplete(query);
+        } else {
+            hideMemberAutocomplete();
+        }
+    });
+    
+    // Navegação com teclado
+    searchInput.addEventListener('keydown', (e) => {
+        const autocomplete = document.getElementById('memberAutocomplete');
+        if (!autocomplete || autocomplete.style.display === 'none') return;
+        
+        const items = autocomplete.querySelectorAll('.mention-item');
+        if (items.length === 0) return;
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedMemberIndex = Math.min(selectedMemberIndex + 1, items.length - 1);
+            updateMemberSelection(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedMemberIndex = Math.max(selectedMemberIndex - 1, 0);
+            updateMemberSelection(items);
+        } else if (e.key === 'Enter' && selectedMemberIndex >= 0) {
+            e.preventDefault();
+            items[selectedMemberIndex].click();
+        } else if (e.key === 'Escape') {
+            hideMemberAutocomplete();
+        }
+    });
+}
+
+async function loadAllUsersForAutocomplete() {
+    try {
+        const { data: users, error } = await supabase
+            .from('profiles')
+            .select('id, name, username, avatar_url')
+            .order('name');
+        
+        if (!error && users) {
+            memberAutocompleteUsers = users;
+            console.log(`✅ Carregados ${users.length} usuários para autocomplete`);
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar usuários:', error);
+    }
+}
+
+async function showMemberAutocomplete(query) {
+    const communityId = document.getElementById('communitySelect')?.value;
+    if (!communityId) return;
+    
+    // Buscar membros atuais
+    const { data: members } = await supabase
+        .from('community_members')
+        .select('user_id')
+        .eq('community_id', communityId)
+        .eq('is_active', true);
+    
+    const memberIds = members ? members.map(m => m.user_id) : [];
+    
+    // Filtrar usuários
+    const filteredUsers = memberAutocompleteUsers.filter(user => {
+        // Excluir usuário logado
+        if (currentUser && user.id === currentUser.id) return false;
+        
+        // Excluir membros existentes
+        if (memberIds.includes(user.id)) return false;
+        
+        // Filtrar por query
+        const queryLower = query.toLowerCase();
+        const nameLower = user.name.toLowerCase();
+        const usernameLower = user.username.toLowerCase();
+        
+        return nameLower.includes(queryLower) || 
+               usernameLower.includes(queryLower) ||
+               usernameLower.startsWith(queryLower);
+    }).slice(0, 5);
+    
+    if (filteredUsers.length === 0) {
+        hideMemberAutocomplete();
+        return;
+    }
+    
+    // Criar/atualizar autocomplete
+    let autocomplete = document.getElementById('memberAutocomplete');
+    if (!autocomplete) {
+        autocomplete = document.createElement('div');
+        autocomplete.id = 'memberAutocomplete';
+        autocomplete.className = 'mentions-autocomplete';
+        autocomplete.style.cssText = `
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 5px;
+        `;
+        document.getElementById('searchUsers').parentElement.appendChild(autocomplete);
+    }
+    
+    autocomplete.innerHTML = filteredUsers.map((user, index) => `
+        <div class="mention-item" data-user-id="${user.id}" data-username="${user.username}" data-index="${index}" style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        ">
+            <img src="${user.avatar_url || 'https://via.placeholder.com/32'}" style="
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                object-fit: cover;
+            ">
+            <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px;">${user.name}</div>
+                <div style="color: #666; font-size: 12px;">@${user.username}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    autocomplete.style.display = 'block';
+    selectedMemberIndex = -1;
+    
+    // Adicionar event listeners
+    autocomplete.querySelectorAll('.mention-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const userId = item.dataset.userId;
+            const username = item.dataset.username;
+            selectMemberToAdd(userId, username);
+        });
+        
+        item.addEventListener('mouseenter', () => {
+            item.style.background = '#f5f5f5';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.style.background = 'white';
+        });
+    });
+}
+
+function hideMemberAutocomplete() {
+    const autocomplete = document.getElementById('memberAutocomplete');
+    if (autocomplete) {
+        autocomplete.style.display = 'none';
+    }
+    selectedMemberIndex = -1;
+}
+
+function updateMemberSelection(items) {
+    items.forEach((item, index) => {
+        if (index === selectedMemberIndex) {
+            item.style.background = '#f5f5f5';
+        } else {
+            item.style.background = 'white';
+        }
+    });
+}
+
+async function selectMemberToAdd(userId, username) {
+    const communityId = document.getElementById('communitySelect')?.value;
+    if (!communityId) return;
+    
+    // Adicionar membro
     const { error } = await supabase.rpc('add_community_member', {
         p_community_id: communityId,
         p_user_id: userId
@@ -508,13 +518,17 @@ async function addMember(communityId, userId) {
         return;
     }
     
-    alert('✅ Membro adicionado com sucesso!');
-    
-    // Recarregar listas
+    // Limpar input e esconder autocomplete
     const searchInput = document.getElementById('searchUsers');
-    if (searchInput && searchInput.value) {
-        searchUsers(searchInput.value);
+    if (searchInput) {
+        searchInput.value = '';
     }
+    hideMemberAutocomplete();
+    
+    // Mostrar feedback
+    alert(`✅ @${username} adicionado com sucesso!`);
+    
+    // Recarregar lista de membros
     loadCommunityMembers(communityId);
 }
 
@@ -523,13 +537,15 @@ async function removeMember(communityId, userId) {
         return;
     }
     
-    const { error } = await supabase.rpc('remove_community_member', {
-        p_community_id: communityId,
-        p_user_id: userId
-    });
+    const { error } = await supabase
+        .from('community_members')
+        .update({ is_active: false })
+        .eq('community_id', communityId)
+        .eq('user_id', userId);
     
     if (error) {
-        alert('❌ Erro: ' + error.message);
+        console.error('Erro ao remover membro:', error);
+        alert('Erro ao remover membro: ' + error.message);
         return;
     }
     
@@ -537,13 +553,14 @@ async function removeMember(communityId, userId) {
     loadCommunityMembers(communityId);
 }
 
-// Carregar posts da comunidade
+// ========== POSTS ==========
+
 async function loadCommunityPosts(communityId) {
     const { data: posts, error } = await supabase
         .from('posts')
         .select(`
             *,
-            profiles (
+            profiles:user_id (
                 name,
                 username,
                 avatar_url
@@ -551,20 +568,20 @@ async function loadCommunityPosts(communityId) {
         `)
         .eq('community_id', communityId)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(20);
     
     if (error) {
         console.error('Erro ao carregar posts:', error);
         return;
     }
     
-    const postsDiv = document.getElementById('communityPosts');
-    if (!postsDiv) return;
+    const container = document.getElementById('communityPosts');
+    if (!container) return;
     
-    postsDiv.innerHTML = '';
+    container.innerHTML = '';
     
-    if (posts.length === 0) {
-        postsDiv.innerHTML = '<p style="text-align: center; color: #666;">Nenhum post ainda</p>';
+    if (!posts || posts.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum post ainda</p>';
         return;
     }
     
@@ -574,66 +591,60 @@ async function loadCommunityPosts(communityId) {
             padding: 15px;
             border-bottom: 1px solid #eee;
             background: white;
-            margin-bottom: 10px;
-            border-radius: 8px;
         `;
+        
+        const user = post.profiles;
+        const typeEmojis = {
+            'gratidao': '🙏',
+            'memoria': '🧠',
+            'conquista': '🏆',
+            'inspiracao': '💡',
+            'apoio': '🤝',
+            'destacar': '⭐'
+        };
         
         postDiv.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <img src="${post.profiles.avatar_url || 'https://via.placeholder.com/40'}" style="
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    object-fit: cover;
-                ">
-                <div>
-                    <div style="font-weight: 600;">${post.profiles.name}</div>
-                    <div style="color: #666; font-size: 12px;">@${post.profiles.username}</div>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <img src="${user?.avatar_url || 'https://via.placeholder.com/40'}" style="
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    ">
+                    <div>
+                        <div style="font-weight: 600;">${user?.name || 'Usuário'}</div>
+                        <div style="color: #666; font-size: 12px;">@${user?.username || 'usuario'}</div>
+                    </div>
                 </div>
-            </div>
-            
-            <div style="margin-bottom: 10px;">
-                <strong>🎉 ${post.celebrated_person_name || post.person_name}</strong>
-            </div>
-            
-            <div style="color: #333; margin-bottom: 10px;">
-                ${post.content}
-            </div>
-            
-            ${post.image_url ? `
-                <img src="${post.image_url}" style="
-                    width: 100%;
-                    max-height: 300px;
-                    object-fit: cover;
-                    border-radius: 8px;
-                    margin-bottom: 10px;
+                <button onclick="deletePost('${post.id}', '${communityId}')" style="
+                    padding: 6px 12px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    cursor: pointer;
                 ">
-            ` : ''}
-            
-            <div style="display: flex; gap: 10px; color: #666; font-size: 14px; margin-bottom: 10px;">
-                <span>❤️ ${post.likes_count} holofotes</span>
-                <span>💬 ${post.comments_count} comentários</span>
+                    Deletar
+                </button>
             </div>
-            
-            <button onclick="deletePost('${post.id}', '${communityId}')" style="
-                padding: 6px 12px;
-                background: #ff4444;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-size: 12px;
-                cursor: pointer;
-            ">
-                🗑️ Remover Post
-            </button>
+            <div style="margin-left: 50px;">
+                <div style="margin-bottom: 5px;">
+                    <span style="font-size: 20px;">${typeEmojis[post.type] || '📝'}</span>
+                    <span style="font-weight: 600; margin-left: 5px;">${post.person_name || ''}</span>
+                </div>
+                <div style="color: #333;">${post.story_text}</div>
+                ${post.photo_url ? `<img src="${post.photo_url}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ''}
+            </div>
         `;
         
-        postsDiv.appendChild(postDiv);
+        container.appendChild(postDiv);
     });
 }
 
 async function deletePost(postId, communityId) {
-    if (!confirm('Tem certeza que deseja remover este post?')) {
+    if (!confirm('Tem certeza que deseja deletar este post?')) {
         return;
     }
     
@@ -643,33 +654,50 @@ async function deletePost(postId, communityId) {
         .eq('id', postId);
     
     if (error) {
-        alert('❌ Erro ao remover post: ' + error.message);
+        console.error('Erro ao deletar post:', error);
+        alert('Erro ao deletar post: ' + error.message);
         return;
     }
     
-    alert('✅ Post removido com sucesso!');
+    alert('✅ Post deletado com sucesso!');
     loadCommunityPosts(communityId);
 }
 
-// Fechar modal ao clicar fora
-function setupModalClickOutside() {
-    const modal = document.getElementById('manageCommunityModal');
-    if (!modal) return;
+// ========== DELETAR COMUNIDADE ==========
+
+async function deleteCommunity() {
+    const communityId = document.getElementById('communitySelect').value;
+    if (!communityId) return;
     
-    modal.addEventListener('click', (e) => {
-        if (e.target.id === 'manageCommunityModal') {
-            closeManageCommunityModal();
-        }
-    });
+    if (!confirm('⚠️ ATENÇÃO: Deletar a comunidade irá remover TODOS os posts e membros. Esta ação não pode ser desfeita. Tem certeza?')) {
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('communities')
+        .update({ is_active: false })
+        .eq('id', communityId);
+    
+    if (error) {
+        console.error('Erro ao deletar comunidade:', error);
+        alert('Erro ao deletar comunidade: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Comunidade deletada com sucesso!');
+    closeManageCommunityModal();
+    
+    // Recarregar feeds se necessário
+    if (typeof loadCommunityFeeds === 'function') {
+        loadCommunityFeeds();
+    }
 }
 
-// Inicializar todos os listeners
+// ========== INICIALIZAÇÃO ==========
+
 function initCommunityManagement() {
     setupCommunitySelectListener();
-    setupNewCommunityForm();
-    setupEditCommunityForm();
     setupUserSearch();
-    setupModalClickOutside();
     
     console.log('✅ Community Management inicializado');
 }
@@ -680,53 +708,15 @@ window.closeManageCommunityModal = closeManageCommunityModal;
 window.switchManagementTab = switchManagementTab;
 window.showCreateCommunityForm = showCreateCommunityForm;
 window.hideCreateCommunityForm = hideCreateCommunityForm;
-window.addMember = addMember;
+window.createCommunity = createCommunity;
+window.updateCommunity = updateCommunity;
+window.deleteCommunity = deleteCommunity;
+window.openEmojiPicker = openEmojiPicker;
+window.closeEmojiPicker = closeEmojiPicker;
+window.selectEmoji = selectEmoji;
 window.removeMember = removeMember;
 window.deletePost = deletePost;
 window.initCommunityManagement = initCommunityManagement;
 
 console.log('✅ Módulo community_management.js carregado');
-
-
-
-
-// Deletar comunidade
-async function deleteCommunity() {
-    const select = document.getElementById('communitySelect');
-    if (!select || !select.value) {
-        alert('❌ Nenhuma comunidade selecionada');
-        return;
-    }
-    
-    const communityId = select.value;
-    const communityName = select.options[select.selectedIndex].text;
-    
-    if (!confirm(`⚠️ Tem certeza que deseja deletar a comunidade "${communityName}"?\n\nEsta ação não pode ser desfeita!`)) {
-        return;
-    }
-    
-    const { error } = await supabase
-        .from('communities')
-        .delete()
-        .eq('id', communityId);
-    
-    if (error) {
-        alert('❌ Erro ao deletar comunidade: ' + error.message);
-        return;
-    }
-    
-    alert('✅ Comunidade deletada com sucesso!');
-    
-    // Limpar seleção
-    select.value = '';
-    document.getElementById('communityInfo').style.display = 'none';
-    
-    // Recarregar lista
-    await loadOwnedCommunities();
-    
-    // Atualizar tabs de feed
-    if (typeof loadUserCommunities === 'function') {
-        await loadUserCommunities();
-    }
-}
 
