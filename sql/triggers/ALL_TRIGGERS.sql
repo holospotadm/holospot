@@ -189,3 +189,54 @@ CREATE TRIGGER trigger_update_conversation_timestamp
 
 -- ============================================================================
 
+
+
+-- TRIGGER: award_first_community_post_badge
+-- ============================================================================
+
+-- Função do trigger
+CREATE OR REPLACE FUNCTION public.award_first_community_post_badge()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+BEGIN
+    -- Verificar se é um post de comunidade
+    IF NEW.community_id IS NOT NULL THEN
+        -- Verificar se é o primeiro post do usuário nesta comunidade
+        IF NOT EXISTS (
+            SELECT 1 FROM posts 
+            WHERE user_id = NEW.user_id 
+            AND community_id = NEW.community_id 
+            AND id != NEW.id
+        ) THEN
+            -- Atribuir badge
+            INSERT INTO user_badges (user_id, badge_name, badge_description, earned_at)
+            VALUES (
+                NEW.user_id,
+                'Primeiro Post na Comunidade',
+                'Fez o primeiro post em uma comunidade',
+                NOW()
+            )
+            ON CONFLICT (user_id, badge_name) DO NOTHING;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.award_first_community_post_badge IS 
+'Atribui badge ao fazer primeiro post em comunidade';
+
+-- Criar trigger
+DROP TRIGGER IF EXISTS trigger_award_first_community_post_badge ON public.posts;
+
+CREATE TRIGGER trigger_award_first_community_post_badge
+AFTER INSERT ON public.posts
+FOR EACH ROW
+EXECUTE FUNCTION public.award_first_community_post_badge();
+
+-- ============================================================================
+

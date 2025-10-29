@@ -5836,3 +5836,268 @@ COMMENT ON FUNCTION public.get_or_create_conversation IS
 
 -- ============================================================================
 
+
+-- ============================================================================
+-- FUNÇÕES DE COMUNIDADES
+-- ============================================================================
+
+-- FUNÇÃO: create_community
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.create_community(
+    p_name TEXT,
+    p_slug TEXT,
+    p_description TEXT,
+    p_emoji TEXT,
+    p_owner_id UUID
+)
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+DECLARE
+    v_community_id UUID;
+    v_is_community_owner BOOLEAN;
+BEGIN
+    -- Verificar se o usuário está autorizado
+    IF auth.uid() != p_owner_id THEN
+        RAISE EXCEPTION 'Unauthorized';
+    END IF;
+    
+    -- Verificar se o usuário pode criar comunidades
+    SELECT community_owner INTO v_is_community_owner
+    FROM profiles
+    WHERE id = p_owner_id;
+    
+    IF NOT v_is_community_owner THEN
+        RAISE EXCEPTION 'User is not authorized to create communities';
+    END IF;
+    
+    -- Criar comunidade
+    INSERT INTO communities (name, slug, description, emoji, owner_id)
+    VALUES (p_name, p_slug, p_description, COALESCE(p_emoji, '🏢'), p_owner_id)
+    RETURNING id INTO v_community_id;
+    
+    -- Adicionar owner como membro
+    INSERT INTO community_members (community_id, user_id, role)
+    VALUES (v_community_id, p_owner_id, 'owner');
+    
+    -- Atribuir badge
+    INSERT INTO user_badges (user_id, badge_name, badge_description, earned_at)
+    VALUES (
+        p_owner_id,
+        'Owner de Comunidade',
+        'Criou uma comunidade no HoloSpot',
+        NOW()
+    )
+    ON CONFLICT (user_id, badge_name) DO NOTHING;
+    
+    RETURN v_community_id;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.create_community IS 
+'Cria uma nova comunidade e adiciona o owner como membro';
+
+-- FUNÇÃO: update_community
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.update_community(
+    p_community_id UUID,
+    p_name TEXT,
+    p_slug TEXT,
+    p_description TEXT,
+    p_emoji TEXT,
+    p_logo_url TEXT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+BEGIN
+    -- Verificar se o usuário é o owner
+    IF NOT EXISTS (
+        SELECT 1 FROM communities 
+        WHERE id = p_community_id 
+        AND owner_id = auth.uid()
+    ) THEN
+        RAISE EXCEPTION 'Unauthorized: Only owner can update community';
+    END IF;
+    
+    -- Atualizar comunidade
+    UPDATE communities
+    SET 
+        name = p_name,
+        slug = p_slug,
+        description = p_description,
+        emoji = COALESCE(p_emoji, emoji),
+        logo_url = p_logo_url,
+        updated_at = NOW()
+    WHERE id = p_community_id;
+    
+    RETURN true;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.update_community IS 
+'Atualiza informações de uma comunidade (apenas owner)';
+
+-- FUNÇÃO: add_community_member
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.add_community_member(
+    p_community_id UUID,
+    p_user_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+BEGIN
+    -- Verificar se o usuário é owner
+    IF NOT EXISTS (
+        SELECT 1 FROM community_members 
+        WHERE community_id = p_community_id 
+        AND user_id = auth.uid() 
+        AND role = 'owner'
+        AND is_active = true
+    ) THEN
+        RAISE EXCEPTION 'Unauthorized: Only owner can add members';
+    END IF;
+    
+    -- Adicionar membro
+    INSERT INTO community_members (community_id, user_id, role)
+    VALUES (p_community_id, p_user_id, 'member')
+    ON CONFLICT (community_id, user_id) DO UPDATE
+    SET is_active = true;
+    
+    -- Atribuir badge
+    INSERT INTO user_badges (user_id, badge_name, badge_description, earned_at)
+    VALUES (
+        p_user_id,
+        'Membro de Comunidade',
+        'Entrou em uma comunidade no HoloSpot',
+        NOW()
+    )
+    ON CONFLICT (user_id, badge_name) DO NOTHING;
+    
+    RETURN true;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.add_community_member IS 
+'Adiciona um membro à comunidade (apenas owner)';
+
+-- FUNÇÃO: remove_community_member
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.remove_community_member(
+    p_community_id UUID,
+    p_user_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+BEGIN
+    -- Verificar se o usuário é owner
+    IF NOT EXISTS (
+        SELECT 1 FROM community_members 
+        WHERE community_id = p_community_id 
+        AND user_id = auth.uid() 
+        AND role = 'owner'
+        AND is_active = true
+    ) THEN
+        RAISE EXCEPTION 'Unauthorized: Only owner can remove members';
+    END IF;
+    
+    -- Impedir que owner se remova
+    IF p_user_id = auth.uid() THEN
+        RAISE EXCEPTION 'Owner cannot remove themselves';
+    END IF;
+    
+    -- Remover membro (soft delete)
+    UPDATE community_members
+    SET is_active = false
+    WHERE community_id = p_community_id AND user_id = p_user_id;
+    
+    RETURN true;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.remove_community_member IS 
+'Remove um membro da comunidade (apenas owner)';
+
+-- FUNÇÃO: get_community_feed
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.get_community_feed(
+    p_community_id UUID,
+    p_user_id UUID,
+    p_limit INTEGER DEFAULT 20,
+    p_offset INTEGER DEFAULT 0
+)
+RETURNS TABLE (
+    id UUID,
+    user_id UUID,
+    celebrated_person_name TEXT,
+    mentioned_user_id UUID,
+    person_name TEXT,
+    content TEXT,
+    image_url TEXT,
+    created_at TIMESTAMP,
+    likes_count INTEGER,
+    comments_count INTEGER,
+    user_has_liked BOOLEAN
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+BEGIN
+    -- Verificar se o usuário é membro
+    IF NOT EXISTS (
+        SELECT 1 FROM community_members 
+        WHERE community_id = p_community_id 
+        AND user_id = p_user_id 
+        AND is_active = true
+    ) THEN
+        RAISE EXCEPTION 'User is not a member of this community';
+    END IF;
+    
+    -- Retornar posts da comunidade
+    RETURN QUERY
+    SELECT 
+        p.id,
+        p.user_id,
+        p.celebrated_person_name,
+        p.mentioned_user_id,
+        p.person_name,
+        p.content,
+        p.image_url,
+        p.created_at,
+        p.likes_count,
+        p.comments_count,
+        EXISTS(SELECT 1 FROM likes WHERE post_id = p.id AND user_id = p_user_id) as user_has_liked
+    FROM posts p
+    WHERE p.community_id = p_community_id
+    ORDER BY p.created_at DESC
+    LIMIT p_limit
+    OFFSET p_offset;
+END;
+$function$
+;
+
+COMMENT ON FUNCTION public.get_community_feed IS 
+'Retorna feed de posts de uma comunidade (apenas membros)';
+
+-- ============================================================================
+
