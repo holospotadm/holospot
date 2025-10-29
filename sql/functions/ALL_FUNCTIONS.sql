@@ -6065,10 +6065,10 @@ AS $function$
 BEGIN
     -- Verificar se o usuário é membro
     IF NOT EXISTS (
-        SELECT 1 FROM community_members 
-        WHERE community_id = p_community_id 
-        AND user_id = p_user_id 
-        AND is_active = true
+        SELECT 1 FROM community_members cm
+        WHERE cm.community_id = p_community_id 
+        AND cm.user_id = p_user_id 
+        AND cm.is_active = true
     ) THEN
         RAISE EXCEPTION 'User is not a member of this community';
     END IF;
@@ -6086,7 +6086,12 @@ BEGIN
         p.created_at,
         p.likes_count,
         p.comments_count,
-        EXISTS(SELECT 1 FROM likes l WHERE l.post_id = p.id AND l.user_id = p_user_id) as user_has_liked
+        EXISTS(
+            SELECT 1 
+            FROM likes l 
+            WHERE l.post_id = p.id 
+            AND l.user_id = get_community_feed.p_user_id
+        ) as user_has_liked
     FROM posts p
     WHERE p.community_id = p_community_id
     ORDER BY p.created_at DESC
