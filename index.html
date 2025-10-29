@@ -2744,7 +2744,7 @@
                 </div>
                 
                 <!-- Botão Settings -->
-                <button onclick="openSettingsModal()" style="
+                <button id="settingsBtn" data-action="open-settings" style="
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
                     border: none;
@@ -3440,8 +3440,20 @@
                 });
                 console.log('✅ Outside click listener configurado');
 
+                // Settings button com delegação de eventos
+                document.addEventListener('click', function(e) {
+                    const settingsBtn = e.target.closest('[data-action="open-settings"]');
+                    if (settingsBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openSettingsModal();
+                        console.log('⚙️ Settings modal aberto via delegação');
+                    }
+                });
+                console.log('✅ Settings button listener (delegação) configurado');
+                
                 // Event listeners já configurados via onclick no HTML
-                console.log('✅ Event listeners configurados via onclick no HTML');
+                console.log('✅ Event listeners configurados com sucesso!');HTML');
                 
                 // Configurar pull-to-refresh para mobile
                 setupPullToRefresh();
@@ -5940,7 +5952,7 @@
                 try {
                     const usersQuery = supabase
                         .from('profiles')
-                        .select('id, name, email, avatar_url')
+                        .select('id, name, username, email, avatar_url')
                         .in('id', uniqueUserIds);
                     
                     const { data: usersData, error: usersError } = await withTimeout(usersQuery, 5000);
@@ -5953,6 +5965,7 @@
                             
                             userDataCache.set(user.id, {
                                 name: realName,
+                                username: user.username || user.email?.split('@')[0] || 'usuario',
                                 email: user.email,
                                 avatar_url: realAvatar
                             });
@@ -5974,6 +5987,7 @@
                         // Usuário atual
                         post.user_data = {
                             name: currentUser.user_metadata?.name || currentUser.email || 'Você',
+                            username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario',
                             email: currentUser.email,
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         };
@@ -6366,7 +6380,7 @@
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
                                 <div class="post-author-meta">
-                                    ${(post.user_data?.username || 'usuario') === (currentUser.user_metadata?.username || currentUser.email?.split('@')[0]) ? 
+                                    ${post.user_id === currentUser.id ? 
                                         `<span class="post-author-username">@${post.user_data?.username || 'usuario'}</span>` :
                                         `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.username || 'usuario'}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
@@ -8095,7 +8109,7 @@
                         <div class="post-author" style="flex: 1;">
                             <div class="post-author-name" style="font-weight: 600; color: #333;">${authorName}</div>
                             <div class="post-author-meta" style="color: #666; font-size: 14px;">
-                                ${authorUsername === (currentUser.email?.split('@')[0] || currentUser.user_metadata?.username) ? 
+                                ${postData.user_id === currentUser.id ? 
                                     `<span class="post-author-username">@${authorUsername}</span>` :
                                     `<span class="post-author-username" onclick="openUserProfile('${authorUsername}')" 
                                           style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
@@ -8500,24 +8514,24 @@
             try {
                 console.log('🔍 Buscando dados do usuário:', username);
                 
-                // Primeiro, tentar buscar por email (username@domain)
+                // Buscar por username (campo dedicado)
                 let { data: user, error } = await supabase
                     .from('profiles')
                     .select('*')
-                    .ilike('email', `${username}%`)
+                    .eq('username', username)
                     .single();
                 
-                // Se não encontrar, tentar buscar por nome que contenha o username
+                // Fallback: buscar por email se não encontrar por username
                 if (error || !user) {
-                    const { data: userByName, error: nameError } = await supabase
+                    console.log('⚠️ Não encontrado por username, tentando por email...');
+                    const { data: userByEmail, error: emailError } = await supabase
                         .from('profiles')
                         .select('*')
-                        .ilike('name', `%${username}%`)
-                        .limit(1)
+                        .ilike('email', `${username}%`)
                         .single();
                     
-                    if (!nameError && userByName) {
-                        user = userByName;
+                    if (!emailError && userByEmail) {
+                        user = userByEmail;
                         error = null;
                     }
                 }
@@ -12313,7 +12327,7 @@
                                     ${post.user_data?.name || 'Usuário'}
                                 </div>
                                 <div class="post-author-meta">
-                                    ${(post.user_data?.username || 'usuario') === (currentUser.user_metadata?.username || currentUser.email?.split('@')[0]) ? 
+                                    ${post.user_id === currentUser.id ? 
                                         `<span class="post-author-username">@${post.user_data?.username || 'usuario'}</span>` :
                                         `<span class="post-author-username" onclick="openUserProfileKeepingModals('${post.user_data?.username || 'usuario'}')" 
                                               style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
