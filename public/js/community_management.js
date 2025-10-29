@@ -99,10 +99,14 @@ function showCommunityInfo(community) {
         info.style.display = 'block';
     }
     
-    // Preencher dados da comunidade
-    document.getElementById('editCommunityName').value = community.name;
-    document.getElementById('editCommunityDescription').value = community.description || '';
-    document.getElementById('selectedEmoji').textContent = community.emoji || '🏢';
+    // Preencher dados da comunidade (com null checks)
+    const nameInput = document.getElementById('editCommunityName');
+    const descInput = document.getElementById('editCommunityDescription');
+    const emojiSpan = document.getElementById('selectedEmoji');
+    
+    if (nameInput) nameInput.value = community.name;
+    if (descInput) descInput.value = community.description || '';
+    if (emojiSpan) emojiSpan.textContent = community.emoji || '🏢';
     
     // Carregar membros
     loadCommunityMembers(community.id);
@@ -245,6 +249,15 @@ function switchManagementTab(tabName) {
 // ========== MEMBROS ==========
 
 async function loadCommunityMembers(communityId) {
+    // Buscar informações da comunidade para saber quem é o owner
+    const { data: community } = await supabase
+        .from('communities')
+        .select('owner_id')
+        .eq('id', communityId)
+        .single();
+    
+    const ownerId = community?.owner_id;
+    
     const { data: members, error } = await supabase
         .from('community_members')
         .select(`
@@ -289,6 +302,8 @@ async function loadCommunityMembers(communityId) {
             border-bottom: 1px solid #eee;
         `;
         
+        const isOwner = user.id === ownerId;
+        
         memberDiv.innerHTML = `
             <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" style="
                 width: 40px;
@@ -297,20 +312,25 @@ async function loadCommunityMembers(communityId) {
                 object-fit: cover;
             ">
             <div style="flex: 1;">
-                <div style="font-weight: 600;">${user.name}</div>
+                <div style="font-weight: 600;">
+                    ${user.name}
+                    ${isOwner ? '<span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">OWNER</span>' : ''}
+                </div>
                 <div style="color: #666; font-size: 14px;">@${user.username}</div>
             </div>
-            <button onclick="removeMember('${communityId}', '${user.id}')" style="
-                padding: 8px 16px;
-                background: #dc3545;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-size: 14px;
-                cursor: pointer;
-            ">
-                Remover
-            </button>
+            ${!isOwner ? `
+                <button onclick="removeMember('${communityId}', '${user.id}')" style="
+                    padding: 8px 16px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    cursor: pointer;
+                ">
+                    Remover
+                </button>
+            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'}
         `;
         
         container.appendChild(memberDiv);
@@ -507,10 +527,11 @@ async function selectMemberToAdd(userId, username) {
     const communityId = document.getElementById('communitySelect')?.value;
     if (!communityId) return;
     
-    // Adicionar membro
+    // Adicionar membro (com p_role para evitar ambiguidade)
     const { error } = await supabase.rpc('add_community_member', {
         p_community_id: communityId,
-        p_user_id: userId
+        p_user_id: userId,
+        p_role: 'member'
     });
     
     if (error) {
