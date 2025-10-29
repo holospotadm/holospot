@@ -6045,19 +6045,7 @@ CREATE OR REPLACE FUNCTION public.get_community_feed(
     p_limit INTEGER DEFAULT 20,
     p_offset INTEGER DEFAULT 0
 )
-RETURNS TABLE (
-    id UUID,
-    user_id UUID,
-    celebrated_person_name TEXT,
-    mentioned_user_id UUID,
-    person_name TEXT,
-    content TEXT,
-    photo_url TEXT,
-    created_at TIMESTAMPTZ,
-    likes_count BIGINT,
-    comments_count BIGINT,
-    user_has_liked BOOLEAN
-)
+RETURNS SETOF posts
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path TO 'public'
@@ -6073,25 +6061,9 @@ BEGIN
         RAISE EXCEPTION 'User is not a member of this community';
     END IF;
     
-    -- Retornar posts da comunidade
+    -- Retornar posts da comunidade (SIMPLES!)
     RETURN QUERY
-    SELECT 
-        p.id,
-        p.user_id,
-        p.celebrated_person_name,
-        p.mentioned_user_id,
-        p.person_name,
-        p.content,
-        p.photo_url,
-        p.created_at,
-        (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id)::BIGINT as likes_count,
-        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id)::BIGINT as comments_count,
-        EXISTS(
-            SELECT 1 
-            FROM likes l 
-            WHERE l.post_id = p.id 
-            AND l.user_id = get_community_feed.p_user_id
-        ) as user_has_liked
+    SELECT p.*
     FROM posts p
     WHERE p.community_id = p_community_id
     ORDER BY p.created_at DESC
@@ -6102,7 +6074,7 @@ $function$
 ;
 
 COMMENT ON FUNCTION public.get_community_feed IS 
-'Retorna feed de posts de uma comunidade (apenas membros)';
+'Retorna feed de posts de uma comunidade (apenas membros). Versão simples que retorna SETOF posts.';
 
 -- ============================================================================
 
