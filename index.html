@@ -5593,16 +5593,25 @@
             // Salvar username atual para comparação
             currentUsername = profile?.username || currentUser.user_metadata?.username || '';
             
-            // Preencher dados atuais
-            document.getElementById('settingsFullName').value = profile?.name || currentUser.user_metadata?.full_name || '';
-            document.getElementById('settingsUsername').value = currentUsername;
-            document.getElementById('settingsDefaultFeed').value = profile?.default_feed || 'recommended';
-            
-            // Avatar preview
-            const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=667eea&color=fff&size=200`;
-            document.getElementById('settingsAvatarPreview').src = avatarUrl;
-            
+            // Mostrar modal PRIMEIRO para garantir que elementos existam
             modal.style.display = 'flex';
+            
+            // Aguardar um frame para garantir que o DOM foi renderizado
+            setTimeout(() => {
+                // Preencher dados atuais
+                const fullNameInput = document.getElementById('settingsFullName');
+                const usernameInput = document.getElementById('settingsUsername');
+                const defaultFeedInput = document.getElementById('settingsDefaultFeed');
+                const avatarPreview = document.getElementById('settingsAvatarPreview');
+                
+                if (fullNameInput) fullNameInput.value = profile?.name || currentUser.user_metadata?.full_name || '';
+                if (usernameInput) usernameInput.value = currentUsername;
+                if (defaultFeedInput) defaultFeedInput.value = profile?.default_feed || 'recommended';
+                
+                // Avatar preview
+                const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=667eea&color=fff&size=200`;
+                if (avatarPreview) avatarPreview.src = avatarUrl;
+            }, 10);
             console.log('⚙️ Modal de configurações aberto', profile);
         }
 
