@@ -5690,6 +5690,11 @@
         async function openSettingsModal() {
             const modal = document.getElementById('settingsModal');
             
+            if (!modal) {
+                console.error('❌ Modal settingsModal não encontrado no DOM');
+                return;
+            }
+            
             // Buscar dados do perfil do Supabase
             const { data: profile, error } = await supabase
                 .from('profiles')
@@ -5752,6 +5757,16 @@
         async function openChatListModal() {
             const modal = document.getElementById('chatListModal');
             const content = document.getElementById('chatListContent');
+            
+            if (!modal) {
+                console.error('❌ Modal chatListModal não encontrado no DOM');
+                return;
+            }
+            
+            if (!content) {
+                console.error('❌ Elemento chatListContent não encontrado no DOM');
+                return;
+            }
             
             modal.style.display = 'flex';
             content.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><p>Carregando conversas...</p></div>';
