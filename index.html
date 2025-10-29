@@ -6311,6 +6311,15 @@
                     `;
                     
                     if (messagesContent) {
+                        // Se é a primeira mensagem, limpar o aviso de "Nenhuma mensagem ainda"
+                        const hasNoMessages = messagesContent.innerHTML.includes('Nenhuma mensagem ainda') || 
+                                             messagesContent.innerHTML.includes('Envie a primeira mensagem');
+                        
+                        if (hasNoMessages) {
+                            messagesContent.innerHTML = ''; // Limpar aviso
+                            console.log('🧹 Aviso de primeira mensagem removido');
+                        }
+                        
                         // Usar insertAdjacentHTML para adicionar sem recriar todo o HTML
                         messagesContent.insertAdjacentHTML('beforeend', tempMessageHtml);
                         // Scroll suave para o final
