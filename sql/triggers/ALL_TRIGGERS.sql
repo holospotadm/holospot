@@ -153,3 +153,39 @@ CREATE TRIGGER update_user_points_updated_at BEFORE UPDATE ON public.user_points
 
 CREATE TRIGGER level_up_notification_trigger AFTER UPDATE ON public.user_points FOR EACH ROW EXECUTE FUNCTION handle_level_up_notification();
 
+
+-- TRIGGER 30: trigger_update_conversation_timestamp
+-- ============================================================================
+-- Descrição: Atualiza updated_at da conversa quando uma nova mensagem é enviada
+-- Tabela: messages
+-- Evento: AFTER INSERT
+-- Função: update_conversation_timestamp()
+-- ============================================================================
+
+-- Criar função do trigger
+CREATE OR REPLACE FUNCTION public.update_conversation_timestamp()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+    UPDATE public.conversations
+    SET updated_at = NOW()
+    WHERE id = NEW.conversation_id;
+    
+    RETURN NEW;
+END;
+$function$;
+
+COMMENT ON FUNCTION public.update_conversation_timestamp IS 
+'Atualiza o timestamp da conversa quando uma nova mensagem é enviada';
+
+-- Criar trigger
+DROP TRIGGER IF EXISTS trigger_update_conversation_timestamp ON public.messages;
+
+CREATE TRIGGER trigger_update_conversation_timestamp
+    AFTER INSERT ON public.messages
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_conversation_timestamp();
+
+-- ============================================================================
+
