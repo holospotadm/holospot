@@ -159,6 +159,18 @@ async function createCommunity() {
         return;
     }
     
+    // Adicionar owner como membro da comunidade
+    const { error: memberError } = await supabase.rpc('add_community_member', {
+        p_community_id: data.id,
+        p_user_id: currentUser.id,
+        p_role: 'owner'
+    });
+    
+    if (memberError) {
+        console.error('Erro ao adicionar owner como membro:', memberError);
+        // Não bloqueia, apenas loga o erro
+    }
+    
     alert('✅ Comunidade criada com sucesso!');
     hideCreateCommunityForm();
     loadOwnedCommunities();
@@ -258,11 +270,12 @@ async function loadCommunityMembers(communityId) {
     
     const ownerId = community?.owner_id;
     
+    // Buscar todos os membros (incluindo owner)
     const { data: members, error } = await supabase
         .from('community_members')
         .select(`
             user_id,
-            created_at,
+            role,
             profiles:user_id (
                 id,
                 name,
@@ -271,8 +284,7 @@ async function loadCommunityMembers(communityId) {
             )
         `)
         .eq('community_id', communityId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .eq('is_active', true);
     
     if (error) {
         console.error('Erro ao carregar membros:', error);
@@ -289,9 +301,18 @@ async function loadCommunityMembers(communityId) {
         return;
     }
     
-    members.forEach(member => {
+    // Ordenar: owner primeiro, depois outros membros
+    const sortedMembers = [...members].sort((a, b) => {
+        if (a.user_id === ownerId) return -1;
+        if (b.user_id === ownerId) return 1;
+        return 0;
+    });
+    
+    sortedMembers.forEach(member => {
         const user = member.profiles;
         if (!user) return;
+        
+        const isOwner = user.id === ownerId;
         
         const memberDiv = document.createElement('div');
         memberDiv.style.cssText = `
@@ -301,8 +322,6 @@ async function loadCommunityMembers(communityId) {
             padding: 12px;
             border-bottom: 1px solid #eee;
         `;
-        
-        const isOwner = user.id === ownerId;
         
         memberDiv.innerHTML = `
             <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" style="
@@ -330,7 +349,7 @@ async function loadCommunityMembers(communityId) {
                 ">
                     Remover
                 </button>
-            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'}
+            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'
         `;
         
         container.appendChild(memberDiv);
