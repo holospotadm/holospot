@@ -3633,71 +3633,7 @@
                 });
                 console.log('✅ Settings e Chat buttons listener (delegação) configurado');
                 
-                // Send message form
-                const sendMessageForm = document.getElementById('sendMessageForm');
-                if (sendMessageForm) {
-                    sendMessageForm.addEventListener('submit', async function(e) {
-                        e.preventDefault();
-                        
-                        const messageInput = document.getElementById('messageInput');
-                        const content = messageInput.value.trim();
-                        
-                        if (!content || !currentConversationId) return;
-                        
-                        try {
-                            // Adicionar mensagem imediatamente na UI (otimista)
-                            const messagesContent = document.getElementById('chatMessagesContent');
-                            console.log('💬 Adicionando mensagem na UI:', { content, messagesContent: !!messagesContent });
-                            const tempMessageHtml = `
-                                <div style="
-                                    display: flex;
-                                    justify-content: flex-end;
-                                    margin-bottom: 12px;
-                                ">
-                                    <div style="
-                                        max-width: 70%;
-                                        padding: 12px 16px;
-                                        border-radius: 16px 16px 0 16px;
-                                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                                        color: white;
-                                    ">
-                                        <div>${content}</div>
-                                        <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">agora</div>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            if (messagesContent) {
-                                // Usar insertAdjacentHTML para adicionar sem recriar todo o HTML
-                                messagesContent.insertAdjacentHTML('beforeend', tempMessageHtml);
-                                // Scroll suave para o final
-                                messagesContent.scrollTo({
-                                    top: messagesContent.scrollHeight,
-                                    behavior: 'smooth'
-                                });
-                            }
-                            
-                            // Limpar input imediatamente
-                            messageInput.value = '';
-                            
-                            // Enviar para o banco
-                            const { error } = await supabase
-                                .from('messages')
-                                .insert({
-                                    conversation_id: currentConversationId,
-                                    sender_id: currentUser.id,
-                                    content: content
-                                });
-                            
-                            if (error) throw error;
-                            
-                        } catch (error) {
-                            console.error('❌ Erro ao enviar mensagem:', error);
-                            alert('❌ Erro ao enviar mensagem');
-                        }
-                    });
-                    console.log('✅ Send message form listener configurado');
-                }
+                // Send message form listener agora é configurado em setupSendMessageForm() quando o chat abre
                 
                 // Event listeners já configurados via onclick no HTML
                 console.log('✅ Event listeners configurados com sucesso!');
@@ -6211,6 +6147,9 @@
                 // Configurar real-time
                 setupChatRealtime();
                 
+                // Configurar event listener do form de envio
+                setupSendMessageForm();
+                
             } catch (error) {
                 console.error('❌ Erro ao abrir chat:', error);
                 messagesContent.innerHTML = `
@@ -6319,6 +6258,94 @@
             } catch (error) {
                 console.error('❌ Erro ao marcar mensagens como lidas:', error);
             }
+        }
+        
+        function setupSendMessageForm() {
+            const sendMessageForm = document.getElementById('sendMessageForm');
+            
+            if (!sendMessageForm) {
+                console.error('❌ Form sendMessageForm não encontrado');
+                return;
+            }
+            
+            // Remover listener anterior se existir (para evitar duplicação)
+            const newForm = sendMessageForm.cloneNode(true);
+            sendMessageForm.parentNode.replaceChild(newForm, sendMessageForm);
+            
+            // Adicionar novo listener
+            newForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const messageInput = document.getElementById('messageInput');
+                const content = messageInput.value.trim();
+                
+                console.log('💬 Tentando enviar mensagem:', { content, currentConversationId });
+                
+                if (!content || !currentConversationId) {
+                    console.warn('⚠️ Mensagem vazia ou sem conversa ativa');
+                    return;
+                }
+                
+                try {
+                    // Adicionar mensagem imediatamente na UI (otimista)
+                    const messagesContent = document.getElementById('chatMessagesContent');
+                    console.log('💬 Adicionando mensagem na UI:', { content, messagesContent: !!messagesContent });
+                    
+                    const tempMessageHtml = `
+                        <div style="
+                            display: flex;
+                            justify-content: flex-end;
+                            margin-bottom: 12px;
+                        ">
+                            <div style="
+                                max-width: 70%;
+                                padding: 12px 16px;
+                                border-radius: 16px 16px 0 16px;
+                                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                color: white;
+                            ">
+                                <div>${content}</div>
+                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">agora</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (messagesContent) {
+                        // Usar insertAdjacentHTML para adicionar sem recriar todo o HTML
+                        messagesContent.insertAdjacentHTML('beforeend', tempMessageHtml);
+                        // Scroll suave para o final
+                        messagesContent.scrollTo({
+                            top: messagesContent.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                        console.log('✅ Mensagem adicionada na UI!');
+                    } else {
+                        console.error('❌ Elemento chatMessagesContent não encontrado!');
+                    }
+                    
+                    // Limpar input imediatamente
+                    messageInput.value = '';
+                    
+                    // Enviar para o banco
+                    const { error } = await supabase
+                        .from('messages')
+                        .insert({
+                            conversation_id: currentConversationId,
+                            sender_id: currentUser.id,
+                            content: content
+                        });
+                    
+                    if (error) throw error;
+                    
+                    console.log('✅ Mensagem salva no banco!');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao enviar mensagem:', error);
+                    alert('❌ Erro ao enviar mensagem');
+                }
+            });
+            
+            console.log('✅ Event listener do form de mensagem configurado!');
         }
         
         function setupChatRealtime() {
