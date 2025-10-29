@@ -146,6 +146,9 @@ async function loadCommunityFeed(communityId) {
                         padding: 80px 20px;
                         min-height: 400px;
                         background: white;
+                        border-radius: 16px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                        margin-bottom: 16px;
                     ">
                         <div style="
                             font-size: 72px;
