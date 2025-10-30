@@ -6688,9 +6688,9 @@
                 } catch (error) {
                     console.error('❌ Erro no polling de status de leitura:', error);
                 }
-            }, 2000); // Verifica a cada 2 segundos
+            }, 1000); // Verifica a cada 1 segundo
             
-            console.log('✅ Polling de status de leitura iniciado (verifica a cada 2s)');
+            console.log('✅ Polling de status de leitura iniciado (verifica a cada 1s)');
         }
         
         function setupChatPolling() {
