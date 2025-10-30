@@ -3284,10 +3284,10 @@
             
             <!-- Botões fixos no rodapé -->
             <div style="display: flex; gap: 1rem; justify-content: flex-end; padding: 20px 24px; border-top: 2px solid #f0f0f0; background: #fafafa;">
-                <button type="button" onclick="closeSettingsModal()" style="padding: 12px 24px; border: 2px solid #e0e0e0; background: white; color: #666; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
+                <button type="button" onclick="closeSettingsModal()" style="padding: 12px 24px; border: 2px solid #e0e0e0; background: white; color: #666; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                     Cancelar
                 </button>
-                <button type="submit" form="settingsForm" id="saveSettingsBtn" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
+                <button type="submit" form="settingsForm" id="saveSettingsBtn" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
                     Salvar Alterações
                 </button>
             </div>
@@ -15597,7 +15597,7 @@
                     <button onclick="showCreateCommunityForm()" style="
                         width: 100%;
                         padding: 10px;
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        background: linear-gradient(135deg, #FFB700 0%, #FF6600 100%);
                         color: white;
                         border: none;
                         border-radius: 8px;
@@ -15802,6 +15802,19 @@
                             </div>
                             
                             <div style="display: flex; gap: 10px;">
+                                <button type="button" onclick="deleteCommunity()" style="
+                                    padding: 12px 20px;
+                                    background: #dc3545;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    🗑️ Deletar
+                                </button>
+                                
                                 <button type="submit" style="
                                     flex: 1;
                                     padding: 12px;
@@ -15814,19 +15827,6 @@
                                     cursor: pointer;
                                 ">
                                     💾 Salvar Alterações
-                                </button>
-                                
-                                <button type="button" onclick="deleteCommunity()" style="
-                                    padding: 12px 20px;
-                                    background: #dc3545;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    font-size: 16px;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                ">
-                                    🗑️ Deletar
                                 </button>
                             </div>
                         </form>
