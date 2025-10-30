@@ -2819,7 +2819,7 @@
                         flex-shrink: 0;
                         display: none;
                     " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(147, 51, 234, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(147, 51, 234, 0.4)';">
-                        🏢
+                        👨‍👩‍👧‍👦
                     </button>
                     
                     <!-- Botão Settings -->
@@ -8354,7 +8354,7 @@
                 const activeCommunityId = typeof getSelectedCommunityId === 'function' ? getSelectedCommunityId() : null;
                 
                 if (activeCommunityId) {
-                    console.log('🏢 Post será criado na comunidade:', activeCommunityId);
+                    console.log('👨‍👩‍👧‍👦 Post será criado na comunidade:', activeCommunityId);
                 } else {
                     console.log('🌍 Post será criado no feed geral');
                 }
@@ -12319,7 +12319,7 @@
                     
                     if (!error && members) {
                         allowedUserIds = new Set(members.map(m => m.user_id));
-                        console.log(`🏢 Filtrando menções por ${allowedUserIds.size} membros da comunidade`);
+                        console.log(`👨‍👩‍👧‍👦 Filtrando menções por ${allowedUserIds.size} membros da comunidade`);
                     }
                 } catch (error) {
                     console.error('❌ Erro ao buscar membros da comunidade:', error);
@@ -15570,7 +15570,7 @@
     <div id="manageCommunityModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h2>🏢 Gerenciar Comunidades</h2>
+                <h2>👨‍👩‍👧‍👦 Gerenciar Comunidades</h2>
                 <button class="modal-close" onclick="closeManageCommunityModal()">×</button>
             </div>
             
@@ -15611,7 +15611,7 @@
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
                             <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="text" name="emoji" id="newCommunityEmoji" value="🏢" readonly style="
+                                <input type="text" name="emoji" id="newCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
                                     width: 60px;
                                     padding: 10px;
                                     border: 1px solid #ddd;
@@ -15741,7 +15741,7 @@
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
                                 <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" name="emoji" id="editCommunityEmoji" value="🏢" readonly style="
+                                    <input type="text" name="emoji" id="editCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
                                         width: 60px;
                                         padding: 10px;
                                         border: 1px solid #ddd;
@@ -15935,7 +15935,7 @@ const emojiList = {
     'Viagem': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🏍️', '🛵', '🚲', '🛴', '🛹', '🛺', '🚁', '🚟', '🚠', '🚡', '🛰️', '🚀', '🛸', '🛩️', '✈️', '🛫', '🛬', '🪂', '💺', '🚂', '🚆', '🚇', '🚊', '🚉', '🚝', '🚄', '🚅', '🚈', '🚞', '🚋', '🚃', '⛴️', '🛥️', '🚢', '⚓', '⛽', '🚧', '🚦', '🚥', '🏗️', '🏭', '🏰', '🏯', '🏟️', '🗼', '🏖️', '🏝️'],
     'Objetos': ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '🧮', '📹', '🎥', '📷', '📸', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '🧾', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️'],
     'Símbolos': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '✅', '❌', '⭕', '🛑', '⛔', '📛'],
-    'Empresas': ['🏢', '🏭', '🏛️', '🏚️', '🏗️', '🏪', '🏦', '🏥', '🏣', '🏤', '🏩', '🏫', '🏬', '🏯', '🏰', '💼', '📊', '📈', '📉', '💹', '💰', '💸', '💵', '💴', '💶', '💷', '💳', '🧾', '💱', '💲', '⚖️', '🧱', '🪜', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪛', '🔩', '⚙️', '🧰', '🧲', '📦', '📥', '📤', '📫', '📪', '📨', '📩', '📧', '💌', '📮', '📯', '📬', '📭', '📡', '📰', '📅', '📆', '🗓️']
+    'Empresas': ['👨‍👩‍👧‍👦', '🏭', '🏛️', '🏚️', '🏗️', '🏪', '🏦', '🏥', '🏣', '🏤', '🏩', '🏫', '🏬', '🏯', '🏰', '💼', '📊', '📈', '📉', '💹', '💰', '💸', '💵', '💴', '💶', '💷', '💳', '🧾', '💱', '💲', '⚖️', '🧱', '🪜', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪛', '🔩', '⚙️', '🧰', '🧲', '📦', '📥', '📤', '📫', '📪', '📨', '📩', '📧', '💌', '📮', '📯', '📬', '📭', '📡', '📰', '📅', '📆', '🗓️']
 };
 
 let currentEmojiTarget = null;
@@ -16150,7 +16150,7 @@ function populateFeedDropdown() {
             const option = document.createElement('div');
             option.className = 'filter-option';
             option.setAttribute('data-filter', `community-${community.id}`);
-            option.innerHTML = `<span>${community.emoji || '🏢'} ${community.name}</span>`;
+            option.innerHTML = `<span>${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}</span>`;
             dropdown.appendChild(option);
         });
 
@@ -16178,7 +16178,7 @@ function populateDestacarDropdown() {
         userCommunities.forEach(community => {
             const option = document.createElement('option');
             option.value = community.id;
-            option.textContent = `${community.emoji || '🏢'} ${community.name}`;
+            option.textContent = `${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}`;
             select.appendChild(option);
         });
 
@@ -16205,7 +16205,7 @@ async function loadCommunityFeed(communityId) {
         // Atualizar emoji do botão Feed (sem remover a setinha)
         const feedEmoji = document.getElementById('feedEmoji');
         if (feedEmoji && community) {
-            feedEmoji.textContent = community.emoji || '🏢';
+            feedEmoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
         }
 
         const { data: posts, error } = await supabase.rpc('get_community_feed', {
@@ -16303,7 +16303,7 @@ function setupCommunityFeedFilter() {
         // Se for filtro de comunidade
         if (filter && filter.startsWith('community-')) {
             const communityId = filter.replace('community-', '');
-            console.log('🏢 Carregando comunidade:', communityId);
+            console.log('👨‍👩‍👧‍👦 Carregando comunidade:', communityId);
 
             // Marcar como ativo
             dropdown.querySelectorAll('.filter-option').forEach(opt => {
@@ -16421,7 +16421,7 @@ async function loadOwnedCommunities() {
     communities.forEach(community => {
         const option = document.createElement('option');
         option.value = community.id;
-        option.textContent = `${community.emoji || '🏢'} ${community.name}`;
+        option.textContent = `${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}`;
         option.dataset.community = JSON.stringify(community);
         select.appendChild(option);
     });
@@ -16438,7 +16438,7 @@ function setupCommunitySelectListener() {
         
         if (option.value) {
             const community = JSON.parse(option.dataset.community);
-            console.log('🏢 Dados da comunidade:', community);
+            console.log('👨‍👩‍👧‍👦 Dados da comunidade:', community);
             showCommunityInfo(community);
         } else {
             const info = document.getElementById('communityInfo');
@@ -16465,7 +16465,7 @@ function showCommunityInfo(community) {
     if (nameInput) nameInput.value = community.name || '';
     if (slugInput) slugInput.value = community.slug || '';
     if (descInput) descInput.value = community.description || '';
-    if (emojiInput) emojiInput.value = community.emoji || '🏢';
+    if (emojiInput) emojiInput.value = community.emoji || '👨‍👩‍👧‍👦';
     
 
     
@@ -16496,7 +16496,7 @@ function hideCreateCommunityForm() {
         
         if (nameInput) nameInput.value = '';
         if (descInput) descInput.value = '';
-        if (emojiSpan) emojiSpan.textContent = '🏢';
+        if (emojiSpan) emojiSpan.textContent = '👨‍👩‍👧‍👦';
     }
 }
 
