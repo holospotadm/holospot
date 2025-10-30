@@ -6649,9 +6649,13 @@
                 clearInterval(readStatusPollingInterval);
             }
             
-            // Atualizar status de leitura a cada 5 segundos
+            console.log('🔴 INICIANDO POLLING DE STATUS DE LEITURA - Conversa:', currentConversationId);
+            
+            // Atualizar status de leitura a cada 1 segundo
             readStatusPollingInterval = setInterval(async () => {
                 try {
+                    console.log('🔍 [POLLING] Verificando status de leitura...');
+                    
                     // Buscar mensagens enviadas por mim nesta conversa
                     const { data: myMessages, error } = await supabase
                         .from('messages')
