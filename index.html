@@ -3293,6 +3293,306 @@
             </div>
         </div>
     </div>
+    <!-- ========== COMUNIDADES - MODAIS ========== -->
+    
+    <!-- Modal de Gerenciamento de Comunidades -->
+    <div id="manageCommunityModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>👨‍👩‍👧‍👦 Gerenciar Comunidades</h2>
+                <button class="modal-close" onclick="closeManageCommunityModal()">×</button>
+            </div>
+            
+            <div style="padding: 20px;">
+                <!-- Dropdown de comunidades -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Selecione uma Comunidade:</label>
+                    <select id="communitySelect" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        margin-bottom: 10px;
+                    ">
+                        <option value="">-- Selecione --</option>
+                    </select>
+                    
+                    <button onclick="showCreateCommunityForm()" style="
+                        width: 100%;
+                        padding: 10px;
+                        background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">
+                        <span style="color: #d1d5db; font-weight: bold; font-size: 16px;">+</span> Criar Nova Comunidade
+                    </button>
+                </div>
+                
+                <!-- Formulário de criação -->
+                <div id="createCommunityForm" style="display: none; margin-bottom: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px;">Criar Nova Comunidade</h3>
+                    <form id="newCommunityForm">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" name="emoji" id="newCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
+                                    width: 60px;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 24px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                " onclick="openEmojiPicker('newCommunityEmoji')">
+                                <button type="button" onclick="openEmojiPicker('newCommunityEmoji')" style="
+                                    padding: 10px 16px;
+                                    background: #f0f0f0;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                ">
+                                    Escolher Emoji
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
+                            <input type="text" name="name" placeholder="Ex: Empresa XYZ" required style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                            ">
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
+                            <input type="text" id="newCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                            ">
+                            <small style="color: #666;">Apenas letras minúsculas, números e hífens. Deve ser único!</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
+                            <textarea name="description" placeholder="Descreva sua comunidade..." rows="3" style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                resize: vertical;
+                            "></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" style="
+                                flex: 1;
+                                padding: 10px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                            ">
+                                Criar Comunidade
+                            </button>
+                            
+                            <button type="button" onclick="hideCreateCommunityForm()" style="
+                                padding: 10px 20px;
+                                background: #ddd;
+                                color: #333;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                cursor: pointer;
+                            ">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Informações da comunidade selecionada -->
+                <div id="communityInfo" style="display: none;">
+                    <!-- Tabs de gerenciamento -->
+                    <div class="management-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
+                        <button class="management-tab active" data-tab="edit" onclick="switchManagementTab('edit')" style="
+                            padding: 10px 20px;
+                            background: none;
+                            border: none;
+                            border-bottom: 3px solid #667eea;
+                            font-weight: 600;
+                            cursor: pointer;
+                        ">
+                            ✏️ Editar
+                        </button>
+                        
+                        <button class="management-tab" data-tab="members" onclick="switchManagementTab('members')" style="
+                            padding: 10px 20px;
+                            background: none;
+                            border: none;
+                            border-bottom: 3px solid transparent;
+                            cursor: pointer;
+                        ">
+                            👥 Membros
+                        </button>
+                        
+                        <button class="management-tab" data-tab="posts" onclick="switchManagementTab('posts')" style="
+                            padding: 10px 20px;
+                            background: none;
+                            border: none;
+                            border-bottom: 3px solid transparent;
+                            cursor: pointer;
+                        ">
+                            📝 Posts
+                        </button>
+                    </div>
+                    
+                    <!-- Tab: Editar -->
+                    <div id="editTab" class="management-tab-content">
+                        <form id="editCommunityForm">
+                            <input type="hidden" name="community_id">
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="text" name="emoji" id="editCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
+                                        width: 60px;
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        font-size: 24px;
+                                        text-align: center;
+                                        cursor: pointer;
+                                    " onclick="openEmojiPicker('editCommunityEmoji')">
+                                    <button type="button" onclick="openEmojiPicker('editCommunityEmoji')" style="
+                                        padding: 10px 16px;
+                                        background: #f0f0f0;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        cursor: pointer;
+                                    ">
+                                        Escolher Emoji
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
+                                <input type="text" id="editCommunityName" name="name" required style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                ">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
+                                <input type="text" id="editCommunitySlug" name="slug" required style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                ">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
+                                <textarea id="editCommunityDescription" name="description" rows="3" style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    resize: vertical;
+                                "></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" onclick="deleteCommunity()" style="
+                                    padding: 12px 20px;
+                                    background: #dc3545;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    🗑️ Deletar
+                                </button>
+                                
+                                <button type="submit" style="
+                                    flex: 1;
+                                    padding: 12px;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    💾 Salvar Alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Tab: Membros -->
+                    <div id="membersTab" class="management-tab-content" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin-bottom: 10px;">Adicionar Membros</h3>
+                            <div style="position: relative;">
+                                <input 
+                                    type="text" 
+                                    id="searchUsers" 
+                                    placeholder="Buscar por nome ou @username"
+                                    style="
+                                        width: 100%;
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        margin-bottom: 10px;
+                                    "
+                                >
+                                <!-- Autocomplete aparecerá aqui via JS -->
+                            </div>
+                            <div id="searchResults" style="max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="margin-bottom: 10px;">Membros Atuais</h3>
+                            <div id="currentMembers" style="max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab: Posts -->
+                    <div id="postsTab" class="management-tab-content" style="display: none;">
+                        <div id="communityPosts" style="max-height: 500px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de Lista de Conversas (Inbox) -->
     <div id="chatListModal" class="modal-overlay" style="display: none;" onclick="closeChatListModal()">
@@ -16008,306 +16308,6 @@
         }
     </script>
 
-    <!-- ========== COMUNIDADES - MODAIS ========== -->
-    
-    <!-- Modal de Gerenciamento de Comunidades -->
-    <div id="manageCommunityModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h2>👨‍👩‍👧‍👦 Gerenciar Comunidades</h2>
-                <button class="modal-close" onclick="closeManageCommunityModal()">×</button>
-            </div>
-            
-            <div style="padding: 20px;">
-                <!-- Dropdown de comunidades -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Selecione uma Comunidade:</label>
-                    <select id="communitySelect" style="
-                        width: 100%;
-                        padding: 10px;
-                        border: 1px solid #ddd;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        margin-bottom: 10px;
-                    ">
-                        <option value="">-- Selecione --</option>
-                    </select>
-                    
-                    <button onclick="showCreateCommunityForm()" style="
-                        width: 100%;
-                        padding: 10px;
-                        background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        cursor: pointer;
-                    ">
-                        <span style="color: #d1d5db; font-weight: bold; font-size: 16px;">+</span> Criar Nova Comunidade
-                    </button>
-                </div>
-                
-                <!-- Formulário de criação -->
-                <div id="createCommunityForm" style="display: none; margin-bottom: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
-                    <h3 style="margin-bottom: 15px;">Criar Nova Comunidade</h3>
-                    <form id="newCommunityForm">
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="text" name="emoji" id="newCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
-                                    width: 60px;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 24px;
-                                    text-align: center;
-                                    cursor: pointer;
-                                " onclick="openEmojiPicker('newCommunityEmoji')">
-                                <button type="button" onclick="openEmojiPicker('newCommunityEmoji')" style="
-                                    padding: 10px 16px;
-                                    background: #f0f0f0;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    cursor: pointer;
-                                ">
-                                    Escolher Emoji
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
-                            <input type="text" name="name" placeholder="Ex: Empresa XYZ" required style="
-                                width: 100%;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                border-radius: 8px;
-                                font-size: 14px;
-                            ">
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                            <input type="text" id="newCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
-                                width: 100%;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                border-radius: 8px;
-                                font-size: 14px;
-                            ">
-                            <small style="color: #666;">Apenas letras minúsculas, números e hífens. Deve ser único!</small>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
-                            <textarea name="description" placeholder="Descreva sua comunidade..." rows="3" style="
-                                width: 100%;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                border-radius: 8px;
-                                font-size: 14px;
-                                resize: vertical;
-                            "></textarea>
-                        </div>
-                        
-                        <div style="display: flex; gap: 10px;">
-                            <button type="submit" style="
-                                flex: 1;
-                                padding: 10px;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                border: none;
-                                border-radius: 8px;
-                                font-size: 14px;
-                                font-weight: 600;
-                                cursor: pointer;
-                            ">
-                                Criar Comunidade
-                            </button>
-                            
-                            <button type="button" onclick="hideCreateCommunityForm()" style="
-                                padding: 10px 20px;
-                                background: #ddd;
-                                color: #333;
-                                border: none;
-                                border-radius: 8px;
-                                font-size: 14px;
-                                cursor: pointer;
-                            ">
-                                Cancelar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Informações da comunidade selecionada -->
-                <div id="communityInfo" style="display: none;">
-                    <!-- Tabs de gerenciamento -->
-                    <div class="management-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
-                        <button class="management-tab active" data-tab="edit" onclick="switchManagementTab('edit')" style="
-                            padding: 10px 20px;
-                            background: none;
-                            border: none;
-                            border-bottom: 3px solid #667eea;
-                            font-weight: 600;
-                            cursor: pointer;
-                        ">
-                            ✏️ Editar
-                        </button>
-                        
-                        <button class="management-tab" data-tab="members" onclick="switchManagementTab('members')" style="
-                            padding: 10px 20px;
-                            background: none;
-                            border: none;
-                            border-bottom: 3px solid transparent;
-                            cursor: pointer;
-                        ">
-                            👥 Membros
-                        </button>
-                        
-                        <button class="management-tab" data-tab="posts" onclick="switchManagementTab('posts')" style="
-                            padding: 10px 20px;
-                            background: none;
-                            border: none;
-                            border-bottom: 3px solid transparent;
-                            cursor: pointer;
-                        ">
-                            📝 Posts
-                        </button>
-                    </div>
-                    
-                    <!-- Tab: Editar -->
-                    <div id="editTab" class="management-tab-content">
-                        <form id="editCommunityForm">
-                            <input type="hidden" name="community_id">
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" name="emoji" id="editCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
-                                        width: 60px;
-                                        padding: 10px;
-                                        border: 1px solid #ddd;
-                                        border-radius: 8px;
-                                        font-size: 24px;
-                                        text-align: center;
-                                        cursor: pointer;
-                                    " onclick="openEmojiPicker('editCommunityEmoji')">
-                                    <button type="button" onclick="openEmojiPicker('editCommunityEmoji')" style="
-                                        padding: 10px 16px;
-                                        background: #f0f0f0;
-                                        border: 1px solid #ddd;
-                                        border-radius: 8px;
-                                        cursor: pointer;
-                                    ">
-                                        Escolher Emoji
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
-                                <input type="text" id="editCommunityName" name="name" required style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                ">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                                <input type="text" id="editCommunitySlug" name="slug" required style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                ">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
-                                <textarea id="editCommunityDescription" name="description" rows="3" style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                    resize: vertical;
-                                "></textarea>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button type="button" onclick="deleteCommunity()" style="
-                                    padding: 12px 20px;
-                                    background: #dc3545;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    font-size: 16px;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                ">
-                                    🗑️ Deletar
-                                </button>
-                                
-                                <button type="submit" style="
-                                    flex: 1;
-                                    padding: 12px;
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    font-size: 16px;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                ">
-                                    💾 Salvar Alterações
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <!-- Tab: Membros -->
-                    <div id="membersTab" class="management-tab-content" style="display: none;">
-                        <div style="margin-bottom: 20px;">
-                            <h3 style="margin-bottom: 10px;">Adicionar Membros</h3>
-                            <div style="position: relative;">
-                                <input 
-                                    type="text" 
-                                    id="searchUsers" 
-                                    placeholder="Buscar por nome ou @username"
-                                    style="
-                                        width: 100%;
-                                        padding: 10px;
-                                        border: 1px solid #ddd;
-                                        border-radius: 8px;
-                                        font-size: 14px;
-                                        margin-bottom: 10px;
-                                    "
-                                >
-                                <!-- Autocomplete aparecerá aqui via JS -->
-                            </div>
-                            <div id="searchResults" style="max-height: 200px; overflow-y: auto;"></div>
-                        </div>
-                        
-                        <div>
-                            <h3 style="margin-bottom: 10px;">Membros Atuais</h3>
-                            <div id="currentMembers" style="max-height: 300px; overflow-y: auto;"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tab: Posts -->
-                    <div id="postsTab" class="management-tab-content" style="display: none;">
-                        <div id="communityPosts" style="max-height: 500px; overflow-y: auto;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal de Emoji Picker -->
     <div id="emojiPickerModal" class="modal-overlay" style="display: none;">
@@ -16813,22 +16813,9 @@ console.log('✅ community_feeds.js carregado');
 // ========== GERENCIAMENTO DE COMUNIDADES ==========
 
 function openManageCommunityModal() {
-    // Tentar encontrar o modal com retry
-    let modal = document.getElementById('manageCommunityModal');
-    
-    // Se não encontrar, aguardar um momento e tentar novamente
+    const modal = document.getElementById('manageCommunityModal');
     if (!modal) {
-        console.warn('⚠️ Modal manageCommunityModal não encontrado, tentando novamente...');
-        setTimeout(() => {
-            modal = document.getElementById('manageCommunityModal');
-            if (!modal) {
-                console.error('❌ Modal manageCommunityModal ainda não encontrado após retry');
-                alert('❌ Erro ao abrir gerenciamento de comunidades. Por favor, recarregue a página.');
-                return;
-            }
-            modal.style.display = 'flex';
-            loadOwnedCommunities();
-        }, 100);
+        console.error('❌ Modal manageCommunityModal não encontrado');
         return;
     }
     
