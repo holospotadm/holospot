@@ -861,11 +861,13 @@ O sistema possui 126 funções SQL que contêm toda a lógica de negócio. Abaix
 **Retorno:** `TRIGGER`
 
 **Lógica:**
-1. Concede +10 pontos ao autor via `add_points_secure()`
-2. Identifica pessoa destacada via `celebrated_person_name`
-3. Busca `user_id` da pessoa destacada em `profiles`
-4. Concede +5 pontos à pessoa destacada
-5. Retorna NEW
+1. Se o post tem `mentioned_user_id` (holofote):
+   - Concede +20 pontos ao autor via `add_points_secure()`
+   - Concede +15 pontos à pessoa mencionada
+2. Se o post NÃO tem `mentioned_user_id` (post normal):
+   - Concede +10 pontos ao autor
+3. Recalcula pontos totais de ambos os usuários
+4. Retorna NEW
 
 **Segurança:** `SECURITY DEFINER`
 
@@ -877,8 +879,10 @@ O sistema possui 126 funções SQL que contêm toda a lógica de negócio. Abaix
 
 **Lógica:**
 1. Busca `user_id` do autor do post
-2. Concede +1 ponto ao autor do post
-3. Retorna NEW
+2. Concede +3 pontos a quem reagiu
+3. Concede +2 pontos ao autor do post (se não for ele mesmo)
+4. Atualiza totais de pontos
+5. Retorna NEW
 
 **Segurança:** `SECURITY DEFINER`
 
@@ -890,8 +894,24 @@ O sistema possui 126 funções SQL que contêm toda a lógica de negócio. Abaix
 
 **Lógica:**
 1. Busca `user_id` do autor do post
-2. Concede +2 pontos ao autor do post
-3. Retorna NEW
+2. Concede +7 pontos a quem comentou
+3. Concede +5 pontos ao autor do post (se não for ele mesmo)
+4. Recalcula pontos totais
+5. Retorna NEW
+
+**Segurança:** `SECURITY DEFINER`
+
+#### `handle_feedback_insert_secure()`
+
+**Propósito:** Chamada após criação de feedback para conceder pontos.
+
+**Retorno:** `TRIGGER`
+
+**Lógica:**
+1. Concede +10 pontos a quem deu o feedback (`mentioned_user_id`)
+2. Concede +8 pontos a quem recebeu o feedback (`author_id`)
+3. Recalcula pontos totais de ambos
+4. Retorna NEW
 
 **Segurança:** `SECURITY DEFINER`
 
