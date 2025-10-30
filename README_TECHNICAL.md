@@ -1760,7 +1760,295 @@ $$;
 
 ---
 
-## 12. Considerações Finais
+## 12. Workflow de Desenvolvimento (OBRIGATÓRIO)
+
+Esta seção define o workflow que DEVE ser seguido ao fazer alterações no HoloSpot. Este processo foi testado e comprovado, e garante consistência entre o código no GitHub e o ambiente de produção.
+
+### 12.1. Princípios Fundamentais
+
+1. **GitHub é a Fonte da Verdade:** Todos os arquivos no GitHub representam o estado atual do sistema
+2. **Sempre Investigar Antes de Agir:** Use `grep`, leia o código, entenda o contexto
+3. **Nunca Assumir:** Verifique se campos/funções/tabelas existem antes de usá-los
+4. **Correções Completas:** Se um problema aparece em vários lugares, corrija TODOS
+5. **Ordem Importa:** Siga o workflow na ordem correta (nunca inverta)
+
+### 12.2. Workflow para Alterações no Frontend
+
+#### **Arquivo Alvo:** `index.html`
+
+**Passos:**
+
+1. **Investigar o código atual:**
+   ```bash
+   cd /home/ubuntu/holospot
+   grep -n "função_relacionada" index.html
+   ```
+
+2. **Fazer alterações no `index.html`:**
+   - Editar diretamente o arquivo
+   - Seguir padrões de código existentes
+   - Adicionar comentários se necessário
+
+3. **Testar localmente (se possível):**
+   - Abrir `index.html` no navegador
+   - Verificar console do navegador
+   - Testar funcionalidade alterada
+
+4. **Commitar no GitHub:**
+   ```bash
+   git add index.html
+   git commit -m "feat: Descrição clara da alteração"
+   git push origin main
+   ```
+
+5. **Deploy automático:**
+   - Vercel detecta o push
+   - Faz deploy automático
+   - Frontend atualizado em ~2 minutos
+
+**Exemplo de Commit:**
+```bash
+git commit -m "fix: Corrigir validação de email no formulário de cadastro"
+```
+
+### 12.3. Workflow para Alterações no Backend (SQL)
+
+#### **Arquivos Alvo:**
+- `sql/functions/ALL_FUNCTIONS.sql` - Para funções
+- `sql/triggers/ALL_TRIGGERS.sql` - Para triggers
+- `sql/schema/XX_nome_tabela.sql` - Para schemas de tabelas
+- `sql/policies/XX_nome_tabela_policies.sql` - Para políticas RLS
+- `sql/data/XX_nome_data.sql` - Para dados iniciais
+
+**Passos:**
+
+1. **Investigar o código atual:**
+   ```bash
+   cd /home/ubuntu/holospot
+   
+   # Buscar função
+   grep -A 30 "CREATE OR REPLACE FUNCTION nome_funcao" sql/functions/ALL_FUNCTIONS.sql
+   
+   # Buscar trigger
+   grep "nome_trigger" sql/triggers/ALL_TRIGGERS.sql
+   
+   # Buscar schema de tabela
+   cat sql/schema/10_nome_tabela.sql
+   ```
+
+2. **Fazer alterações nos arquivos SQL:**
+   - Editar o arquivo consolidado apropriado
+   - **Funções:** Editar em `ALL_FUNCTIONS.sql`
+   - **Triggers:** Editar em `ALL_TRIGGERS.sql`
+   - **Schemas:** Editar arquivo específico em `sql/schema/`
+   - Manter formatação e comentários
+
+3. **Commitar no GitHub:**
+   ```bash
+   git add sql/functions/ALL_FUNCTIONS.sql  # ou outro arquivo
+   git commit -m "fix: Corrigir cálculo de pontos em handle_post_insert_secure"
+   git push origin main
+   ```
+
+4. **Preparar script SQL para execução:**
+   - Extrair APENAS a função/trigger alterado
+   - Criar arquivo `.sql` limpo
+   - Incluir `CREATE OR REPLACE` (para funções)
+   - Incluir `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER` (para triggers)
+
+5. **Enviar script SQL pronto para o usuário:**
+   - Criar arquivo `.sql` limpo e pronto para execução
+   - Enviar via mensagem para o usuário
+   - Incluir comentários explicativos
+   
+   **Exemplo de mensagem:**
+   ```
+   Script SQL pronto para execução no Supabase SQL Editor:
+   
+   -- Alteração: Corrigir cálculo de pontos em posts com menção
+   -- Arquivo modificado: sql/functions/ALL_FUNCTIONS.sql
+   -- Commit: abc1234
+   
+   CREATE OR REPLACE FUNCTION public.handle_post_insert_secure()
+   RETURNS trigger
+   LANGUAGE plpgsql
+   AS $function$
+   BEGIN
+       -- Lógica corrigida aqui
+       ...
+   END;
+   $function$;
+   ```
+
+6. **Aguardar confirmação de execução:**
+   - Usuário executa script no Supabase SQL Editor
+   - Usuário confirma sucesso ou reporta erro
+   - Se erro, investigar e corrigir
+   - Backend atualizado após confirmação
+
+**Exemplo de Commit:**
+```bash
+git commit -m "fix: Corrigir pontuação de posts com menção (20 pts em vez de 10 pts)"
+```
+
+### 12.4. Workflow para Novas Tabelas
+
+**Passos:**
+
+1. **Criar arquivo de schema:**
+   ```bash
+   # Arquivo: sql/schema/XX_nome_tabela.sql
+   # XX = número sequencial (próximo disponível)
+   ```
+
+2. **Definir schema completo:**
+   ```sql
+   CREATE TABLE public.nome_tabela (
+       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+       user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+       campo1 TEXT NOT NULL,
+       campo2 INTEGER DEFAULT 0,
+       created_at TIMESTAMPTZ DEFAULT NOW(),
+       updated_at TIMESTAMPTZ DEFAULT NOW()
+   );
+   
+   -- Índices
+   CREATE INDEX idx_nome_tabela_user_id ON public.nome_tabela(user_id);
+   
+   -- Comentários
+   COMMENT ON TABLE public.nome_tabela IS 'Descrição da tabela';
+   ```
+
+3. **Criar arquivo de políticas RLS:**
+   ```bash
+   # Arquivo: sql/policies/XX_nome_tabela_policies.sql
+   ```
+
+4. **Definir políticas RLS:**
+   ```sql
+   ALTER TABLE public.nome_tabela ENABLE ROW LEVEL SECURITY;
+   
+   CREATE POLICY "Users can view own records"
+   ON public.nome_tabela FOR SELECT
+   USING (auth.uid() = user_id);
+   
+   CREATE POLICY "Users can insert own records"
+   ON public.nome_tabela FOR INSERT
+   WITH CHECK (auth.uid() = user_id);
+   ```
+
+5. **Commitar ambos os arquivos:**
+   ```bash
+   git add sql/schema/XX_nome_tabela.sql sql/policies/XX_nome_tabela_policies.sql
+   git commit -m "feat: Add nome_tabela table with RLS policies"
+   git push origin main
+   ```
+
+6. **Enviar script SQL completo para o usuário:**
+   - Incluir CREATE TABLE
+   - Incluir índices
+   - Incluir políticas RLS
+   - Incluir comentários
+   - Enviar via mensagem formatado e pronto para execução
+
+### 12.5. Workflow para Migrations
+
+**Quando usar:** Alterações em schemas existentes (adicionar coluna, modificar tipo, etc.)
+
+**Passos:**
+
+1. **Criar arquivo de migration:**
+   ```bash
+   # Arquivo: sql/migrations/YYYYMMDD_descricao.sql
+   # Exemplo: sql/migrations/20251030_add_community_owner_to_profiles.sql
+   ```
+
+2. **Escrever migration:**
+   ```sql
+   -- Migration: Add community_owner field to profiles
+   -- Date: 2025-10-30
+   
+   ALTER TABLE public.profiles 
+   ADD COLUMN IF NOT EXISTS community_owner BOOLEAN DEFAULT FALSE;
+   
+   COMMENT ON COLUMN public.profiles.community_owner IS 
+   'Indica se o usuário pode criar comunidades';
+   ```
+
+3. **Atualizar arquivo de schema:**
+   - Editar `sql/schema/10_profiles.sql`
+   - Adicionar novo campo no CREATE TABLE
+   - Manter consistência
+
+4. **Commitar ambos:**
+   ```bash
+   git add sql/migrations/20251030_add_community_owner_to_profiles.sql
+   git add sql/schema/10_profiles.sql
+   git commit -m "feat: Add community_owner field to profiles table"
+   git push origin main
+   ```
+
+5. **Enviar script de migration para o usuário:**
+   - Apenas o conteúdo do arquivo de migration
+   - Formatado e pronto para execução
+   - Enviar via mensagem
+   - Usuário executa no Supabase SQL Editor
+
+### 12.6. Ordem Correta do Workflow (NUNCA INVERTER)
+
+```
+1. 🔍 Investigar problema completamente
+2. 📝 Modificar arquivos no GitHub
+3. 💾 git add .
+4. 💾 git commit -m "tipo: Descrição"
+5. 💾 git push origin main
+6. 📬 Enviar script SQL pronto para o usuário (se backend)
+7. ✅ Aguardar confirmação de execução
+8. 📝 Documentar se necessário
+```
+
+**NUNCA:**
+- ❌ Executar SQL antes de commitar no GitHub
+- ❌ Modificar apenas o banco sem atualizar GitHub
+- ❌ Assumir que algo existe sem verificar
+- ❌ Corrigir apenas uma ocorrência de problema sistêmico
+- ❌ Pular etapas do workflow
+
+### 12.7. Conventional Commits
+
+Use prefixos padronizados nos commits:
+
+- `feat:` - Nova funcionalidade
+- `fix:` - Correção de bug
+- `docs:` - Alterações em documentação
+- `refactor:` - Refatoração de código
+- `perf:` - Melhoria de performance
+- `test:` - Adição de testes
+- `chore:` - Tarefas de manutenção
+
+**Exemplos:**
+```bash
+feat: Add community creation functionality
+fix: Correct points calculation in post trigger
+docs: Update README with new gamification rules
+refactor: Simplify badge checking logic
+perf: Add index to posts.community_id
+```
+
+### 12.8. Checklist Antes de Commitar
+
+- [ ] Investiguei o código atual completamente
+- [ ] Entendi o problema e a solução
+- [ ] Verifiquei TODAS as ocorrências do problema
+- [ ] Corrigi TODAS as ocorrências (não apenas uma)
+- [ ] Testei localmente (se possível)
+- [ ] Escrevi mensagem de commit clara
+- [ ] Preparei script SQL (se backend)
+- [ ] Documentei alterações complexas
+
+---
+
+## 13. Considerações Finais
 
 Este documento técnico fornece uma visão completa da arquitetura, tecnologias e implementação do HoloSpot. Para desenvolvedores que precisam trabalhar na plataforma:
 
