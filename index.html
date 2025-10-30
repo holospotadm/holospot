@@ -3394,6 +3394,7 @@
         
         let currentUser = null;
         let posts = [];
+        window.posts = posts; // Exportar para uso em community_feeds.js
         let notifications = [];
         let following = [];
         
@@ -6705,6 +6706,7 @@
                 
                 console.log(`✅ ${data?.length || 0} posts reais carregados do banco`);
                 posts = data || [];
+                window.posts = posts; // Sincronizar com window.posts
                 
                 // Finalizar loading IMEDIATAMENTE após carregar posts
                 window.isLoadingPosts = false;
@@ -15587,7 +15589,7 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                            <input type="text" name="slug" placeholder="empresa-xyz" required style="
+                            <input type="text" id="editCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
                                 width: 100%;
                                 padding: 10px;
                                 border: 1px solid #ddd;
@@ -15773,19 +15775,22 @@
                     <div id="membersTab" class="management-tab-content" style="display: none;">
                         <div style="margin-bottom: 20px;">
                             <h3 style="margin-bottom: 10px;">Adicionar Membros</h3>
-                            <input 
-                                type="text" 
-                                id="searchUsers" 
-                                placeholder="Buscar por nome ou @username"
-                                style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                    margin-bottom: 10px;
-                                "
-                            >
+                            <div style="position: relative;">
+                                <input 
+                                    type="text" 
+                                    id="searchUsers" 
+                                    placeholder="Buscar por nome ou @username"
+                                    style="
+                                        width: 100%;
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        margin-bottom: 10px;
+                                    "
+                                >
+                                <!-- Autocomplete aparecerá aqui via JS -->
+                            </div>
                             <div id="searchResults" style="max-height: 200px; overflow-y: auto;"></div>
                         </div>
                         

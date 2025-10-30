@@ -101,12 +101,16 @@ function showCommunityInfo(community) {
     
     // Preencher dados da comunidade (com null checks)
     const nameInput = document.getElementById('editCommunityName');
+    const slugInput = document.getElementById('editCommunitySlug');
     const descInput = document.getElementById('editCommunityDescription');
     const emojiSpan = document.getElementById('selectedEmoji');
     
-    if (nameInput) nameInput.value = community.name;
+    if (nameInput) nameInput.value = community.name || '';
+    if (slugInput) slugInput.value = community.slug || '';
     if (descInput) descInput.value = community.description || '';
     if (emojiSpan) emojiSpan.textContent = community.emoji || '🏢';
+    
+    console.log('✅ Dados da comunidade preenchidos:', community);
     
     // Carregar membros
     loadCommunityMembers(community.id);
@@ -496,12 +500,13 @@ async function showMemberAutocomplete(query) {
             max-height: 200px;
             overflow-y: auto;
             z-index: 10001;
+            top: 100%;
+            left: 0;
+            right: 0;
             margin-top: 5px;
-            width: 100%;
         `;
         
-        // Inserir logo após o input
-        searchInput.parentElement.style.position = 'relative';
+        // Inserir logo após o input (parentElement já tem position: relative no HTML)
         searchInput.parentElement.appendChild(autocomplete);
     } else {
         // Autocomplete já existe, apenas atualizar conteúdo
