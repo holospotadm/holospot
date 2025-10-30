@@ -16943,6 +16943,20 @@ async function loadCommunityPosts(communityId) {
                 name,
                 username,
                 avatar_url
+            ),
+            mentioned_user:mentioned_user_id (
+                username,
+                email
+            ),
+            reactions (
+                type,
+                user_id
+            ),
+            comments (
+                id
+            ),
+            feedbacks (
+                id
             )
         `)
         .eq('community_id', communityId)
@@ -16964,39 +16978,51 @@ async function loadCommunityPosts(communityId) {
         return;
     }
     
+    const typeEmojis = {
+        'gratidao': '🙏', 'gratitude': '🙏',
+        'memoria': '💭', 'memory': '💭',
+        'conquista': '🏆', 'achievement': '🏆',
+        'inspiracao': '✨', 'inspiration': '✨',
+        'apoio': '🤝', 'support': '🤝',
+        'admiracao': '🌟', 'admiration': '🌟'
+    };
+
+    const typeNames = {
+        'gratidao': 'Gratidão', 'gratitude': 'Gratidão',
+        'memoria': 'Memória', 'memory': 'Memória',
+        'conquista': 'Conquista', 'achievement': 'Conquista',
+        'inspiracao': 'Inspiração', 'inspiration': 'Inspiração',
+        'apoio': 'Apoio', 'support': 'Apoio',
+        'admiracao': 'Admiração', 'admiration': 'Admiração'
+    };
+    
     posts.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.style.cssText = `
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+            padding: 1.5rem;
+            border: 1px solid #eee;
+            border-radius: 12px;
             background: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         `;
         
         const user = post.profiles;
-        const typeEmojis = {
-            'gratidao': '🙏',
-            'memoria': '🧠',
-            'conquista': '🏆',
-            'inspiracao': '💡',
-            'apoio': '🤝',
-            'destacar': '⭐'
-        };
+        const authorName = user?.name || 'Usuário';
+        const authorUsername = user?.username || 'usuario';
+        const authorAvatar = user?.avatar_url || '';
+        
+        // Contar reações por tipo
+        const touchedCount = post.reactions?.filter(r => r.type === 'touched').length || 0;
+        const gratefulCount = post.reactions?.filter(r => r.type === 'grateful').length || 0;
+        const inspiredCount = post.reactions?.filter(r => r.type === 'inspired').length || 0;
         
         postDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                <div style="display: flex; gap: 10px;">
-                    <img src="${user?.avatar_url || 'https://via.placeholder.com/40'}" style="
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
-                        object-fit: cover;
-                    ">
-                    <div>
-                        <div style="font-weight: 600;">${user?.name || 'Usuário'}</div>
-                        <div style="color: #666; font-size: 12px;">@${user?.username || 'usuario'}</div>
-                    </div>
-                </div>
+            <div style="position: relative;">
                 <button onclick="deletePost('${post.id}', '${communityId}')" style="
+                    position: absolute;
+                    top: 0;
+                    right: 0;
                     padding: 6px 12px;
                     background: #dc3545;
                     color: white;
@@ -17004,17 +17030,92 @@ async function loadCommunityPosts(communityId) {
                     border-radius: 6px;
                     font-size: 12px;
                     cursor: pointer;
-                ">
-                    Deletar
+                    transition: background 0.2s ease;
+                " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                    🗑️ Deletar
                 </button>
-            </div>
-            <div style="margin-left: 50px;">
-                <div style="margin-bottom: 5px;">
-                    <span style="font-size: 20px;">${typeEmojis[post.type] || '📝'}</span>
-                    <span style="font-weight: 600; margin-left: 5px;">${post.celebrated_person_name || ''}</span>
+                
+                <div style="display: flex; gap: 12px; margin-bottom: 1rem;">
+                    <img src="${authorAvatar || 'https://via.placeholder.com/50'}" style="
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    ">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333;">${authorName}</div>
+                        <div style="color: #666; font-size: 14px;">
+                            <span>@${authorUsername}</span>
+                            <span style="color: #999;"> • </span>
+                            <span>${formatDateShort(post.created_at)}</span>
+                        </div>
+                    </div>
                 </div>
-                <div style="color: #333;">${post.content || ''}</div>
-                ${post.photo_url ? `<img src="${post.photo_url}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ''}
+                
+                <div style="margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #e55a2b; margin-bottom: 0.5rem;">
+                        Holofotes para: 
+                        <span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || 'Alguém especial'}</span>
+                    </div>
+                    ${post.type ? `
+                        <div style="color: #666; font-size: 14px; margin-bottom: 0.5rem;">
+                            ${typeEmojis[post.type] || '✨'} ${typeNames[post.type] || 'Destaque'}
+                        </div>
+                    ` : ''}
+                    ${post.photo_url ? `
+                        <img src="${post.photo_url}" style="
+                            width: 100%;
+                            border-radius: 8px;
+                            margin-bottom: 1rem;
+                            height: auto;
+                            object-fit: contain;
+                        ">
+                    ` : ''}
+                    <div style="line-height: 1.5; color: #333;">
+                        ${post.content || ''}
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
+                        ❤️ ${touchedCount}
+                    </button>
+                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
+                        🙏 ${gratefulCount}
+                    </button>
+                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
+                        ✨ ${inspiredCount}
+                    </button>
+                </div>
+                
+                <div style="display: flex; gap: 15px;">
+                    <span style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        padding: 8px 12px;
+                        background: ${post.comments?.length > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5'};
+                        color: ${post.comments?.length > 0 ? 'white' : '#666'};
+                        border-radius: 20px;
+                        font-size: 14px;
+                        font-weight: 600;
+                    ">
+                        💬 ${post.comments?.length || 0}
+                    </span>
+                    <span style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        padding: 8px 12px;
+                        background: ${post.feedbacks?.length > 0 ? 'linear-gradient(135deg, #FFB700, #FF9800)' : '#f5f5f5'};
+                        color: ${post.feedbacks?.length > 0 ? 'white' : '#666'};
+                        border-radius: 20px;
+                        font-size: 14px;
+                        font-weight: 600;
+                    ">
+                        📊 ${post.feedbacks?.length || 0}
+                    </span>
+                </div>
             </div>
         `;
         
