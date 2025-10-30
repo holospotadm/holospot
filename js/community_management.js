@@ -128,7 +128,14 @@ function hideCreateCommunityForm() {
     const form = document.getElementById('createCommunityForm');
     if (form) {
         form.style.display = 'none';
-        form.reset();
+        // Limpar campos manualmente se não for um form
+        const nameInput = document.getElementById('newCommunityName');
+        const descInput = document.getElementById('newCommunityDescription');
+        const emojiSpan = document.getElementById('newCommunityEmoji');
+        
+        if (nameInput) nameInput.value = '';
+        if (descInput) descInput.value = '';
+        if (emojiSpan) emojiSpan.textContent = '🏢';
     }
 }
 
@@ -477,8 +484,9 @@ async function showMemberAutocomplete(query) {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             max-height: 200px;
             overflow-y: auto;
-            z-index: 1000;
+            z-index: 10001;
             margin-top: 5px;
+            width: calc(100% - 2px);
         `;
         document.getElementById('searchUsers').parentElement.appendChild(autocomplete);
     }
