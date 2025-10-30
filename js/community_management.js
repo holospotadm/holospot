@@ -261,8 +261,13 @@ function switchManagementTab(tabName) {
         selectedTab.style.display = 'block';
     }
     
-    // Adicionar active ao botão
-    event.target.classList.add('active');
+    // Adicionar active ao botão correto (buscar por onclick)
+    document.querySelectorAll('.management-tab-btn').forEach(btn => {
+        const onclick = btn.getAttribute('onclick');
+        if (onclick && onclick.includes(`'${tabName}'`)) {
+            btn.classList.add('active');
+        }
+    });
 }
 
 // ========== MEMBROS ==========

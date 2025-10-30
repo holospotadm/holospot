@@ -131,51 +131,30 @@ async function loadCommunityFeed(communityId) {
 
         console.log('✅ Posts da comunidade carregados:', posts.length);
 
-        // Renderizar posts (usa função existente do index.html)
-        const postsContainer = document.getElementById('postsContainer');
-        if (postsContainer) {
-            if (posts.length === 0) {
-                const communityName = community ? community.name : 'esta comunidade';
-                const communityEmoji = community ? community.emoji : '🏢';
-                postsContainer.innerHTML = `
-                    <div style="
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 80px 20px;
-                        min-height: 400px;
-                        background: white;
-                        border-radius: 16px;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                        margin-bottom: 16px;
-                    ">
-                        <div style="
-                            font-size: 72px;
-                            margin-bottom: 24px;
-                        ">${communityEmoji}</div>
-                        <h3 style="
-                            font-size: 1.5rem;
-                            font-weight: 600;
-                            color: #333;
-                            margin-bottom: 12px;
-                            text-align: center;
-                        ">Nenhum post em ${communityName}</h3>
-                        <p style="
-                            font-size: 1rem;
-                            color: #666;
-                            text-align: center;
-                        ">Seja o primeiro a compartilhar algo especial!</p>
-                    </div>
-                `;
-            } else {
-                postsContainer.innerHTML = '';
-                posts.forEach(post => {
-                    if (typeof renderPost === 'function') {
-                        renderPost(post);
-                    }
-                });
+        // Processar dados do autor para cada post
+        posts.forEach(post => {
+            if (post.author_username) {
+                post.user_data = {
+                    name: post.author_name || 'Usuário',
+                    username: post.author_username || 'usuario',
+                    email: post.author_email,
+                    avatar_url: post.author_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'Usuario')}&background=667eea&color=fff`
+                };
             }
+            // Inicializar reações se não existir
+            if (!post.reactions) {
+                post.reactions = [];
+            }
+        });
+
+        // Atualizar array global de posts
+        window.posts = posts;
+
+        // Renderizar posts usando função global
+        if (typeof window.renderPosts === 'function') {
+            await window.renderPosts();
+        } else {
+            console.error('❌ Função renderPosts não encontrada');
         }
 
     } catch (error) {
