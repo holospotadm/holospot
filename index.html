@@ -15592,7 +15592,7 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                            <input type="text" id="editCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
+                            <input type="text" id="newCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
                                 width: 100%;
                                 padding: 10px;
                                 border: 1px solid #ddd;
@@ -16558,9 +16558,11 @@ function switchManagementTab(tabName) {
         tab.style.display = 'none';
     });
     
-    // Remover active de todos os botões
+    // Remover active de todos os botões e resetar border
     document.querySelectorAll('.management-tab').forEach(btn => {
         btn.classList.remove('active');
+        btn.style.borderBottom = '3px solid transparent';
+        btn.style.fontWeight = 'normal';
     });
     
     // Mostrar tab selecionada
@@ -16574,6 +16576,8 @@ function switchManagementTab(tabName) {
         const onclick = btn.getAttribute('onclick');
         if (onclick && onclick.includes(`'${tabName}'`)) {
             btn.classList.add('active');
+            btn.style.borderBottom = '3px solid #667eea';
+            btn.style.fontWeight = '600';
         }
     });
 }
