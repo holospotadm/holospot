@@ -16999,7 +16999,28 @@ async function loadCommunityPosts(communityId) {
     container.innerHTML = '';
     
     if (!posts || posts.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum post ainda</p>';
+        // Buscar emoji da comunidade
+        const { data: community } = await supabase
+            .from('communities')
+            .select('emoji')
+            .eq('id', communityId)
+            .single();
+        
+        const communityEmoji = community?.emoji || '👨‍👩‍👧‍👦';
+        
+        container.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 4rem 2rem;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            ">
+                <div style="font-size: 64px; margin-bottom: 1rem;">${communityEmoji}</div>
+                <h3 style="color: #333; margin-bottom: 1rem;">Nenhum post ainda</h3>
+                <p style="color: #666;">Seja o primeiro a destacar alguém!</p>
+            </div>
+        `;
         return;
     }
     
