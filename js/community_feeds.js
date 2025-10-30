@@ -129,7 +129,7 @@ async function loadCommunityFeed(communityId) {
 
         if (error) throw error;
 
-        console.log('✅ Posts da comunidade carregados:', posts.length);
+        console.log('✅ Posts da comunidade carregados:', posts.length, '| v2.0');
         console.log('🔍 Posts brutos:', posts);
 
         try {
