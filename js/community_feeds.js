@@ -109,6 +109,7 @@ async function loadCommunityFeed(communityId) {
     }
 
     try {
+        alert('VERSÃO: v3.0 - Início loadCommunityFeed');
         console.log('📥 Carregando feed da comunidade:', communityId);
 
         // Buscar informações da comunidade
