@@ -7185,6 +7185,9 @@
         async function renderPosts() {
             const container = document.getElementById('postsContainer');
             
+            // Usar window.posts se disponível, senão usar posts local
+            const postsToRender = window.posts || posts;
+            
             // Se ainda está carregando, mostrar loading (não verificar posts.length)
             if (window.isLoadingPosts) {
                 container.innerHTML = `
@@ -7197,14 +7200,14 @@
             }
             
             // Se não há posts, mostrar mensagem customizada baseada no filtro
-            if (posts.length === 0) {
+            if (postsToRender.length === 0) {
                 container.innerHTML = getEmptyFeedMessage(window.currentFeedFilter || 'recommended');
                 return;
             }
 
             // Processar posts de forma assíncrona agora
             const postsHtml = [];
-            for (const post of posts) {
+            for (const post of postsToRender) {
                 const isFollowing = following.some(f => f.following_id === post.user_id);
                 
                 // Garantir que reactions seja sempre um array

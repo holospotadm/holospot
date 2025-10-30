@@ -79,9 +79,11 @@ function setupCommunitySelectListener() {
     
     select.addEventListener('change', (e) => {
         const option = e.target.options[e.target.selectedIndex];
+        console.log('🔄 Comunidade selecionada:', option.value);
         
         if (option.value) {
             const community = JSON.parse(option.dataset.community);
+            console.log('🏢 Dados da comunidade:', community);
             showCommunityInfo(community);
         } else {
             const info = document.getElementById('communityInfo');
