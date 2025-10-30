@@ -6662,15 +6662,25 @@
                     if (error) throw error;
                     
                     if (myMessages && myMessages.length > 0) {
+                        console.log('🔍 Verificando status de leitura de', myMessages.length, 'mensagens');
+                        
                         // Atualizar indicador "Lida" nas mensagens que foram lidas
                         myMessages.forEach(msg => {
-                            const messageEl = document.querySelector(`[data-message-id="${msg.id}"]`);
-                            if (messageEl && msg.is_read) {
-                                const timeDiv = messageEl.querySelector('div > div:last-child');
-                                if (timeDiv && !timeDiv.innerHTML.includes('Lida')) {
-                                    // Adicionar indicador "Lida" se ainda não existe
-                                    const currentContent = timeDiv.innerHTML;
-                                    timeDiv.innerHTML = currentContent + '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>';
+                            if (msg.is_read) {
+                                const messageEl = document.querySelector(`[data-message-id="${msg.id}"]`);
+                                if (messageEl) {
+                                    // Buscar o div de timestamp dentro da mensagem
+                                    const messageBubble = messageEl.querySelector('div');
+                                    if (messageBubble) {
+                                        const timeDiv = messageBubble.querySelector('div:last-child');
+                                        if (timeDiv && !timeDiv.innerHTML.includes('Lida')) {
+                                            console.log('✅ Adicionando "Lida" à mensagem', msg.id);
+                                            const currentContent = timeDiv.innerHTML;
+                                            timeDiv.innerHTML = currentContent + '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>';
+                                        }
+                                    }
+                                } else {
+                                    console.warn('⚠️ Mensagem', msg.id, 'não encontrada no DOM');
                                 }
                             }
                         });
