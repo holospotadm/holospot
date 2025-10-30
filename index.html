@@ -15859,9 +15859,1253 @@
 
 
     <!-- ========== COMUNIDADES - SCRIPTS ========== -->
-    <script src="./js/emoji_picker.js"></script>
-    <script src="./js/community_feeds.js"></script>
-    <script src="./js/community_management.js"></script>
+    <!-- ========== COMUNIDADES - SCRIPTS INLINE ========== -->
+    <script>
+// ============================================
+// EMOJI PICKER
+// ============================================
+/**
+ * ============================================
+ * MÓDULO: Emoji Picker
+ * Descrição: Seletor de emojis para comunidades
+ * Autor: HoloSpot Team
+ * Data: 2024-10-29
+ * ============================================
+ */
+
+// Lista de emojis populares (categorias)
+const emojiList = {
+    'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '🥲', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓'],
+    'Animais': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🦝', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦢', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦗', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🐠', '🐟', '🐡', '🐬', '🦈', '🐳', '🐋', '🐊', '🐆', '🐅'],
+    'Comida': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🥝', '🍑', '🥑', '🥥', '🥭', '🍅', '🍆', '🥒', '🥕', '🌽', '🌶️', '🥫', '🧄', '🧅', '🥔', '🍠', '🌰', '🥜', '🍯', '🥐', '🍞', '🥖', '🧀', '🥚', '🍳', '🥓', '🥞', '🍤', '🍗', '🍖', '🍕', '🌭', '🍔', '🍟', '🥙', '🌮', '🌯', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍥', '🍣', '🍱', '🍛', '🍙', '🍚'],
+    'Atividades': ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🥅', '🏒', '🏑', '🏏', '🥍', '🏹', '🎣', '🥊', '🥋', '🎽', '🛹', '🛼', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️', '🤼', '🤸', '🤺', '⛹️', '🤾', '🏌️', '🏇', '🧘', '🏊', '🤽', '🚣', '🧗', '🚵', '🚴', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹', '🎭', '🩰'],
+    'Viagem': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🏍️', '🛵', '🚲', '🛴', '🛹', '🛺', '🚁', '🚟', '🚠', '🚡', '🛰️', '🚀', '🛸', '🛩️', '✈️', '🛫', '🛬', '🪂', '💺', '🚂', '🚆', '🚇', '🚊', '🚉', '🚝', '🚄', '🚅', '🚈', '🚞', '🚋', '🚃', '⛴️', '🛥️', '🚢', '⚓', '⛽', '🚧', '🚦', '🚥', '🏗️', '🏭', '🏰', '🏯', '🏟️', '🗼', '🏖️', '🏝️'],
+    'Objetos': ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '🧮', '📹', '🎥', '📷', '📸', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '🧾', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️'],
+    'Símbolos': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '✅', '❌', '⭕', '🛑', '⛔', '📛'],
+    'Empresas': ['🏢', '🏭', '🏛️', '🏚️', '🏗️', '🏪', '🏦', '🏥', '🏣', '🏤', '🏩', '🏫', '🏬', '🏯', '🏰', '💼', '📊', '📈', '📉', '💹', '💰', '💸', '💵', '💴', '💶', '💷', '💳', '🧾', '💱', '💲', '⚖️', '🧱', '🪜', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪛', '🔩', '⚙️', '🧰', '🧲', '📦', '📥', '📤', '📫', '📪', '📨', '📩', '📧', '💌', '📮', '📯', '📬', '📭', '📡', '📰', '📅', '📆', '🗓️']
+};
+
+let currentEmojiTarget = null;
+
+function openEmojiPicker(targetInputId) {
+    currentEmojiTarget = targetInputId;
+    
+    const modal = document.getElementById('emojiPickerModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderEmojiGrid();
+    } else {
+        console.error('Modal emojiPickerModal não encontrado');
+    }
+}
+
+function closeEmojiPicker() {
+    const modal = document.getElementById('emojiPickerModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    const searchInput = document.getElementById('emojiSearch');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    currentEmojiTarget = null;
+}
+
+function renderEmojiGrid(filter = '') {
+    const grid = document.getElementById('emojiGrid');
+    if (!grid) {
+        console.error('Elemento emojiGrid não encontrado');
+        return;
+    }
+    
+    grid.innerHTML = '';
+    
+    Object.entries(emojiList).forEach(([category, emojis]) => {
+        // Filtrar emojis se houver busca
+        let filteredEmojis = emojis;
+        if (filter) {
+            // Busca simples por categoria
+            if (!category.toLowerCase().includes(filter.toLowerCase())) {
+                return;
+            }
+        }
+        
+        if (filteredEmojis.length === 0) return;
+        
+        // Título da categoria
+        const categoryTitle = document.createElement('div');
+        categoryTitle.style.cssText = `
+            grid-column: 1 / -1;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        `;
+        categoryTitle.textContent = category;
+        grid.appendChild(categoryTitle);
+        
+        // Emojis
+        filteredEmojis.forEach(emoji => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = emoji;
+            button.style.cssText = `
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+                border: 1px solid #eee;
+                border-radius: 6px;
+                background: white;
+                cursor: pointer;
+                transition: all 0.2s;
+            `;
+            
+            button.addEventListener('mouseenter', () => {
+                button.style.background = '#f0f0f0';
+                button.style.transform = 'scale(1.2)';
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                button.style.background = 'white';
+                button.style.transform = 'scale(1)';
+            });
+            
+            button.addEventListener('click', () => {
+                selectEmoji(emoji);
+            });
+            
+            grid.appendChild(button);
+        });
+    });
+}
+
+function selectEmoji(emoji) {
+    if (currentEmojiTarget) {
+        const input = document.getElementById(currentEmojiTarget);
+        if (input) {
+            input.value = emoji;
+        }
+    }
+    closeEmojiPicker();
+}
+
+// Busca de emoji
+function setupEmojiSearch() {
+    const searchInput = document.getElementById('emojiSearch');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', (e) => {
+        renderEmojiGrid(e.target.value);
+    });
+}
+
+// Fechar modal ao clicar fora
+function setupEmojiModalClickOutside() {
+    const modal = document.getElementById('emojiPickerModal');
+    if (!modal) return;
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target.id === 'emojiPickerModal') {
+            closeEmojiPicker();
+        }
+    });
+}
+
+// Inicializar emoji picker
+function initEmojiPicker() {
+    setupEmojiSearch();
+    setupEmojiModalClickOutside();
+    
+    console.log('✅ Emoji Picker inicializado');
+}
+
+// Exportar funções globalmente
+window.openEmojiPicker = openEmojiPicker;
+window.closeEmojiPicker = closeEmojiPicker;
+window.initEmojiPicker = initEmojiPicker;
+
+console.log('✅ Módulo emoji_picker.js carregado');
+
+
+// ============================================
+// COMMUNITY FEEDS
+// ============================================
+// ============================================
+// COMMUNITY FEEDS
+// Integra feeds de comunidades no dropdown existente
+// ============================================
+
+let userCommunities = [];
+
+// Carregar comunidades do usuário e popular dropdowns
+async function loadUserCommunities() {
+    if (!currentUser || !currentUser.id) {
+        console.log('⚠️ Usuário não logado');
+        return;
+    }
+
+    try {
+        // Buscar comunidades que o usuário é membro
+        const { data: communities, error } = await supabase
+            .from('community_members')
+            .select(`
+                community_id,
+                communities (
+                    id,
+                    name,
+                    slug,
+                    emoji
+                )
+            `)
+            .eq('user_id', currentUser.id)
+            .eq('is_active', true);
+
+        if (error) throw error;
+
+        userCommunities = communities
+            .map(c => c.communities)
+            .filter(c => c !== null);
+
+        console.log('✅ Comunidades carregadas:', userCommunities.length);
+
+        // Popular dropdown do Feed
+        populateFeedDropdown();
+
+        // Popular dropdown do Destacar
+        populateDestacarDropdown();
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar comunidades:', error);
+    }
+}
+
+// Popular dropdown do Feed (aba Início)
+function populateFeedDropdown() {
+    const dropdown = document.getElementById('feedFilterDropdown');
+    if (!dropdown) return;
+
+    // Remover opções de comunidades antigas
+    const oldCommunityOptions = dropdown.querySelectorAll('[data-filter^="community-"]');
+    oldCommunityOptions.forEach(opt => opt.remove());
+
+    // Adicionar comunidades
+    if (userCommunities.length > 0) {
+        userCommunities.forEach(community => {
+            const option = document.createElement('div');
+            option.className = 'filter-option';
+            option.setAttribute('data-filter', `community-${community.id}`);
+            option.innerHTML = `<span>${community.emoji || '🏢'} ${community.name}</span>`;
+            dropdown.appendChild(option);
+        });
+
+        console.log('✅ Dropdown do Feed atualizado com', userCommunities.length, 'comunidades');
+    }
+}
+
+// Popular dropdown do Destacar
+function populateDestacarDropdown() {
+    const container = document.getElementById('destacarCommunityDropdownContainer');
+    const select = document.getElementById('destacarCommunitySelect');
+
+    if (!container || !select) return;
+
+    // Limpar opções antigas (exceto a primeira)
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+
+    if (userCommunities.length > 0) {
+        // Mostrar dropdown
+        container.style.display = 'block';
+
+        // Adicionar comunidades
+        userCommunities.forEach(community => {
+            const option = document.createElement('option');
+            option.value = community.id;
+            option.textContent = `${community.emoji || '🏢'} ${community.name}`;
+            select.appendChild(option);
+        });
+
+        console.log('✅ Dropdown do Destacar atualizado com', userCommunities.length, 'comunidades');
+    } else {
+        // Esconder dropdown se não tem comunidades
+        container.style.display = 'none';
+    }
+}
+
+// Carregar feed de comunidade específica
+async function loadCommunityFeed(communityId) {
+    if (!currentUser || !currentUser.id) {
+        console.log('⚠️ Usuário não logado');
+        return;
+    }
+
+    try {
+        alert('VERSÃO: v3.0 - Início loadCommunityFeed');
+        console.log('📥 Carregando feed da comunidade:', communityId);
+
+        // Buscar informações da comunidade
+        const community = userCommunities.find(c => c.id === communityId);
+        
+        // Atualizar emoji do botão Feed (sem remover a setinha)
+        const feedEmoji = document.getElementById('feedEmoji');
+        if (feedEmoji && community) {
+            feedEmoji.textContent = community.emoji || '🏢';
+        }
+
+        const { data: posts, error } = await supabase.rpc('get_community_feed', {
+            p_community_id: communityId,
+            p_user_id: currentUser.id,
+            p_limit: 20,
+            p_offset: 0
+        });
+
+        if (error) throw error;
+
+        console.log('✅ Posts da comunidade carregados:', posts.length, '| v2.0');
+        alert('DEBUG: Posts carregados - ' + posts.length);
+        console.log('🔍 Posts brutos:', posts);
+
+        try {
+            // Processar dados do autor para cada post
+            console.log('🔄 Processando dados dos autores...');
+            posts.forEach(post => {
+                if (post.author_username) {
+                    post.user_data = {
+                        name: post.author_name || 'Usuário',
+                        username: post.author_username || 'usuario',
+                        email: post.author_email,
+                        avatar_url: post.author_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'Usuario')}&background=667eea&color=fff`
+                    };
+                }
+                // Inicializar reações se não existir
+                if (!post.reactions) {
+                    post.reactions = [];
+                }
+            });
+            console.log('✅ Dados dos autores processados');
+        } catch (error) {
+            console.error('❌ Erro ao processar dados dos autores:', error);
+        }
+
+        // Atualizar array global de posts
+        console.log('📦 Atualizando window.posts com', posts.length, 'posts');
+        window.posts = posts;
+        console.log('📦 window.posts atualizado:', window.posts);
+
+        // Renderizar posts usando função global
+        console.log('🔍 Verificando window.renderPosts:', typeof window.renderPosts);
+        if (typeof window.renderPosts === 'function') {
+            console.log('✅ Chamando window.renderPosts()...');
+            await window.renderPosts();
+            console.log('✅ window.renderPosts() concluído!');
+        } else {
+            console.error('❌ Função renderPosts não encontrada');
+            console.error('📦 window:', Object.keys(window).filter(k => k.includes('render')));
+        }
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar feed da comunidade:', error);
+        const postsContainer = document.getElementById('postsContainer');
+        if (postsContainer) {
+            postsContainer.innerHTML = `
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 80px 20px;
+                    min-height: 400px;
+                ">
+                    <div style="font-size: 72px; margin-bottom: 24px; opacity: 0.3;">⚠️</div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 12px; text-align: center;">Erro ao carregar feed</h3>
+                    <p style="font-size: 1rem; color: #666; margin-bottom: 32px; text-align: center;">${error.message || 'Tente novamente mais tarde'}</p>
+                    <button onclick="location.reload()" style="
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        padding: 14px 32px;
+                        border-radius: 12px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">
+                        🔄 Recarregar Página
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+// Interceptar mudança de filtro do Feed
+function setupCommunityFeedFilter() {
+    const dropdown = document.getElementById('feedFilterDropdown');
+    if (!dropdown) {
+        console.error('❌ feedFilterDropdown não encontrado');
+        return;
+    }
+
+    // Usar event delegation para capturar cliques em opções de comunidade
+    dropdown.addEventListener('click', async (e) => {
+        const option = e.target.closest('.filter-option');
+        if (!option) return;
+
+        const filter = option.getAttribute('data-filter');
+        console.log('👆 Filtro clicado:', filter);
+
+        // Se for filtro de comunidade
+        if (filter && filter.startsWith('community-')) {
+            const communityId = filter.replace('community-', '');
+            console.log('🏢 Carregando comunidade:', communityId);
+
+            // Marcar como ativo
+            dropdown.querySelectorAll('.filter-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            option.classList.add('active');
+
+            // Fechar dropdown
+            dropdown.style.display = 'none';
+
+            // Carregar feed da comunidade
+            await loadCommunityFeed(communityId);
+
+            // Salvar preferência
+            localStorage.setItem('feedFilter', filter);
+        }
+    });
+
+    console.log('✅ Filtro de comunidades configurado');
+}
+
+// Detectar comunidade selecionada ao criar post no Destacar
+function getSelectedCommunityId() {
+    const select = document.getElementById('destacarCommunitySelect');
+    if (select && select.value) {
+        return select.value;
+    }
+    return null;
+}
+
+// Inicializar ao carregar
+if (typeof window !== 'undefined') {
+    // Aguardar DOM e usuário logado
+    document.addEventListener('DOMContentLoaded', () => {
+        setupCommunityFeedFilter();
+    });
+}
+
+// Exportar funções globalmente
+window.loadUserCommunities = loadUserCommunities;
+window.loadCommunityFeed = loadCommunityFeed;
+window.getSelectedCommunityId = getSelectedCommunityId;
+
+console.log('✅ community_feeds.js carregado');
+
+
+// ============================================
+// COMMUNITY MANAGEMENT
+// ============================================
+/**
+ * ============================================
+ * MÓDULO: Community Management
+ * Descrição: Gerenciamento de comunidades (criar, editar, membros, posts)
+ * Autor: HoloSpot Team
+ * Data: 2024-10-29
+ * ============================================
+ */
+
+// ========== GERENCIAMENTO DE COMUNIDADES ==========
+
+function openManageCommunityModal() {
+    const modal = document.getElementById('manageCommunityModal');
+    if (!modal) {
+        console.error('Modal manageCommunityModal não encontrado');
+        return;
+    }
+    
+    modal.style.display = 'flex';
+    loadOwnedCommunities();
+}
+
+function closeManageCommunityModal() {
+    const modal = document.getElementById('manageCommunityModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    const select = document.getElementById('communitySelect');
+    if (select) {
+        select.value = '';
+    }
+    
+    const info = document.getElementById('communityInfo');
+    if (info) {
+        info.style.display = 'none';
+    }
+    
+    hideCreateCommunityForm();
+}
+
+// Carregar comunidades que o usuário é owner
+async function loadOwnedCommunities() {
+    if (!currentUser || !currentUser.id) {
+        console.error('Usuário não autenticado');
+        return;
+    }
+
+    const { data: communities, error } = await supabase
+        .from('communities')
+        .select('*')
+        .eq('owner_id', currentUser.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+    
+    if (error) {
+        console.error('Erro ao carregar comunidades:', error);
+        return;
+    }
+    
+    const select = document.getElementById('communitySelect');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">-- Selecione --</option>';
+    
+    communities.forEach(community => {
+        const option = document.createElement('option');
+        option.value = community.id;
+        option.textContent = `${community.emoji || '🏢'} ${community.name}`;
+        option.dataset.community = JSON.stringify(community);
+        select.appendChild(option);
+    });
+}
+
+// Ao selecionar comunidade
+function setupCommunitySelectListener() {
+    const select = document.getElementById('communitySelect');
+    if (!select) return;
+    
+    select.addEventListener('change', (e) => {
+        const option = e.target.options[e.target.selectedIndex];
+        console.log('🔄 Comunidade selecionada:', option.value);
+        
+        if (option.value) {
+            const community = JSON.parse(option.dataset.community);
+            console.log('🏢 Dados da comunidade:', community);
+            showCommunityInfo(community);
+        } else {
+            const info = document.getElementById('communityInfo');
+            if (info) {
+                info.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Mostrar informações da comunidade
+function showCommunityInfo(community) {
+    const info = document.getElementById('communityInfo');
+    if (info) {
+        info.style.display = 'block';
+    }
+    
+    // Preencher dados da comunidade (com null checks)
+    const nameInput = document.getElementById('editCommunityName');
+    const slugInput = document.getElementById('editCommunitySlug');
+    const descInput = document.getElementById('editCommunityDescription');
+    const emojiSpan = document.getElementById('selectedEmoji');
+    
+    if (nameInput) nameInput.value = community.name || '';
+    if (slugInput) slugInput.value = community.slug || '';
+    if (descInput) descInput.value = community.description || '';
+    if (emojiSpan) emojiSpan.textContent = community.emoji || '🏢';
+    
+    console.log('✅ Dados da comunidade preenchidos:', community);
+    
+    // Carregar membros
+    loadCommunityMembers(community.id);
+    
+    // Carregar posts
+    loadCommunityPosts(community.id);
+}
+
+// ========== CRIAR COMUNIDADE ==========
+
+function showCreateCommunityForm() {
+    const form = document.getElementById('createCommunityForm');
+    if (form) {
+        form.style.display = 'block';
+    }
+}
+
+function hideCreateCommunityForm() {
+    const form = document.getElementById('createCommunityForm');
+    if (form) {
+        form.style.display = 'none';
+        // Limpar campos manualmente se não for um form
+        const nameInput = document.getElementById('newCommunityName');
+        const descInput = document.getElementById('newCommunityDescription');
+        const emojiSpan = document.getElementById('newCommunityEmoji');
+        
+        if (nameInput) nameInput.value = '';
+        if (descInput) descInput.value = '';
+        if (emojiSpan) emojiSpan.textContent = '🏢';
+    }
+}
+
+async function createCommunity() {
+    const name = document.getElementById('newCommunityName').value.trim();
+    const description = document.getElementById('newCommunityDescription').value.trim();
+    const emoji = document.getElementById('newCommunityEmoji').textContent;
+    
+    if (!name) {
+        alert('Por favor, preencha o nome da comunidade');
+        return;
+    }
+    
+    const { data, error } = await supabase
+        .from('communities')
+        .insert({
+            name,
+            description,
+            emoji,
+            owner_id: currentUser.id
+        })
+        .select()
+        .single();
+    
+    if (error) {
+        console.error('Erro ao criar comunidade:', error);
+        alert('Erro ao criar comunidade: ' + error.message);
+        return;
+    }
+    
+    // Adicionar owner como membro da comunidade
+    const { error: memberError } = await supabase.rpc('add_community_member', {
+        p_community_id: data.id,
+        p_user_id: currentUser.id,
+        p_role: 'owner'
+    });
+    
+    if (memberError) {
+        console.error('Erro ao adicionar owner como membro:', memberError);
+        // Não bloqueia, apenas loga o erro
+    }
+    
+    alert('✅ Comunidade criada com sucesso!');
+    hideCreateCommunityForm();
+    loadOwnedCommunities();
+}
+
+// ========== EDITAR COMUNIDADE ==========
+
+async function updateCommunity() {
+    const communityId = document.getElementById('communitySelect').value;
+    if (!communityId) return;
+    
+    const name = document.getElementById('editCommunityName').value.trim();
+    const description = document.getElementById('editCommunityDescription').value.trim();
+    const emoji = document.getElementById('selectedEmoji').textContent;
+    
+    if (!name) {
+        alert('Por favor, preencha o nome da comunidade');
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('communities')
+        .update({ name, description, emoji })
+        .eq('id', communityId);
+    
+    if (error) {
+        console.error('Erro ao atualizar comunidade:', error);
+        alert('Erro ao atualizar comunidade: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Comunidade atualizada com sucesso!');
+    loadOwnedCommunities();
+}
+
+// ========== EMOJI PICKER ==========
+
+function openEmojiPicker(targetId) {
+    const picker = document.getElementById('emojiPicker');
+    if (!picker) return;
+    
+    picker.dataset.target = targetId;
+    picker.style.display = 'block';
+}
+
+function closeEmojiPicker() {
+    const picker = document.getElementById('emojiPicker');
+    if (picker) {
+        picker.style.display = 'none';
+    }
+}
+
+function selectEmoji(emoji) {
+    const picker = document.getElementById('emojiPicker');
+    const targetId = picker.dataset.target;
+    
+    const target = document.getElementById(targetId);
+    if (target) {
+        target.textContent = emoji;
+    }
+    
+    closeEmojiPicker();
+}
+
+// ========== TABS ==========
+
+function switchManagementTab(tabName) {
+    // Esconder todas as tabs
+    document.querySelectorAll('.management-tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    
+    // Remover active de todos os botões
+    document.querySelectorAll('.management-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Mostrar tab selecionada
+    const selectedTab = document.getElementById(tabName + 'Tab');
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+    }
+    
+    // Adicionar active ao botão correto (buscar por onclick)
+    document.querySelectorAll('.management-tab-btn').forEach(btn => {
+        const onclick = btn.getAttribute('onclick');
+        if (onclick && onclick.includes(`'${tabName}'`)) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// ========== MEMBROS ==========
+
+async function loadCommunityMembers(communityId) {
+    // Buscar informações da comunidade para saber quem é o owner
+    const { data: community } = await supabase
+        .from('communities')
+        .select('owner_id')
+        .eq('id', communityId)
+        .single();
+    
+    const ownerId = community?.owner_id;
+    
+    // Buscar todos os membros (incluindo owner)
+    const { data: members, error } = await supabase
+        .from('community_members')
+        .select(`
+            user_id,
+            role,
+            joined_at,
+            profiles:user_id (
+                id,
+                name,
+                username,
+                avatar_url
+            )
+        `)
+        .eq('community_id', communityId)
+        .eq('is_active', true)
+        .order('joined_at', { ascending: true });
+    
+    if (error) {
+        console.error('Erro ao carregar membros:', error);
+        return;
+    }
+    
+    const container = document.getElementById('currentMembers');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (!members || members.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum membro ainda</p>';
+        return;
+    }
+    
+    // Ordenar: owner primeiro, depois outros membros
+    const sortedMembers = [...members].sort((a, b) => {
+        if (a.user_id === ownerId) return -1;
+        if (b.user_id === ownerId) return 1;
+        return 0;
+    });
+    
+    sortedMembers.forEach(member => {
+        const user = member.profiles;
+        if (!user) return;
+        
+        const isOwner = user.id === ownerId;
+        
+        const memberDiv = document.createElement('div');
+        memberDiv.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        `;
+        
+        memberDiv.innerHTML = `
+            <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" style="
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            ">
+            <div style="flex: 1;">
+                <div style="font-weight: 600;">
+                    ${user.name}
+                    ${isOwner ? '<span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">OWNER</span>' : ''}
+                </div>
+                <div style="color: #666; font-size: 14px;">@${user.username}</div>
+            </div>
+            ${!isOwner ? `
+                <button onclick="removeMember('${communityId}', '${user.id}')" style="
+                    padding: 8px 16px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    cursor: pointer;
+                ">
+                    Remover
+                </button>
+            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'}
+        `;
+        
+        container.appendChild(memberDiv);
+    });
+}
+
+// ========== AUTOCOMPLETE PARA ADICIONAR MEMBROS ==========
+
+let memberAutocompleteUsers = [];
+let selectedMemberIndex = -1;
+
+function setupUserSearch() {
+    const searchInput = document.getElementById('searchUsers');
+    if (!searchInput) return;
+    
+    // Carregar todos os usuários uma vez
+    loadAllUsersForAutocomplete();
+    
+    searchInput.addEventListener('input', (e) => {
+        const value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        
+        // Detectar @ e extrair query
+        const textBeforeCursor = value.substring(0, cursorPos);
+        const atMatch = textBeforeCursor.match(/@(\w*)$/);
+        
+        if (atMatch) {
+            const query = atMatch[1].toLowerCase();
+            showMemberAutocomplete(query);
+        } else {
+            hideMemberAutocomplete();
+        }
+    });
+    
+    // Navegação com teclado
+    searchInput.addEventListener('keydown', (e) => {
+        const autocomplete = document.getElementById('memberAutocomplete');
+        if (!autocomplete || autocomplete.style.display === 'none') return;
+        
+        const items = autocomplete.querySelectorAll('.mention-item');
+        if (items.length === 0) return;
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedMemberIndex = Math.min(selectedMemberIndex + 1, items.length - 1);
+            updateMemberSelection(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedMemberIndex = Math.max(selectedMemberIndex - 1, 0);
+            updateMemberSelection(items);
+        } else if (e.key === 'Enter' && selectedMemberIndex >= 0) {
+            e.preventDefault();
+            items[selectedMemberIndex].click();
+        } else if (e.key === 'Escape') {
+            hideMemberAutocomplete();
+        }
+    });
+}
+
+async function loadAllUsersForAutocomplete() {
+    try {
+        const { data: users, error } = await supabase
+            .from('profiles')
+            .select('id, name, username, avatar_url')
+            .order('name');
+        
+        if (!error && users) {
+            memberAutocompleteUsers = users;
+            console.log(`✅ Carregados ${users.length} usuários para autocomplete`);
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar usuários:', error);
+    }
+}
+
+async function showMemberAutocomplete(query) {
+    const communityId = document.getElementById('communitySelect')?.value;
+    if (!communityId) return;
+    
+    // Buscar membros atuais
+    const { data: members } = await supabase
+        .from('community_members')
+        .select('user_id')
+        .eq('community_id', communityId)
+        .eq('is_active', true);
+    
+    const memberIds = members ? members.map(m => m.user_id) : [];
+    
+    // Filtrar usuários
+    const filteredUsers = memberAutocompleteUsers.filter(user => {
+        // Excluir usuário logado
+        if (currentUser && user.id === currentUser.id) return false;
+        
+        // Excluir membros existentes
+        if (memberIds.includes(user.id)) return false;
+        
+        // Filtrar por query
+        const queryLower = query.toLowerCase();
+        const nameLower = user.name.toLowerCase();
+        const usernameLower = user.username.toLowerCase();
+        
+        return nameLower.includes(queryLower) || 
+               usernameLower.includes(queryLower) ||
+               usernameLower.startsWith(queryLower);
+    }).slice(0, 5);
+    
+    if (filteredUsers.length === 0) {
+        hideMemberAutocomplete();
+        return;
+    }
+    
+    // Criar/atualizar autocomplete
+    let autocomplete = document.getElementById('memberAutocomplete');
+    if (!autocomplete) {
+        autocomplete = document.createElement('div');
+        autocomplete.id = 'memberAutocomplete';
+        autocomplete.className = 'mentions-autocomplete';
+        const searchInput = document.getElementById('searchUsers');
+        const rect = searchInput.getBoundingClientRect();
+        const modalContent = searchInput.closest('.modal-content');
+        const modalRect = modalContent ? modalContent.getBoundingClientRect() : { top: 0, left: 0 };
+        
+        // Posicionar relativo ao input, considerando scroll do modal
+        autocomplete.style.cssText = `
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10001;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 5px;
+        `;
+        
+        // Inserir logo após o input (parentElement já tem position: relative no HTML)
+        searchInput.parentElement.appendChild(autocomplete);
+    } else {
+        // Autocomplete já existe, apenas atualizar conteúdo
+    }
+    
+    autocomplete.innerHTML = filteredUsers.map((user, index) => `
+        <div class="mention-item" data-user-id="${user.id}" data-username="${user.username}" data-index="${index}" style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        ">
+            <img src="${user.avatar_url || 'https://via.placeholder.com/32'}" style="
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                object-fit: cover;
+            ">
+            <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px;">${user.name}</div>
+                <div style="color: #666; font-size: 12px;">@${user.username}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    autocomplete.style.display = 'block';
+    selectedMemberIndex = -1;
+    
+    // Adicionar event listeners
+    autocomplete.querySelectorAll('.mention-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const userId = item.dataset.userId;
+            const username = item.dataset.username;
+            selectMemberToAdd(userId, username);
+        });
+        
+        item.addEventListener('mouseenter', () => {
+            item.style.background = '#f5f5f5';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.style.background = 'white';
+        });
+    });
+}
+
+function hideMemberAutocomplete() {
+    const autocomplete = document.getElementById('memberAutocomplete');
+    if (autocomplete) {
+        autocomplete.style.display = 'none';
+    }
+    selectedMemberIndex = -1;
+}
+
+function updateMemberSelection(items) {
+    items.forEach((item, index) => {
+        if (index === selectedMemberIndex) {
+            item.style.background = '#f5f5f5';
+        } else {
+            item.style.background = 'white';
+        }
+    });
+}
+
+async function selectMemberToAdd(userId, username) {
+    const communityId = document.getElementById('communitySelect')?.value;
+    if (!communityId) return;
+    
+    // Adicionar membro (com p_role para evitar ambiguidade)
+    const { error } = await supabase.rpc('add_community_member', {
+        p_community_id: communityId,
+        p_user_id: userId,
+        p_role: 'member'
+    });
+    
+    if (error) {
+        alert('❌ Erro: ' + error.message);
+        return;
+    }
+    
+    // Limpar input e esconder autocomplete
+    const searchInput = document.getElementById('searchUsers');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    hideMemberAutocomplete();
+    
+    // Mostrar feedback
+    alert(`✅ @${username} adicionado com sucesso!`);
+    
+    // Recarregar lista de membros
+    loadCommunityMembers(communityId);
+}
+
+async function removeMember(communityId, userId) {
+    if (!confirm('Tem certeza que deseja remover este membro?')) {
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('community_members')
+        .update({ is_active: false })
+        .eq('community_id', communityId)
+        .eq('user_id', userId);
+    
+    if (error) {
+        console.error('Erro ao remover membro:', error);
+        alert('Erro ao remover membro: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Membro removido com sucesso!');
+    loadCommunityMembers(communityId);
+}
+
+// ========== POSTS ==========
+
+async function loadCommunityPosts(communityId) {
+    const { data: posts, error } = await supabase
+        .from('posts')
+        .select(`
+            *,
+            profiles:user_id (
+                name,
+                username,
+                avatar_url
+            )
+        `)
+        .eq('community_id', communityId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+    
+    if (error) {
+        console.error('Erro ao carregar posts:', error);
+        return;
+    }
+    
+    const container = document.getElementById('communityPosts');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (!posts || posts.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum post ainda</p>';
+        return;
+    }
+    
+    posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.style.cssText = `
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background: white;
+        `;
+        
+        const user = post.profiles;
+        const typeEmojis = {
+            'gratidao': '🙏',
+            'memoria': '🧠',
+            'conquista': '🏆',
+            'inspiracao': '💡',
+            'apoio': '🤝',
+            'destacar': '⭐'
+        };
+        
+        postDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <img src="${user?.avatar_url || 'https://via.placeholder.com/40'}" style="
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    ">
+                    <div>
+                        <div style="font-weight: 600;">${user?.name || 'Usuário'}</div>
+                        <div style="color: #666; font-size: 12px;">@${user?.username || 'usuario'}</div>
+                    </div>
+                </div>
+                <button onclick="deletePost('${post.id}', '${communityId}')" style="
+                    padding: 6px 12px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    cursor: pointer;
+                ">
+                    Deletar
+                </button>
+            </div>
+            <div style="margin-left: 50px;">
+                <div style="margin-bottom: 5px;">
+                    <span style="font-size: 20px;">${typeEmojis[post.type] || '📝'}</span>
+                    <span style="font-weight: 600; margin-left: 5px;">${post.person_name || ''}</span>
+                </div>
+                <div style="color: #333;">${post.story_text}</div>
+                ${post.photo_url ? `<img src="${post.photo_url}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ''}
+            </div>
+        `;
+        
+        container.appendChild(postDiv);
+    });
+}
+
+async function deletePost(postId, communityId) {
+    if (!confirm('Tem certeza que deseja deletar este post?')) {
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+    
+    if (error) {
+        console.error('Erro ao deletar post:', error);
+        alert('Erro ao deletar post: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Post deletado com sucesso!');
+    loadCommunityPosts(communityId);
+}
+
+// ========== DELETAR COMUNIDADE ==========
+
+async function deleteCommunity() {
+    const communityId = document.getElementById('communitySelect').value;
+    if (!communityId) return;
+    
+    if (!confirm('⚠️ ATENÇÃO: Deletar a comunidade irá remover TODOS os posts e membros. Esta ação não pode ser desfeita. Tem certeza?')) {
+        return;
+    }
+    
+    const { error } = await supabase
+        .from('communities')
+        .update({ is_active: false })
+        .eq('id', communityId);
+    
+    if (error) {
+        console.error('Erro ao deletar comunidade:', error);
+        alert('Erro ao deletar comunidade: ' + error.message);
+        return;
+    }
+    
+    alert('✅ Comunidade deletada com sucesso!');
+    closeManageCommunityModal();
+    
+    // Recarregar feeds se necessário
+    if (typeof loadCommunityFeeds === 'function') {
+        loadCommunityFeeds();
+    }
+}
+
+// ========== INICIALIZAÇÃO ==========
+
+function initCommunityManagement() {
+    setupCommunitySelectListener();
+    setupUserSearch();
+    
+    console.log('✅ Community Management inicializado');
+}
+
+// Exportar funções globalmente
+window.openManageCommunityModal = openManageCommunityModal;
+window.closeManageCommunityModal = closeManageCommunityModal;
+window.switchManagementTab = switchManagementTab;
+window.showCreateCommunityForm = showCreateCommunityForm;
+window.hideCreateCommunityForm = hideCreateCommunityForm;
+window.createCommunity = createCommunity;
+window.updateCommunity = updateCommunity;
+window.deleteCommunity = deleteCommunity;
+window.openEmojiPicker = openEmojiPicker;
+window.closeEmojiPicker = closeEmojiPicker;
+window.selectEmoji = selectEmoji;
+window.removeMember = removeMember;
+window.deletePost = deletePost;
+window.initCommunityManagement = initCommunityManagement;
+
+console.log('✅ Módulo community_management.js carregado');
+
+    </script>
 
 </body>
 </html>
