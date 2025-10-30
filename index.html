@@ -16574,35 +16574,6 @@ async function updateCommunity() {
     loadOwnedCommunities();
 }
 
-// ========== EMOJI PICKER ==========
-
-function openEmojiPicker(targetId) {
-    const picker = document.getElementById('emojiPicker');
-    if (!picker) return;
-    
-    picker.dataset.target = targetId;
-    picker.style.display = 'block';
-}
-
-function closeEmojiPicker() {
-    const picker = document.getElementById('emojiPicker');
-    if (picker) {
-        picker.style.display = 'none';
-    }
-}
-
-function selectEmoji(emoji) {
-    const picker = document.getElementById('emojiPicker');
-    const targetId = picker.dataset.target;
-    
-    const target = document.getElementById(targetId);
-    if (target) {
-        target.textContent = emoji;
-    }
-    
-    closeEmojiPicker();
-}
-
 // ========== TABS ==========
 
 function switchManagementTab(tabName) {
