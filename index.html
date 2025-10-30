@@ -6237,6 +6237,9 @@
                 // Configurar real-time
                 setupChatRealtime();
                 
+                // Configurar polling como fallback (verifica novas mensagens a cada 3 segundos)
+                setupChatPolling();
+                
                 // Configurar event listener do form de envio
                 setupSendMessageForm();
                 
@@ -6259,6 +6262,13 @@
             if (chatRealtimeSubscription) {
                 chatRealtimeSubscription.unsubscribe();
                 chatRealtimeSubscription = null;
+            }
+            
+            // Limpar polling
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+                chatPollingInterval = null;
+                console.log('✅ Polling de mensagens limpo');
             }
             
             currentChatUserId = null;
@@ -6297,7 +6307,7 @@
                     const timeAgo = getTimeAgo(msg.created_at);
                     
                     html += `
-                        <div style="
+                        <div data-message-id="${msg.id}" style="
                             display: flex;
                             justify-content: ${isMine ? 'flex-end' : 'flex-start'};
                             margin-bottom: 12px;
@@ -6382,7 +6392,7 @@
                     console.log('💬 Adicionando mensagem na UI:', { content, messagesContent: !!messagesContent });
                     
                     const tempMessageHtml = `
-                        <div style="
+                        <div data-message-id="temp-${Date.now()}" style="
                             display: flex;
                             justify-content: flex-end;
                             margin-bottom: 12px;
@@ -6445,6 +6455,95 @@
             });
             
             console.log('✅ Event listener do form de mensagem configurado!');
+        }
+        
+        let chatPollingInterval = null;
+        
+        function setupChatPolling() {
+            // Limpar polling anterior se existir
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+            }
+            
+            let lastMessageId = null;
+            
+            // Buscar ID da última mensagem atual
+            const messagesContent = document.getElementById('chatMessagesContent');
+            if (messagesContent) {
+                const messages = messagesContent.querySelectorAll('[data-message-id]');
+                if (messages.length > 0) {
+                    lastMessageId = messages[messages.length - 1].dataset.messageId;
+                }
+            }
+            
+            // Verificar novas mensagens a cada 3 segundos
+            chatPollingInterval = setInterval(async () => {
+                try {
+                    const { data: newMessages, error } = await supabase
+                        .from('messages')
+                        .select('*')
+                        .eq('conversation_id', currentConversationId)
+                        .order('created_at', { ascending: false })
+                        .limit(1);
+                    
+                    if (error) throw error;
+                    
+                    if (newMessages && newMessages.length > 0) {
+                        const latestMsg = newMessages[0];
+                        
+                        // Se há nova mensagem e não é minha
+                        if (latestMsg.id !== lastMessageId && latestMsg.sender_id !== currentUser.id) {
+                            console.log('🔄 Nova mensagem detectada via polling:', latestMsg);
+                            lastMessageId = latestMsg.id;
+                            
+                            // Adicionar mensagem na UI
+                            const messagesContent = document.getElementById('chatMessagesContent');
+                            if (!messagesContent) return;
+                            
+                            const isAtBottom = messagesContent.scrollHeight - messagesContent.scrollTop <= messagesContent.clientHeight + 100;
+                            const timeAgo = getTimeAgo(latestMsg.created_at);
+                            
+                            const messageHtml = `
+                                <div data-message-id="${latestMsg.id}" style="
+                                    display: flex;
+                                    justify-content: flex-start;
+                                    margin-bottom: 12px;
+                                ">
+                                    <div style="
+                                        max-width: 70%;
+                                        padding: 12px 16px;
+                                        border-radius: 16px 16px 16px 0;
+                                        background: #e0e0e0;
+                                        color: #333;
+                                    ">
+                                        <div>${latestMsg.content}</div>
+                                        <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">${timeAgo}</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            if (messagesContent.innerHTML.includes('Nenhuma mensagem ainda')) {
+                                messagesContent.innerHTML = '';
+                            }
+                            
+                            messagesContent.insertAdjacentHTML('beforeend', messageHtml);
+                            
+                            if (isAtBottom) {
+                                messagesContent.scrollTo({
+                                    top: messagesContent.scrollHeight,
+                                    behavior: 'smooth'
+                                });
+                            }
+                            
+                            markMessagesAsRead();
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Erro no polling de mensagens:', error);
+                }
+            }, 3000); // Verifica a cada 3 segundos
+            
+            console.log('✅ Polling de mensagens iniciado (verifica a cada 3s)');
         }
         
         function setupChatRealtime() {
