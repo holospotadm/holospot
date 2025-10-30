@@ -6204,6 +6204,12 @@
             // Mostrar modal PRIMEIRO para garantir que elementos existam
             modal.style.display = 'flex';
             
+            // Carregar comunidades do usuário para o dropdown
+            const { data: userCommunities, error: communitiesError } = await supabase
+                .from('community_members')
+                .select('community_id, communities(id, name, emoji)')
+                .eq('user_id', currentUser.id);
+            
             // Aguardar um frame para garantir que o DOM foi renderizado
             setTimeout(() => {
                 // Preencher dados atuais
@@ -6214,7 +6220,32 @@
                 
                 if (fullNameInput) fullNameInput.value = profile?.name || currentUser.user_metadata?.full_name || '';
                 if (usernameInput) usernameInput.value = currentUsername;
-                if (defaultFeedInput) defaultFeedInput.value = profile?.default_feed || 'recommended';
+                
+                // Preencher dropdown de feed padrão com comunidades
+                if (defaultFeedInput) {
+                    // Limpar opções antigas de comunidades (manter apenas as padrões)
+                    const options = Array.from(defaultFeedInput.options);
+                    options.forEach(opt => {
+                        if (opt.value.startsWith('community-')) {
+                            opt.remove();
+                        }
+                    });
+                    
+                    // Adicionar comunidades do usuário
+                    if (userCommunities && userCommunities.length > 0) {
+                        userCommunities.forEach(member => {
+                            if (member.communities) {
+                                const option = document.createElement('option');
+                                option.value = `community-${member.communities.id}`;
+                                option.textContent = `${member.communities.emoji || '👨‍👩‍👧‍👦'} ${member.communities.name}`;
+                                defaultFeedInput.appendChild(option);
+                            }
+                        });
+                    }
+                    
+                    // Definir valor selecionado
+                    defaultFeedInput.value = profile?.default_feed || 'recommended';
+                }
                 
                 // Avatar preview
                 const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=667eea&color=fff&size=200`;
@@ -16123,21 +16154,48 @@
             }
             
             // Atualizar APENAS a UI inicial (sem chamar loadPosts)
-            setTimeout(() => {
-                // Atualizar emoji
-                const emoji = document.getElementById('feedEmoji');
-                if (emoji) {
-                    emoji.textContent = savedFilter === 'following' ? '👥' : '🌍';
-                }
-                
-                // Atualizar dropdown
-                document.querySelectorAll('.filter-option').forEach(option => {
-                    if (option.dataset.filter === savedFilter) {
-                        option.classList.add('active');
-                    } else {
-                        option.classList.remove('active');
+            setTimeout(async () => {
+                // Se o feed padrão for de uma comunidade, carregar o feed da comunidade
+                if (savedFilter && savedFilter.startsWith('community-')) {
+                    const communityId = savedFilter.replace('community-', '');
+                    console.log('👨‍👩‍👧‍👦 Feed padrão é de comunidade:', communityId);
+                    
+                    // Buscar dados da comunidade para atualizar emoji
+                    const { data: community } = await supabase
+                        .from('communities')
+                        .select('emoji, name')
+                        .eq('id', communityId)
+                        .single();
+                    
+                    // Atualizar emoji do feed
+                    const emoji = document.getElementById('feedEmoji');
+                    if (emoji && community) {
+                        emoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
                     }
-                });
+                    
+                    // Armazenar ID da comunidade ativa
+                    window.currentCommunityId = communityId;
+                    
+                    // Carregar posts da comunidade
+                    if (typeof loadCommunityPosts === 'function') {
+                        loadCommunityPosts(communityId);
+                    }
+                } else {
+                    // Atualizar emoji para feeds padrões
+                    const emoji = document.getElementById('feedEmoji');
+                    if (emoji) {
+                        emoji.textContent = savedFilter === 'following' ? '👥' : '🌍';
+                    }
+                    
+                    // Atualizar dropdown
+                    document.querySelectorAll('.filter-option').forEach(option => {
+                        if (option.dataset.filter === savedFilter) {
+                            option.classList.add('active');
+                        } else {
+                            option.classList.remove('active');
+                        }
+                    });
+                }
                 
                 console.log('✅ [DEBUG] UI do filtro inicializada sem chamar loadPosts');
             }, 100);
