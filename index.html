@@ -16407,12 +16407,12 @@ function showCommunityInfo(community) {
     const nameInput = document.getElementById('editCommunityName');
     const slugInput = document.getElementById('editCommunitySlug');
     const descInput = document.getElementById('editCommunityDescription');
-    const emojiSpan = document.getElementById('selectedEmoji');
+    const emojiInput = document.getElementById('editCommunityEmoji');
     
     if (nameInput) nameInput.value = community.name || '';
     if (slugInput) slugInput.value = community.slug || '';
     if (descInput) descInput.value = community.description || '';
-    if (emojiSpan) emojiSpan.textContent = community.emoji || '🏢';
+    if (emojiInput) emojiInput.value = community.emoji || '🏢';
     
 
     
@@ -16559,7 +16559,7 @@ function switchManagementTab(tabName) {
     });
     
     // Remover active de todos os botões
-    document.querySelectorAll('.management-tab-btn').forEach(btn => {
+    document.querySelectorAll('.management-tab').forEach(btn => {
         btn.classList.remove('active');
     });
     
@@ -16570,7 +16570,7 @@ function switchManagementTab(tabName) {
     }
     
     // Adicionar active ao botão correto (buscar por onclick)
-    document.querySelectorAll('.management-tab-btn').forEach(btn => {
+    document.querySelectorAll('.management-tab').forEach(btn => {
         const onclick = btn.getAttribute('onclick');
         if (onclick && onclick.includes(`'${tabName}'`)) {
             btn.classList.add('active');
@@ -17007,9 +17007,9 @@ async function loadCommunityPosts(communityId) {
             <div style="margin-left: 50px;">
                 <div style="margin-bottom: 5px;">
                     <span style="font-size: 20px;">${typeEmojis[post.type] || '📝'}</span>
-                    <span style="font-weight: 600; margin-left: 5px;">${post.person_name || ''}</span>
+                    <span style="font-weight: 600; margin-left: 5px;">${post.celebrated_person_name || ''}</span>
                 </div>
-                <div style="color: #333;">${post.story_text}</div>
+                <div style="color: #333;">${post.content || ''}</div>
                 ${post.photo_url ? `<img src="${post.photo_url}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ''}
             </div>
         `;
