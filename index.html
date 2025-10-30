@@ -6574,8 +6574,9 @@
                     const messagesContent = document.getElementById('chatMessagesContent');
                     console.log('💬 Adicionando mensagem na UI:', { content, messagesContent: !!messagesContent });
                     
+                    const tempId = `temp-${Date.now()}`;
                     const tempMessageHtml = `
-                        <div data-message-id="temp-${Date.now()}" style="
+                        <div data-message-id="${tempId}" style="
                             display: flex;
                             justify-content: flex-end;
                             margin-bottom: 12px;
@@ -6619,17 +6620,28 @@
                     messageInput.value = '';
                     
                     // Enviar para o banco
-                    const { error } = await supabase
+                    const { data: savedMessage, error } = await supabase
                         .from('messages')
                         .insert({
                             conversation_id: currentConversationId,
                             sender_id: currentUser.id,
                             content: content
-                        });
+                        })
+                        .select()
+                        .single();
                     
                     if (error) throw error;
                     
-                    console.log('✅ Mensagem salva no banco!');
+                    console.log('✅ Mensagem salva no banco!', savedMessage);
+                    
+                    // Atualizar data-message-id no DOM do ID temporário para o ID real
+                    if (savedMessage && savedMessage.id) {
+                        const tempMessageEl = document.querySelector(`[data-message-id="${tempId}"]`);
+                        if (tempMessageEl) {
+                            tempMessageEl.setAttribute('data-message-id', savedMessage.id);
+                            console.log('✅ ID da mensagem atualizado no DOM:', tempId, '→', savedMessage.id);
+                        }
+                    }
                     
                 } catch (error) {
                     console.error('❌ Erro ao enviar mensagem:', error);
