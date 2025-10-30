@@ -486,8 +486,9 @@ async function showMemberAutocomplete(query) {
         const modalContent = searchInput.closest('.modal-content');
         const modalRect = modalContent ? modalContent.getBoundingClientRect() : { top: 0, left: 0 };
         
+        // Posicionar relativo ao input, considerando scroll do modal
         autocomplete.style.cssText = `
-            position: fixed;
+            position: absolute;
             background: white;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -495,11 +496,15 @@ async function showMemberAutocomplete(query) {
             max-height: 200px;
             overflow-y: auto;
             z-index: 10001;
-            top: ${rect.bottom + 5}px;
-            left: ${rect.left}px;
-            width: ${rect.width}px;
+            margin-top: 5px;
+            width: 100%;
         `;
-        document.body.appendChild(autocomplete);
+        
+        // Inserir logo após o input
+        searchInput.parentElement.style.position = 'relative';
+        searchInput.parentElement.appendChild(autocomplete);
+    } else {
+        // Autocomplete já existe, apenas atualizar conteúdo
     }
     
     autocomplete.innerHTML = filteredUsers.map((user, index) => `

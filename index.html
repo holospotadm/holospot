@@ -7322,6 +7322,9 @@
                 updateAllCommentsCountersFromCache();
             }, 100);
         }
+        
+        // Exportar renderPosts para uso em community_feeds.js
+        window.renderPosts = renderPosts;
 
         async function toggleFollow(userId) {
             try {
