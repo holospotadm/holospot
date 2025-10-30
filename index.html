@@ -6090,6 +6090,9 @@
                 
                 content.innerHTML = html;
                 
+                // Iniciar polling para atualizar lista automaticamente
+                startChatListPolling();
+                
             } catch (error) {
                 console.error('❌ Erro ao carregar conversas:', error);
                 content.innerHTML = `
@@ -6101,9 +6104,147 @@
             }
         }
         
+        let chatListPollingInterval = null;
+        
+        function startChatListPolling() {
+            // Limpar polling anterior se existir
+            if (chatListPollingInterval) {
+                clearInterval(chatListPollingInterval);
+            }
+            
+            // Atualizar lista a cada 3 segundos
+            chatListPollingInterval = setInterval(async () => {
+                try {
+                    const modal = document.getElementById('chatListModal');
+                    // Só atualizar se o modal ainda estiver aberto
+                    if (modal && modal.style.display === 'flex') {
+                        await refreshChatList();
+                    } else {
+                        // Se modal foi fechado, parar polling
+                        clearInterval(chatListPollingInterval);
+                        chatListPollingInterval = null;
+                    }
+                } catch (error) {
+                    console.error('❌ Erro no polling da caixa de entrada:', error);
+                }
+            }, 3000); // Verifica a cada 3 segundos
+            
+            console.log('✅ Polling da caixa de entrada iniciado (atualiza a cada 3s)');
+        }
+        
+        async function refreshChatList() {
+            const content = document.getElementById('chatListContent');
+            if (!content) return;
+            
+            try {
+                // Buscar conversas do usuário
+                const { data: conversations, error } = await supabase
+                    .from('conversations')
+                    .select('*')
+                    .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
+                    .order('updated_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!conversations || conversations.length === 0) return;
+                
+                // Buscar perfis dos outros usuários
+                const otherUserIds = conversations.map(c => 
+                    c.user1_id === currentUser.id ? c.user2_id : c.user1_id
+                );
+                
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id, name, username, avatar_url')
+                    .in('id', otherUserIds);
+                
+                if (profilesError) throw profilesError;
+                
+                // Buscar última mensagem de cada conversa
+                const conversationIds = conversations.map(c => c.id);
+                const { data: lastMessages, error: messagesError } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .in('conversation_id', conversationIds)
+                    .order('created_at', { ascending: false });
+                
+                if (messagesError) throw messagesError;
+                
+                // Buscar mensagens não lidas por conversa
+                const { data: unreadMessages, error: unreadError } = await supabase
+                    .from('messages')
+                    .select('conversation_id')
+                    .in('conversation_id', conversationIds)
+                    .neq('sender_id', currentUser.id)
+                    .eq('is_read', false);
+                
+                if (unreadError) throw unreadError;
+                
+                // Contar não lidas por conversa
+                const unreadCounts = {};
+                unreadMessages?.forEach(msg => {
+                    unreadCounts[msg.conversation_id] = (unreadCounts[msg.conversation_id] || 0) + 1;
+                });
+                
+                // Renderizar lista de conversas
+                let html = '';
+                for (const conv of conversations) {
+                    const otherUserId = conv.user1_id === currentUser.id ? conv.user2_id : conv.user1_id;
+                    const profile = profiles.find(p => p.id === otherUserId);
+                    const lastMessage = lastMessages?.find(m => m.conversation_id === conv.id);
+                    
+                    if (!profile) continue;
+                    
+                    const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=667eea&color=fff`;
+                    const timeAgo = lastMessage ? getTimeAgo(lastMessage.created_at) : '';
+                    const unreadCount = unreadCounts[conv.id] || 0;
+                    const hasUnread = unreadCount > 0;
+                    
+                    html += `
+                        <div onclick="openChat('${otherUserId}')" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            padding: 16px;
+                            border-bottom: 1px solid #eee;
+                            cursor: pointer;
+                            transition: background 0.2s;
+                            background: ${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'};
+                            border-left: ${hasUnread ? '4px solid #ff4444' : '4px solid transparent'};
+                        " onmouseover="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.1) 0%, rgba(147,51,234,0.1) 100%)' : '#f9f9f9'}'" onmouseout="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'}'">
+                            <div style="position: relative;">
+                                <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                ${hasUnread ? `<div style="position: absolute; top: -4px; right: -4px; background: #ff4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; border: 2px solid white;">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: ${hasUnread ? '700' : '600'}; color: #333;">${profile.name || 'Usuário'}</div>
+                                <div style="font-size: 0.9rem; color: #666;">@${profile.username || 'usuario'}</div>
+                                ${lastMessage ? `<div style="font-size: 0.85rem; color: ${hasUnread ? '#333' : '#999'}; font-weight: ${hasUnread ? '600' : 'normal'}; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage.content}</div>` : ''}
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                ${timeAgo ? `<div style="font-size: 0.8rem; color: #999;">${timeAgo}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar lista de conversas:', error);
+            }
+        }
+        
         function closeChatListModal() {
             const modal = document.getElementById('chatListModal');
             modal.style.display = 'none';
+            
+            // Limpar polling ao fechar
+            if (chatListPollingInterval) {
+                clearInterval(chatListPollingInterval);
+                chatListPollingInterval = null;
+                console.log('✅ Polling da caixa de entrada limpo');
+            }
         }
         
         async function searchUsersInChat(query) {
