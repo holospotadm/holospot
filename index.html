@@ -5832,7 +5832,7 @@
             loadPosts();
         }
 
-        function getEmptyFeedMessage(filter) {
+        function getEmptyFeedMessage(filter, customEmoji = null) {
             switch (filter) {
                 case 'following':
                     return `
@@ -5852,12 +5852,19 @@
                             ">🔍 Buscar Pessoas</button>
                         </div>
                     `;
-                default: // recommended
+                default: // recommended or community
+                    const emoji = customEmoji || '🌍';
                     return `
-                        <div style="text-align: center; padding: 4rem 2rem; color: #666;">
-                            <div style="font-size: 64px; margin-bottom: 1rem;">🌍</div>
+                        <div style="
+                            background: white;
+                            border-radius: 12px;
+                            padding: 4rem 2rem;
+                            text-align: center;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        ">
+                            <div style="font-size: 64px; margin-bottom: 1rem;">${emoji}</div>
                             <h3 style="color: #333; margin-bottom: 1rem;">Nenhum post ainda</h3>
-                            <p>Seja o primeiro a destacar alguém!</p>
+                            <p style="color: #666;">Seja o primeiro a destacar alguém!</p>
                         </div>
                     `;
             }
@@ -6688,6 +6695,9 @@
                 console.log('📝 Carregando posts...');
                 console.log('🔍 [DEBUG] loadPosts chamado de:', new Error().stack);
                 
+                // Limpar emoji de comunidade (feed geral)
+                window.currentCommunityEmoji = null;
+                
                 // Marcar como carregando (SEM renderizar ainda)
                 window.isLoadingPosts = true;
                 
@@ -7206,7 +7216,7 @@
             
             // Se não há posts, mostrar mensagem customizada baseada no filtro
             if (postsToRender.length === 0) {
-                container.innerHTML = getEmptyFeedMessage(window.currentFeedFilter || 'recommended');
+                container.innerHTML = getEmptyFeedMessage(window.currentFeedFilter || 'recommended', window.currentCommunityEmoji);
                 return;
             }
 
@@ -16206,6 +16216,9 @@ async function loadCommunityFeed(communityId) {
 
         // Buscar informações da comunidade
         const community = userCommunities.find(c => c.id === communityId);
+        
+        // Armazenar emoji da comunidade globalmente
+        window.currentCommunityEmoji = community?.emoji || '👨‍👩‍👧‍👦';
         
         // Atualizar emoji do botão Feed (sem remover a setinha)
         const feedEmoji = document.getElementById('feedEmoji');
