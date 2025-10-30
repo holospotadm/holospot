@@ -493,10 +493,11 @@ A gamificação é o motor que incentiva o engajamento positivo. O sistema é co
 
 | Ação | Pontos para Você | Pontos para Outros | Descrição |
 |:---|:---:|:---:|:---|
-| **Criar post de reconhecimento** | +10 | +5 (mencionado) | Você ganha por criar, mencionado ganha por ser reconhecido |
-| **Receber reação no seu post** | +1 | - | Cada ❤️ que você recebe |
-| **Receber comentário no seu post** | +2 | - | Cada comentário que você recebe |
-| **Dar feedback em um post** | +3 | - | Feedback é mais elaborado que comentário |
+| **Criar post com menção (holofote)** | +20 | +15 (mencionado) | Post destacando alguém |
+| **Criar post sem menção** | +10 | - | Post normal sem destacar ninguém |
+| **Dar reação em post** | +3 | +2 (autor do post) | Cada ❤️ que você dá |
+| **Fazer comentário em post** | +7 | +5 (autor do post) | Cada comentário que você faz |
+| **Dar feedback em post** | +10 | +8 (quem recebe) | Feedback é mais elaborado que comentário |
 | **Conquistar um badge** | Bônus variável | - | Cada badge concede pontos bônus (50-500) |
 | **Atingir marco de streak** | Bônus variável | - | 7 dias: +100, 30 dias: +500, etc. |
 | **Subir de nível** | - | - | Não concede pontos, mas desbloqueia badges |
@@ -505,9 +506,9 @@ A gamificação é o motor que incentiva o engajamento positivo. O sistema é co
 
 | Ação | Penalidade |
 |:---|:---:|
-| **Deletar um post** | -10 (você) e -5 (mencionado) |
-| **Remover uma reação** | -1 (autor do post) |
-| **Deletar um comentário** | -2 (autor do post) |
+| **Deletar um post** | -20 (você) e -15 (mencionado) se foi holofote, ou -10 se foi post normal |
+| **Remover uma reação** | -3 (você) e -2 (autor do post) |
+| **Deletar um comentário** | -7 (você) e -5 (autor do post) |
 
 #### **Visualização de Pontos:**
 
@@ -518,60 +519,47 @@ A gamificação é o motor que incentiva o engajamento positivo. O sistema é co
 
 ### 5.2. Badges (Conquistas)
 
-O HoloSpot possui **20+ badges** organizados em **5 categorias**.
+O HoloSpot possui **20 badges** organizados em **4 categorias**.
 
-#### **Categoria: Iniciante (Primeiras Ações)**
+#### **Categoria: Milestone (Marcos Importantes)**
 
-| Badge | Emoji | Condição | Bônus |
+| Badge | Emoji | Condição | Pontos Mínimos |
 |:---|:---:|:---|:---:|
-| **Primeiro Holofote** | 🌟 | Criar primeiro post | +50 |
-| **Primeira Reação** | ❤️ | Dar primeira reação | +10 |
-| **Primeiro Comentário** | 💬 | Fazer primeiro comentário | +20 |
-| **Primeiro Seguidor** | 👥 | Receber primeiro seguidor | +30 |
-| **Primeiro Feedback** | 📝 | Dar primeiro feedback | +30 |
+| **Primeiro Post** | 📝 | Criar 1 post | 0 |
+| **Primeira Reação** | 👍 | Dar 1 reação | 0 |
+| **Primeiro Holofote** | 🌟 | Destacar 1 pessoa | 0 |
+| **Primeira Interação** | 🎉 | Receber 1 interação | 0 |
+| **Ativo** | 📖 | Criar 10 posts | 200 |
+| **Prolífico** | 📚 | Criar 50 posts | 800 |
 
-#### **Categoria: Engajamento (Consistência)**
+#### **Categoria: Engagement (Engajamento e Atividade)**
 
-| Badge | Emoji | Condição | Bônus |
+| Badge | Emoji | Condição | Pontos Mínimos |
 |:---|:---:|:---|:---:|
-| **10 Destaques** | 🎯 | Criar 10 posts | +100 |
-| **50 Destaques** | 🏅 | Criar 50 posts | +250 |
-| **100 Destaques** | 🏆 | Criar 100 posts | +500 |
-| **Engajador** | 🔥 | Dar 100+ reações | +200 |
-| **Comentarista** | 💭 | Fazer 50+ comentários | +150 |
+| **Engajador** | 💪 | Dar 50 reações | 100 |
+| **Super Engajador** | 🔥 | Dar 200 reações | 300 |
+| **Comentarista** | 💬 | Escrever 25 comentários | 150 |
+| **Conversador** | 🗣️ | Escrever 100 comentários | 500 |
+| **Consistente** | 📅 | Manter streak de 7 dias | 100 |
+| **Dedicado** | 🔥 | Manter streak de 30 dias | 500 |
+| **Incansável** | 💎 | Manter streak de 100 dias | 1500 |
+| **Feedback Master** | 📝 | Dar 50 feedbacks | 400 |
 
-#### **Categoria: Social (Rede de Conexões)**
+#### **Categoria: Social (Interação Social)**
 
-| Badge | Emoji | Condição | Bônus |
+| Badge | Emoji | Condição | Pontos Mínimos |
 |:---|:---:|:---|:---:|
-| **10 Seguidores** | 👥 | Ter 10 seguidores | +100 |
-| **50 Seguidores** | 🌐 | Ter 50 seguidores | +250 |
-| **Influenciador** | ⭐ | Ter 100+ seguidores | +500 |
-| **Networker** | 🤝 | Seguir 50+ pessoas | +100 |
+| **Mentor** | 🧭 | Destacar 25 pessoas diferentes | 600 |
+| **Querido** | 💖 | Receber 500 reações | 800 |
+| **Popular** | ⭐ | Receber 100 comentários | 400 |
 
-#### **Categoria: Streaks (Consistência Diária)**
+#### **Categoria: Special (Conquistas Especiais)**
 
-| Badge | Emoji | Condição | Bônus |
+| Badge | Emoji | Condição | Pontos Mínimos |
 |:---|:---:|:---|:---:|
-| **Semana Ativa** | 🔥 | 7 dias consecutivos | +100 |
-| **Mês Ativo** | 📅 | 30 dias consecutivos | +500 |
-| **Semestre Ativo** | 🎖️ | 182 dias consecutivos | +2000 |
-| **Ano Ativo** | 👑 | 365 dias consecutivos | +5000 |
-
-#### **Categoria: Comunidades**
-
-| Badge | Emoji | Condição | Bônus |
-|:---|:---:|:---|:---:|
-| **Owner de Comunidade** | 👑 | Criar uma comunidade | +500 |
-| **Membro de Comunidade** | 🏢 | Entrar em uma comunidade | +50 |
-| **Primeiro Post em Comunidade** | 🎯 | Criar primeiro post em comunidade | +100 |
-
-#### **Categoria: Especiais (Métricas Avançadas)**
-
-| Badge | Emoji | Condição | Bônus |
-|:---|:---:|:---|:---:|
-| **Altruísta** | 💖 | Índice de altruísmo > 2.0 | +300 |
-| **Inspirador** | ✨ | Receber 50+ posts de reconhecimento | +400 |
+| **Pioneiro** | 🚀 | Um dos primeiros usuários | 0 |
+| **Influenciador** | 📈 | Posts receberam 1000 interações | 2000 |
+| **Embaixador** | 🤝 | Trouxe 10 novos usuários | 1000 |
 
 **Índice de Altruísmo:**
 ```
@@ -590,18 +578,18 @@ Altruísmo = (Posts Criados) / (Posts Recebidos)
 
 O HoloSpot possui **10 níveis** que representam a jornada do usuário.
 
-| Nível | Nome | Pontos Necessários | Descrição |
-|:---:|:---|:---:|:---|
-| **1** | Iniciante | 0 | Você está começando sua jornada |
-| **2** | Aprendiz | 100 | Você está aprendendo a reconhecer |
-| **3** | Praticante | 300 | Você pratica reconhecimento regularmente |
-| **4** | Engajado | 600 | Você está engajado na comunidade |
-| **5** | Dedicado | 1.000 | Você é dedicado ao reconhecimento |
-| **6** | Experiente | 1.500 | Você tem experiência em reconhecer |
-| **7** | Mestre | 2.500 | Você é mestre em reconhecimento |
-| **8** | Inspirador | 4.000 | Você inspira outros a reconhecer |
-| **9** | Líder | 6.000 | Você é líder em reconhecimento |
-| **10** | Lenda | 10.000 | Você é uma lenda do HoloSpot! |
+| Nível | Nome | Pontos Necessários | Ícone |
+|:---:|:---|:---:|:---:|
+| **1** | Novato | 0 | 🌱 |
+| **2** | Iniciante | 100 | 🔍 |
+| **3** | Ativo | 300 | ⚡ |
+| **4** | Engajado | 600 | 🤝 |
+| **5** | Influente | 1.000 | 📢 |
+| **6** | Líder | 2.000 | 👑 |
+| **7** | Especialista | 4.000 | 🎯 |
+| **8** | Mestre | 8.000 | 🧭 |
+| **9** | Lenda | 16.000 | ⭐ |
+| **10** | Hall da Fama | 32.000 | 💎 |
 
 #### **Cálculo de Nível:**
 
@@ -953,15 +941,11 @@ Cards com estatísticas principais:
 
 ### 8.3. Métricas Avançadas
 
-**Índice de Altruísmo:**
-```
-Altruísmo = (Posts Criados) / (Posts Recebidos)
-```
-- Visualização: Medidor de 0 a 5
-- Interpretação:
-  - < 1.0: Você recebe mais do que dá
-  - 1.0: Equilíbrio perfeito
-  - > 2.0: Você é altruísta! (badge desbloqueado)
+**Nota sobre Badges:**
+- Badges são verificados automaticamente por triggers no banco de dados
+- Ao conquistar um badge, você recebe notificação em tempo real
+- Badges desbloqueados aparecem coloridos no perfil
+- Badges bloqueados aparecem em cinza com cadeado
 
 **Pessoas Impactadas:**
 - Contagem de usuários únicos que você destacou
