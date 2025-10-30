@@ -3554,6 +3554,9 @@
                         
                         // Atualizar contador de mensagens não lidas
                         await updateUnreadCount();
+                        
+                        // Iniciar polling global para atualizar contador em tempo real
+                        startUnreadCountPolling();
                     } catch (error) {
                         console.error('❌ Erro ao carregar posts:', error);
                     }
@@ -6027,6 +6030,22 @@
                 
                 if (messagesError) throw messagesError;
                 
+                // Buscar mensagens não lidas por conversa
+                const { data: unreadMessages, error: unreadError } = await supabase
+                    .from('messages')
+                    .select('conversation_id')
+                    .in('conversation_id', conversationIds)
+                    .neq('sender_id', currentUser.id)
+                    .eq('is_read', false);
+                
+                if (unreadError) throw unreadError;
+                
+                // Contar não lidas por conversa
+                const unreadCounts = {};
+                unreadMessages?.forEach(msg => {
+                    unreadCounts[msg.conversation_id] = (unreadCounts[msg.conversation_id] || 0) + 1;
+                });
+                
                 // Renderizar lista de conversas
                 let html = '';
                 for (const conv of conversations) {
@@ -6038,6 +6057,8 @@
                     
                     const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=667eea&color=fff`;
                     const timeAgo = lastMessage ? getTimeAgo(lastMessage.created_at) : '';
+                    const unreadCount = unreadCounts[conv.id] || 0;
+                    const hasUnread = unreadCount > 0;
                     
                     html += `
                         <div onclick="openChat('${otherUserId}')" style="
@@ -6048,14 +6069,21 @@
                             border-bottom: 1px solid #eee;
                             cursor: pointer;
                             transition: background 0.2s;
-                        " onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='white'">
-                            <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: 600; color: #333;">${profile.name || 'Usuário'}</div>
-                                <div style="font-size: 0.9rem; color: #666;">@${profile.username || 'usuario'}</div>
-                                ${lastMessage ? `<div style="font-size: 0.85rem; color: #999; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage.content}</div>` : ''}
+                            background: ${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'};
+                            border-left: ${hasUnread ? '4px solid #ff4444' : '4px solid transparent'};
+                        " onmouseover="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.1) 0%, rgba(147,51,234,0.1) 100%)' : '#f9f9f9'}'" onmouseout="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'}'">
+                            <div style="position: relative;">
+                                <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                ${hasUnread ? `<div style="position: absolute; top: -4px; right: -4px; background: #ff4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; border: 2px solid white;">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
                             </div>
-                            ${timeAgo ? `<div style="font-size: 0.8rem; color: #999;">${timeAgo}</div>` : ''}
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: ${hasUnread ? '700' : '600'}; color: #333;">${profile.name || 'Usuário'}</div>
+                                <div style="font-size: 0.9rem; color: #666;">@${profile.username || 'usuario'}</div>
+                                ${lastMessage ? `<div style="font-size: 0.85rem; color: ${hasUnread ? '#333' : '#999'}; font-weight: ${hasUnread ? '600' : 'normal'}; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage.content}</div>` : ''}
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                ${timeAgo ? `<div style="font-size: 0.8rem; color: #999;">${timeAgo}</div>` : ''}
+                            </div>
                         </div>
                     `;
                 }
@@ -6536,6 +6564,9 @@
                             }
                             
                             markMessagesAsRead();
+                            
+                            // Atualizar contador global de não lidas
+                            updateUnreadCount();
                         }
                     }
                 } catch (error) {
@@ -6621,6 +6652,26 @@
                     console.log('✅ Nova mensagem adicionada na UI em tempo real');
                 })
                 .subscribe();
+        }
+        
+        let unreadCountPollingInterval = null;
+        
+        function startUnreadCountPolling() {
+            // Limpar polling anterior se existir
+            if (unreadCountPollingInterval) {
+                clearInterval(unreadCountPollingInterval);
+            }
+            
+            // Atualizar contador a cada 5 segundos
+            unreadCountPollingInterval = setInterval(async () => {
+                try {
+                    await updateUnreadCount();
+                } catch (error) {
+                    console.error('❌ Erro no polling de contador de não lidas:', error);
+                }
+            }, 5000); // Verifica a cada 5 segundos
+            
+            console.log('✅ Polling de contador de não lidas iniciado (verifica a cada 5s)');
         }
         
         async function updateUnreadCount() {
