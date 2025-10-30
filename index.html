@@ -17084,8 +17084,8 @@ async function loadCommunityPosts(communityId) {
                     </button>
                 </div>
                 
-                <div style="display: flex; gap: 15px;">
-                    <span style="
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span onclick="openCommentsModal('${post.id}', true)" style="
                         display: flex;
                         align-items: center;
                         gap: 5px;
@@ -17095,10 +17095,12 @@ async function loadCommunityPosts(communityId) {
                         border-radius: 20px;
                         font-size: 14px;
                         font-weight: 600;
-                    ">
+                        cursor: pointer;
+                        transition: transform 0.2s ease;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         💬 ${post.comments?.length || 0}
                     </span>
-                    <span style="
+                    <span onclick="openFeedbackModal('${post.id}', true)" style="
                         display: flex;
                         align-items: center;
                         gap: 5px;
@@ -17108,8 +17110,10 @@ async function loadCommunityPosts(communityId) {
                         border-radius: 20px;
                         font-size: 14px;
                         font-weight: 600;
-                    ">
-                        📊 ${post.feedbacks?.length || 0}
+                        cursor: pointer;
+                        transition: transform 0.2s ease;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        🔄 ${post.feedbacks?.length || 0}
                     </span>
                 </div>
             </div>
