@@ -148,13 +148,19 @@ async function loadCommunityFeed(communityId) {
         });
 
         // Atualizar array global de posts
+        console.log('📦 Atualizando window.posts com', posts.length, 'posts');
         window.posts = posts;
+        console.log('📦 window.posts atualizado:', window.posts);
 
         // Renderizar posts usando função global
+        console.log('🔍 Verificando window.renderPosts:', typeof window.renderPosts);
         if (typeof window.renderPosts === 'function') {
+            console.log('✅ Chamando window.renderPosts()...');
             await window.renderPosts();
+            console.log('✅ window.renderPosts() concluído!');
         } else {
             console.error('❌ Função renderPosts não encontrada');
+            console.error('📦 window:', Object.keys(window).filter(k => k.includes('render')));
         }
 
     } catch (error) {

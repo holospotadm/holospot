@@ -481,8 +481,13 @@ async function showMemberAutocomplete(query) {
         autocomplete = document.createElement('div');
         autocomplete.id = 'memberAutocomplete';
         autocomplete.className = 'mentions-autocomplete';
+        const searchInput = document.getElementById('searchUsers');
+        const rect = searchInput.getBoundingClientRect();
+        const modalContent = searchInput.closest('.modal-content');
+        const modalRect = modalContent ? modalContent.getBoundingClientRect() : { top: 0, left: 0 };
+        
         autocomplete.style.cssText = `
-            position: absolute;
+            position: fixed;
             background: white;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -490,10 +495,11 @@ async function showMemberAutocomplete(query) {
             max-height: 200px;
             overflow-y: auto;
             z-index: 10001;
-            margin-top: 5px;
-            width: calc(100% - 2px);
+            top: ${rect.bottom + 5}px;
+            left: ${rect.left}px;
+            width: ${rect.width}px;
         `;
-        document.getElementById('searchUsers').parentElement.appendChild(autocomplete);
+        document.body.appendChild(autocomplete);
     }
     
     autocomplete.innerHTML = filteredUsers.map((user, index) => `
