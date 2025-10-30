@@ -6666,7 +6666,10 @@
                     if (error) throw error;
                     
                     if (myMessages && myMessages.length > 0) {
-                        console.log('🔍 Verificando status de leitura de', myMessages.length, 'mensagens');
+                        const readMessages = myMessages.filter(m => m.is_read);
+                        if (readMessages.length > 0) {
+                            console.log('📬', readMessages.length, 'mensagens lidas encontradas:', readMessages.map(m => m.id));
+                        }
                         
                         // Atualizar indicador "Lida" nas mensagens que foram lidas
                         myMessages.forEach(msg => {
