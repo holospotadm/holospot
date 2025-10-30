@@ -7828,7 +7828,7 @@
             }
         }
 
-        function openFeedbackModal(postId) {
+        async function openFeedbackModal(postId, readOnly = false) {
             console.log('💬 Abrindo modal de feedback para post:', postId);
             
             // Verificar se já existe modal de feedback e fechar apenas ele
@@ -7876,6 +7876,52 @@
                 }
             }
             
+            // Se for readOnly, carregar feedbacks existentes
+            let feedbacksHtml = '';
+            if (readOnly) {
+                try {
+                    const { data: feedbacks, error } = await supabase
+                        .from('feedbacks')
+                        .select(`
+                            *,
+                            mentioned_user:mentioned_user_id(id, name, email, avatar_url)
+                        `)
+                        .eq('post_id', postId)
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) throw error;
+                    
+                    if (feedbacks && feedbacks.length > 0) {
+                        feedbacksHtml = feedbacks.map(fb => {
+                            const userName = fb.mentioned_user?.name || 'Usuário';
+                            const userEmail = fb.mentioned_user?.email || '';
+                            const username = userEmail ? userEmail.split('@')[0] : 'usuario';
+                            
+                            return `
+                                <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #FFB700; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                        <div style="color: #e65100; font-weight: bold; font-size: 13px;">
+                                            🔄 @${username}
+                                        </div>
+                                        <div style="color: #999; font-size: 11px; margin-left: 10px;">
+                                            ${formatDateShort(fb.created_at)}
+                                        </div>
+                                    </div>
+                                    <div style="color: #e65100; line-height: 1.4; font-size: 14px;">
+                                        ${fb.feedback_text}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        feedbacksHtml = '<div style="text-align: center; color: #666; padding: 20px; font-style: italic;">Nenhum feedback ainda.</div>';
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao carregar feedbacks:', error);
+                    feedbacksHtml = '<div style="text-align: center; color: #f44336; padding: 20px;">Erro ao carregar feedbacks.</div>';
+                }
+            }
+            
             // Criar modal de feedback
             const modal = document.createElement('div');
             modal.id = 'feedbackModal';
@@ -7883,10 +7929,15 @@
             modal.innerHTML = `
                 <div class="feedback-modal">
                     <div class="feedback-modal-header">
-                        <h3>🔄 Feedback</h3>
+                        <h3>🔄 Feedback${readOnly ? 's' : ''}</h3>
                         <button class="close-btn" onclick="closeFeedbackModal()">×</button>
                     </div>
                     <div class="feedback-modal-body">
+                        ${readOnly ? `
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                ${feedbacksHtml}
+                            </div>
+                        ` : `
                         <p><strong>Post sobre:</strong> ${mentionedPersonName} (@${mentionedPersonUsername})</p>
                         <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'} (@${post.user_data?.email?.split('@')[0] || 'usuario'})</p>
                         <div class="form-group">
@@ -7894,10 +7945,13 @@
                             <textarea id="feedbackText" class="form-input" rows="4" 
                                 placeholder="Compartilhe como você se sentiu ao ser destacado..."></textarea>
                         </div>
+                        `}
                     </div>
+                    ${!readOnly ? `
                     <div class="feedback-modal-footer">
                         <button class="btn-primary" onclick="submitFeedback('${postId}')">Enviar Feedback</button>
                     </div>
+                    ` : ''}
                 </div>
             `;
             
@@ -11849,7 +11903,7 @@
             }
         }
 
-        async function openCommentsModal(postId) {
+        async function openCommentsModal(postId, readOnly = false) {
             try {
                 console.log('💬 Abrindo modal de comentários para post:', postId);
                 
@@ -11931,15 +11985,14 @@
                         <div id="commentsContainer" style="flex: 1; overflow-y: auto; padding: 20px; max-height: 400px;">
                             ${commentsHtml}
                         </div>
-                        
+                        ${!readOnly ? `
                         <div style="padding: 20px; border-top: 1px solid #eee; flex-shrink: 0;">
                             <div style="display: flex; gap: 10px; align-items: flex-end;">
                                 <textarea id="newCommentText" placeholder="Escreva seu comentário..." style="flex: 1; min-height: 60px; max-height: 120px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;" rows="3"></textarea>
-                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                    Enviar
-                                </button>
+                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Enviar</button>
                             </div>
                         </div>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -17054,7 +17107,16 @@ async function loadCommunityPosts(communityId) {
                         <span>${post.celebrated_person_name || 'Alguém especial'}</span>
                     </div>
                     ${post.type ? `
-                        <div style="color: #666; font-size: 14px; margin-bottom: 0.5rem;">
+                        <div style="
+                            display: inline-block;
+                            background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);
+                            color: white;
+                            padding: 0.3rem 0.8rem;
+                            border-radius: 15px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">
                             ${typeEmojis[post.type] || '✨'} ${typeNames[post.type] || 'Destaque'}
                         </div>
                     ` : ''}
@@ -17085,7 +17147,7 @@ async function loadCommunityPosts(communityId) {
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span onclick="openCommentsModal('${post.id}', true)" style="
+                    <span onclick="${post.comments?.length > 0 ? `openCommentsModal('${post.id}', true)` : ''}" style="
                         display: flex;
                         align-items: center;
                         gap: 5px;
@@ -17095,12 +17157,12 @@ async function loadCommunityPosts(communityId) {
                         border-radius: 20px;
                         font-size: 14px;
                         font-weight: 600;
-                        cursor: pointer;
+                        cursor: ${post.comments?.length > 0 ? 'pointer' : 'default'};
                         transition: transform 0.2s ease;
-                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    " ${post.comments?.length > 0 ? "onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\"" : ''}>
                         💬 ${post.comments?.length || 0}
                     </span>
-                    <span onclick="openFeedbackModal('${post.id}', true)" style="
+                    <span onclick="${post.feedbacks?.length > 0 ? `openFeedbackModal('${post.id}', true)` : ''}" style="
                         display: flex;
                         align-items: center;
                         gap: 5px;
@@ -17110,9 +17172,9 @@ async function loadCommunityPosts(communityId) {
                         border-radius: 20px;
                         font-size: 14px;
                         font-weight: 600;
-                        cursor: pointer;
+                        cursor: ${post.feedbacks?.length > 0 ? 'pointer' : 'default'};
                         transition: transform 0.2s ease;
-                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    " ${post.feedbacks?.length > 0 ? "onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\"" : ''}>
                         🔄 ${post.feedbacks?.length || 0}
                     </span>
                 </div>
