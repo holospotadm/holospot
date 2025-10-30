@@ -15711,7 +15711,7 @@
                             
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
-                                <input type="text" name="name" required style="
+                                <input type="text" id="editCommunityName" name="name" required style="
                                     width: 100%;
                                     padding: 10px;
                                     border: 1px solid #ddd;
@@ -15722,7 +15722,7 @@
                             
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                                <input type="text" name="slug" required style="
+                                <input type="text" id="editCommunitySlug" name="slug" required style="
                                     width: 100%;
                                     padding: 10px;
                                     border: 1px solid #ddd;
@@ -15733,7 +15733,7 @@
                             
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
-                                <textarea name="description" rows="3" style="
+                                <textarea id="editCommunityDescription" name="description" rows="3" style="
                                     width: 100%;
                                     padding: 10px;
                                     border: 1px solid #ddd;
@@ -16144,7 +16144,6 @@ async function loadCommunityFeed(communityId) {
     }
 
     try {
-        alert('VERSÃO: v3.0 - Início loadCommunityFeed');
         console.log('📥 Carregando feed da comunidade:', communityId);
 
         // Buscar informações da comunidade
@@ -16165,13 +16164,10 @@ async function loadCommunityFeed(communityId) {
 
         if (error) throw error;
 
-        console.log('✅ Posts da comunidade carregados:', posts.length, '| v2.0');
-        alert('DEBUG: Posts carregados - ' + posts.length);
-        console.log('🔍 Posts brutos:', posts);
+        console.log('✅ Posts da comunidade carregados:', posts.length);
 
         try {
             // Processar dados do autor para cada post
-            console.log('🔄 Processando dados dos autores...');
             posts.forEach(post => {
                 if (post.author_username) {
                     post.user_data = {
@@ -16186,22 +16182,16 @@ async function loadCommunityFeed(communityId) {
                     post.reactions = [];
                 }
             });
-            console.log('✅ Dados dos autores processados');
         } catch (error) {
             console.error('❌ Erro ao processar dados dos autores:', error);
         }
 
         // Atualizar array global de posts
-        console.log('📦 Atualizando window.posts com', posts.length, 'posts');
         window.posts = posts;
-        console.log('📦 window.posts atualizado:', window.posts);
 
         // Renderizar posts usando função global
-        console.log('🔍 Verificando window.renderPosts:', typeof window.renderPosts);
         if (typeof window.renderPosts === 'function') {
-            console.log('✅ Chamando window.renderPosts()...');
             await window.renderPosts();
-            console.log('✅ window.renderPosts() concluído!');
         } else {
             console.error('❌ Função renderPosts não encontrada');
             console.error('📦 window:', Object.keys(window).filter(k => k.includes('render')));
@@ -16424,7 +16414,7 @@ function showCommunityInfo(community) {
     if (descInput) descInput.value = community.description || '';
     if (emojiSpan) emojiSpan.textContent = community.emoji || '🏢';
     
-    console.log('✅ Dados da comunidade preenchidos:', community);
+
     
     // Carregar membros
     loadCommunityMembers(community.id);
