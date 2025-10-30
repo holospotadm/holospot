@@ -6462,8 +6462,64 @@
                     table: 'messages',
                     filter: `conversation_id=eq.${currentConversationId}`
                 }, (payload) => {
-                    console.log('📨 Nova mensagem recebida:', payload);
-                    loadMessages();
+                    console.log('📨 Nova mensagem recebida via realtime:', payload);
+                    
+                    const msg = payload.new;
+                    
+                    // Ignorar se é minha própria mensagem (já foi adicionada otimisticamente)
+                    if (msg.sender_id === currentUser.id) {
+                        console.log('🔄 Mensagem própria, ignorando (já na UI)');
+                        return;
+                    }
+                    
+                    // Adicionar nova mensagem na UI
+                    const messagesContent = document.getElementById('chatMessagesContent');
+                    if (!messagesContent) return;
+                    
+                    // Verificar se usuário está no final do chat
+                    const isAtBottom = messagesContent.scrollHeight - messagesContent.scrollTop <= messagesContent.clientHeight + 100;
+                    
+                    const timeAgo = getTimeAgo(msg.created_at);
+                    const isMine = msg.sender_id === currentUser.id;
+                    
+                    const messageHtml = `
+                        <div style="
+                            display: flex;
+                            justify-content: ${isMine ? 'flex-end' : 'flex-start'};
+                            margin-bottom: 12px;
+                        ">
+                            <div style="
+                                max-width: 70%;
+                                padding: 12px 16px;
+                                border-radius: ${isMine ? '16px 16px 0 16px' : '16px 16px 16px 0'};
+                                background: ${isMine ? 'linear-gradient(135deg, #ff4444 0%, #9333ea 100%)' : '#e0e0e0'};
+                                color: ${isMine ? 'white' : '#333'};
+                            ">
+                                <div>${msg.content}</div>
+                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">${timeAgo}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Limpar aviso de "Nenhuma mensagem ainda" se existir
+                    if (messagesContent.innerHTML.includes('Nenhuma mensagem ainda')) {
+                        messagesContent.innerHTML = '';
+                    }
+                    
+                    messagesContent.insertAdjacentHTML('beforeend', messageHtml);
+                    
+                    // Scroll automático apenas se estava no final
+                    if (isAtBottom) {
+                        messagesContent.scrollTo({
+                            top: messagesContent.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                    
+                    // Marcar como lida
+                    markMessagesAsRead();
+                    
+                    console.log('✅ Nova mensagem adicionada na UI em tempo real');
                 })
                 .subscribe();
         }
@@ -6695,8 +6751,9 @@
                 console.log('📝 Carregando posts...');
                 console.log('🔍 [DEBUG] loadPosts chamado de:', new Error().stack);
                 
-                // Limpar emoji de comunidade (feed geral)
+                // Limpar emoji e ID de comunidade (feed geral)
                 window.currentCommunityEmoji = null;
+                window.currentCommunityId = null;
                 
                 // Marcar como carregando (SEM renderizar ainda)
                 window.isLoadingPosts = true;
@@ -8453,9 +8510,15 @@
                 });
                 selectedHighlightType = null;
                 
-                // Switch to home tab and re-render
-                switchTab('inicio');
-                await renderPosts(); // CORRIGIDO: Renderizar posts imediatamente
+                // Se o post foi criado em uma comunidade E estamos vendo essa comunidade, recarregar feed da comunidade
+                if (activeCommunityId && window.currentCommunityId === activeCommunityId) {
+                    console.log('🔄 Recarregando feed da comunidade após criar post');
+                    await loadCommunityFeed(activeCommunityId);
+                } else {
+                    // Caso contrário, switch to home tab and re-render
+                    switchTab('inicio');
+                    await renderPosts(); // CORRIGIDO: Renderizar posts imediatamente
+                }
                 updateStats();
                 
                 // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
@@ -16217,8 +16280,9 @@ async function loadCommunityFeed(communityId) {
         // Buscar informações da comunidade
         const community = userCommunities.find(c => c.id === communityId);
         
-        // Armazenar emoji da comunidade globalmente
+        // Armazenar emoji e ID da comunidade globalmente
         window.currentCommunityEmoji = community?.emoji || '👨‍👩‍👧‍👦';
+        window.currentCommunityId = communityId;
         
         // Atualizar emoji do botão Feed (sem remover a setinha)
         const feedEmoji = document.getElementById('feedEmoji');
