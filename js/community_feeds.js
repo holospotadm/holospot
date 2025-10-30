@@ -130,22 +130,29 @@ async function loadCommunityFeed(communityId) {
         if (error) throw error;
 
         console.log('✅ Posts da comunidade carregados:', posts.length);
+        console.log('🔍 Posts brutos:', posts);
 
-        // Processar dados do autor para cada post
-        posts.forEach(post => {
-            if (post.author_username) {
-                post.user_data = {
-                    name: post.author_name || 'Usuário',
-                    username: post.author_username || 'usuario',
-                    email: post.author_email,
-                    avatar_url: post.author_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'Usuario')}&background=667eea&color=fff`
-                };
-            }
-            // Inicializar reações se não existir
-            if (!post.reactions) {
-                post.reactions = [];
-            }
-        });
+        try {
+            // Processar dados do autor para cada post
+            console.log('🔄 Processando dados dos autores...');
+            posts.forEach(post => {
+                if (post.author_username) {
+                    post.user_data = {
+                        name: post.author_name || 'Usuário',
+                        username: post.author_username || 'usuario',
+                        email: post.author_email,
+                        avatar_url: post.author_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'Usuario')}&background=667eea&color=fff`
+                    };
+                }
+                // Inicializar reações se não existir
+                if (!post.reactions) {
+                    post.reactions = [];
+                }
+            });
+            console.log('✅ Dados dos autores processados');
+        } catch (error) {
+            console.error('❌ Erro ao processar dados dos autores:', error);
+        }
 
         // Atualizar array global de posts
         console.log('📦 Atualizando window.posts com', posts.length, 'posts');
