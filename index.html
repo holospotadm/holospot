@@ -6807,60 +6807,20 @@
         async function processPostsUserData() {
             console.log('👥 Processando dados de usuários...');
             
-            // Coletar todos os user_ids únicos (autores + mencionados)
-            const authorIds = posts
-                .filter(post => post.user_id !== currentUser.id)
-                .map(post => post.user_id);
-            
-            const mentionedIds = posts
-                .filter(post => post.mentioned_user_id && post.mentioned_user_id !== currentUser.id)
-                .map(post => post.mentioned_user_id);
-            
-            const uniqueUserIds = [...new Set([...authorIds, ...mentionedIds])];
-            
-            console.log(`🔍 Buscando ${uniqueUserIds.length} perfis únicos em lote (autores + mencionados)...`);
-            
-            // Cache para armazenar dados dos usuários
-            const userDataCache = new Map();
-            
-            // Buscar todos os perfis em uma única consulta
-            if (uniqueUserIds.length > 0) {
-                try {
-                    const usersQuery = supabase
-                        .from('profiles')
-                        .select('id, name, username, email, avatar_url')
-                        .in('id', uniqueUserIds);
-                    
-                    const { data: usersData, error: usersError } = await withTimeout(usersQuery, 5000);
-                    
-                    if (usersData && !usersError) {
-                        // Armazenar no cache
-                        usersData.forEach(user => {
-                            const realName = user.name || user.email || 'Usuário';
-                            const realAvatar = user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(realName)}&background=667eea&color=fff`;
-                            
-                            userDataCache.set(user.id, {
-                                name: realName,
-                                username: user.username || user.email?.split('@')[0] || 'usuario',
-                                email: user.email,
-                                avatar_url: realAvatar
-                            });
-                        });
-                        
-                        console.log(`✅ ${usersData.length} perfis carregados em lote`);
-                    } else {
-                        console.error('❌ Erro ao buscar perfis em lote:', usersError);
-                    }
-                } catch (error) {
-                    console.error('❌ Erro crítico ao buscar perfis:', error);
-                }
-            }
-            
             // Aplicar dados aos posts
             for (let post of posts) {
                 try {
-                    if (post.user_id === currentUser.id) {
-                        // Usuário atual
+                    // USAR DADOS DO AUTOR QUE JÁ VÊM DA FUNÇÃO SQL
+                    if (post.author_username) {
+                        // Dados já vieram da função get_feed_posts
+                        post.user_data = {
+                            name: post.author_name || 'Usuário',
+                            username: post.author_username || 'usuario',
+                            email: post.author_email,
+                            avatar_url: post.author_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'Usuario')}&background=667eea&color=fff`
+                        };
+                    } else if (post.user_id === currentUser.id) {
+                        // Usuário atual (fallback)
                         post.user_data = {
                             name: currentUser.user_metadata?.name || currentUser.email || 'Você',
                             username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'usuario',
@@ -6868,24 +6828,17 @@
                             avatar_url: currentUser.user_metadata?.avatar_url || ''
                         };
                     } else {
-                        // Outros usuários - usar cache
-                        const cachedUserData = userDataCache.get(post.user_id);
+                        // Fallback se não veio da função SQL (não deveria acontecer)
+                        console.warn(`⚠️ Post sem author_username, usando fallback`);
+                        const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
+                        const nameIndex = post.user_id.charCodeAt(0) % names.length;
+                        const userName = names[nameIndex];
                         
-                        if (cachedUserData) {
-                            post.user_data = cachedUserData;
-                        } else {
-                            // Fallback se não encontrou no cache
-                            console.warn(`⚠️ Usuário ${post.user_id} não encontrado no cache, usando fallback`);
-                            
-                            const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                            const nameIndex = post.user_id.charCodeAt(0) % names.length;
-                            const userName = names[nameIndex];
-                            
-                            post.user_data = {
-                                name: userName,
-                                avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`
-                            };
-                        }
+                        post.user_data = {
+                            name: userName,
+                            username: 'usuario',
+                            avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`
+                        };
                     }
                     
                     // Buscar dados do usuário mencionado (se existir)
@@ -6900,13 +6853,25 @@
                                 avatar_url: currentUser.user_metadata?.avatar_url || ''
                             };
                         } else {
-                            // Outro usuário foi mencionado - buscar do cache
-                            const mentionedUserData = userDataCache.get(post.mentioned_user_id);
-                            if (mentionedUserData) {
-                                post.mentioned_user = {
-                                    id: post.mentioned_user_id,
-                                    ...mentionedUserData
-                                };
+                            // Outro usuário foi mencionado - buscar do banco
+                            try {
+                                const { data: mentionedUser } = await supabase
+                                    .from('profiles')
+                                    .select('id, name, username, email, avatar_url')
+                                    .eq('id', post.mentioned_user_id)
+                                    .single();
+                                
+                                if (mentionedUser) {
+                                    post.mentioned_user = {
+                                        id: mentionedUser.id,
+                                        name: mentionedUser.name || 'Usuário',
+                                        username: mentionedUser.username || mentionedUser.email?.split('@')[0] || 'usuario',
+                                        email: mentionedUser.email,
+                                        avatar_url: mentionedUser.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mentionedUser.name || 'Usuario')}&background=667eea&color=fff`
+                                    };
+                                }
+                            } catch (err) {
+                                console.warn('⚠️ Erro ao buscar usuário mencionado:', err);
                             }
                         }
                     }
