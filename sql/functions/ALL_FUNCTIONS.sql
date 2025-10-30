@@ -5645,7 +5645,7 @@ BEGIN
                    p.mentioned_user_id, p.content, p.story, p.photo_url,
                    p.type, p.highlight_type, p.created_at, p.updated_at,
                    prof.name AS author_name,
-                   prof.username AS author_username,
+                   prof.username::TEXT AS author_username,
                    prof.avatar_url AS author_avatar_url,
                    prof.email AS author_email
             FROM posts p
@@ -5661,7 +5661,7 @@ BEGIN
                    p.mentioned_user_id, p.content, p.story, p.photo_url,
                    p.type, p.highlight_type, p.created_at, p.updated_at,
                    prof.name AS author_name,
-                   prof.username AS author_username,
+                   prof.username::TEXT AS author_username,
                    prof.avatar_url AS author_avatar_url,
                    prof.email AS author_email
             FROM posts p
@@ -5679,7 +5679,7 @@ BEGIN
                    p.mentioned_user_id, p.content, p.story, p.photo_url,
                    p.type, p.highlight_type, p.created_at, p.updated_at,
                    prof.name AS author_name,
-                   prof.username AS author_username,
+                   prof.username::TEXT AS author_username,
                    prof.avatar_url AS author_avatar_url,
                    prof.email AS author_email
             FROM posts p
@@ -5695,7 +5695,7 @@ BEGIN
                    p.mentioned_user_id, p.content, p.story, p.photo_url,
                    p.type, p.highlight_type, p.created_at, p.updated_at,
                    prof.name AS author_name,
-                   prof.username AS author_username,
+                   prof.username::TEXT AS author_username,
                    prof.avatar_url AS author_avatar_url,
                    prof.email AS author_email
             FROM posts p
