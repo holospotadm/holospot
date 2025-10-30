@@ -16813,9 +16813,22 @@ console.log('✅ community_feeds.js carregado');
 // ========== GERENCIAMENTO DE COMUNIDADES ==========
 
 function openManageCommunityModal() {
-    const modal = document.getElementById('manageCommunityModal');
+    // Tentar encontrar o modal com retry
+    let modal = document.getElementById('manageCommunityModal');
+    
+    // Se não encontrar, aguardar um momento e tentar novamente
     if (!modal) {
-        console.error('Modal manageCommunityModal não encontrado');
+        console.warn('⚠️ Modal manageCommunityModal não encontrado, tentando novamente...');
+        setTimeout(() => {
+            modal = document.getElementById('manageCommunityModal');
+            if (!modal) {
+                console.error('❌ Modal manageCommunityModal ainda não encontrado após retry');
+                alert('❌ Erro ao abrir gerenciamento de comunidades. Por favor, recarregue a página.');
+                return;
+            }
+            modal.style.display = 'flex';
+            loadOwnedCommunities();
+        }, 100);
         return;
     }
     
