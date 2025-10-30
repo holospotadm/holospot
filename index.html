@@ -16944,10 +16944,6 @@ async function loadCommunityPosts(communityId) {
                 username,
                 avatar_url
             ),
-            mentioned_user:mentioned_user_id (
-                username,
-                email
-            ),
             reactions (
                 type,
                 user_id
@@ -17055,7 +17051,7 @@ async function loadCommunityPosts(communityId) {
                 <div style="margin-bottom: 1rem;">
                     <div style="font-weight: 600; color: #e55a2b; margin-bottom: 0.5rem;">
                         Holofotes para: 
-                        <span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || 'Alguém especial'}</span>
+                        <span>${post.celebrated_person_name || 'Alguém especial'}</span>
                     </div>
                     ${post.type ? `
                         <div style="color: #666; font-size: 14px; margin-bottom: 0.5rem;">
