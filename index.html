@@ -6409,6 +6409,9 @@
                 // Configurar polling como fallback (verifica novas mensagens a cada 3 segundos)
                 setupChatPolling();
                 
+                // Configurar polling para atualizar status de leitura
+                setupReadStatusPolling();
+                
                 // Configurar event listener do form de envio
                 setupSendMessageForm();
                 
@@ -6433,11 +6436,18 @@
                 chatRealtimeSubscription = null;
             }
             
-            // Limpar polling
+            // Limpar polling de mensagens
             if (chatPollingInterval) {
                 clearInterval(chatPollingInterval);
                 chatPollingInterval = null;
                 console.log('✅ Polling de mensagens limpo');
+            }
+            
+            // Limpar polling de status de leitura
+            if (readStatusPollingInterval) {
+                clearInterval(readStatusPollingInterval);
+                readStatusPollingInterval = null;
+                console.log('✅ Polling de status de leitura limpo');
             }
             
             currentChatUserId = null;
@@ -6474,6 +6484,7 @@
                 for (const msg of messages) {
                     const isMine = msg.sender_id === currentUser.id;
                     const timeAgo = getTimeAgo(msg.created_at);
+                    const isRead = msg.is_read || false;
                     
                     html += `
                         <div data-message-id="${msg.id}" style="
@@ -6489,7 +6500,10 @@
                                 color: ${isMine ? 'white' : '#333'};
                             ">
                                 <div>${msg.content}</div>
-                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">${timeAgo}</div>
+                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">
+                                    ${timeAgo}
+                                    ${isMine && isRead ? '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>' : ''}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -6627,6 +6641,47 @@
         }
         
         let chatPollingInterval = null;
+        let readStatusPollingInterval = null;
+        
+        function setupReadStatusPolling() {
+            // Limpar polling anterior se existir
+            if (readStatusPollingInterval) {
+                clearInterval(readStatusPollingInterval);
+            }
+            
+            // Atualizar status de leitura a cada 5 segundos
+            readStatusPollingInterval = setInterval(async () => {
+                try {
+                    // Buscar mensagens enviadas por mim nesta conversa
+                    const { data: myMessages, error } = await supabase
+                        .from('messages')
+                        .select('id, is_read')
+                        .eq('conversation_id', currentConversationId)
+                        .eq('sender_id', currentUser.id);
+                    
+                    if (error) throw error;
+                    
+                    if (myMessages && myMessages.length > 0) {
+                        // Atualizar indicador "Lida" nas mensagens que foram lidas
+                        myMessages.forEach(msg => {
+                            const messageEl = document.querySelector(`[data-message-id="${msg.id}"]`);
+                            if (messageEl && msg.is_read) {
+                                const timeDiv = messageEl.querySelector('div > div:last-child');
+                                if (timeDiv && !timeDiv.innerHTML.includes('Lida')) {
+                                    // Adicionar indicador "Lida" se ainda não existe
+                                    const currentContent = timeDiv.innerHTML;
+                                    timeDiv.innerHTML = currentContent + '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>';
+                                }
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Erro no polling de status de leitura:', error);
+                }
+            }, 5000); // Verifica a cada 5 segundos
+            
+            console.log('✅ Polling de status de leitura iniciado (verifica a cada 5s)');
+        }
         
         function setupChatPolling() {
             // Limpar polling anterior se existir
@@ -6753,8 +6808,10 @@
                     const timeAgo = getTimeAgo(msg.created_at);
                     const isMine = msg.sender_id === currentUser.id;
                     
+                    const isRead = msg.is_read || false;
+                    
                     const messageHtml = `
-                        <div style="
+                        <div data-message-id="${msg.id}" style="
                             display: flex;
                             justify-content: ${isMine ? 'flex-end' : 'flex-start'};
                             margin-bottom: 12px;
@@ -6767,7 +6824,10 @@
                                 color: ${isMine ? 'white' : '#333'};
                             ">
                                 <div>${msg.content}</div>
-                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">${timeAgo}</div>
+                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">
+                                    ${timeAgo}
+                                    ${isMine && isRead ? '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>' : ''}
+                                </div>
                             </div>
                         </div>
                     `;
