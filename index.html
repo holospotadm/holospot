@@ -245,6 +245,7 @@
             /* Aproxima abas do header apenas no desktop */
             .nav-tabs {
                 top: 175px !important;
+                margin-bottom: 1.5rem !important;
             }
 
             /* Reorganiza header para desktop - 3 LINHAS */
@@ -16265,8 +16266,16 @@
                         // Calcular posição do botão ANTES de mostrar
                         const rect = inicioNavTab.getBoundingClientRect();
                         dropdown.style.top = `${rect.bottom + 8}px`;
-                        dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
-                        dropdown.style.transform = 'translateX(-50%)';
+                        
+                        // No mobile, alinhar com margem esquerda da aba
+                        if (window.innerWidth <= 768) {
+                            dropdown.style.left = `${rect.left}px`;
+                            dropdown.style.transform = 'none';
+                        } else {
+                            dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
+                            dropdown.style.transform = 'translateX(-50%)';
+                        }
+                        
                         dropdown.style.opacity = '0';
                         dropdown.style.display = 'block';
                         
