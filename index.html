@@ -7448,6 +7448,12 @@
                 console.log('📝 Carregando posts...');
                 console.log('🔍 [DEBUG] loadPosts chamado de:', new Error().stack);
                 
+                // Se há uma comunidade ativa, não carregar posts gerais
+                if (window.currentCommunityId) {
+                    console.log('⚠️ Feed de comunidade ativo, ignorando loadPosts()');
+                    return;
+                }
+                
                 // Limpar emoji e ID de comunidade (feed geral)
                 window.currentCommunityEmoji = null;
                 window.currentCommunityId = null;
