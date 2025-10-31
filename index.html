@@ -7871,9 +7871,9 @@
         
         // Função para carregar todos os feedbacks em lote
         async function loadAllFeedbacksInBatch() {
-            if (posts.length === 0) return;
+            if (window.posts.length === 0) return;
             
-            const postIds = posts.map(p => p.id);
+            const postIds = window.posts.map(p => p.id);
             console.log('🔍 Carregando todos os feedbacks em lote...');
             
             try {
@@ -7910,9 +7910,9 @@
         
         // Função para carregar todos os comentários em lote
         async function loadAllCommentsInBatch() {
-            if (posts.length === 0) return;
+            if (window.posts.length === 0) return;
             
-            const postIds = posts.map(p => p.id);
+            const postIds = window.posts.map(p => p.id);
             console.log('🔍 Carregando todos os comentários em lote...');
             
             try {
@@ -7997,8 +7997,8 @@
                         
                         // Usar cache para dados do usuário
                         const feedbackUser = profilesCache.get(feedback.mentioned_user_id);
-                        const feedbackUserName = feedbackUser?.name || feedbackUser?.email?.split('@')[0] || 'Usuário';
-                        const feedbackUsername = feedbackUser?.email?.split('@')[0] || 'usuario';
+                        const feedbackUserName = feedbackUser?.name || feedbackUser?.username || feedbackUser?.email?.split('@')[0] || 'Usuário';
+                        const feedbackUsername = feedbackUser?.username || feedbackUser?.email?.split('@')[0] || 'usuario';
                         
                         feedbacksHtml += `
                             <div class="feedback-section" style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; border-radius: 8px;">
