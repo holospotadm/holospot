@@ -17525,6 +17525,28 @@ async function loadCommunityPosts(communityId) {
     if (typeof renderPosts === 'function') {
         await renderPosts();
         console.log('✅ Posts da comunidade renderizados no feed principal');
+        
+        // Processar dados de usuários e reações em background (igual ao loadPosts)
+        setTimeout(async () => {
+            if (typeof processPostsUserData === 'function') {
+                await processPostsUserData();
+            }
+            if (typeof loadPostsReactions === 'function') {
+                await loadPostsReactions();
+            }
+            if (typeof loadAllFeedbacksInBatch === 'function') {
+                await loadAllFeedbacksInBatch();
+            }
+            if (typeof loadAllCommentsInBatch === 'function') {
+                await loadAllCommentsInBatch();
+            }
+            await renderPosts(); // Re-renderizar com dados completos
+            if (typeof processPostsForUsernames === 'function') {
+                processPostsForUsernames();
+            }
+            console.log('✅ Posts da comunidade processados com dados completos');
+        }, 100);
+        
         return;
     }
     
