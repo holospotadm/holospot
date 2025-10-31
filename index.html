@@ -129,11 +129,11 @@
             /* Reorganiza elementos para mobile */
             .header-content {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr auto 1fr;
                 grid-template-rows: auto auto;
                 grid-template-areas: 
-                    "logo logout"
-                    "user-section actions";
+                    ". logo logout"
+                    "user-section user-section actions";
                 gap: 0.5rem;
                 padding: 0;
                 max-width: 100%;
