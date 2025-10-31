@@ -17479,6 +17479,8 @@ async function removeMember(communityId, userId) {
 // ========== POSTS ==========
 
 async function loadCommunityPosts(communityId) {
+    console.log('👨‍👩‍👧‍👦 Carregando posts da comunidade:', communityId);
+    
     const { data: posts, error } = await supabase
         .from('posts')
         .select(`
@@ -17504,10 +17506,23 @@ async function loadCommunityPosts(communityId) {
         .limit(20);
     
     if (error) {
-        console.error('Erro ao carregar posts:', error);
+        console.error('❌ Erro ao carregar posts da comunidade:', error);
         return;
     }
     
+    console.log('✅ Posts da comunidade carregados:', posts?.length || 0);
+    
+    // Atualizar window.posts para que renderPosts() use os posts da comunidade
+    window.posts = posts || [];
+    
+    // Chamar renderPosts() para renderizar no container principal
+    if (typeof renderPosts === 'function') {
+        await renderPosts();
+        console.log('✅ Posts da comunidade renderizados no feed principal');
+        return;
+    }
+    
+    // Fallback: renderizar no container communityPosts (caso renderPosts não exista)
     const container = document.getElementById('communityPosts');
     if (!container) return;
     
