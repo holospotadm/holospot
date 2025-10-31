@@ -2676,7 +2676,7 @@
                 
                 <!-- Dropdown de Comunidade -->
                 <div class="form-group" id="destacarCommunityDropdownContainer" style="display: none;">
-                    <label class="form-label">Comunidade (opcional)</label>
+                    <label class="form-label">Feed</label>
                     <select id="destacarCommunitySelect" class="form-input" style="
                         width: 100%;
                         padding: 12px;
@@ -12094,7 +12094,7 @@
                 followingData = following;
             }
             
-            const followingList = await Promise.all(followingData.map(async f => {
+            const followingListRaw = await Promise.all(followingData.map(async f => {
                 // Tentar buscar dados reais do usuário incluindo avatar e username
                 let userName = 'Usuário';
                 let userAvatar = '';
@@ -12113,22 +12113,13 @@
                         username = userData.username || (userData.email ? userData.email.split('@')[0] : 'usuario');
                         userAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
                     } else {
-                        // Fallback com nome baseado no ID
-                        const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                        const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
-                        const nameIndex = f.following_id.charCodeAt(0) % names.length;
-                        userName = names[nameIndex];
-                        username = usernames[nameIndex];
-                        userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
+                        // Usuário não encontrado - não renderizar
+                        return null;
                     }
                 } catch (error) {
-                    // Fallback com nome baseado no ID
-                    const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                    const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
-                    const nameIndex = f.following_id.charCodeAt(0) % names.length;
-                    userName = names[nameIndex];
-                    username = usernames[nameIndex];
-                    userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff`;
+                    // Erro ao buscar usuário - não renderizar
+                    console.warn('⚠️ Erro ao buscar usuário:', error);
+                    return null;
                 }
                 
                 // Verificar se é o próprio usuário logado
@@ -12146,11 +12137,14 @@
                 `;
             }));
             
+            // Filtrar usuários que não foram encontrados (null)
+            const followingList = followingListRaw.filter(item => item !== null);
+            
             const modal = `
                 <div id="followingModal" class="modal-overlay" onclick="closeFollowingModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
-                            <h3>Seguindo (${followingData.length})</h3>
+                            <h3>Seguindo (${followingList.length})</h3>
                             <button class="modal-close" onclick="closeFollowingModal()">×</button>
                         </div>
                         <div class="modal-body">
@@ -12213,7 +12207,7 @@
                 followersData = followers;
             }
             
-            const followersList = await Promise.all(followersData.map(async f => {
+            const followersListRaw = await Promise.all(followersData.map(async f => {
                 // Tentar buscar dados reais do usuário incluindo avatar e username
                 let userName = 'Usuário';
                 let userAvatar = '';
@@ -12232,22 +12226,13 @@
                         username = userData.username || (userData.email ? userData.email.split('@')[0] : 'usuario');
                         userAvatar = userData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
                     } else {
-                        // Fallback com nome baseado no ID
-                        const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                        const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
-                        const nameIndex = f.follower_id.charCodeAt(0) % names.length;
-                        userName = names[nameIndex];
-                        username = usernames[nameIndex];
-                        userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
+                        // Usuário não encontrado - não renderizar
+                        return null;
                     }
                 } catch (error) {
-                    // Fallback com nome baseado no ID
-                    const names = ['Ana Silva', 'João Santos', 'Maria Oliveira', 'Pedro Costa', 'Carla Mendes', 'Lucas Ferreira'];
-                    const usernames = ['ana.silva', 'joao.santos', 'maria.oliveira', 'pedro.costa', 'carla.mendes', 'lucas.ferreira'];
-                    const nameIndex = f.follower_id.charCodeAt(0) % names.length;
-                    userName = names[nameIndex];
-                    username = usernames[nameIndex];
-                    userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=764ba2&color=fff`;
+                    // Erro ao buscar usuário - não renderizar
+                    console.warn('⚠️ Erro ao buscar usuário:', error);
+                    return null;
                 }
                 
                 // Verificar se é o próprio usuário logado
@@ -12265,11 +12250,14 @@
                 `;
             }));
             
+            // Filtrar usuários que não foram encontrados (null)
+            const followersList = followersListRaw.filter(item => item !== null);
+            
             const modal = `
                 <div id="followersModal" class="modal-overlay" onclick="closeFollowersModal()">
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
-                            <h3>Seguidores (${followersData.length})</h3>
+                            <h3>Seguidores (${followersList.length})</h3>
                             <button class="modal-close" onclick="closeFollowersModal()">×</button>
                         </div>
                         <div class="modal-body">
@@ -14569,7 +14557,7 @@
                 console.log('🔍 Buscando holofotes recebidos usando mentioned_user_id...');
                 console.log('Current user ID:', currentUser?.id);
                 
-                const postsAboutUser = posts.filter(post => {
+                const postsAboutUser = window.posts.filter(post => {
                     return post.mentioned_user_id === currentUser.id;
                 });
                 
