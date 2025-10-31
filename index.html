@@ -129,14 +129,15 @@
             /* Reorganiza elementos para mobile */
             .header-content {
                 display: grid;
-                grid-template-columns: auto 1fr auto;
+                grid-template-columns: 1fr 1fr;
                 grid-template-rows: auto auto;
                 grid-template-areas: 
-                    "user-section logo logout"
-                    "user-section . actions";
-                gap: 0.25rem 0.5rem;
+                    "logo logout"
+                    "user-section actions";
+                gap: 0.5rem;
                 padding: 0;
                 max-width: 100%;
+                align-items: center;
             }
 
             /* Botão Sair no topo direito (linha 1) */
@@ -148,7 +149,7 @@
                 font-size: 0.85rem;
             }
 
-            /* Logo centralizado (apenas linha 1) - REDUZIDO */
+            /* Logo centralizado (linha 1, coluna 1) */
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
@@ -162,7 +163,7 @@
                 height: auto !important;
             }
 
-            /* User info à esquerda (ocupa 2 linhas) */
+            /* User info embaixo à esquerda (linha 2) */
             .user-section {
                 grid-area: user-section;
                 justify-self: start !important;
@@ -171,7 +172,6 @@
                 align-items: center;
                 gap: 0.5rem;
                 max-width: none;
-                grid-row: 1 / 3;
             }
 
             .user-avatar {
@@ -1546,7 +1546,7 @@
 
             .nav-tabs {
                 flex-wrap: wrap;
-                top: 140px !important;
+                top: 150px !important;
             }
 
             .nav-tab {
