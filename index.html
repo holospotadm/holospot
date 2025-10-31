@@ -3849,17 +3849,68 @@
                         console.error('❌ Erro ao carregar dados do usuário:', error);
                     }
                     
+                    // Buscar default_feed do perfil ANTES de carregar posts
                     try {
-                        console.log('📝 Carregando posts...');
-                        await loadPosts();
+                        console.log('🔍 Verificando feed padrão do usuário...');
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('default_feed')
+                            .eq('id', currentUser.id)
+                            .single();
                         
-                        // Atualizar contador de mensagens não lidas
+                        const userDefaultFeed = profile?.default_feed;
+                        console.log('👁️ Feed padrão do perfil:', userDefaultFeed);
+                        
+                        // Prioridade: default_feed do perfil > localStorage > 'recommended'
+                        const savedFilter = userDefaultFeed || localStorage.getItem('feedFilter') || 'recommended';
+                        window.currentFeedFilter = savedFilter;
+                        
+                        // Sincronizar localStorage com preferência do usuário
+                        if (userDefaultFeed) {
+                            localStorage.setItem('feedFilter', userDefaultFeed);
+                        }
+                        
+                        console.log('🎯 Feed selecionado:', savedFilter);
+                        
+                        // Se for feed de comunidade, carregar comunidade
+                        if (savedFilter && savedFilter.startsWith('community-')) {
+                            const communityId = savedFilter.replace('community-', '');
+                            console.log('👨‍👩‍👧‍👦 Feed padrão é de comunidade:', communityId);
+                            
+                            window.currentCommunityId = communityId;
+                            window.feedInitialized = true;
+                            
+                            // Carregar posts da comunidade
+                            if (typeof loadCommunityPosts === 'function') {
+                                await loadCommunityPosts(communityId);
+                            }
+                        } else {
+                            // Feed normal (recommended ou following)
+                            window.currentCommunityId = null;
+                            window.currentCommunityEmoji = null;
+                            window.feedInitialized = true;
+                            
+                            console.log('📝 Carregando posts do feed normal...');
+                            await loadPosts();
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro ao verificar feed padrão:', error);
+                        // Fallback: carregar feed normal
+                        window.feedInitialized = true;
+                        console.log('📝 Carregando posts (fallback)...');
+                        try {
+                            await loadPosts();
+                        } catch (e) {
+                            console.error('❌ Erro ao carregar posts:', e);
+                        }
+                    }
+                    
+                    // Atualizar contador de mensagens não lidas
+                    try {
                         await updateUnreadCount();
-                        
-                        // Iniciar polling global para atualizar contador em tempo real
                         startUnreadCountPolling();
                     } catch (error) {
-                        console.error('❌ Erro ao carregar posts:', error);
+                        console.error('❌ Erro ao atualizar contador:', error);
                     }
                     
                     try {
@@ -16172,36 +16223,16 @@
         });
 
         document.addEventListener('DOMContentLoaded', async function() {
-            // Inicializar filtro de feed
-            // Prioridade: default_feed do perfil (tabela profiles) > localStorage > 'recommended'
+            // A verificação de default_feed foi movida para o DOMContentLoaded principal
+            // Aqui apenas atualizamos a UI do filtro baseado no currentFeedFilter já definido
             
-            // Buscar default_feed da tabela profiles
-            let userDefaultFeed = null;
-            if (currentUser) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('default_feed')
-                    .eq('id', currentUser.id)
-                    .single();
-                
-                userDefaultFeed = profile?.default_feed;
-                console.log('👁️ Feed padrão do perfil:', userDefaultFeed);
-            }
+            const savedFilter = window.currentFeedFilter || 'recommended';
             
-            const savedFilter = userDefaultFeed || localStorage.getItem('feedFilter') || 'recommended';
-            window.currentFeedFilter = savedFilter;
-            
-            // Sincronizar localStorage com preferência do usuário
-            if (userDefaultFeed) {
-                localStorage.setItem('feedFilter', userDefaultFeed);
-            }
-            
-            // Atualizar APENAS a UI inicial (sem chamar loadPosts)
+            // Atualizar APENAS a UI do emoji e dropdown (posts já foram carregados no DOMContentLoaded principal)
             setTimeout(async () => {
-                // Se o feed padrão for de uma comunidade, carregar o feed da comunidade
+                // Buscar emoji da comunidade se necessário
                 if (savedFilter && savedFilter.startsWith('community-')) {
                     const communityId = savedFilter.replace('community-', '');
-                    console.log('👨‍👩‍👧‍👦 Feed padrão é de comunidade:', communityId);
                     
                     // Buscar dados da comunidade para atualizar emoji
                     const { data: community } = await supabase
@@ -16214,44 +16245,24 @@
                     const emoji = document.getElementById('feedEmoji');
                     if (emoji && community) {
                         emoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
+                        window.currentCommunityEmoji = community.emoji;
                     }
-                    
-                    // Armazenar ID da comunidade ativa
-                    window.currentCommunityId = communityId;
-                    
-                    // Carregar posts da comunidade
-                    if (typeof loadCommunityPosts === 'function') {
-                        await loadCommunityPosts(communityId);
-                    }
-                    
-                    // Marcar feed como inicializado
-                    window.feedInitialized = true;
-                    console.log('✅ Feed inicializado (comunidade)');
                 } else {
                     // Atualizar emoji para feeds padrões
                     const emoji = document.getElementById('feedEmoji');
                     if (emoji) {
                         emoji.textContent = savedFilter === 'following' ? '👥' : '🌍';
                     }
-                    
-                    // Atualizar dropdown
-                    document.querySelectorAll('.filter-option').forEach(option => {
-                        if (option.dataset.filter === savedFilter) {
-                            option.classList.add('active');
-                        } else {
-                            option.classList.remove('active');
-                        }
-                    });
-                    
-                    // Marcar feed como inicializado e carregar posts normais
-                    window.feedInitialized = true;
-                    console.log('✅ Feed inicializado (feed normal)');
-                    
-                    // Carregar posts do feed normal
-                    if (typeof loadPosts === 'function') {
-                        await loadPosts();
-                    }
                 }
+                
+                // Atualizar dropdown
+                document.querySelectorAll('.filter-option').forEach(option => {
+                    if (option.dataset.filter === savedFilter) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
                 
                 console.log('✅ [DEBUG] UI do filtro inicializada');
             }, 100);
