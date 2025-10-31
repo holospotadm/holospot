@@ -14553,22 +14553,28 @@
 
                 // ===== CÁLCULOS DAS MÉTRICAS RECEBIDAS =====
 
-                // 1. Holofotes Recebidos (posts que mencionaram o usuário)
-                console.log('🔍 Buscando holofotes recebidos usando mentioned_user_id...');
+                // 1. Holofotes Recebidos (posts que mencionaram o usuário) - BUSCAR DO BANCO
+                console.log('🔍 Buscando holofotes recebidos do banco usando mentioned_user_id...');
                 console.log('Current user ID:', currentUser?.id);
                 
-                const postsAboutUser = window.posts.filter(post => {
-                    return post.mentioned_user_id === currentUser.id;
-                });
+                const { data: postsAboutUser, error: holofotesError } = await supabase
+                    .from('posts')
+                    .select('id, user_id, mentioned_user_id')
+                    .eq('mentioned_user_id', currentUser.id);
                 
-                console.log('Posts about user encontrados:', postsAboutUser.length);
+                if (holofotesError) {
+                    console.error('❌️ Erro ao buscar holofotes:', holofotesError);
+                }
+                
+                const holofotesCount = postsAboutUser?.length || 0;
+                console.log('Posts about user encontrados:', holofotesCount);
                 console.log('Posts details:', postsAboutUser);
                 
-                document.getElementById('userHolofotesReceived').textContent = postsAboutUser.length;
+                document.getElementById('userHolofotesReceived').textContent = holofotesCount;
 
                 // 2. Pessoas que te Destacaram (pessoas únicas que mencionaram o usuário)
                 const peopleWhoHighlighted = new Set();
-                postsAboutUser.forEach(post => {
+                (postsAboutUser || []).forEach(post => {
                     peopleWhoHighlighted.add(post.user_id);
                 });
                 document.getElementById('userPeopleWhoHighlighted').textContent = peopleWhoHighlighted.size;
