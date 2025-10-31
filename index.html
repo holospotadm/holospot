@@ -8838,7 +8838,10 @@
             
             // Focar no textarea
             setTimeout(() => {
-                document.getElementById('feedbackText').focus();
+                const feedbackTextarea = document.getElementById('feedbackText');
+                if (feedbackTextarea) {
+                    feedbackTextarea.focus();
+                }
             }, 100);
         }
 
