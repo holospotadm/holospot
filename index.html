@@ -130,8 +130,8 @@
                 grid-template-areas: 
                     ". logo logout"
                     "user-section . actions";
-                gap: 0.5rem 1rem;
-                padding: 0.5rem 0;
+                gap: 0.25rem 0.5rem;
+                padding: 0.5rem 0.5rem;
             }
 
             /* Botão Sair no topo direito (linha 1) */
@@ -139,15 +139,22 @@
                 grid-area: logout;
                 justify-self: end !important;
                 align-self: start !important;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
             }
 
-            /* Logo centralizado (apenas linha 1) */
+            /* Logo centralizado (apenas linha 1) - REDUZIDO */
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
                 align-self: center !important;
                 display: flex;
                 align-items: center;
+            }
+
+            .logo img {
+                width: 120px !important;
+                height: auto !important;
             }
 
             /* User info embaixo à esquerda (linha 2) */
@@ -157,7 +164,29 @@
                 align-self: end !important;
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
+                gap: 0.5rem;
+                max-width: 140px;
+            }
+
+            .user-avatar {
+                width: 32px !important;
+                height: 32px !important;
+            }
+
+            .user-name {
+                font-size: 0.85rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100px;
+            }
+
+            .user-username {
+                font-size: 0.7rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100px;
             }
 
             /* Notificações e chat embaixo à direita (linha 2) */
@@ -166,7 +195,7 @@
                 justify-self: end !important;
                 align-self: end !important;
                 display: flex;
-                gap: 0.5rem;
+                gap: 0.4rem;
                 align-items: center;
             }
 
@@ -180,6 +209,9 @@
 
             .chat-btn-header {
                 order: 2;
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
             }
 
             /* Alinhar dropdown de feed com margem esquerda */
@@ -206,7 +238,7 @@
 
             /* Aproxima abas do header apenas no desktop */
             .nav-tabs {
-                top: 160px !important;
+                top: 180px !important;
             }
 
             /* Reorganiza header para desktop - 3 LINHAS */
@@ -1508,7 +1540,7 @@
 
             .nav-tabs {
                 flex-wrap: wrap;
-                top: 200px !important;
+                top: 140px !important;
             }
 
             .nav-tab {
