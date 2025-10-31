@@ -16277,14 +16277,8 @@
                     }
                 }
                 
-                // Atualizar dropdown
-                document.querySelectorAll('.filter-option').forEach(option => {
-                    if (option.dataset.filter === savedFilter) {
-                        option.classList.add('active');
-                    } else {
-                        option.classList.remove('active');
-                    }
-                });
+                // Atualizar dropdown (será feito por updateDropdownActiveState)
+                updateDropdownActiveState();
                 
                 console.log('✅ [DEBUG] UI do filtro inicializada');
             }, 100);
@@ -16727,6 +16721,22 @@ async function loadUserCommunities() {
     }
 }
 
+// Atualizar estado ativo do dropdown
+function updateDropdownActiveState() {
+    const currentFilter = window.currentFeedFilter;
+    if (!currentFilter) return;
+    
+    document.querySelectorAll('.filter-option').forEach(option => {
+        if (option.dataset.filter === currentFilter) {
+            option.classList.add('active');
+        } else {
+            option.classList.remove('active');
+        }
+    });
+    
+    console.log('✅ Dropdown atualizado, filtro ativo:', currentFilter);
+}
+
 // Popular dropdown do Feed (aba Início)
 function populateFeedDropdown() {
     const dropdown = document.getElementById('feedFilterDropdown');
@@ -16738,16 +16748,29 @@ function populateFeedDropdown() {
 
     // Adicionar comunidades
     if (userCommunities.length > 0) {
+        const currentFilter = window.currentFeedFilter;
+        
         userCommunities.forEach(community => {
             const option = document.createElement('div');
             option.className = 'filter-option';
-            option.setAttribute('data-filter', `community-${community.id}`);
+            const filterValue = `community-${community.id}`;
+            option.setAttribute('data-filter', filterValue);
             option.innerHTML = `<span>${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}</span>`;
+            
+            // Marcar como ativa se for o feed atual
+            if (currentFilter === filterValue) {
+                option.classList.add('active');
+                console.log('✅ Opção de comunidade marcada como ativa:', community.name);
+            }
+            
             dropdown.appendChild(option);
         });
 
         console.log('✅ Dropdown do Feed atualizado com', userCommunities.length, 'comunidades');
     }
+    
+    // Atualizar opções padrões (recommended, following) também
+    updateDropdownActiveState();
 }
 
 // Popular dropdown do Destacar
