@@ -7126,10 +7126,18 @@
                     console.log('✅ Mensagem salva no banco!', savedMessage);
                     
                     // Atualizar updated_at da conversa para ordenação
-                    await supabase
+                    console.log('🔄 Atualizando updated_at da conversa:', currentConversationId);
+                    const { data: updatedConv, error: updateError } = await supabase
                         .from('conversations')
                         .update({ updated_at: new Date().toISOString() })
-                        .eq('id', currentConversationId);
+                        .eq('id', currentConversationId)
+                        .select();
+                    
+                    if (updateError) {
+                        console.error('❌ Erro ao atualizar updated_at:', updateError);
+                    } else {
+                        console.log('✅ updated_at atualizado com sucesso:', updatedConv);
+                    }
                     
                     // Atualizar data-message-id no DOM do ID temporário para o ID real
                     if (savedMessage && savedMessage.id) {
@@ -7277,10 +7285,18 @@
                             updateUnreadCount();
                             
                             // Atualizar updated_at da conversa para ordenar no topo
-                            await supabase
+                            console.log('🔄 [RECEBIDA] Atualizando updated_at da conversa:', currentConversationId);
+                            const { data: updatedConv, error: updateError } = await supabase
                                 .from('conversations')
                                 .update({ updated_at: new Date().toISOString() })
-                                .eq('id', currentConversationId);
+                                .eq('id', currentConversationId)
+                                .select();
+                            
+                            if (updateError) {
+                                console.error('❌ [RECEBIDA] Erro ao atualizar updated_at:', updateError);
+                            } else {
+                                console.log('✅ [RECEBIDA] updated_at atualizado com sucesso:', updatedConv);
+                            }
                         }
                     }
                 } catch (error) {
