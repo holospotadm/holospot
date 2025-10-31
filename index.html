@@ -17522,18 +17522,33 @@ async function loadCommunityPosts(communityId) {
     console.log('✅ Posts da comunidade carregados:', posts?.length || 0);
     
     // Transformar dados de profiles para formato esperado por processPostsUserData
+    console.log('🔄 Transformando dados de profiles para author_*...');
     const transformedPosts = (posts || []).map(post => {
+        console.log('🔍 Post antes da transformação:', {
+            id: post.id,
+            hasProfiles: !!post.profiles,
+            profiles: post.profiles
+        });
+        
         // Se profiles existe (join funcionou), transformar para author_*
         if (post.profiles) {
-            return {
+            const transformed = {
                 ...post,
                 author_name: post.profiles.name,
                 author_username: post.profiles.username,
                 author_avatar_url: post.profiles.avatar_url
             };
+            console.log('✅ Post transformado:', {
+                id: transformed.id,
+                author_name: transformed.author_name,
+                author_username: transformed.author_username
+            });
+            return transformed;
         }
+        console.log('⚠️ Post sem profiles, usando fallback');
         return post;
     });
+    console.log('✅ Transformação concluída:', transformedPosts.length, 'posts');
     
     // Atualizar window.posts para que renderPosts() use os posts da comunidade
     window.posts = transformedPosts;
