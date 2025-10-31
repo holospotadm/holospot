@@ -17622,8 +17622,15 @@ async function loadCommunityPosts(communityId) {
     // Finalizar loading
     window.isLoadingPosts = false;
     
-    // Chamar renderPosts() para renderizar no container principal
-    if (typeof renderPosts === 'function') {
+    // Verificar se deve renderizar no modal de gerenciamento
+    const modalContainer = document.getElementById('communityPosts');
+    const isModalVisible = modalContainer && modalContainer.offsetParent !== null;
+    
+    // Se modal está visível, renderizar nele ao invés do feed principal
+    if (isModalVisible) {
+        console.log('📝 Renderizando posts no modal de gerenciamento');
+        // Pular para renderização no modal (linha 17654+)
+    } else if (typeof renderPosts === 'function') {
         await renderPosts();
         console.log('✅ Posts da comunidade renderizados no feed principal');
         
@@ -17651,13 +17658,16 @@ async function loadCommunityPosts(communityId) {
         return;
     }
     
-    // Fallback: renderizar no container communityPosts (caso renderPosts não exista)
+    // Renderizar no container communityPosts do modal
     const container = document.getElementById('communityPosts');
     if (!container) return;
     
     container.innerHTML = '';
     
-    if (!posts || posts.length === 0) {
+    // Usar transformedPosts ao invés de posts
+    const postsToRender = transformedPosts || posts || [];
+    
+    if (postsToRender.length === 0) {
         // Buscar emoji da comunidade
         const { data: community } = await supabase
             .from('communities')
@@ -17701,7 +17711,7 @@ async function loadCommunityPosts(communityId) {
         'admiracao': 'Admiração', 'admiration': 'Admiração'
     };
     
-    posts.forEach(post => {
+    postsToRender.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.style.cssText = `
             padding: 1.5rem;
