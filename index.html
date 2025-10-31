@@ -16141,10 +16141,23 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Inicializar filtro de feed
-            // Prioridade: default_feed do perfil > localStorage > 'recommended'
-            const userDefaultFeed = currentUser?.user_metadata?.default_feed;
+            // Prioridade: default_feed do perfil (tabela profiles) > localStorage > 'recommended'
+            
+            // Buscar default_feed da tabela profiles
+            let userDefaultFeed = null;
+            if (currentUser) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('default_feed')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                userDefaultFeed = profile?.default_feed;
+                console.log('👁️ Feed padrão do perfil:', userDefaultFeed);
+            }
+            
             const savedFilter = userDefaultFeed || localStorage.getItem('feedFilter') || 'recommended';
             window.currentFeedFilter = savedFilter;
             
