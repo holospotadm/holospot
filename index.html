@@ -7125,18 +7125,17 @@
                     
                     console.log('✅ Mensagem salva no banco!', savedMessage);
                     
-                    // Atualizar updated_at da conversa para ordenação
-                    console.log('🔄 Atualizando updated_at da conversa:', currentConversationId);
-                    const { data: updatedConv, error: updateError } = await supabase
-                        .from('conversations')
-                        .update({ updated_at: new Date().toISOString() })
-                        .eq('id', currentConversationId)
-                        .select();
+                    // Atualizar updated_at da conversa via RPC (bypass RLS)
+                    console.log('🔄 Atualizando updated_at via RPC:', currentConversationId);
+                    const { error: rpcError } = await supabase
+                        .rpc('update_conversation_timestamp', {
+                            conversation_id_param: currentConversationId
+                        });
                     
-                    if (updateError) {
-                        console.error('❌ Erro ao atualizar updated_at:', updateError);
+                    if (rpcError) {
+                        console.error('❌ Erro ao atualizar via RPC:', rpcError);
                     } else {
-                        console.log('✅ updated_at atualizado com sucesso:', updatedConv);
+                        console.log('✅ updated_at atualizado via RPC');
                     }
                     
                     // Atualizar data-message-id no DOM do ID temporário para o ID real
@@ -7284,18 +7283,17 @@
                             // Atualizar contador global de não lidas
                             updateUnreadCount();
                             
-                            // Atualizar updated_at da conversa para ordenar no topo
-                            console.log('🔄 [RECEBIDA] Atualizando updated_at da conversa:', currentConversationId);
-                            const { data: updatedConv, error: updateError } = await supabase
-                                .from('conversations')
-                                .update({ updated_at: new Date().toISOString() })
-                                .eq('id', currentConversationId)
-                                .select();
+                            // Atualizar updated_at da conversa via RPC (bypass RLS)
+                            console.log('🔄 [RECEBIDA] Atualizando updated_at via RPC:', currentConversationId);
+                            const { error: rpcError } = await supabase
+                                .rpc('update_conversation_timestamp', {
+                                    conversation_id_param: currentConversationId
+                                });
                             
-                            if (updateError) {
-                                console.error('❌ [RECEBIDA] Erro ao atualizar updated_at:', updateError);
+                            if (rpcError) {
+                                console.error('❌ [RECEBIDA] Erro ao atualizar via RPC:', rpcError);
                             } else {
-                                console.log('✅ [RECEBIDA] updated_at atualizado com sucesso:', updatedConv);
+                                console.log('✅ [RECEBIDA] updated_at atualizado via RPC');
                             }
                         }
                     }
