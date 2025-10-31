@@ -7125,6 +7125,12 @@
                     
                     console.log('✅ Mensagem salva no banco!', savedMessage);
                     
+                    // Atualizar updated_at da conversa para ordenação
+                    await supabase
+                        .from('conversations')
+                        .update({ updated_at: new Date().toISOString() })
+                        .eq('id', currentConversationId);
+                    
                     // Atualizar data-message-id no DOM do ID temporário para o ID real
                     if (savedMessage && savedMessage.id) {
                         const tempMessageEl = document.querySelector(`[data-message-id="${tempId}"]`);
@@ -7269,6 +7275,12 @@
                             
                             // Atualizar contador global de não lidas
                             updateUnreadCount();
+                            
+                            // Atualizar updated_at da conversa para ordenar no topo
+                            await supabase
+                                .from('conversations')
+                                .update({ updated_at: new Date().toISOString() })
+                                .eq('id', currentConversationId);
                         }
                     }
                 } catch (error) {
