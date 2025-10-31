@@ -17487,6 +17487,9 @@ async function removeMember(communityId, userId) {
 async function loadCommunityPosts(communityId) {
     console.log('👨‍👩‍👧‍👦 Carregando posts da comunidade:', communityId);
     
+    // Marcar como carregando
+    window.isLoadingPosts = true;
+    
     const { data: posts, error } = await supabase
         .from('posts')
         .select(`
@@ -17520,6 +17523,9 @@ async function loadCommunityPosts(communityId) {
     
     // Atualizar window.posts para que renderPosts() use os posts da comunidade
     window.posts = posts || [];
+    
+    // Finalizar loading
+    window.isLoadingPosts = false;
     
     // Chamar renderPosts() para renderizar no container principal
     if (typeof renderPosts === 'function') {
