@@ -3880,6 +3880,21 @@
                             window.currentCommunityId = communityId;
                             window.feedInitialized = true;
                             
+                            // Buscar dados da comunidade para atualizar emoji
+                            const { data: community } = await supabase
+                                .from('communities')
+                                .select('emoji, name')
+                                .eq('id', communityId)
+                                .single();
+                            
+                            // Atualizar emoji do feed na UI
+                            const emojiElement = document.getElementById('feedEmoji');
+                            if (emojiElement && community) {
+                                emojiElement.textContent = community.emoji || '👨‍👩‍👧‍👦';
+                                window.currentCommunityEmoji = community.emoji;
+                                console.log('✅ Emoji atualizado para:', community.emoji);
+                            }
+                            
                             // Carregar posts da comunidade
                             if (typeof loadCommunityPosts === 'function') {
                                 await loadCommunityPosts(communityId);
@@ -3889,6 +3904,13 @@
                             window.currentCommunityId = null;
                             window.currentCommunityEmoji = null;
                             window.feedInitialized = true;
+                            
+                            // Atualizar emoji para feeds normais
+                            const emojiElement = document.getElementById('feedEmoji');
+                            if (emojiElement) {
+                                emojiElement.textContent = savedFilter === 'following' ? '👥' : '🌍';
+                                console.log('✅ Emoji atualizado para feed normal:', emojiElement.textContent);
+                            }
                             
                             console.log('📝 Carregando posts do feed normal...');
                             await loadPosts();
