@@ -17064,8 +17064,8 @@ function showCommunityInfo(community) {
     // Carregar membros
     loadCommunityMembers(community.id);
     
-    // Carregar posts
-    loadCommunityPosts(community.id);
+    // Carregar posts (forceModal=true para garantir renderização no modal)
+    loadCommunityPosts(community.id, true);
 }
 
 // ========== CRIAR COMUNIDADE ==========
@@ -17550,7 +17550,7 @@ async function removeMember(communityId, userId) {
 
 // ========== POSTS ==========
 
-async function loadCommunityPosts(communityId) {
+async function loadCommunityPosts(communityId, forceModal = false) {
     console.log('👨‍👩‍👧‍👦 Carregando posts da comunidade:', communityId);
     
     // Marcar como carregando
@@ -17624,9 +17624,9 @@ async function loadCommunityPosts(communityId) {
     
     // Verificar se deve renderizar no modal de gerenciamento
     const modalContainer = document.getElementById('communityPosts');
-    const isModalVisible = modalContainer && modalContainer.offsetParent !== null;
+    const isModalVisible = forceModal || (modalContainer && modalContainer.offsetParent !== null);
     
-    // Se modal está visível, renderizar nele ao invés do feed principal
+    // Se modal está visível ou forceModal=true, renderizar nele ao invés do feed principal
     if (isModalVisible) {
         console.log('📝 Renderizando posts no modal de gerenciamento');
         // Pular para renderização no modal (linha 17654+)
