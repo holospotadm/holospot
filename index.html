@@ -11292,7 +11292,7 @@
                 // Buscar TODOS os posts do usuário diretamente do Supabase
                 const { data: myPosts, error } = await supabase
                     .from('posts')
-                    .select('id, reactions, comments, feedbacks')
+                    .select('id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (error) {
@@ -11335,7 +11335,7 @@
                 // Buscar TODOS os posts do usuário diretamente do Supabase
                 const { data: myPosts, error } = await supabase
                     .from('posts')
-                    .select('id, reactions, comments, feedbacks')
+                    .select('id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (error) {
@@ -11395,7 +11395,7 @@
                 // Buscar TODOS os posts do usuário diretamente do Supabase
                 const { data: userPosts, error } = await supabase
                     .from('posts')
-                    .select('id, reactions, comments, feedbacks')
+                    .select('id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (error) {
