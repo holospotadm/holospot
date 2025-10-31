@@ -13457,51 +13457,24 @@
             try {
                 console.log('👥 Carregando pessoas destacadas no modal...');
                 console.log('🔍 Current user ID:', currentUser.id);
-                console.log('🔍 Total posts carregados:', posts?.length || 0);
                 
                 if (!currentUser || !currentUser.id) {
                     console.error('❌ currentUser não está definido em loadPeopleHighlightedInModal');
                     throw new Error('Usuário não identificado');
                 }
                 
-                if (!posts || !Array.isArray(posts)) {
-                    console.error('❌ Array posts não está definido ou não é um array');
-                    throw new Error('Dados de posts não disponíveis');
+                // Buscar posts do usuário diretamente do banco
+                const { data: userPosts, error: postsError } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+                
+                if (postsError) {
+                    console.error('❌ Erro ao buscar posts do banco:', postsError);
+                    throw new Error('Erro ao carregar posts');
                 }
                 
-                // Debug: mostrar TODOS os posts e seus user_ids
-                console.log('🔍 TODOS os posts disponíveis:');
-                posts.forEach((post, index) => {
-                    console.log(`Post ${index + 1}:`, {
-                        id: post.id,
-                        user_id: post.user_id,
-                        mentioned_user_id: post.mentioned_user_id,
-                        author: post.user_data?.name || 'Unknown',
-                        isCurrentUser: post.user_id === currentUser.id
-                    });
-                });
-                
-                const userPosts = posts.filter(post => post.user_id === currentUser.id);
-                console.log('🔍 Posts filtrados para o usuário atual:', userPosts.length);
-                
-                // Se não encontrou posts, verificar se há posts com email similar
-                if (userPosts.length === 0) {
-                    console.log('⚠️ Nenhum post encontrado para user_id. Verificando por email...');
-                    const userEmail = currentUser.email;
-                    const postsByEmail = posts.filter(post => 
-                        post.user_data?.email === userEmail || 
-                        post.user_data?.email?.includes(userEmail?.split('@')[0])
-                    );
-                    console.log('🔍 Posts encontrados por email:', postsByEmail.length);
-                    postsByEmail.forEach(post => {
-                        console.log('📧 Post por email:', {
-                            id: post.id,
-                            user_id: post.user_id,
-                            email: post.user_data?.email,
-                            mentioned_user_id: post.mentioned_user_id
-                        });
-                    });
-                }
+                console.log('🔍 Total posts do usuário:', userPosts?.length || 0);
                 const peopleHighlighted = new Set();
                 const peopleDetails = [];
                 
@@ -14257,13 +14230,19 @@
             try {
                 console.log('👥 Carregando pessoas que te destacaram no modal...');
                 
-                // Encontrar posts que mencionaram o usuário atual usando mentioned_user_id
-                const postsAboutUser = posts.filter(post => {
-                    return post.mentioned_user_id === currentUser.id;
-                });
+                // Buscar posts que mencionaram o usuário atual diretamente do banco
+                const { data: postsAboutUser, error: holofotesError } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('mentioned_user_id', currentUser.id);
+                
+                if (holofotesError) {
+                    console.error('❌ Erro ao buscar holofotes do banco:', holofotesError);
+                    throw new Error('Erro ao carregar holofotes');
+                }
 
                 // Extrair IDs únicos dos autores que destacaram o usuário
-                const authorIds = [...new Set(postsAboutUser.map(post => post.user_id))];
+                const authorIds = [...new Set((postsAboutUser || []).map(post => post.user_id))];
                 
                 if (authorIds.length === 0) {
                     const modalContent = document.getElementById('modalPessoasQueTeDestacaramContent');
