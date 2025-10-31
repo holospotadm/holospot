@@ -6133,3 +6133,27 @@ COMMENT ON FUNCTION public.get_community_feed IS
 
 -- ============================================================================
 
+
+-- ============================================================================
+-- FUNÇÃO: update_conversation_timestamp
+-- ============================================================================
+-- Descrição: Atualiza o campo updated_at de uma conversa para ordenação
+-- Uso: Chamada via RPC ao enviar/receber mensagens no chat
+-- Security: DEFINER (bypass RLS) para permitir update do timestamp
+-- Criado em: 2024-10-31
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION update_conversation_timestamp(conversation_id_param UUID)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE conversations
+  SET updated_at = NOW()
+  WHERE id = conversation_id_param;
+END;
+$$;
+
+-- Dar permissão para usuários autenticados chamarem esta função
+GRANT EXECUTE ON FUNCTION update_conversation_timestamp(UUID) TO authenticated;
