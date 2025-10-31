@@ -8322,7 +8322,7 @@
                 console.log(`📊 Atualizando contador de comentários do post ${postId}: ${commentCount}`);
                 
                 // 🔧 CORREÇÃO: Atualizar comments_count no array global de posts
-                const post = posts.find(p => p.id === postId);
+                const post = window.posts.find(p => p.id === postId);
                 if (post) {
                     post.comments_count = commentCount;
                     console.log(`✅ comments_count atualizado no post ${postId}: ${commentCount}`);
@@ -8526,7 +8526,7 @@
                 console.log(`💖 Tentando ${type} no post:`, postId);
                 
                 // Buscar post diretamente do banco se não estiver no array global
-                let post = posts.find(p => p.id === postId);
+                let post = window.posts.find(p => p.id === postId);
                 
                 if (!post) {
                     console.log('🔍 Post não encontrado no array local, buscando no banco...');
@@ -8711,7 +8711,7 @@
             }
             
             // Encontrar o post
-            const post = posts.find(p => p.id === postId);
+            const post = window.posts.find(p => p.id === postId);
             if (!post) {
                 console.error('❌ Post não encontrado:', postId);
                 alert('Erro: Post não encontrado.');
@@ -8860,7 +8860,7 @@
             try {
                 console.log('💬 Enviando feedback para post:', postId);
                 
-                const post = posts.find(p => p.id === postId);
+                const post = window.posts.find(p => p.id === postId);
                 if (!post) {
                     throw new Error('Post não encontrado');
                 }
@@ -13996,7 +13996,7 @@
                 
                 // Buscar reações do cache (se disponível) ou fazer consulta
                 let reactionCounts = { heart: 0, gratitude: 0, inspiration: 0 };
-                const post = posts.find(p => p.id === postId);
+                const post = window.posts.find(p => p.id === postId);
                 if (post && post.reactions) {
                     post.reactions.forEach(reaction => {
                         if (reaction.type === 'touched') reactionCounts.heart++;
