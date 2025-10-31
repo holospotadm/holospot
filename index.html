@@ -11289,9 +11289,18 @@
             try {
                 if (!currentUser || !currentUser.id) return 0;
                 
-                // Buscar posts do usuário
-                const myPosts = posts.filter(post => post.user_id === currentUser.id);
-                if (myPosts.length === 0) return 0;
+                // Buscar TODOS os posts do usuário diretamente do Supabase
+                const { data: myPosts, error } = await supabase
+                    .from('posts')
+                    .select('id, reactions, comments, feedbacks')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar posts para engagement:', error);
+                    return 0;
+                }
+                
+                if (!myPosts || myPosts.length === 0) return 0;
                 
                 let totalInteractions = 0;
                 
@@ -11323,9 +11332,18 @@
             try {
                 if (!currentUser || !currentUser.id) return 0;
                 
-                // Buscar posts do usuário
-                const myPosts = posts.filter(post => post.user_id === currentUser.id);
-                if (myPosts.length === 0) return 0;
+                // Buscar TODOS os posts do usuário diretamente do Supabase
+                const { data: myPosts, error } = await supabase
+                    .from('posts')
+                    .select('id, reactions, comments, feedbacks')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar posts para impact:', error);
+                    return 0;
+                }
+                
+                if (!myPosts || myPosts.length === 0) return 0;
 
                 let totalPessoasQueEngajaram = 0;
 
@@ -11372,8 +11390,20 @@
 
         async function calculateEffectiveReach() {
             try {
-                // Buscar posts do usuário com contagem de interações
-                const userPosts = posts.filter(p => p.user_id === currentUser.id);
+                if (!currentUser || !currentUser.id) return 0;
+                
+                // Buscar TODOS os posts do usuário diretamente do Supabase
+                const { data: userPosts, error } = await supabase
+                    .from('posts')
+                    .select('id, reactions, comments, feedbacks')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar posts para reach:', error);
+                    return 0;
+                }
+                
+                if (!userPosts || userPosts.length === 0) return 0;
                 
                 let postsWithInteraction = 0;
                 
