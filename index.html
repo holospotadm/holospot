@@ -17521,8 +17521,22 @@ async function loadCommunityPosts(communityId) {
     
     console.log('✅ Posts da comunidade carregados:', posts?.length || 0);
     
+    // Transformar dados de profiles para formato esperado por processPostsUserData
+    const transformedPosts = (posts || []).map(post => {
+        // Se profiles existe (join funcionou), transformar para author_*
+        if (post.profiles) {
+            return {
+                ...post,
+                author_name: post.profiles.name,
+                author_username: post.profiles.username,
+                author_avatar_url: post.profiles.avatar_url
+            };
+        }
+        return post;
+    });
+    
     // Atualizar window.posts para que renderPosts() use os posts da comunidade
-    window.posts = posts || [];
+    window.posts = transformedPosts;
     
     // Finalizar loading
     window.isLoadingPosts = false;
