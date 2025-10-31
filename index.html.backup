@@ -1185,11 +1185,6 @@
             background: linear-gradient(135deg, #e55a2b 0%, #ffb700 100%);
         }
 
-        /* Header específico para modal de gerenciar comunidades */
-        #manageCommunityModal .modal-header {
-            background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
-        }
-
         .modal-header h3 {
             margin: 0;
             font-size: 1.25rem;
@@ -2809,9 +2804,9 @@
                         "></span>
                     </button>
                     
-                    <!-- Botão Gerenciar Comunidades (apenas para community_owner) -->
-                    <button id="manageCommunityBtn" onclick="openManageCommunityModal()" style="
-                        background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
+                    <!-- Botão Settings -->
+                    <button id="settingsBtn" data-action="open-settings" style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                         color: white;
                         border: none;
                         border-radius: 50%;
@@ -2819,29 +2814,29 @@
                         height: 48px;
                         font-size: 1.5rem;
                         cursor: pointer;
-                        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                        transition: all 0.3s ease;
+                        flex-shrink: 0;
+                    " onmouseover="this.style.transform='scale(1.1) rotate(90deg)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';" onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                        ⚙️
+                    </button>
+                    
+                    <!-- Botão Gerenciar Comunidades (apenas para community_owner) -->
+                    <button id="manageCommunityBtn" onclick="openManageCommunityModal()" style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 48px;
+                        height: 48px;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
                         transition: all 0.3s ease;
                         flex-shrink: 0;
                         display: none;
-                    " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(147, 51, 234, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(147, 51, 234, 0.4)';">
-                        👨‍👩‍👧‍👦
-                    </button>
-                    
-                    <!-- Botão Settings -->
-                    <button id="settingsBtn" data-action="open-settings" style="
-                        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-                        color: white;
-                        border: none;
-                        border-radius: 50%;
-                        width: 48px;
-                        height: 48px;
-                        font-size: 1.5rem;
-                        cursor: pointer;
-                        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
-                        transition: all 0.3s ease;
-                        flex-shrink: 0;
-                    " onmouseover="this.style.transform='scale(1.1) rotate(90deg)'; this.style.boxShadow='0 6px 20px rgba(30, 64, 175, 0.6)';" onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.boxShadow='0 4px 12px rgba(30, 64, 175, 0.4)';">
-                        ⚙️
+                    " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+                        🏢
                     </button>
                 </div>
             </div>
@@ -3284,312 +3279,12 @@
             
             <!-- Botões fixos no rodapé -->
             <div style="display: flex; gap: 1rem; justify-content: flex-end; padding: 20px 24px; border-top: 2px solid #f0f0f0; background: #fafafa;">
-                <button type="button" onclick="closeSettingsModal()" style="padding: 12px 24px; border: 2px solid #e0e0e0; background: white; color: #666; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                <button type="button" onclick="closeSettingsModal()" style="padding: 12px 24px; border: 2px solid #e0e0e0; background: white; color: #666; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
                     Cancelar
                 </button>
-                <button type="submit" form="settingsForm" id="saveSettingsBtn" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
+                <button type="submit" form="settingsForm" id="saveSettingsBtn" style="padding: 12px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
                     Salvar Alterações
                 </button>
-            </div>
-        </div>
-    </div>
-    <!-- ========== COMUNIDADES - MODAIS ========== -->
-    
-    <!-- Modal de Gerenciamento de Comunidades -->
-    <div id="manageCommunityModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h2>👨‍👩‍👧‍👦 Gerenciar Comunidades</h2>
-                <button class="modal-close" onclick="closeManageCommunityModal()">×</button>
-            </div>
-            
-            <div style="padding: 20px;">
-                <!-- Dropdown de comunidades -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Selecione uma Comunidade:</label>
-                    <select id="communitySelect" style="
-                        width: 100%;
-                        padding: 10px;
-                        border: 1px solid #ddd;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        margin-bottom: 10px;
-                    ">
-                        <option value="">-- Selecione --</option>
-                    </select>
-                    
-                    <button onclick="showCreateCommunityForm()" style="
-                        width: 100%;
-                        padding: 10px;
-                        background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        cursor: pointer;
-                    ">
-                        <span style="color: #d1d5db; font-weight: bold; font-size: 16px;">+</span> Criar Nova Comunidade
-                    </button>
-                </div>
-                
-                <!-- Formulário de criação -->
-                <div id="createCommunityForm" style="display: none; margin-bottom: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
-                    <h3 style="margin-bottom: 15px;">Criar Nova Comunidade</h3>
-                    <form id="newCommunityForm">
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="text" name="emoji" id="newCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
-                                    width: 60px;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 24px;
-                                    text-align: center;
-                                    cursor: pointer;
-                                " onclick="openEmojiPicker('newCommunityEmoji')">
-                                <button type="button" onclick="openEmojiPicker('newCommunityEmoji')" style="
-                                    padding: 10px 16px;
-                                    background: #f0f0f0;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    cursor: pointer;
-                                ">
-                                    Escolher Emoji
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
-                            <input type="text" name="name" placeholder="Ex: Empresa XYZ" required style="
-                                width: 100%;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                border-radius: 8px;
-                                font-size: 14px;
-                            ">
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                            <input type="text" id="newCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
-                                width: 100%;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                border-radius: 8px;
-                                font-size: 14px;
-                            ">
-                            <small style="color: #666;">Apenas letras minúsculas, números e hífens. Deve ser único!</small>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
-                            <textarea name="description" placeholder="Descreva sua comunidade..." rows="3" style="
-                                width: 100%;
-                                padding: 10px;
-                                border: 1px solid #ddd;
-                                border-radius: 8px;
-                                font-size: 14px;
-                                resize: vertical;
-                            "></textarea>
-                        </div>
-                        
-                        <div style="display: flex; gap: 10px;">
-                            <button type="submit" style="
-                                flex: 1;
-                                padding: 10px;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                border: none;
-                                border-radius: 8px;
-                                font-size: 14px;
-                                font-weight: 600;
-                                cursor: pointer;
-                            ">
-                                Criar Comunidade
-                            </button>
-                            
-                            <button type="button" onclick="hideCreateCommunityForm()" style="
-                                padding: 10px 20px;
-                                background: #ddd;
-                                color: #333;
-                                border: none;
-                                border-radius: 8px;
-                                font-size: 14px;
-                                cursor: pointer;
-                            ">
-                                Cancelar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Informações da comunidade selecionada -->
-                <div id="communityInfo" style="display: none;">
-                    <!-- Tabs de gerenciamento -->
-                    <div class="management-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
-                        <button class="management-tab active" data-tab="edit" onclick="switchManagementTab('edit')" style="
-                            padding: 10px 20px;
-                            background: none;
-                            border: none;
-                            border-bottom: 3px solid #667eea;
-                            font-weight: 600;
-                            cursor: pointer;
-                        ">
-                            ✏️ Editar
-                        </button>
-                        
-                        <button class="management-tab" data-tab="members" onclick="switchManagementTab('members')" style="
-                            padding: 10px 20px;
-                            background: none;
-                            border: none;
-                            border-bottom: 3px solid transparent;
-                            cursor: pointer;
-                        ">
-                            👥 Membros
-                        </button>
-                        
-                        <button class="management-tab" data-tab="posts" onclick="switchManagementTab('posts')" style="
-                            padding: 10px 20px;
-                            background: none;
-                            border: none;
-                            border-bottom: 3px solid transparent;
-                            cursor: pointer;
-                        ">
-                            📝 Posts
-                        </button>
-                    </div>
-                    
-                    <!-- Tab: Editar -->
-                    <div id="editTab" class="management-tab-content">
-                        <form id="editCommunityForm">
-                            <input type="hidden" name="community_id">
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" name="emoji" id="editCommunityEmoji" value="👨‍👩‍👧‍👦" readonly style="
-                                        width: 60px;
-                                        padding: 10px;
-                                        border: 1px solid #ddd;
-                                        border-radius: 8px;
-                                        font-size: 24px;
-                                        text-align: center;
-                                        cursor: pointer;
-                                    " onclick="openEmojiPicker('editCommunityEmoji')">
-                                    <button type="button" onclick="openEmojiPicker('editCommunityEmoji')" style="
-                                        padding: 10px 16px;
-                                        background: #f0f0f0;
-                                        border: 1px solid #ddd;
-                                        border-radius: 8px;
-                                        cursor: pointer;
-                                    ">
-                                        Escolher Emoji
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
-                                <input type="text" id="editCommunityName" name="name" required style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                ">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
-                                <input type="text" id="editCommunitySlug" name="slug" required style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                ">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
-                                <textarea id="editCommunityDescription" name="description" rows="3" style="
-                                    width: 100%;
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 8px;
-                                    font-size: 14px;
-                                    resize: vertical;
-                                "></textarea>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button type="button" onclick="deleteCommunity()" style="
-                                    padding: 12px 20px;
-                                    background: #dc3545;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    font-size: 16px;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                ">
-                                    🗑️ Deletar
-                                </button>
-                                
-                                <button type="submit" style="
-                                    flex: 1;
-                                    padding: 12px;
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    font-size: 16px;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                ">
-                                    💾 Salvar Alterações
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <!-- Tab: Membros -->
-                    <div id="membersTab" class="management-tab-content" style="display: none;">
-                        <div style="margin-bottom: 20px;">
-                            <h3 style="margin-bottom: 10px;">Adicionar Membros</h3>
-                            <div style="position: relative;">
-                                <input 
-                                    type="text" 
-                                    id="searchUsers" 
-                                    placeholder="Buscar por nome ou @username"
-                                    style="
-                                        width: 100%;
-                                        padding: 10px;
-                                        border: 1px solid #ddd;
-                                        border-radius: 8px;
-                                        font-size: 14px;
-                                        margin-bottom: 10px;
-                                    "
-                                >
-                                <!-- Autocomplete aparecerá aqui via JS -->
-                            </div>
-                            <div id="searchResults" style="max-height: 200px; overflow-y: auto;"></div>
-                        </div>
-                        
-                        <div>
-                            <h3 style="margin-bottom: 10px;">Membros Atuais</h3>
-                            <div id="currentMembers" style="max-height: 300px; overflow-y: auto;"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tab: Posts -->
-                    <div id="postsTab" class="management-tab-content" style="display: none;">
-                        <div id="communityPosts" style="max-height: 500px; overflow-y: auto;"></div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -3854,9 +3549,6 @@
                         
                         // Atualizar contador de mensagens não lidas
                         await updateUnreadCount();
-                        
-                        // Iniciar polling global para atualizar contador em tempo real
-                        startUnreadCountPolling();
                     } catch (error) {
                         console.error('❌ Erro ao carregar posts:', error);
                     }
@@ -6135,7 +5827,7 @@
             loadPosts();
         }
 
-        function getEmptyFeedMessage(filter, customEmoji = null) {
+        function getEmptyFeedMessage(filter) {
             switch (filter) {
                 case 'following':
                     return `
@@ -6155,19 +5847,12 @@
                             ">🔍 Buscar Pessoas</button>
                         </div>
                     `;
-                default: // recommended or community
-                    const emoji = customEmoji || '🌍';
+                default: // recommended
                     return `
-                        <div style="
-                            background: white;
-                            border-radius: 12px;
-                            padding: 4rem 2rem;
-                            text-align: center;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                        ">
-                            <div style="font-size: 64px; margin-bottom: 1rem;">${emoji}</div>
+                        <div style="text-align: center; padding: 4rem 2rem; color: #666;">
+                            <div style="font-size: 64px; margin-bottom: 1rem;">🌍</div>
                             <h3 style="color: #333; margin-bottom: 1rem;">Nenhum post ainda</h3>
-                            <p style="color: #666;">Seja o primeiro a destacar alguém!</p>
+                            <p>Seja o primeiro a destacar alguém!</p>
                         </div>
                     `;
             }
@@ -6204,12 +5889,6 @@
             // Mostrar modal PRIMEIRO para garantir que elementos existam
             modal.style.display = 'flex';
             
-            // Carregar comunidades do usuário para o dropdown
-            const { data: userCommunities, error: communitiesError } = await supabase
-                .from('community_members')
-                .select('community_id, communities(id, name, emoji)')
-                .eq('user_id', currentUser.id);
-            
             // Aguardar um frame para garantir que o DOM foi renderizado
             setTimeout(() => {
                 // Preencher dados atuais
@@ -6220,32 +5899,7 @@
                 
                 if (fullNameInput) fullNameInput.value = profile?.name || currentUser.user_metadata?.full_name || '';
                 if (usernameInput) usernameInput.value = currentUsername;
-                
-                // Preencher dropdown de feed padrão com comunidades
-                if (defaultFeedInput) {
-                    // Limpar opções antigas de comunidades (manter apenas as padrões)
-                    const options = Array.from(defaultFeedInput.options);
-                    options.forEach(opt => {
-                        if (opt.value.startsWith('community-')) {
-                            opt.remove();
-                        }
-                    });
-                    
-                    // Adicionar comunidades do usuário
-                    if (userCommunities && userCommunities.length > 0) {
-                        userCommunities.forEach(member => {
-                            if (member.communities) {
-                                const option = document.createElement('option');
-                                option.value = `community-${member.communities.id}`;
-                                option.textContent = `${member.communities.emoji || '👨‍👩‍👧‍👦'} ${member.communities.name}`;
-                                defaultFeedInput.appendChild(option);
-                            }
-                        });
-                    }
-                    
-                    // Definir valor selecionado
-                    defaultFeedInput.value = profile?.default_feed || 'recommended';
-                }
+                if (defaultFeedInput) defaultFeedInput.value = profile?.default_feed || 'recommended';
                 
                 // Avatar preview
                 const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=667eea&color=fff&size=200`;
@@ -6361,22 +6015,6 @@
                 
                 if (messagesError) throw messagesError;
                 
-                // Buscar mensagens não lidas por conversa
-                const { data: unreadMessages, error: unreadError } = await supabase
-                    .from('messages')
-                    .select('conversation_id')
-                    .in('conversation_id', conversationIds)
-                    .neq('sender_id', currentUser.id)
-                    .eq('is_read', false);
-                
-                if (unreadError) throw unreadError;
-                
-                // Contar não lidas por conversa
-                const unreadCounts = {};
-                unreadMessages?.forEach(msg => {
-                    unreadCounts[msg.conversation_id] = (unreadCounts[msg.conversation_id] || 0) + 1;
-                });
-                
                 // Renderizar lista de conversas
                 let html = '';
                 for (const conv of conversations) {
@@ -6388,8 +6026,6 @@
                     
                     const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=667eea&color=fff`;
                     const timeAgo = lastMessage ? getTimeAgo(lastMessage.created_at) : '';
-                    const unreadCount = unreadCounts[conv.id] || 0;
-                    const hasUnread = unreadCount > 0;
                     
                     html += `
                         <div onclick="openChat('${otherUserId}')" style="
@@ -6400,29 +6036,19 @@
                             border-bottom: 1px solid #eee;
                             cursor: pointer;
                             transition: background 0.2s;
-                            background: ${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'};
-                            border-left: ${hasUnread ? '4px solid #ff4444' : '4px solid transparent'};
-                        " onmouseover="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.1) 0%, rgba(147,51,234,0.1) 100%)' : '#f9f9f9'}'" onmouseout="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'}'">
-                            <div style="position: relative;">
-                                <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                                ${hasUnread ? `<div style="position: absolute; top: -4px; right: -4px; background: #ff4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; border: 2px solid white;">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
-                            </div>
+                        " onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='white'">
+                            <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: ${hasUnread ? '700' : '600'}; color: #333;">${profile.name || 'Usuário'}</div>
+                                <div style="font-weight: 600; color: #333;">${profile.name || 'Usuário'}</div>
                                 <div style="font-size: 0.9rem; color: #666;">@${profile.username || 'usuario'}</div>
-                                ${lastMessage ? `<div style="font-size: 0.85rem; color: ${hasUnread ? '#333' : '#999'}; font-weight: ${hasUnread ? '600' : 'normal'}; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage.content}</div>` : ''}
+                                ${lastMessage ? `<div style="font-size: 0.85rem; color: #999; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage.content}</div>` : ''}
                             </div>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                                ${timeAgo ? `<div style="font-size: 0.8rem; color: #999;">${timeAgo}</div>` : ''}
-                            </div>
+                            ${timeAgo ? `<div style="font-size: 0.8rem; color: #999;">${timeAgo}</div>` : ''}
                         </div>
                     `;
                 }
                 
                 content.innerHTML = html;
-                
-                // Iniciar polling para atualizar lista automaticamente
-                startChatListPolling();
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar conversas:', error);
@@ -6435,147 +6061,9 @@
             }
         }
         
-        let chatListPollingInterval = null;
-        
-        function startChatListPolling() {
-            // Limpar polling anterior se existir
-            if (chatListPollingInterval) {
-                clearInterval(chatListPollingInterval);
-            }
-            
-            // Atualizar lista a cada 3 segundos
-            chatListPollingInterval = setInterval(async () => {
-                try {
-                    const modal = document.getElementById('chatListModal');
-                    // Só atualizar se o modal ainda estiver aberto
-                    if (modal && modal.style.display === 'flex') {
-                        await refreshChatList();
-                    } else {
-                        // Se modal foi fechado, parar polling
-                        clearInterval(chatListPollingInterval);
-                        chatListPollingInterval = null;
-                    }
-                } catch (error) {
-                    console.error('❌ Erro no polling da caixa de entrada:', error);
-                }
-            }, 3000); // Verifica a cada 3 segundos
-            
-            console.log('✅ Polling da caixa de entrada iniciado (atualiza a cada 3s)');
-        }
-        
-        async function refreshChatList() {
-            const content = document.getElementById('chatListContent');
-            if (!content) return;
-            
-            try {
-                // Buscar conversas do usuário
-                const { data: conversations, error } = await supabase
-                    .from('conversations')
-                    .select('*')
-                    .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
-                    .order('updated_at', { ascending: false });
-                
-                if (error) throw error;
-                
-                if (!conversations || conversations.length === 0) return;
-                
-                // Buscar perfis dos outros usuários
-                const otherUserIds = conversations.map(c => 
-                    c.user1_id === currentUser.id ? c.user2_id : c.user1_id
-                );
-                
-                const { data: profiles, error: profilesError } = await supabase
-                    .from('profiles')
-                    .select('id, name, username, avatar_url')
-                    .in('id', otherUserIds);
-                
-                if (profilesError) throw profilesError;
-                
-                // Buscar última mensagem de cada conversa
-                const conversationIds = conversations.map(c => c.id);
-                const { data: lastMessages, error: messagesError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .in('conversation_id', conversationIds)
-                    .order('created_at', { ascending: false });
-                
-                if (messagesError) throw messagesError;
-                
-                // Buscar mensagens não lidas por conversa
-                const { data: unreadMessages, error: unreadError } = await supabase
-                    .from('messages')
-                    .select('conversation_id')
-                    .in('conversation_id', conversationIds)
-                    .neq('sender_id', currentUser.id)
-                    .eq('is_read', false);
-                
-                if (unreadError) throw unreadError;
-                
-                // Contar não lidas por conversa
-                const unreadCounts = {};
-                unreadMessages?.forEach(msg => {
-                    unreadCounts[msg.conversation_id] = (unreadCounts[msg.conversation_id] || 0) + 1;
-                });
-                
-                // Renderizar lista de conversas
-                let html = '';
-                for (const conv of conversations) {
-                    const otherUserId = conv.user1_id === currentUser.id ? conv.user2_id : conv.user1_id;
-                    const profile = profiles.find(p => p.id === otherUserId);
-                    const lastMessage = lastMessages?.find(m => m.conversation_id === conv.id);
-                    
-                    if (!profile) continue;
-                    
-                    const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=667eea&color=fff`;
-                    const timeAgo = lastMessage ? getTimeAgo(lastMessage.created_at) : '';
-                    const unreadCount = unreadCounts[conv.id] || 0;
-                    const hasUnread = unreadCount > 0;
-                    
-                    html += `
-                        <div onclick="openChat('${otherUserId}')" style="
-                            display: flex;
-                            align-items: center;
-                            gap: 12px;
-                            padding: 16px;
-                            border-bottom: 1px solid #eee;
-                            cursor: pointer;
-                            transition: background 0.2s;
-                            background: ${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'};
-                            border-left: ${hasUnread ? '4px solid #ff4444' : '4px solid transparent'};
-                        " onmouseover="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.1) 0%, rgba(147,51,234,0.1) 100%)' : '#f9f9f9'}'" onmouseout="this.style.background='${hasUnread ? 'linear-gradient(90deg, rgba(255,68,68,0.05) 0%, rgba(147,51,234,0.05) 100%)' : 'white'}'">
-                            <div style="position: relative;">
-                                <img src="${avatarUrl}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                                ${hasUnread ? `<div style="position: absolute; top: -4px; right: -4px; background: #ff4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; border: 2px solid white;">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
-                            </div>
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: ${hasUnread ? '700' : '600'}; color: #333;">${profile.name || 'Usuário'}</div>
-                                <div style="font-size: 0.9rem; color: #666;">@${profile.username || 'usuario'}</div>
-                                ${lastMessage ? `<div style="font-size: 0.85rem; color: ${hasUnread ? '#333' : '#999'}; font-weight: ${hasUnread ? '600' : 'normal'}; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMessage.content}</div>` : ''}
-                            </div>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                                ${timeAgo ? `<div style="font-size: 0.8rem; color: #999;">${timeAgo}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                content.innerHTML = html;
-                
-            } catch (error) {
-                console.error('❌ Erro ao atualizar lista de conversas:', error);
-            }
-        }
-        
         function closeChatListModal() {
             const modal = document.getElementById('chatListModal');
             modal.style.display = 'none';
-            
-            // Limpar polling ao fechar
-            if (chatListPollingInterval) {
-                clearInterval(chatListPollingInterval);
-                chatListPollingInterval = null;
-                console.log('✅ Polling da caixa de entrada limpo');
-            }
         }
         
         async function searchUsersInChat(query) {
@@ -6737,12 +6225,6 @@
                 // Configurar real-time
                 setupChatRealtime();
                 
-                // Configurar polling como fallback (verifica novas mensagens a cada 3 segundos)
-                setupChatPolling();
-                
-                // Configurar polling para atualizar status de leitura
-                setupReadStatusPolling();
-                
                 // Configurar event listener do form de envio
                 setupSendMessageForm();
                 
@@ -6765,20 +6247,6 @@
             if (chatRealtimeSubscription) {
                 chatRealtimeSubscription.unsubscribe();
                 chatRealtimeSubscription = null;
-            }
-            
-            // Limpar polling de mensagens
-            if (chatPollingInterval) {
-                clearInterval(chatPollingInterval);
-                chatPollingInterval = null;
-                console.log('✅ Polling de mensagens limpo');
-            }
-            
-            // Limpar polling de status de leitura
-            if (readStatusPollingInterval) {
-                clearInterval(readStatusPollingInterval);
-                readStatusPollingInterval = null;
-                console.log('✅ Polling de status de leitura limpo');
             }
             
             currentChatUserId = null;
@@ -6815,10 +6283,9 @@
                 for (const msg of messages) {
                     const isMine = msg.sender_id === currentUser.id;
                     const timeAgo = getTimeAgo(msg.created_at);
-                    const isRead = msg.is_read || false;
                     
                     html += `
-                        <div data-message-id="${msg.id}" style="
+                        <div style="
                             display: flex;
                             justify-content: ${isMine ? 'flex-end' : 'flex-start'};
                             margin-bottom: 12px;
@@ -6831,10 +6298,7 @@
                                 color: ${isMine ? 'white' : '#333'};
                             ">
                                 <div>${msg.content}</div>
-                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">
-                                    ${timeAgo}
-                                    ${isMine && isRead ? '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>' : ''}
-                                </div>
+                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">${timeAgo}</div>
                             </div>
                         </div>
                     `;
@@ -6905,9 +6369,8 @@
                     const messagesContent = document.getElementById('chatMessagesContent');
                     console.log('💬 Adicionando mensagem na UI:', { content, messagesContent: !!messagesContent });
                     
-                    const tempId = `temp-${Date.now()}`;
                     const tempMessageHtml = `
-                        <div data-message-id="${tempId}" style="
+                        <div style="
                             display: flex;
                             justify-content: flex-end;
                             margin-bottom: 12px;
@@ -6951,28 +6414,17 @@
                     messageInput.value = '';
                     
                     // Enviar para o banco
-                    const { data: savedMessage, error } = await supabase
+                    const { error } = await supabase
                         .from('messages')
                         .insert({
                             conversation_id: currentConversationId,
                             sender_id: currentUser.id,
                             content: content
-                        })
-                        .select()
-                        .single();
+                        });
                     
                     if (error) throw error;
                     
-                    console.log('✅ Mensagem salva no banco!', savedMessage);
-                    
-                    // Atualizar data-message-id no DOM do ID temporário para o ID real
-                    if (savedMessage && savedMessage.id) {
-                        const tempMessageEl = document.querySelector(`[data-message-id="${tempId}"]`);
-                        if (tempMessageEl) {
-                            tempMessageEl.setAttribute('data-message-id', savedMessage.id);
-                            console.log('✅ ID da mensagem atualizado no DOM:', tempId, '→', savedMessage.id);
-                        }
-                    }
+                    console.log('✅ Mensagem salva no banco!');
                     
                 } catch (error) {
                     console.error('❌ Erro ao enviar mensagem:', error);
@@ -6981,142 +6433,6 @@
             });
             
             console.log('✅ Event listener do form de mensagem configurado!');
-        }
-        
-        let chatPollingInterval = null;
-        let readStatusPollingInterval = null;
-        
-        function setupReadStatusPolling() {
-            // Limpar polling anterior se existir
-            if (readStatusPollingInterval) {
-                clearInterval(readStatusPollingInterval);
-            }
-            
-            // Atualizar status de leitura a cada 1 segundo
-            readStatusPollingInterval = setInterval(async () => {
-                try {
-                    // Buscar mensagens enviadas por mim nesta conversa
-                    const { data: myMessages, error } = await supabase
-                        .from('messages')
-                        .select('id, is_read')
-                        .eq('conversation_id', currentConversationId)
-                        .eq('sender_id', currentUser.id);
-                    
-                    if (error) throw error;
-                    
-                    if (myMessages && myMessages.length > 0) {
-                        // Atualizar indicador "Lida" nas mensagens que foram lidas
-                        myMessages.forEach(msg => {
-                            if (msg.is_read) {
-                                const messageEl = document.querySelector(`[data-message-id="${msg.id}"]`);
-                                if (messageEl) {
-                                    // Buscar o div de timestamp dentro da mensagem
-                                    const messageBubble = messageEl.querySelector('div');
-                                    if (messageBubble) {
-                                        const timeDiv = messageBubble.querySelector('div:last-child');
-                                        if (timeDiv && !timeDiv.innerHTML.includes('Lida')) {
-                                            const currentContent = timeDiv.innerHTML;
-                                            timeDiv.innerHTML = currentContent + '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>';
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                } catch (error) {
-                    // Silenciosamente ignora erros de polling
-                }
-            }, 1000); // Verifica a cada 1 segundo
-        }
-        
-        function setupChatPolling() {
-            // Limpar polling anterior se existir
-            if (chatPollingInterval) {
-                clearInterval(chatPollingInterval);
-            }
-            
-            let lastMessageId = null;
-            
-            // Buscar ID da última mensagem atual
-            const messagesContent = document.getElementById('chatMessagesContent');
-            if (messagesContent) {
-                const messages = messagesContent.querySelectorAll('[data-message-id]');
-                if (messages.length > 0) {
-                    lastMessageId = messages[messages.length - 1].dataset.messageId;
-                }
-            }
-            
-            // Verificar novas mensagens a cada 3 segundos
-            chatPollingInterval = setInterval(async () => {
-                try {
-                    const { data: newMessages, error } = await supabase
-                        .from('messages')
-                        .select('*')
-                        .eq('conversation_id', currentConversationId)
-                        .order('created_at', { ascending: false })
-                        .limit(1);
-                    
-                    if (error) throw error;
-                    
-                    if (newMessages && newMessages.length > 0) {
-                        const latestMsg = newMessages[0];
-                        
-                        // Se há nova mensagem e não é minha
-                        if (latestMsg.id !== lastMessageId && latestMsg.sender_id !== currentUser.id) {
-                            console.log('🔄 Nova mensagem detectada via polling:', latestMsg);
-                            lastMessageId = latestMsg.id;
-                            
-                            // Adicionar mensagem na UI
-                            const messagesContent = document.getElementById('chatMessagesContent');
-                            if (!messagesContent) return;
-                            
-                            const isAtBottom = messagesContent.scrollHeight - messagesContent.scrollTop <= messagesContent.clientHeight + 100;
-                            const timeAgo = getTimeAgo(latestMsg.created_at);
-                            
-                            const messageHtml = `
-                                <div data-message-id="${latestMsg.id}" style="
-                                    display: flex;
-                                    justify-content: flex-start;
-                                    margin-bottom: 12px;
-                                ">
-                                    <div style="
-                                        max-width: 70%;
-                                        padding: 12px 16px;
-                                        border-radius: 16px 16px 16px 0;
-                                        background: #e0e0e0;
-                                        color: #333;
-                                    ">
-                                        <div>${latestMsg.content}</div>
-                                        <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">${timeAgo}</div>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            if (messagesContent.innerHTML.includes('Nenhuma mensagem ainda')) {
-                                messagesContent.innerHTML = '';
-                            }
-                            
-                            messagesContent.insertAdjacentHTML('beforeend', messageHtml);
-                            
-                            if (isAtBottom) {
-                                messagesContent.scrollTo({
-                                    top: messagesContent.scrollHeight,
-                                    behavior: 'smooth'
-                                });
-                            }
-                            
-                            markMessagesAsRead();
-                            
-                            // Atualizar contador global de não lidas
-                            updateUnreadCount();
-                        }
-                    }
-                } catch (error) {
-                    console.error('❌ Erro no polling de mensagens:', error);
-                }
-            }, 3000); // Verifica a cada 3 segundos
-            
-            console.log('✅ Polling de mensagens iniciado (verifica a cada 3s)');
         }
         
         function setupChatRealtime() {
@@ -7134,91 +6450,10 @@
                     table: 'messages',
                     filter: `conversation_id=eq.${currentConversationId}`
                 }, (payload) => {
-                    console.log('📨 Nova mensagem recebida via realtime:', payload);
-                    
-                    const msg = payload.new;
-                    
-                    // Ignorar se é minha própria mensagem (já foi adicionada otimisticamente)
-                    if (msg.sender_id === currentUser.id) {
-                        console.log('🔄 Mensagem própria, ignorando (já na UI)');
-                        return;
-                    }
-                    
-                    // Adicionar nova mensagem na UI
-                    const messagesContent = document.getElementById('chatMessagesContent');
-                    if (!messagesContent) return;
-                    
-                    // Verificar se usuário está no final do chat
-                    const isAtBottom = messagesContent.scrollHeight - messagesContent.scrollTop <= messagesContent.clientHeight + 100;
-                    
-                    const timeAgo = getTimeAgo(msg.created_at);
-                    const isMine = msg.sender_id === currentUser.id;
-                    
-                    const isRead = msg.is_read || false;
-                    
-                    const messageHtml = `
-                        <div data-message-id="${msg.id}" style="
-                            display: flex;
-                            justify-content: ${isMine ? 'flex-end' : 'flex-start'};
-                            margin-bottom: 12px;
-                        ">
-                            <div style="
-                                max-width: 70%;
-                                padding: 12px 16px;
-                                border-radius: ${isMine ? '16px 16px 0 16px' : '16px 16px 16px 0'};
-                                background: ${isMine ? 'linear-gradient(135deg, #ff4444 0%, #9333ea 100%)' : '#e0e0e0'};
-                                color: ${isMine ? 'white' : '#333'};
-                            ">
-                                <div>${msg.content}</div>
-                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.8;">
-                                    ${timeAgo}
-                                    ${isMine && isRead ? '<span style="margin-left: 8px; font-size: 0.7rem; opacity: 0.6;">• Lida</span>' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Limpar aviso de "Nenhuma mensagem ainda" se existir
-                    if (messagesContent.innerHTML.includes('Nenhuma mensagem ainda')) {
-                        messagesContent.innerHTML = '';
-                    }
-                    
-                    messagesContent.insertAdjacentHTML('beforeend', messageHtml);
-                    
-                    // Scroll automático apenas se estava no final
-                    if (isAtBottom) {
-                        messagesContent.scrollTo({
-                            top: messagesContent.scrollHeight,
-                            behavior: 'smooth'
-                        });
-                    }
-                    
-                    // Marcar como lida
-                    markMessagesAsRead();
-                    
-                    console.log('✅ Nova mensagem adicionada na UI em tempo real');
+                    console.log('📨 Nova mensagem recebida:', payload);
+                    loadMessages();
                 })
                 .subscribe();
-        }
-        
-        let unreadCountPollingInterval = null;
-        
-        function startUnreadCountPolling() {
-            // Limpar polling anterior se existir
-            if (unreadCountPollingInterval) {
-                clearInterval(unreadCountPollingInterval);
-            }
-            
-            // Atualizar contador a cada 5 segundos
-            unreadCountPollingInterval = setInterval(async () => {
-                try {
-                    await updateUnreadCount();
-                } catch (error) {
-                    console.error('❌ Erro no polling de contador de não lidas:', error);
-                }
-            }, 5000); // Verifica a cada 5 segundos
-            
-            console.log('✅ Polling de contador de não lidas iniciado (verifica a cada 5s)');
         }
         
         async function updateUnreadCount() {
@@ -7448,16 +6683,6 @@
                 console.log('📝 Carregando posts...');
                 console.log('🔍 [DEBUG] loadPosts chamado de:', new Error().stack);
                 
-                // Se há uma comunidade ativa, não carregar posts gerais
-                if (window.currentCommunityId) {
-                    console.log('⚠️ Feed de comunidade ativo, ignorando loadPosts()');
-                    return;
-                }
-                
-                // Limpar emoji e ID de comunidade (feed geral)
-                window.currentCommunityEmoji = null;
-                window.currentCommunityId = null;
-                
                 // Marcar como carregando (SEM renderizar ainda)
                 window.isLoadingPosts = true;
                 
@@ -7585,7 +6810,7 @@
             console.log('👥 Processando dados de usuários...');
             
             // Aplicar dados aos posts
-            for (let post of window.posts) {
+            for (let post of posts) {
                 try {
                     // USAR DADOS DO AUTOR QUE JÁ VÊM DA FUNÇÃO SQL
                     if (post.author_username) {
@@ -7976,7 +7201,7 @@
             
             // Se não há posts, mostrar mensagem customizada baseada no filtro
             if (postsToRender.length === 0) {
-                container.innerHTML = getEmptyFeedMessage(window.currentFeedFilter || 'recommended', window.currentCommunityEmoji);
+                container.innerHTML = getEmptyFeedMessage(window.currentFeedFilter || 'recommended');
                 return;
             }
 
@@ -8603,7 +7828,7 @@
             }
         }
 
-        async function openFeedbackModal(postId, readOnly = false) {
+        function openFeedbackModal(postId) {
             console.log('💬 Abrindo modal de feedback para post:', postId);
             
             // Verificar se já existe modal de feedback e fechar apenas ele
@@ -8651,52 +7876,6 @@
                 }
             }
             
-            // Se for readOnly, carregar feedbacks existentes
-            let feedbacksHtml = '';
-            if (readOnly) {
-                try {
-                    const { data: feedbacks, error } = await supabase
-                        .from('feedbacks')
-                        .select(`
-                            *,
-                            mentioned_user:mentioned_user_id(id, name, email, avatar_url)
-                        `)
-                        .eq('post_id', postId)
-                        .order('created_at', { ascending: false });
-                    
-                    if (error) throw error;
-                    
-                    if (feedbacks && feedbacks.length > 0) {
-                        feedbacksHtml = feedbacks.map(fb => {
-                            const userName = fb.mentioned_user?.name || 'Usuário';
-                            const userEmail = fb.mentioned_user?.email || '';
-                            const username = userEmail ? userEmail.split('@')[0] : 'usuario';
-                            
-                            return `
-                                <div style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #FFB700; border-radius: 8px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                        <div style="color: #e65100; font-weight: bold; font-size: 13px;">
-                                            🔄 @${username}
-                                        </div>
-                                        <div style="color: #999; font-size: 11px; margin-left: 10px;">
-                                            ${formatDateShort(fb.created_at)}
-                                        </div>
-                                    </div>
-                                    <div style="color: #e65100; line-height: 1.4; font-size: 14px;">
-                                        ${fb.feedback_text}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('');
-                    } else {
-                        feedbacksHtml = '<div style="text-align: center; color: #666; padding: 20px; font-style: italic;">Nenhum feedback ainda.</div>';
-                    }
-                } catch (error) {
-                    console.error('❌ Erro ao carregar feedbacks:', error);
-                    feedbacksHtml = '<div style="text-align: center; color: #f44336; padding: 20px;">Erro ao carregar feedbacks.</div>';
-                }
-            }
-            
             // Criar modal de feedback
             const modal = document.createElement('div');
             modal.id = 'feedbackModal';
@@ -8704,15 +7883,10 @@
             modal.innerHTML = `
                 <div class="feedback-modal">
                     <div class="feedback-modal-header">
-                        <h3>🔄 Feedback${readOnly ? 's' : ''}</h3>
+                        <h3>🔄 Feedback</h3>
                         <button class="close-btn" onclick="closeFeedbackModal()">×</button>
                     </div>
                     <div class="feedback-modal-body">
-                        ${readOnly ? `
-                            <div style="max-height: 400px; overflow-y: auto;">
-                                ${feedbacksHtml}
-                            </div>
-                        ` : `
                         <p><strong>Post sobre:</strong> ${mentionedPersonName} (@${mentionedPersonUsername})</p>
                         <p><strong>Autor:</strong> ${post.user_data?.name || 'Usuário'} (@${post.user_data?.email?.split('@')[0] || 'usuario'})</p>
                         <div class="form-group">
@@ -8720,13 +7894,10 @@
                             <textarea id="feedbackText" class="form-input" rows="4" 
                                 placeholder="Compartilhe como você se sentiu ao ser destacado..."></textarea>
                         </div>
-                        `}
                     </div>
-                    ${!readOnly ? `
                     <div class="feedback-modal-footer">
                         <button class="btn-primary" onclick="submitFeedback('${postId}')">Enviar Feedback</button>
                     </div>
-                    ` : ''}
                 </div>
             `;
             
@@ -9129,7 +8300,7 @@
                 const activeCommunityId = typeof getSelectedCommunityId === 'function' ? getSelectedCommunityId() : null;
                 
                 if (activeCommunityId) {
-                    console.log('👨‍👩‍👧‍👦 Post será criado na comunidade:', activeCommunityId);
+                    console.log('🏢 Post será criado na comunidade:', activeCommunityId);
                 } else {
                     console.log('🌍 Post será criado no feed geral');
                 }
@@ -9213,15 +8384,9 @@
                 });
                 selectedHighlightType = null;
                 
-                // Se o post foi criado em uma comunidade E estamos vendo essa comunidade, recarregar feed da comunidade
-                if (activeCommunityId && window.currentCommunityId === activeCommunityId) {
-                    console.log('🔄 Recarregando feed da comunidade após criar post');
-                    await loadCommunityFeed(activeCommunityId);
-                } else {
-                    // Caso contrário, switch to home tab and re-render
-                    switchTab('inicio');
-                    await renderPosts(); // CORRIGIDO: Renderizar posts imediatamente
-                }
+                // Switch to home tab and re-render
+                switchTab('inicio');
+                await renderPosts(); // CORRIGIDO: Renderizar posts imediatamente
                 updateStats();
                 
                 // 🔔 CORREÇÃO: Atualizar notificações de badges em tempo real
@@ -12270,10 +11435,9 @@
                     'achievementsModal', 
                     'levelsModal', 
                     'progressModal',
-                    'settingsModal',           // ✅ Modal de configurações
-                    'chatListModal',           // ✅ Modal de lista de conversas
-                    'chatModal',               // ✅ Modal de conversa individual
-                    'manageCommunityModal'     // ✅ Modal de gerenciamento de comunidades
+                    'settingsModal',      // ✅ Modal de configurações
+                    'chatListModal',      // ✅ Modal de lista de conversas
+                    'chatModal'           // ✅ Modal de conversa individual
                 ];
                 
                 if (!permanentModals.includes(modal.id)) {
@@ -12685,7 +11849,7 @@
             }
         }
 
-        async function openCommentsModal(postId, readOnly = false) {
+        async function openCommentsModal(postId) {
             try {
                 console.log('💬 Abrindo modal de comentários para post:', postId);
                 
@@ -12767,14 +11931,15 @@
                         <div id="commentsContainer" style="flex: 1; overflow-y: auto; padding: 20px; max-height: 400px;">
                             ${commentsHtml}
                         </div>
-                        ${!readOnly ? `
+                        
                         <div style="padding: 20px; border-top: 1px solid #eee; flex-shrink: 0;">
                             <div style="display: flex; gap: 10px; align-items: flex-end;">
                                 <textarea id="newCommentText" placeholder="Escreva seu comentário..." style="flex: 1; min-height: 60px; max-height: 120px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;" rows="3"></textarea>
-                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Enviar</button>
+                                <button onclick="sendComment('${postId}')" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6, #10B981); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    Enviar
+                                </button>
                             </div>
                         </div>
-                        ` : ''}
                     </div>
                 `;
                 
@@ -13101,7 +12266,7 @@
                     
                     if (!error && members) {
                         allowedUserIds = new Set(members.map(m => m.user_id));
-                        console.log(`👨‍👩‍👧‍👦 Filtrando menções por ${allowedUserIds.size} membros da comunidade`);
+                        console.log(`🏢 Filtrando menções por ${allowedUserIds.size} membros da comunidade`);
                     }
                 } catch (error) {
                     console.error('❌ Erro ao buscar membros da comunidade:', error);
@@ -16147,23 +15312,10 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Inicializar filtro de feed
-            // Prioridade: default_feed do perfil (tabela profiles) > localStorage > 'recommended'
-            
-            // Buscar default_feed da tabela profiles
-            let userDefaultFeed = null;
-            if (currentUser) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('default_feed')
-                    .eq('id', currentUser.id)
-                    .single();
-                
-                userDefaultFeed = profile?.default_feed;
-                console.log('👁️ Feed padrão do perfil:', userDefaultFeed);
-            }
-            
+            // Prioridade: default_feed do perfil > localStorage > 'recommended'
+            const userDefaultFeed = currentUser?.user_metadata?.default_feed;
             const savedFilter = userDefaultFeed || localStorage.getItem('feedFilter') || 'recommended';
             window.currentFeedFilter = savedFilter;
             
@@ -16173,48 +15325,21 @@
             }
             
             // Atualizar APENAS a UI inicial (sem chamar loadPosts)
-            setTimeout(async () => {
-                // Se o feed padrão for de uma comunidade, carregar o feed da comunidade
-                if (savedFilter && savedFilter.startsWith('community-')) {
-                    const communityId = savedFilter.replace('community-', '');
-                    console.log('👨‍👩‍👧‍👦 Feed padrão é de comunidade:', communityId);
-                    
-                    // Buscar dados da comunidade para atualizar emoji
-                    const { data: community } = await supabase
-                        .from('communities')
-                        .select('emoji, name')
-                        .eq('id', communityId)
-                        .single();
-                    
-                    // Atualizar emoji do feed
-                    const emoji = document.getElementById('feedEmoji');
-                    if (emoji && community) {
-                        emoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
-                    }
-                    
-                    // Armazenar ID da comunidade ativa
-                    window.currentCommunityId = communityId;
-                    
-                    // Carregar posts da comunidade
-                    if (typeof loadCommunityPosts === 'function') {
-                        loadCommunityPosts(communityId);
-                    }
-                } else {
-                    // Atualizar emoji para feeds padrões
-                    const emoji = document.getElementById('feedEmoji');
-                    if (emoji) {
-                        emoji.textContent = savedFilter === 'following' ? '👥' : '🌍';
-                    }
-                    
-                    // Atualizar dropdown
-                    document.querySelectorAll('.filter-option').forEach(option => {
-                        if (option.dataset.filter === savedFilter) {
-                            option.classList.add('active');
-                        } else {
-                            option.classList.remove('active');
-                        }
-                    });
+            setTimeout(() => {
+                // Atualizar emoji
+                const emoji = document.getElementById('feedEmoji');
+                if (emoji) {
+                    emoji.textContent = savedFilter === 'following' ? '👥' : '🌍';
                 }
+                
+                // Atualizar dropdown
+                document.querySelectorAll('.filter-option').forEach(option => {
+                    if (option.dataset.filter === savedFilter) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
                 
                 console.log('✅ [DEBUG] UI do filtro inicializada sem chamar loadPosts');
             }, 100);
@@ -16386,6 +15511,306 @@
         }
     </script>
 
+    <!-- ========== COMUNIDADES - MODAIS ========== -->
+    
+    <!-- Modal de Gerenciamento de Comunidades -->
+    <div id="manageCommunityModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>🏢 Gerenciar Comunidades</h2>
+                <button class="modal-close" onclick="closeManageCommunityModal()">×</button>
+            </div>
+            
+            <div style="padding: 20px;">
+                <!-- Dropdown de comunidades -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Selecione uma Comunidade:</label>
+                    <select id="communitySelect" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        margin-bottom: 10px;
+                    ">
+                        <option value="">-- Selecione --</option>
+                    </select>
+                    
+                    <button onclick="showCreateCommunityForm()" style="
+                        width: 100%;
+                        padding: 10px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">
+                        ➕ Criar Nova Comunidade
+                    </button>
+                </div>
+                
+                <!-- Formulário de criação -->
+                <div id="createCommunityForm" style="display: none; margin-bottom: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px;">Criar Nova Comunidade</h3>
+                    <form id="newCommunityForm">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" name="emoji" id="newCommunityEmoji" value="🏢" readonly style="
+                                    width: 60px;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 24px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                " onclick="openEmojiPicker('newCommunityEmoji')">
+                                <button type="button" onclick="openEmojiPicker('newCommunityEmoji')" style="
+                                    padding: 10px 16px;
+                                    background: #f0f0f0;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                ">
+                                    Escolher Emoji
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
+                            <input type="text" name="name" placeholder="Ex: Empresa XYZ" required style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                            ">
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
+                            <input type="text" id="editCommunitySlug" name="slug" placeholder="empresa-xyz" required style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                            ">
+                            <small style="color: #666;">Apenas letras minúsculas, números e hífens. Deve ser único!</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
+                            <textarea name="description" placeholder="Descreva sua comunidade..." rows="3" style="
+                                width: 100%;
+                                padding: 10px;
+                                border: 1px solid #ddd;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                resize: vertical;
+                            "></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" style="
+                                flex: 1;
+                                padding: 10px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                            ">
+                                Criar Comunidade
+                            </button>
+                            
+                            <button type="button" onclick="hideCreateCommunityForm()" style="
+                                padding: 10px 20px;
+                                background: #ddd;
+                                color: #333;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                cursor: pointer;
+                            ">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Informações da comunidade selecionada -->
+                <div id="communityInfo" style="display: none;">
+                    <!-- Tabs de gerenciamento -->
+                    <div class="management-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
+                        <button class="management-tab active" data-tab="edit" onclick="switchManagementTab('edit')" style="
+                            padding: 10px 20px;
+                            background: none;
+                            border: none;
+                            border-bottom: 3px solid #667eea;
+                            font-weight: 600;
+                            cursor: pointer;
+                        ">
+                            ✏️ Editar
+                        </button>
+                        
+                        <button class="management-tab" data-tab="members" onclick="switchManagementTab('members')" style="
+                            padding: 10px 20px;
+                            background: none;
+                            border: none;
+                            border-bottom: 3px solid transparent;
+                            cursor: pointer;
+                        ">
+                            👥 Membros
+                        </button>
+                        
+                        <button class="management-tab" data-tab="posts" onclick="switchManagementTab('posts')" style="
+                            padding: 10px 20px;
+                            background: none;
+                            border: none;
+                            border-bottom: 3px solid transparent;
+                            cursor: pointer;
+                        ">
+                            📝 Posts
+                        </button>
+                    </div>
+                    
+                    <!-- Tab: Editar -->
+                    <div id="editTab" class="management-tab-content">
+                        <form id="editCommunityForm">
+                            <input type="hidden" name="community_id">
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Emoji da Comunidade</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="text" name="emoji" id="editCommunityEmoji" value="🏢" readonly style="
+                                        width: 60px;
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        font-size: 24px;
+                                        text-align: center;
+                                        cursor: pointer;
+                                    " onclick="openEmojiPicker('editCommunityEmoji')">
+                                    <button type="button" onclick="openEmojiPicker('editCommunityEmoji')" style="
+                                        padding: 10px 16px;
+                                        background: #f0f0f0;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        cursor: pointer;
+                                    ">
+                                        Escolher Emoji
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome da Comunidade</label>
+                                <input type="text" name="name" required style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                ">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL (slug)</label>
+                                <input type="text" name="slug" required style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                ">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Descrição</label>
+                                <textarea name="description" rows="3" style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ddd;
+                                    border-radius: 8px;
+                                    font-size: 14px;
+                                    resize: vertical;
+                                "></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" style="
+                                    flex: 1;
+                                    padding: 12px;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    💾 Salvar Alterações
+                                </button>
+                                
+                                <button type="button" onclick="deleteCommunity()" style="
+                                    padding: 12px 20px;
+                                    background: #dc3545;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    🗑️ Deletar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Tab: Membros -->
+                    <div id="membersTab" class="management-tab-content" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin-bottom: 10px;">Adicionar Membros</h3>
+                            <div style="position: relative;">
+                                <input 
+                                    type="text" 
+                                    id="searchUsers" 
+                                    placeholder="Buscar por nome ou @username"
+                                    style="
+                                        width: 100%;
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        font-size: 14px;
+                                        margin-bottom: 10px;
+                                    "
+                                >
+                                <!-- Autocomplete aparecerá aqui via JS -->
+                            </div>
+                            <div id="searchResults" style="max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="margin-bottom: 10px;">Membros Atuais</h3>
+                            <div id="currentMembers" style="max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab: Posts -->
+                    <div id="postsTab" class="management-tab-content" style="display: none;">
+                        <div id="communityPosts" style="max-height: 500px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de Emoji Picker -->
     <div id="emojiPickerModal" class="modal-overlay" style="display: none;">
@@ -16434,1425 +15859,9 @@
 
 
     <!-- ========== COMUNIDADES - SCRIPTS ========== -->
-    <!-- ========== COMUNIDADES - SCRIPTS INLINE ========== -->
-    <script>
-// ============================================
-// EMOJI PICKER
-// ============================================
-/**
- * ============================================
- * MÓDULO: Emoji Picker
- * Descrição: Seletor de emojis para comunidades
- * Autor: HoloSpot Team
- * Data: 2024-10-29
- * ============================================
- */
-
-// Lista de emojis populares (categorias)
-const emojiList = {
-    'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '🥲', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓'],
-    'Animais': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🦝', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐽', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦢', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦗', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🐠', '🐟', '🐡', '🐬', '🦈', '🐳', '🐋', '🐊', '🐆', '🐅'],
-    'Comida': ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🥝', '🍑', '🥑', '🥥', '🥭', '🍅', '🍆', '🥒', '🥕', '🌽', '🌶️', '🥫', '🧄', '🧅', '🥔', '🍠', '🌰', '🥜', '🍯', '🥐', '🍞', '🥖', '🧀', '🥚', '🍳', '🥓', '🥞', '🍤', '🍗', '🍖', '🍕', '🌭', '🍔', '🍟', '🥙', '🌮', '🌯', '🥗', '🥘', '🥫', '🍝', '🍜', '🍲', '🍥', '🍣', '🍱', '🍛', '🍙', '🍚'],
-    'Atividades': ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🥅', '🏒', '🏑', '🏏', '🥍', '🏹', '🎣', '🥊', '🥋', '🎽', '🛹', '🛼', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️', '🤼', '🤸', '🤺', '⛹️', '🤾', '🏌️', '🏇', '🧘', '🏊', '🤽', '🚣', '🧗', '🚵', '🚴', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹', '🎭', '🩰'],
-    'Viagem': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🏍️', '🛵', '🚲', '🛴', '🛹', '🛺', '🚁', '🚟', '🚠', '🚡', '🛰️', '🚀', '🛸', '🛩️', '✈️', '🛫', '🛬', '🪂', '💺', '🚂', '🚆', '🚇', '🚊', '🚉', '🚝', '🚄', '🚅', '🚈', '🚞', '🚋', '🚃', '⛴️', '🛥️', '🚢', '⚓', '⛽', '🚧', '🚦', '🚥', '🏗️', '🏭', '🏰', '🏯', '🏟️', '🗼', '🏖️', '🏝️'],
-    'Objetos': ['⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽', '💾', '💿', '📀', '🧮', '📹', '🎥', '📷', '📸', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '🧾', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️'],
-    'Símbolos': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '✅', '❌', '⭕', '🛑', '⛔', '📛'],
-    'Empresas': ['👨‍👩‍👧‍👦', '🏭', '🏛️', '🏚️', '🏗️', '🏪', '🏦', '🏥', '🏣', '🏤', '🏩', '🏫', '🏬', '🏯', '🏰', '💼', '📊', '📈', '📉', '💹', '💰', '💸', '💵', '💴', '💶', '💷', '💳', '🧾', '💱', '💲', '⚖️', '🧱', '🪜', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪛', '🔩', '⚙️', '🧰', '🧲', '📦', '📥', '📤', '📫', '📪', '📨', '📩', '📧', '💌', '📮', '📯', '📬', '📭', '📡', '📰', '📅', '📆', '🗓️']
-};
-
-let currentEmojiTarget = null;
-
-function openEmojiPicker(targetInputId) {
-    currentEmojiTarget = targetInputId;
-    
-    const modal = document.getElementById('emojiPickerModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        renderEmojiGrid();
-    } else {
-        console.error('Modal emojiPickerModal não encontrado');
-    }
-}
-
-function closeEmojiPicker() {
-    const modal = document.getElementById('emojiPickerModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    
-    const searchInput = document.getElementById('emojiSearch');
-    if (searchInput) {
-        searchInput.value = '';
-    }
-    
-    currentEmojiTarget = null;
-}
-
-function renderEmojiGrid(filter = '') {
-    const grid = document.getElementById('emojiGrid');
-    if (!grid) {
-        console.error('Elemento emojiGrid não encontrado');
-        return;
-    }
-    
-    grid.innerHTML = '';
-    
-    Object.entries(emojiList).forEach(([category, emojis]) => {
-        // Filtrar emojis se houver busca
-        let filteredEmojis = emojis;
-        if (filter) {
-            // Busca simples por categoria
-            if (!category.toLowerCase().includes(filter.toLowerCase())) {
-                return;
-            }
-        }
-        
-        if (filteredEmojis.length === 0) return;
-        
-        // Título da categoria
-        const categoryTitle = document.createElement('div');
-        categoryTitle.style.cssText = `
-            grid-column: 1 / -1;
-            font-weight: 600;
-            font-size: 12px;
-            color: #666;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        `;
-        categoryTitle.textContent = category;
-        grid.appendChild(categoryTitle);
-        
-        // Emojis
-        filteredEmojis.forEach(emoji => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = emoji;
-            button.style.cssText = `
-                width: 40px;
-                height: 40px;
-                font-size: 24px;
-                border: 1px solid #eee;
-                border-radius: 6px;
-                background: white;
-                cursor: pointer;
-                transition: all 0.2s;
-            `;
-            
-            button.addEventListener('mouseenter', () => {
-                button.style.background = '#f0f0f0';
-                button.style.transform = 'scale(1.2)';
-            });
-            
-            button.addEventListener('mouseleave', () => {
-                button.style.background = 'white';
-                button.style.transform = 'scale(1)';
-            });
-            
-            button.addEventListener('click', () => {
-                selectEmoji(emoji);
-            });
-            
-            grid.appendChild(button);
-        });
-    });
-}
-
-function selectEmoji(emoji) {
-    if (currentEmojiTarget) {
-        const input = document.getElementById(currentEmojiTarget);
-        if (input) {
-            input.value = emoji;
-        }
-    }
-    closeEmojiPicker();
-}
-
-// Busca de emoji
-function setupEmojiSearch() {
-    const searchInput = document.getElementById('emojiSearch');
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', (e) => {
-        renderEmojiGrid(e.target.value);
-    });
-}
-
-// Fechar modal ao clicar fora
-function setupEmojiModalClickOutside() {
-    const modal = document.getElementById('emojiPickerModal');
-    if (!modal) return;
-    
-    modal.addEventListener('click', (e) => {
-        if (e.target.id === 'emojiPickerModal') {
-            closeEmojiPicker();
-        }
-    });
-}
-
-// Inicializar emoji picker
-function initEmojiPicker() {
-    setupEmojiSearch();
-    setupEmojiModalClickOutside();
-    
-    console.log('✅ Emoji Picker inicializado');
-}
-
-// Exportar funções globalmente
-window.openEmojiPicker = openEmojiPicker;
-window.closeEmojiPicker = closeEmojiPicker;
-window.initEmojiPicker = initEmojiPicker;
-
-console.log('✅ Módulo emoji_picker.js carregado');
-
-
-// ============================================
-// COMMUNITY FEEDS
-// ============================================
-// ============================================
-// COMMUNITY FEEDS
-// Integra feeds de comunidades no dropdown existente
-// ============================================
-
-let userCommunities = [];
-
-// Carregar comunidades do usuário e popular dropdowns
-async function loadUserCommunities() {
-    if (!currentUser || !currentUser.id) {
-        console.log('⚠️ Usuário não logado');
-        return;
-    }
-
-    try {
-        // Buscar comunidades que o usuário é membro
-        const { data: communities, error } = await supabase
-            .from('community_members')
-            .select(`
-                community_id,
-                communities (
-                    id,
-                    name,
-                    slug,
-                    emoji
-                )
-            `)
-            .eq('user_id', currentUser.id)
-            .eq('is_active', true);
-
-        if (error) throw error;
-
-        userCommunities = communities
-            .map(c => c.communities)
-            .filter(c => c !== null);
-
-        console.log('✅ Comunidades carregadas:', userCommunities.length);
-
-        // Popular dropdown do Feed
-        populateFeedDropdown();
-
-        // Popular dropdown do Destacar
-        populateDestacarDropdown();
-
-    } catch (error) {
-        console.error('❌ Erro ao carregar comunidades:', error);
-    }
-}
-
-// Popular dropdown do Feed (aba Início)
-function populateFeedDropdown() {
-    const dropdown = document.getElementById('feedFilterDropdown');
-    if (!dropdown) return;
-
-    // Remover opções de comunidades antigas
-    const oldCommunityOptions = dropdown.querySelectorAll('[data-filter^="community-"]');
-    oldCommunityOptions.forEach(opt => opt.remove());
-
-    // Adicionar comunidades
-    if (userCommunities.length > 0) {
-        userCommunities.forEach(community => {
-            const option = document.createElement('div');
-            option.className = 'filter-option';
-            option.setAttribute('data-filter', `community-${community.id}`);
-            option.innerHTML = `<span>${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}</span>`;
-            dropdown.appendChild(option);
-        });
-
-        console.log('✅ Dropdown do Feed atualizado com', userCommunities.length, 'comunidades');
-    }
-}
-
-// Popular dropdown do Destacar
-function populateDestacarDropdown() {
-    const container = document.getElementById('destacarCommunityDropdownContainer');
-    const select = document.getElementById('destacarCommunitySelect');
-
-    if (!container || !select) return;
-
-    // Limpar opções antigas (exceto a primeira)
-    while (select.options.length > 1) {
-        select.remove(1);
-    }
-
-    if (userCommunities.length > 0) {
-        // Mostrar dropdown
-        container.style.display = 'block';
-
-        // Adicionar comunidades
-        userCommunities.forEach(community => {
-            const option = document.createElement('option');
-            option.value = community.id;
-            option.textContent = `${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}`;
-            select.appendChild(option);
-        });
-
-        console.log('✅ Dropdown do Destacar atualizado com', userCommunities.length, 'comunidades');
-    } else {
-        // Esconder dropdown se não tem comunidades
-        container.style.display = 'none';
-    }
-}
-
-// Carregar feed de comunidade específica
-async function loadCommunityFeed(communityId) {
-    if (!currentUser || !currentUser.id) {
-        console.log('⚠️ Usuário não logado');
-        return;
-    }
-
-    try {
-        console.log('📥 Carregando feed da comunidade:', communityId);
-
-        // Buscar informações da comunidade
-        const community = userCommunities.find(c => c.id === communityId);
-        
-        // Armazenar emoji e ID da comunidade globalmente
-        window.currentCommunityEmoji = community?.emoji || '👨‍👩‍👧‍👦';
-        window.currentCommunityId = communityId;
-        
-        // Atualizar emoji do botão Feed (sem remover a setinha)
-        const feedEmoji = document.getElementById('feedEmoji');
-        if (feedEmoji && community) {
-            feedEmoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
-        }
-
-        const { data: posts, error } = await supabase.rpc('get_community_feed', {
-            p_community_id: communityId,
-            p_user_id: currentUser.id,
-            p_limit: 20,
-            p_offset: 0
-        });
-
-        if (error) throw error;
-
-        console.log('✅ Posts da comunidade carregados:', posts.length);
-
-        try {
-            // Processar dados do autor para cada post
-            posts.forEach(post => {
-                if (post.author_username) {
-                    post.user_data = {
-                        name: post.author_name || 'Usuário',
-                        username: post.author_username || 'usuario',
-                        email: post.author_email,
-                        avatar_url: post.author_avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'Usuario')}&background=667eea&color=fff`
-                    };
-                }
-                // Inicializar reações se não existir
-                if (!post.reactions) {
-                    post.reactions = [];
-                }
-            });
-        } catch (error) {
-            console.error('❌ Erro ao processar dados dos autores:', error);
-        }
-
-        // Atualizar array global de posts
-        window.posts = posts;
-
-        // Renderizar posts usando função global
-        if (typeof window.renderPosts === 'function') {
-            await window.renderPosts();
-        } else {
-            console.error('❌ Função renderPosts não encontrada');
-            console.error('📦 window:', Object.keys(window).filter(k => k.includes('render')));
-        }
-
-    } catch (error) {
-        console.error('❌ Erro ao carregar feed da comunidade:', error);
-        const postsContainer = document.getElementById('postsContainer');
-        if (postsContainer) {
-            postsContainer.innerHTML = `
-                <div style="
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 80px 20px;
-                    min-height: 400px;
-                ">
-                    <div style="font-size: 72px; margin-bottom: 24px; opacity: 0.3;">⚠️</div>
-                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #333; margin-bottom: 12px; text-align: center;">Erro ao carregar feed</h3>
-                    <p style="font-size: 1rem; color: #666; margin-bottom: 32px; text-align: center;">${error.message || 'Tente novamente mais tarde'}</p>
-                    <button onclick="location.reload()" style="
-                        background: #667eea;
-                        color: white;
-                        border: none;
-                        padding: 14px 32px;
-                        border-radius: 12px;
-                        font-size: 1rem;
-                        font-weight: 600;
-                        cursor: pointer;
-                    ">
-                        🔄 Recarregar Página
-                    </button>
-                </div>
-            `;
-        }
-    }
-}
-
-// Interceptar mudança de filtro do Feed
-function setupCommunityFeedFilter() {
-    const dropdown = document.getElementById('feedFilterDropdown');
-    if (!dropdown) {
-        console.error('❌ feedFilterDropdown não encontrado');
-        return;
-    }
-
-    // Usar event delegation para capturar cliques em opções de comunidade
-    dropdown.addEventListener('click', async (e) => {
-        const option = e.target.closest('.filter-option');
-        if (!option) return;
-
-        const filter = option.getAttribute('data-filter');
-        console.log('👆 Filtro clicado:', filter);
-
-        // Se for filtro de comunidade
-        if (filter && filter.startsWith('community-')) {
-            const communityId = filter.replace('community-', '');
-            console.log('👨‍👩‍👧‍👦 Carregando comunidade:', communityId);
-
-            // Marcar como ativo
-            dropdown.querySelectorAll('.filter-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            option.classList.add('active');
-
-            // Fechar dropdown
-            dropdown.style.display = 'none';
-
-            // Carregar feed da comunidade
-            await loadCommunityFeed(communityId);
-
-            // Salvar preferência
-            localStorage.setItem('feedFilter', filter);
-        }
-    });
-
-    console.log('✅ Filtro de comunidades configurado');
-}
-
-// Detectar comunidade selecionada ao criar post no Destacar
-function getSelectedCommunityId() {
-    const select = document.getElementById('destacarCommunitySelect');
-    if (select && select.value) {
-        return select.value;
-    }
-    return null;
-}
-
-// Inicializar ao carregar
-if (typeof window !== 'undefined') {
-    // Aguardar DOM e usuário logado
-    document.addEventListener('DOMContentLoaded', () => {
-        setupCommunityFeedFilter();
-    });
-}
-
-// Exportar funções globalmente
-window.loadUserCommunities = loadUserCommunities;
-window.loadCommunityFeed = loadCommunityFeed;
-window.getSelectedCommunityId = getSelectedCommunityId;
-
-console.log('✅ community_feeds.js carregado');
-
-
-// ============================================
-// COMMUNITY MANAGEMENT
-// ============================================
-/**
- * ============================================
- * MÓDULO: Community Management
- * Descrição: Gerenciamento de comunidades (criar, editar, membros, posts)
- * Autor: HoloSpot Team
- * Data: 2024-10-29
- * ============================================
- */
-
-// ========== GERENCIAMENTO DE COMUNIDADES ==========
-
-function openManageCommunityModal() {
-    const modal = document.getElementById('manageCommunityModal');
-    if (!modal) {
-        console.error('❌ Modal manageCommunityModal não encontrado');
-        return;
-    }
-    
-    modal.style.display = 'flex';
-    loadOwnedCommunities();
-}
-
-function closeManageCommunityModal() {
-    const modal = document.getElementById('manageCommunityModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    
-    const select = document.getElementById('communitySelect');
-    if (select) {
-        select.value = '';
-    }
-    
-    const info = document.getElementById('communityInfo');
-    if (info) {
-        info.style.display = 'none';
-    }
-    
-    hideCreateCommunityForm();
-}
-
-// Carregar comunidades que o usuário é owner
-async function loadOwnedCommunities() {
-    if (!currentUser || !currentUser.id) {
-        console.error('Usuário não autenticado');
-        return;
-    }
-
-    const { data: communities, error } = await supabase
-        .from('communities')
-        .select('*')
-        .eq('owner_id', currentUser.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-    
-    if (error) {
-        console.error('Erro ao carregar comunidades:', error);
-        return;
-    }
-    
-    const select = document.getElementById('communitySelect');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">-- Selecione --</option>';
-    
-    communities.forEach(community => {
-        const option = document.createElement('option');
-        option.value = community.id;
-        option.textContent = `${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}`;
-        option.dataset.community = JSON.stringify(community);
-        select.appendChild(option);
-    });
-}
-
-// Ao selecionar comunidade
-function setupCommunitySelectListener() {
-    const select = document.getElementById('communitySelect');
-    if (!select) return;
-    
-    select.addEventListener('change', (e) => {
-        const option = e.target.options[e.target.selectedIndex];
-        console.log('🔄 Comunidade selecionada:', option.value);
-        
-        if (option.value) {
-            const community = JSON.parse(option.dataset.community);
-            console.log('👨‍👩‍👧‍👦 Dados da comunidade:', community);
-            showCommunityInfo(community);
-        } else {
-            const info = document.getElementById('communityInfo');
-            if (info) {
-                info.style.display = 'none';
-            }
-        }
-    });
-}
-
-// Mostrar informações da comunidade
-function showCommunityInfo(community) {
-    const info = document.getElementById('communityInfo');
-    if (info) {
-        info.style.display = 'block';
-    }
-    
-    // Preencher dados da comunidade (com null checks)
-    const nameInput = document.getElementById('editCommunityName');
-    const slugInput = document.getElementById('editCommunitySlug');
-    const descInput = document.getElementById('editCommunityDescription');
-    const emojiInput = document.getElementById('editCommunityEmoji');
-    
-    if (nameInput) nameInput.value = community.name || '';
-    if (slugInput) slugInput.value = community.slug || '';
-    if (descInput) descInput.value = community.description || '';
-    if (emojiInput) emojiInput.value = community.emoji || '👨‍👩‍👧‍👦';
-    
-
-    
-    // Carregar membros
-    loadCommunityMembers(community.id);
-    
-    // Carregar posts
-    loadCommunityPosts(community.id);
-}
-
-// ========== CRIAR COMUNIDADE ==========
-
-function showCreateCommunityForm() {
-    const form = document.getElementById('createCommunityForm');
-    if (form) {
-        form.style.display = 'block';
-    }
-}
-
-function hideCreateCommunityForm() {
-    const form = document.getElementById('createCommunityForm');
-    if (form) {
-        form.style.display = 'none';
-        // Limpar campos manualmente se não for um form
-        const nameInput = document.getElementById('newCommunityName');
-        const descInput = document.getElementById('newCommunityDescription');
-        const emojiSpan = document.getElementById('newCommunityEmoji');
-        
-        if (nameInput) nameInput.value = '';
-        if (descInput) descInput.value = '';
-        if (emojiSpan) emojiSpan.textContent = '👨‍👩‍👧‍👦';
-    }
-}
-
-async function createCommunity() {
-    const name = document.getElementById('newCommunityName').value.trim();
-    const description = document.getElementById('newCommunityDescription').value.trim();
-    const emoji = document.getElementById('newCommunityEmoji').textContent;
-    
-    if (!name) {
-        alert('Por favor, preencha o nome da comunidade');
-        return;
-    }
-    
-    const { data, error } = await supabase
-        .from('communities')
-        .insert({
-            name,
-            description,
-            emoji,
-            owner_id: currentUser.id
-        })
-        .select()
-        .single();
-    
-    if (error) {
-        console.error('Erro ao criar comunidade:', error);
-        alert('Erro ao criar comunidade: ' + error.message);
-        return;
-    }
-    
-    // Adicionar owner como membro da comunidade
-    const { error: memberError } = await supabase.rpc('add_community_member', {
-        p_community_id: data.id,
-        p_user_id: currentUser.id,
-        p_role: 'owner'
-    });
-    
-    if (memberError) {
-        console.error('Erro ao adicionar owner como membro:', memberError);
-        // Não bloqueia, apenas loga o erro
-    }
-    
-    alert('✅ Comunidade criada com sucesso!');
-    hideCreateCommunityForm();
-    loadOwnedCommunities();
-}
-
-// ========== EDITAR COMUNIDADE ==========
-
-async function updateCommunity() {
-    const communityId = document.getElementById('communitySelect').value;
-    if (!communityId) return;
-    
-    const name = document.getElementById('editCommunityName').value.trim();
-    const description = document.getElementById('editCommunityDescription').value.trim();
-    const emoji = document.getElementById('selectedEmoji').textContent;
-    
-    if (!name) {
-        alert('Por favor, preencha o nome da comunidade');
-        return;
-    }
-    
-    const { error } = await supabase
-        .from('communities')
-        .update({ name, description, emoji })
-        .eq('id', communityId);
-    
-    if (error) {
-        console.error('Erro ao atualizar comunidade:', error);
-        alert('Erro ao atualizar comunidade: ' + error.message);
-        return;
-    }
-    
-    alert('✅ Comunidade atualizada com sucesso!');
-    loadOwnedCommunities();
-}
-
-// ========== TABS ==========
-
-function switchManagementTab(tabName) {
-    // Esconder todas as tabs
-    document.querySelectorAll('.management-tab-content').forEach(tab => {
-        tab.style.display = 'none';
-    });
-    
-    // Remover active de todos os botões e resetar border
-    document.querySelectorAll('.management-tab').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.borderBottom = '3px solid transparent';
-        btn.style.fontWeight = 'normal';
-    });
-    
-    // Mostrar tab selecionada
-    const selectedTab = document.getElementById(tabName + 'Tab');
-    if (selectedTab) {
-        selectedTab.style.display = 'block';
-    }
-    
-    // Adicionar active ao botão correto (buscar por onclick)
-    document.querySelectorAll('.management-tab').forEach(btn => {
-        const onclick = btn.getAttribute('onclick');
-        if (onclick && onclick.includes(`'${tabName}'`)) {
-            btn.classList.add('active');
-            btn.style.borderBottom = '3px solid #667eea';
-            btn.style.fontWeight = '600';
-        }
-    });
-}
-
-// ========== MEMBROS ==========
-
-async function loadCommunityMembers(communityId) {
-    // Buscar informações da comunidade para saber quem é o owner
-    const { data: community } = await supabase
-        .from('communities')
-        .select('owner_id')
-        .eq('id', communityId)
-        .single();
-    
-    const ownerId = community?.owner_id;
-    
-    // Buscar todos os membros (incluindo owner)
-    const { data: members, error } = await supabase
-        .from('community_members')
-        .select(`
-            user_id,
-            role,
-            joined_at,
-            profiles:user_id (
-                id,
-                name,
-                username,
-                avatar_url
-            )
-        `)
-        .eq('community_id', communityId)
-        .eq('is_active', true)
-        .order('joined_at', { ascending: true });
-    
-    if (error) {
-        console.error('Erro ao carregar membros:', error);
-        return;
-    }
-    
-    const container = document.getElementById('currentMembers');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    if (!members || members.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum membro ainda</p>';
-        return;
-    }
-    
-    // Ordenar: owner primeiro, depois outros membros
-    const sortedMembers = [...members].sort((a, b) => {
-        if (a.user_id === ownerId) return -1;
-        if (b.user_id === ownerId) return 1;
-        return 0;
-    });
-    
-    sortedMembers.forEach(member => {
-        const user = member.profiles;
-        if (!user) return;
-        
-        const isOwner = user.id === ownerId;
-        
-        const memberDiv = document.createElement('div');
-        memberDiv.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        `;
-        
-        memberDiv.innerHTML = `
-            <img src="${user.avatar_url || 'https://via.placeholder.com/40'}" style="
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                object-fit: cover;
-            ">
-            <div style="flex: 1;">
-                <div style="font-weight: 600;">
-                    ${user.name}
-                    ${isOwner ? '<span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">OWNER</span>' : ''}
-                </div>
-                <div style="color: #666; font-size: 14px;">@${user.username}</div>
-            </div>
-            ${!isOwner ? `
-                <button onclick="removeMember('${communityId}', '${user.id}')" style="
-                    padding: 8px 16px;
-                    background: #dc3545;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    cursor: pointer;
-                ">
-                    Remover
-                </button>
-            ` : '<span style="color: #999; font-size: 12px;">Criador</span>'}
-        `;
-        
-        container.appendChild(memberDiv);
-    });
-}
-
-// ========== AUTOCOMPLETE PARA ADICIONAR MEMBROS ==========
-
-let memberAutocompleteUsers = [];
-let selectedMemberIndex = -1;
-
-function setupUserSearch() {
-    const searchInput = document.getElementById('searchUsers');
-    if (!searchInput) return;
-    
-    // Carregar todos os usuários uma vez
-    loadAllUsersForAutocomplete();
-    
-    searchInput.addEventListener('input', (e) => {
-        const value = e.target.value;
-        const cursorPos = e.target.selectionStart;
-        
-        // Detectar @ e extrair query
-        const textBeforeCursor = value.substring(0, cursorPos);
-        const atMatch = textBeforeCursor.match(/@(\w*)$/);
-        
-        if (atMatch) {
-            const query = atMatch[1].toLowerCase();
-            showMemberAutocomplete(query);
-        } else {
-            hideMemberAutocomplete();
-        }
-    });
-    
-    // Navegação com teclado
-    searchInput.addEventListener('keydown', (e) => {
-        const autocomplete = document.getElementById('memberAutocomplete');
-        if (!autocomplete || autocomplete.style.display === 'none') return;
-        
-        const items = autocomplete.querySelectorAll('.mention-item');
-        if (items.length === 0) return;
-        
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            selectedMemberIndex = Math.min(selectedMemberIndex + 1, items.length - 1);
-            updateMemberSelection(items);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            selectedMemberIndex = Math.max(selectedMemberIndex - 1, 0);
-            updateMemberSelection(items);
-        } else if (e.key === 'Enter' && selectedMemberIndex >= 0) {
-            e.preventDefault();
-            items[selectedMemberIndex].click();
-        } else if (e.key === 'Escape') {
-            hideMemberAutocomplete();
-        }
-    });
-}
-
-async function loadAllUsersForAutocomplete() {
-    try {
-        const { data: users, error } = await supabase
-            .from('profiles')
-            .select('id, name, username, avatar_url')
-            .order('name');
-        
-        if (!error && users) {
-            memberAutocompleteUsers = users;
-            console.log(`✅ Carregados ${users.length} usuários para autocomplete`);
-        }
-    } catch (error) {
-        console.error('❌ Erro ao carregar usuários:', error);
-    }
-}
-
-async function showMemberAutocomplete(query) {
-    const communityId = document.getElementById('communitySelect')?.value;
-    if (!communityId) return;
-    
-    // Buscar membros atuais
-    const { data: members } = await supabase
-        .from('community_members')
-        .select('user_id')
-        .eq('community_id', communityId)
-        .eq('is_active', true);
-    
-    const memberIds = members ? members.map(m => m.user_id) : [];
-    
-    // Filtrar usuários
-    const filteredUsers = memberAutocompleteUsers.filter(user => {
-        // Excluir usuário logado
-        if (currentUser && user.id === currentUser.id) return false;
-        
-        // Excluir membros existentes
-        if (memberIds.includes(user.id)) return false;
-        
-        // Filtrar por query
-        const queryLower = query.toLowerCase();
-        const nameLower = user.name.toLowerCase();
-        const usernameLower = user.username.toLowerCase();
-        
-        return nameLower.includes(queryLower) || 
-               usernameLower.includes(queryLower) ||
-               usernameLower.startsWith(queryLower);
-    }).slice(0, 5);
-    
-    if (filteredUsers.length === 0) {
-        hideMemberAutocomplete();
-        return;
-    }
-    
-    // Criar/atualizar autocomplete
-    let autocomplete = document.getElementById('memberAutocomplete');
-    if (!autocomplete) {
-        autocomplete = document.createElement('div');
-        autocomplete.id = 'memberAutocomplete';
-        autocomplete.className = 'mentions-autocomplete';
-        const searchInput = document.getElementById('searchUsers');
-        const rect = searchInput.getBoundingClientRect();
-        const modalContent = searchInput.closest('.modal-content');
-        const modalRect = modalContent ? modalContent.getBoundingClientRect() : { top: 0, left: 0 };
-        
-        // Posicionar relativo ao input, considerando scroll do modal
-        autocomplete.style.cssText = `
-            position: absolute;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 10001;
-            top: 100%;
-            left: 0;
-            right: 0;
-            margin-top: 5px;
-        `;
-        
-        // Inserir logo após o input (parentElement já tem position: relative no HTML)
-        searchInput.parentElement.appendChild(autocomplete);
-    } else {
-        // Autocomplete já existe, apenas atualizar conteúdo
-    }
-    
-    autocomplete.innerHTML = filteredUsers.map((user, index) => `
-        <div class="mention-item" data-user-id="${user.id}" data-username="${user.username}" data-index="${index}" style="
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-        ">
-            <img src="${user.avatar_url || 'https://via.placeholder.com/32'}" style="
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                object-fit: cover;
-            ">
-            <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 14px;">${user.name}</div>
-                <div style="color: #666; font-size: 12px;">@${user.username}</div>
-            </div>
-        </div>
-    `).join('');
-    
-    autocomplete.style.display = 'block';
-    selectedMemberIndex = -1;
-    
-    // Adicionar event listeners
-    autocomplete.querySelectorAll('.mention-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const userId = item.dataset.userId;
-            const username = item.dataset.username;
-            selectMemberToAdd(userId, username);
-        });
-        
-        item.addEventListener('mouseenter', () => {
-            item.style.background = '#f5f5f5';
-        });
-        
-        item.addEventListener('mouseleave', () => {
-            item.style.background = 'white';
-        });
-    });
-}
-
-function hideMemberAutocomplete() {
-    const autocomplete = document.getElementById('memberAutocomplete');
-    if (autocomplete) {
-        autocomplete.style.display = 'none';
-    }
-    selectedMemberIndex = -1;
-}
-
-function updateMemberSelection(items) {
-    items.forEach((item, index) => {
-        if (index === selectedMemberIndex) {
-            item.style.background = '#f5f5f5';
-        } else {
-            item.style.background = 'white';
-        }
-    });
-}
-
-async function selectMemberToAdd(userId, username) {
-    const communityId = document.getElementById('communitySelect')?.value;
-    if (!communityId) return;
-    
-    // Adicionar membro (com p_role para evitar ambiguidade)
-    const { error } = await supabase.rpc('add_community_member', {
-        p_community_id: communityId,
-        p_user_id: userId,
-        p_role: 'member'
-    });
-    
-    if (error) {
-        alert('❌ Erro: ' + error.message);
-        return;
-    }
-    
-    // Limpar input e esconder autocomplete
-    const searchInput = document.getElementById('searchUsers');
-    if (searchInput) {
-        searchInput.value = '';
-    }
-    hideMemberAutocomplete();
-    
-    // Mostrar feedback
-    alert(`✅ @${username} adicionado com sucesso!`);
-    
-    // Recarregar lista de membros
-    loadCommunityMembers(communityId);
-}
-
-async function removeMember(communityId, userId) {
-    if (!confirm('Tem certeza que deseja remover este membro?')) {
-        return;
-    }
-    
-    const { error } = await supabase
-        .from('community_members')
-        .update({ is_active: false })
-        .eq('community_id', communityId)
-        .eq('user_id', userId);
-    
-    if (error) {
-        console.error('Erro ao remover membro:', error);
-        alert('Erro ao remover membro: ' + error.message);
-        return;
-    }
-    
-    alert('✅ Membro removido com sucesso!');
-    loadCommunityMembers(communityId);
-}
-
-// ========== POSTS ==========
-
-async function loadCommunityPosts(communityId) {
-    console.log('👨‍👩‍👧‍👦 Carregando posts da comunidade:', communityId);
-    
-    // Marcar como carregando
-    window.isLoadingPosts = true;
-    
-    const { data: posts, error } = await supabase
-        .from('posts')
-        .select(`
-            *,
-            profiles:user_id (
-                name,
-                username,
-                avatar_url
-            ),
-            reactions (
-                type,
-                user_id
-            ),
-            comments (
-                id
-            ),
-            feedbacks (
-                id
-            )
-        `)
-        .eq('community_id', communityId)
-        .order('created_at', { ascending: false })
-        .limit(20);
-    
-    if (error) {
-        console.error('❌ Erro ao carregar posts da comunidade:', error);
-        return;
-    }
-    
-    console.log('✅ Posts da comunidade carregados:', posts?.length || 0);
-    
-    // Transformar dados de profiles para formato esperado por processPostsUserData
-    console.log('🔄 Transformando dados de profiles para author_*...');
-    const transformedPosts = (posts || []).map(post => {
-        console.log('🔍 Post antes da transformação:', {
-            id: post.id,
-            hasProfiles: !!post.profiles,
-            profiles: post.profiles
-        });
-        
-        // Se profiles existe (join funcionou), transformar para author_*
-        if (post.profiles) {
-            const transformed = {
-                ...post,
-                author_name: post.profiles.name,
-                author_username: post.profiles.username,
-                author_avatar_url: post.profiles.avatar_url
-            };
-            console.log('✅ Post transformado:', {
-                id: transformed.id,
-                author_name: transformed.author_name,
-                author_username: transformed.author_username
-            });
-            return transformed;
-        }
-        console.log('⚠️ Post sem profiles, usando fallback');
-        return post;
-    });
-    console.log('✅ Transformação concluída:', transformedPosts.length, 'posts');
-    
-    // Atualizar window.posts para que renderPosts() use os posts da comunidade
-    window.posts = transformedPosts;
-    
-    // Finalizar loading
-    window.isLoadingPosts = false;
-    
-    // Chamar renderPosts() para renderizar no container principal
-    if (typeof renderPosts === 'function') {
-        await renderPosts();
-        console.log('✅ Posts da comunidade renderizados no feed principal');
-        
-        // Processar dados de usuários e reações em background (igual ao loadPosts)
-        setTimeout(async () => {
-            if (typeof processPostsUserData === 'function') {
-                await processPostsUserData();
-            }
-            if (typeof loadPostsReactions === 'function') {
-                await loadPostsReactions();
-            }
-            if (typeof loadAllFeedbacksInBatch === 'function') {
-                await loadAllFeedbacksInBatch();
-            }
-            if (typeof loadAllCommentsInBatch === 'function') {
-                await loadAllCommentsInBatch();
-            }
-            await renderPosts(); // Re-renderizar com dados completos
-            if (typeof processPostsForUsernames === 'function') {
-                processPostsForUsernames();
-            }
-            console.log('✅ Posts da comunidade processados com dados completos');
-        }, 100);
-        
-        return;
-    }
-    
-    // Fallback: renderizar no container communityPosts (caso renderPosts não exista)
-    const container = document.getElementById('communityPosts');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    if (!posts || posts.length === 0) {
-        // Buscar emoji da comunidade
-        const { data: community } = await supabase
-            .from('communities')
-            .select('emoji')
-            .eq('id', communityId)
-            .single();
-        
-        const communityEmoji = community?.emoji || '👨‍👩‍👧‍👦';
-        
-        container.innerHTML = `
-            <div style="
-                background: white;
-                border-radius: 12px;
-                padding: 4rem 2rem;
-                text-align: center;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            ">
-                <div style="font-size: 64px; margin-bottom: 1rem;">${communityEmoji}</div>
-                <h3 style="color: #333; margin-bottom: 1rem;">Nenhum post ainda</h3>
-                <p style="color: #666;">Seja o primeiro a destacar alguém!</p>
-            </div>
-        `;
-        return;
-    }
-    
-    const typeEmojis = {
-        'gratidao': '🙏', 'gratitude': '🙏',
-        'memoria': '💭', 'memory': '💭',
-        'conquista': '🏆', 'achievement': '🏆',
-        'inspiracao': '✨', 'inspiration': '✨',
-        'apoio': '🤝', 'support': '🤝',
-        'admiracao': '🌟', 'admiration': '🌟'
-    };
-
-    const typeNames = {
-        'gratidao': 'Gratidão', 'gratitude': 'Gratidão',
-        'memoria': 'Memória', 'memory': 'Memória',
-        'conquista': 'Conquista', 'achievement': 'Conquista',
-        'inspiracao': 'Inspiração', 'inspiration': 'Inspiração',
-        'apoio': 'Apoio', 'support': 'Apoio',
-        'admiracao': 'Admiração', 'admiration': 'Admiração'
-    };
-    
-    posts.forEach(post => {
-        const postDiv = document.createElement('div');
-        postDiv.style.cssText = `
-            padding: 1.5rem;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            background: white;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        `;
-        
-        const user = post.profiles;
-        const authorName = user?.name || 'Usuário';
-        const authorUsername = user?.username || 'usuario';
-        const authorAvatar = user?.avatar_url || '';
-        
-        // Contar reações por tipo
-        const touchedCount = post.reactions?.filter(r => r.type === 'touched').length || 0;
-        const gratefulCount = post.reactions?.filter(r => r.type === 'grateful').length || 0;
-        const inspiredCount = post.reactions?.filter(r => r.type === 'inspired').length || 0;
-        
-        postDiv.innerHTML = `
-            <div style="position: relative;">
-                <button onclick="deletePost('${post.id}', '${communityId}')" style="
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    padding: 6px 12px;
-                    background: #dc3545;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    cursor: pointer;
-                    transition: background 0.2s ease;
-                " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
-                    🗑️ Deletar
-                </button>
-                
-                <div style="display: flex; gap: 12px; margin-bottom: 1rem;">
-                    <img src="${authorAvatar || 'https://via.placeholder.com/50'}" style="
-                        width: 50px;
-                        height: 50px;
-                        border-radius: 50%;
-                        object-fit: cover;
-                    ">
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; color: #333;">${authorName}</div>
-                        <div style="color: #666; font-size: 14px;">
-                            <span>@${authorUsername}</span>
-                            <span style="color: #999;"> • </span>
-                            <span>${formatDateShort(post.created_at)}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <div style="font-weight: 600; color: #e55a2b; margin-bottom: 0.5rem;">
-                        Holofotes para: 
-                        <span>${post.celebrated_person_name || 'Alguém especial'}</span>
-                    </div>
-                    ${post.type ? `
-                        <div style="
-                            display: inline-block;
-                            background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);
-                            color: white;
-                            padding: 0.3rem 0.8rem;
-                            border-radius: 15px;
-                            font-size: 13px;
-                            font-weight: 600;
-                            margin-bottom: 0.5rem;
-                        ">
-                            ${typeEmojis[post.type] || '✨'} ${typeNames[post.type] || 'Destaque'}
-                        </div>
-                    ` : ''}
-                    ${post.photo_url ? `
-                        <img src="${post.photo_url}" style="
-                            width: 100%;
-                            border-radius: 8px;
-                            margin-bottom: 1rem;
-                            height: auto;
-                            object-fit: contain;
-                        ">
-                    ` : ''}
-                    <div style="line-height: 1.5; color: #333;">
-                        ${post.content || ''}
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
-                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        ❤️ ${touchedCount}
-                    </button>
-                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        🙏 ${gratefulCount}
-                    </button>
-                    <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        ✨ ${inspiredCount}
-                    </button>
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span onclick="${post.comments?.length > 0 ? `openCommentsModal('${post.id}', true)` : ''}" style="
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        padding: 8px 12px;
-                        background: ${post.comments?.length > 0 ? 'linear-gradient(135deg, #2196f3, #1976d2)' : '#f5f5f5'};
-                        color: ${post.comments?.length > 0 ? 'white' : '#666'};
-                        border-radius: 20px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        cursor: ${post.comments?.length > 0 ? 'pointer' : 'default'};
-                        transition: transform 0.2s ease;
-                    " ${post.comments?.length > 0 ? "onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\"" : ''}>
-                        💬 ${post.comments?.length || 0}
-                    </span>
-                    <span onclick="${post.feedbacks?.length > 0 ? `openFeedbackModal('${post.id}', true)` : ''}" style="
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        padding: 8px 12px;
-                        background: ${post.feedbacks?.length > 0 ? 'linear-gradient(135deg, #FFB700, #FF9800)' : '#f5f5f5'};
-                        color: ${post.feedbacks?.length > 0 ? 'white' : '#666'};
-                        border-radius: 20px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        cursor: ${post.feedbacks?.length > 0 ? 'pointer' : 'default'};
-                        transition: transform 0.2s ease;
-                    " ${post.feedbacks?.length > 0 ? "onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\"" : ''}>
-                        🔄 ${post.feedbacks?.length || 0}
-                    </span>
-                </div>
-            </div>
-        `;
-        
-        container.appendChild(postDiv);
-    });
-}
-
-async function deletePost(postId, communityId) {
-    if (!confirm('Tem certeza que deseja deletar este post?')) {
-        return;
-    }
-    
-    const { error } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', postId);
-    
-    if (error) {
-        console.error('Erro ao deletar post:', error);
-        alert('Erro ao deletar post: ' + error.message);
-        return;
-    }
-    
-    alert('✅ Post deletado com sucesso!');
-    loadCommunityPosts(communityId);
-}
-
-// ========== DELETAR COMUNIDADE ==========
-
-async function deleteCommunity() {
-    const communityId = document.getElementById('communitySelect').value;
-    if (!communityId) return;
-    
-    if (!confirm('⚠️ ATENÇÃO: Deletar a comunidade irá remover TODOS os posts e membros. Esta ação não pode ser desfeita. Tem certeza?')) {
-        return;
-    }
-    
-    const { error } = await supabase
-        .from('communities')
-        .update({ is_active: false })
-        .eq('id', communityId);
-    
-    if (error) {
-        console.error('Erro ao deletar comunidade:', error);
-        alert('Erro ao deletar comunidade: ' + error.message);
-        return;
-    }
-    
-    alert('✅ Comunidade deletada com sucesso!');
-    closeManageCommunityModal();
-    
-    // Recarregar feeds se necessário
-    if (typeof loadCommunityFeeds === 'function') {
-        loadCommunityFeeds();
-    }
-}
-
-// ========== INICIALIZAÇÃO ==========
-
-function initCommunityManagement() {
-    setupCommunitySelectListener();
-    setupUserSearch();
-    
-    console.log('✅ Community Management inicializado');
-}
-
-// Exportar funções globalmente
-window.openManageCommunityModal = openManageCommunityModal;
-window.closeManageCommunityModal = closeManageCommunityModal;
-window.switchManagementTab = switchManagementTab;
-window.showCreateCommunityForm = showCreateCommunityForm;
-window.hideCreateCommunityForm = hideCreateCommunityForm;
-window.createCommunity = createCommunity;
-window.updateCommunity = updateCommunity;
-window.deleteCommunity = deleteCommunity;
-window.openEmojiPicker = openEmojiPicker;
-window.closeEmojiPicker = closeEmojiPicker;
-window.selectEmoji = selectEmoji;
-window.removeMember = removeMember;
-window.deletePost = deletePost;
-window.initCommunityManagement = initCommunityManagement;
-
-console.log('✅ Módulo community_management.js carregado');
-
-    </script>
+    <script src="./js/emoji_picker.js"></script>
+    <script src="./js/community_feeds.js"></script>
+    <script src="./js/community_management.js"></script>
 
 </body>
 </html>
