@@ -141,19 +141,13 @@
                 align-self: start !important;
             }
 
-            /* Logo GRANDE centralizado (ocupando verticalmente as 2 linhas) */
+            /* Logo centralizado (apenas linha 1) */
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
                 align-self: center !important;
                 display: flex;
                 align-items: center;
-                grid-row: 1 / 3;
-            }
-
-            .logo img {
-                width: 200px !important;
-                height: auto !important;
             }
 
             /* User info embaixo à esquerda (linha 2) */
@@ -235,18 +229,14 @@
                 align-self: start !important;
             }
 
-            /* Logo GRANDE no centro (linha 2, ocupando verticalmente) */
+            /* Logo no centro (ocupando verticalmente as 3 linhas) */
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
                 align-self: center !important;
                 display: flex;
                 align-items: center;
-            }
-
-            .logo img {
-                width: 280px !important;
-                height: auto !important;
+                grid-row: 1 / 4;
             }
 
             /* User info embaixo à esquerda (linha 3) */
@@ -2703,9 +2693,11 @@
                 <img src="./holospot_logo_cropped-Photoroom.png" style="width: 180px; height: auto;">
             </div>
 
+            <!-- Botão Sair (separado) -->
+            <button id="logoutBtn" class="logout-btn">Sair</button>
+
             <!-- Actions (direita no desktop) -->
             <div class="header-actions">
-                <button id="logoutBtn" class="logout-btn">Sair</button>
                 <div class="notifications" id="notificationsBtn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
