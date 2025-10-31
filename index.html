@@ -3825,6 +3825,7 @@
                 
                 // Inicializar estado de loading
                 window.isLoadingPosts = false;
+                window.feedInitialized = false; // Flag para evitar loadPosts antes de verificar default_feed
                 
                 // Check if user is already logged in
                 console.log('🔍 Verificando sessão...');
@@ -6109,6 +6110,11 @@
                 return;
             }
             
+            // Limpar estado de comunidade quando trocar para feeds normais
+            window.currentCommunityId = null;
+            window.currentCommunityEmoji = null;
+            console.log('✅ Estado de comunidade limpo, permitindo loadPosts()');
+            
             // Atualizar apenas o emoji (texto "Feed" fica fixo)
             const emoji = document.getElementById('feedEmoji');
             if (emoji) {
@@ -7422,7 +7428,19 @@
                 // Atualizar UI sem reload
                 await updateHeaderUI();  // Atualiza header com dados do banco
                 await loadUserData();     // Atualiza contadores
-                await loadPosts();        // Recarrega posts com novos dados
+                
+                // Recarregar feed apropriado
+                if (defaultFeed && defaultFeed.startsWith('community-')) {
+                    const communityId = defaultFeed.replace('community-', '');
+                    window.currentCommunityId = communityId;
+                    if (typeof loadCommunityPosts === 'function') {
+                        await loadCommunityPosts(communityId);
+                    }
+                } else {
+                    window.currentCommunityId = null;
+                    window.currentCommunityEmoji = null;
+                    await loadPosts();  // Recarrega posts com novos dados
+                }
                 
                 // Fechar modal
                 closeSettingsModal();
@@ -7447,6 +7465,12 @@
             try {
                 console.log('📝 Carregando posts...');
                 console.log('🔍 [DEBUG] loadPosts chamado de:', new Error().stack);
+                
+                // Se feed ainda não foi inicializado, aguardar
+                if (window.feedInitialized === false) {
+                    console.log('⏳ Feed ainda não inicializado, aguardando verificação de default_feed...');
+                    return;
+                }
                 
                 // Se há uma comunidade ativa, não carregar posts gerais
                 if (window.currentCommunityId) {
@@ -16197,8 +16221,12 @@
                     
                     // Carregar posts da comunidade
                     if (typeof loadCommunityPosts === 'function') {
-                        loadCommunityPosts(communityId);
+                        await loadCommunityPosts(communityId);
                     }
+                    
+                    // Marcar feed como inicializado
+                    window.feedInitialized = true;
+                    console.log('✅ Feed inicializado (comunidade)');
                 } else {
                     // Atualizar emoji para feeds padrões
                     const emoji = document.getElementById('feedEmoji');
@@ -16214,9 +16242,18 @@
                             option.classList.remove('active');
                         }
                     });
+                    
+                    // Marcar feed como inicializado e carregar posts normais
+                    window.feedInitialized = true;
+                    console.log('✅ Feed inicializado (feed normal)');
+                    
+                    // Carregar posts do feed normal
+                    if (typeof loadPosts === 'function') {
+                        await loadPosts();
+                    }
                 }
                 
-                console.log('✅ [DEBUG] UI do filtro inicializada sem chamar loadPosts');
+                console.log('✅ [DEBUG] UI do filtro inicializada');
             }, 100);
             
             setTimeout(() => {
