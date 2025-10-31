@@ -135,7 +135,7 @@
 
             .logo {
                 grid-area: logo;
-                justify-self: start !important;
+                justify-self: center !important;
                 align-self: center;
                 display: flex;
                 align-items: center;
@@ -153,6 +153,7 @@
             .logout-btn {
                 grid-area: logout;
                 justify-self: end;
+                align-self: center;
             }
 
             .header-actions {
@@ -202,52 +203,39 @@
                 top: 160px !important;
             }
 
-            /* Reorganiza header para desktop - DUAS LINHAS */
+            /* Reorganiza header para desktop - UMA LINHA */
             .header-content {
                 display: grid;
-                grid-template-columns: 1fr auto 1fr;
-                grid-template-rows: auto auto;
+                grid-template-columns: auto 1fr auto;
                 grid-template-areas: 
-                    "user logo logout"
-                    ". . actions";
+                    "user logo actions";
                 align-items: center !important;
-                gap: 0.5rem 2rem;
+                gap: 2rem;
                 height: auto;
             }
 
-            /* User info na esquerda, linha 1 */
+            /* User info na esquerda */
             .user-section {
                 grid-area: user;
                 justify-self: start !important;
                 align-self: center;
             }
 
-            /* Logo no centro, linha 1 */
+            /* Logo no centro */
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
                 align-self: center;
             }
 
-            /* Botão sair no topo direito, linha 1 */
-            .logout-btn {
-                grid-area: logout;
-                justify-self: end !important;
-                align-self: start !important;
-            }
-
-            /* Notificações e chat na direita, linha 2 */
+            /* Notificações, chat e sair na direita */
             .header-actions {
                 grid-area: actions;
                 justify-self: end;
-                align-self: start;
+                align-self: center;
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
-            }
-
-            .header-actions .logout-btn {
-                display: none !important;
             }
 
             .notifications {
@@ -256,6 +244,10 @@
 
             .chat-btn-header {
                 order: 2;
+            }
+
+            .logout-btn {
+                order: 3;
             }
         }
 
@@ -2837,41 +2829,6 @@
                 
                 <!-- Botões de Ação -->
                 <div style="display: flex; gap: 12px; margin-left: auto;">
-                    <!-- Botão Chat -->
-                    <button id="chatBtn" data-action="open-chat" style="
-                        background: linear-gradient(135deg, #ff4444 0%, #9333ea 100%);
-                        color: white;
-                        border: none;
-                        border-radius: 50%;
-                        width: 48px;
-                        height: 48px;
-                        font-size: 1.5rem;
-                        cursor: pointer;
-                        box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
-                        transition: all 0.3s ease;
-                        flex-shrink: 0;
-                        position: relative;
-                    " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(255, 68, 68, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(255, 68, 68, 0.4)';">
-                        💬
-                        <span id="unreadBadge" style="
-                            display: none;
-                            position: absolute;
-                            top: -4px;
-                            right: -4px;
-                            background: #ff4444;
-                            color: white;
-                            border-radius: 50%;
-                            width: 20px;
-                            height: 20px;
-                            font-size: 0.75rem;
-                            font-weight: bold;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            border: 2px solid white;
-                        "></span>
-                    </button>
-                    
                     <!-- Botão Gerenciar Comunidades (apenas para community_owner) -->
                     <button id="manageCommunityBtn" onclick="openManageCommunityModal()" style="
                         background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
@@ -7374,9 +7331,7 @@
                 if (convError) throw convError;
                 
                 if (!conversations || conversations.length === 0) {
-                    const badge = document.getElementById('unreadBadge');
                     const badgeHeader = document.getElementById('unreadBadgeHeader');
-                    if (badge) badge.style.display = 'none';
                     if (badgeHeader) badgeHeader.style.display = 'none';
                     return;
                 }
@@ -7393,21 +7348,15 @@
                 
                 if (countError) throw countError;
                 
-                const badge = document.getElementById('unreadBadge');
                 const badgeHeader = document.getElementById('unreadBadgeHeader');
                 
                 if (count && count > 0) {
                     const text = count > 9 ? '9+' : count;
-                    if (badge) {
-                        badge.textContent = text;
-                        badge.style.display = 'flex';
-                    }
                     if (badgeHeader) {
                         badgeHeader.textContent = text;
                         badgeHeader.style.display = 'flex';
                     }
                 } else {
-                    if (badge) badge.style.display = 'none';
                     if (badgeHeader) badgeHeader.style.display = 'none';
                 }
                 
