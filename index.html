@@ -126,17 +126,17 @@
             .header-content {
                 display: grid;
                 grid-template-areas: 
-                    "logo logout"
-                    "user-section actions";
-                grid-template-columns: 1fr auto;
-                gap: 1rem;
+                    ". logo logout"
+                    "user-section user-section actions";
+                grid-template-columns: 1fr auto 1fr;
+                gap: 0.5rem 1rem;
                 align-items: center;
             }
 
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
-                align-self: center;
+                align-self: center !important;
                 display: flex;
                 align-items: center;
                 gap: 0.75rem;
@@ -144,7 +144,8 @@
 
             .user-section {
                 grid-area: user-section;
-                justify-self: start;
+                justify-self: start !important;
+                align-self: center !important;
                 display: flex;
                 align-items: center;
                 gap: 0.75rem;
@@ -152,13 +153,14 @@
 
             .logout-btn {
                 grid-area: logout;
-                justify-self: end;
-                align-self: center;
+                justify-self: end !important;
+                align-self: center !important;
             }
 
             .header-actions {
                 grid-area: actions;
-                justify-self: end;
+                justify-self: end !important;
+                align-self: center !important;
                 display: flex;
                 gap: 0.5rem;
                 align-items: center;
@@ -207,35 +209,45 @@
             .header-content {
                 display: grid;
                 grid-template-columns: auto 1fr auto;
+                grid-template-rows: 1fr;
                 grid-template-areas: 
                     "user logo actions";
                 align-items: center !important;
                 gap: 2rem;
-                height: auto;
+                height: 60px;
+                min-height: 60px;
+                max-height: 60px;
             }
 
             /* User info na esquerda */
             .user-section {
                 grid-area: user;
                 justify-self: start !important;
-                align-self: center;
+                align-self: center !important;
+                display: flex;
+                align-items: center;
+                height: 100%;
             }
 
             /* Logo no centro */
             .logo {
                 grid-area: logo;
                 justify-self: center !important;
-                align-self: center;
+                align-self: center !important;
+                display: flex;
+                align-items: center;
+                height: 100%;
             }
 
             /* Notificações, chat e sair na direita */
             .header-actions {
                 grid-area: actions;
-                justify-self: end;
-                align-self: center;
+                justify-self: end !important;
+                align-self: center !important;
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
+                height: 100%;
             }
 
             .notifications {
