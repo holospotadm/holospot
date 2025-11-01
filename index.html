@@ -11437,23 +11437,47 @@
                 // Set para armazenar IDs únicos de pessoas que interagiram
                 const networkPeople = new Set();
                 
+                // Buscar TODOS os meus posts do Supabase
+                const { data: myPosts, error: myPostsError } = await supabase
+                    .from('posts')
+                    .select('id, user_id, mentioned_user_id, reactions(*)')
+                    .eq('user_id', currentUser.id);
+                
+                if (myPostsError) {
+                    console.error('❌ Erro ao buscar meus posts para rede:', myPostsError);
+                    return 0;
+                }
+                
+                const myPostsArray = myPosts || [];
+                
+                // Buscar TODOS os posts (para verificar menções e reações)
+                const { data: allPosts, error: allPostsError } = await supabase
+                    .from('posts')
+                    .select('id, user_id, mentioned_user_id, reactions(*)');
+                
+                if (allPostsError) {
+                    console.error('❌ Erro ao buscar todos os posts para rede:', allPostsError);
+                    return 0;
+                }
+                
+                const allPostsArray = allPosts || [];
+                
                 // 1. PESSOAS QUE EU DESTAQUEI (usando mentioned_user_id)
-                const myPosts = posts.filter(post => post.user_id === currentUser.id);
-                myPosts.forEach(post => {
+                myPostsArray.forEach(post => {
                     if (post.mentioned_user_id) {
                         networkPeople.add(post.mentioned_user_id);
                     }
                 });
                 
                 // 2. PESSOAS QUE ME DESTACARAM (posts onde mentioned_user_id é meu ID)
-                posts.forEach(post => {
+                allPostsArray.forEach(post => {
                     if (post.mentioned_user_id === currentUser.id && post.user_id !== currentUser.id) {
                         networkPeople.add(post.user_id);
                     }
                 });
                 
                 // 3. PESSOAS QUE REAGIRAM AOS MEUS POSTS
-                myPosts.forEach(post => {
+                myPostsArray.forEach(post => {
                     if (post.reactions && Array.isArray(post.reactions)) {
                         post.reactions.forEach(reaction => {
                             if (reaction.user_id && reaction.user_id !== currentUser.id) {
@@ -11464,7 +11488,7 @@
                 });
                 
                 // 4. PESSOAS EM CUJOS POSTS EU REAGI
-                posts.forEach(post => {
+                allPostsArray.forEach(post => {
                     if (post.user_id !== currentUser.id && post.reactions && Array.isArray(post.reactions)) {
                         const myReaction = post.reactions.find(r => r.user_id === currentUser.id);
                         if (myReaction) {
@@ -11475,7 +11499,7 @@
                 
                 // 5. BUSCAR COMENTÁRIOS E FEEDBACKS DO BANCO (com timeout)
                 try {
-                    const myPostIds = myPosts.map(p => p.id);
+                    const myPostIds = myPostsArray.map(p => p.id);
                     
                     // Só fazer queries se houver posts
                     if (myPostIds.length > 0) {
@@ -11513,7 +11537,7 @@
                         // Processar comentários que eu fiz
                         if (commentsGiven.data) {
                             const postIds = commentsGiven.data.map(c => c.post_id);
-                            posts.forEach(post => {
+                            allPostsArray.forEach(post => {
                                 if (postIds.includes(post.id) && post.user_id !== currentUser.id) {
                                     networkPeople.add(post.user_id);
                                 }
@@ -11533,7 +11557,7 @@
                         if (feedbacksGiven.data) {
                             feedbacksGiven.data.forEach(feedback => {
                                 // O author_id é quem deu o feedback (eu), então busco o dono do post
-                                const post = posts.find(p => p.id === feedback.post_id);
+                                const post = allPostsArray.find(p => p.id === feedback.post_id);
                                 if (post && post.user_id !== currentUser.id) {
                                     networkPeople.add(post.user_id);
                                 }
@@ -11565,11 +11589,11 @@
                 
                 // Log detalhado para debug
                 console.log('📊 Detalhamento da rede:');
-                console.log(`   📝 Meus posts: ${myPosts.length}`);
-                console.log(`   🎯 Pessoas que destaquei: ${myPosts.filter(p => p.mentioned_user_id).length}`);
-                console.log(`   🏆 Posts que me destacaram: ${posts.filter(p => p.mentioned_user_id === currentUser.id).length}`);
-                console.log(`   👍 Posts meus com reações: ${myPosts.filter(p => p.reactions && p.reactions.length > 0).length}`);
-                console.log(`   💬 Posts de outros onde reagi: ${posts.filter(p => p.user_id !== currentUser.id && p.reactions && p.reactions.find(r => r.user_id === currentUser.id)).length}`);
+                console.log(`   📝 Meus posts: ${myPostsArray.length}`);
+                console.log(`   🎯 Pessoas que destaquei: ${myPostsArray.filter(p => p.mentioned_user_id).length}`);
+                console.log(`   🏆 Posts que me destacaram: ${allPostsArray.filter(p => p.mentioned_user_id === currentUser.id).length}`);
+                console.log(`   👍 Posts meus com reações: ${myPostsArray.filter(p => p.reactions && p.reactions.length > 0).length}`);
+                console.log(`   💬 Posts de outros onde reagi: ${allPostsArray.filter(p => p.user_id !== currentUser.id && p.reactions && p.reactions.find(r => r.user_id === currentUser.id)).length}`);
                 
                 return networkSize;
                 
