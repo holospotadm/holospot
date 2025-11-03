@@ -562,12 +562,12 @@ BEGIN
         RETURN 0;
     END IF;
     
-    -- Calcular pontos dos últimos X dias
+    -- Calcular pontos dos últimos X dias (EXCLUINDO todos os tipos de bônus)
     SELECT COALESCE(SUM(points_earned), 0) INTO v_points_period
     FROM public.points_history 
     WHERE user_id = p_user_id
     AND created_at >= (CURRENT_DATE - INTERVAL '1 day' * v_days_back)
-    AND action_type != 'streak_bonus_retroactive'; -- Excluir bônus anteriores
+    AND action_type NOT IN ('streak_bonus', 'streak_bonus_retroactive', 'streak_bonus_correction'); -- Excluir todos os bônus
     
     -- Calcular bônus: Pontos do período × (Multiplicador - 1)
     v_bonus := ROUND(v_points_period * (v_multiplier - 1));
@@ -5557,31 +5557,45 @@ BEGIN
         
         -- Calcular bônus e pontos do período se milestone atingido
         IF v_milestone_reached THEN
-            -- Calcular bônus usando função existente
-            v_bonus_points := calculate_streak_bonus(p_user_id, v_completed_milestone);
+            RAISE NOTICE '🎯 MILESTONE ATINGIDO! User % - Milestone: % dias', p_user_id, v_completed_milestone;
             
-            -- Calcular pontos do período (últimos X dias)
+            -- Calcular pontos do período (últimos X dias) ANTES do bônus
             SELECT COALESCE(SUM(points_earned), 0) INTO v_points_period
             FROM points_history 
             WHERE user_id = p_user_id 
-            AND created_at >= CURRENT_DATE - INTERVAL '1 day' * v_completed_milestone;
+            AND created_at >= CURRENT_DATE - INTERVAL '1 day' * v_completed_milestone
+            AND action_type NOT IN ('streak_bonus', 'streak_bonus_retroactive', 'streak_bonus_correction');
             
-            -- CREDITAR OS PONTOS BÔNUS NA CONTA DO USUÁRIO
-            IF v_bonus_points > 0 THEN
+            RAISE NOTICE '📊 Pontos do período (% dias): %', v_completed_milestone, v_points_period;
+            
+            -- Calcular bônus usando função existente
+            v_bonus_points := calculate_streak_bonus(p_user_id, v_completed_milestone);
+            
+            RAISE NOTICE '💰 Bônus calculado: % pontos (20%% de %)', v_bonus_points, v_points_period;
+            
+            -- CREDITAR OS PONTOS BÔNUS NA CONTA DO USUÁRIO (mesmo se for 0)
+            IF v_bonus_points >= 0 THEN
+                -- Inserir registro de bônus
                 INSERT INTO points_history (user_id, points_earned, action_type, description, created_at)
                 VALUES (
                     p_user_id,
                     v_bonus_points,
                     'streak_bonus',
-                    'Bônus de ' || v_completed_milestone || ' dias de streak (' || v_bonus_points || ' pontos)',
+                    'Bônus de ' || v_completed_milestone || ' dias de streak - ' || v_bonus_points || ' pontos (20%% de ' || v_points_period || ' pontos do período)',
                     NOW()
                 );
+                
+                RAISE NOTICE '✅ Bônus inserido no points_history: % pontos', v_bonus_points;
                 
                 -- ATUALIZAR PONTOS TOTAIS E NÍVEL DO USUÁRIO
                 PERFORM update_user_points_and_level(p_user_id);
                 
-                RAISE NOTICE 'Bônus creditado e pontos atualizados: User % - % pontos por milestone de % dias', 
-                    p_user_id, v_bonus_points, v_completed_milestone;
+                RAISE NOTICE '✅ Pontos totais e nível atualizados para user %', p_user_id;
+                
+                RAISE NOTICE '🎉 BÔNUS CREDITADO COM SUCESSO: User % - % pontos por milestone de % dias (período: % pontos)', 
+                    p_user_id, v_bonus_points, v_completed_milestone, v_points_period;
+            ELSE
+                RAISE WARNING '⚠️ Bônus calculado é negativo ou inválido: %', v_bonus_points;
             END IF;
         END IF;
     END IF;
