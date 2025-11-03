@@ -638,37 +638,45 @@ BEGIN
     -- Loop para contar dias consecutivos com atividade
     LOOP
         -- Verificar atividades do dia usando timezone do usuário
-        SELECT EXISTS (
-            SELECT 1 FROM (
-                -- Posts criados
-                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
-                FROM public.posts 
-                WHERE user_id = p_user_id 
-                AND (content ~ '@\w+' OR content IS NOT NULL)
-                
-                UNION ALL
-                
-                -- Comentários em qualquer post
-                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
-                FROM public.comments 
-                WHERE user_id = p_user_id
-                
-                UNION ALL
-                
-                -- Reações em qualquer post
-                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
-                FROM public.reactions 
-                WHERE user_id = p_user_id
-                
-                UNION ALL
-                
-                -- Feedbacks escritos
-                SELECT (created_at AT TIME ZONE v_user_timezone)::DATE as activity_date 
-                FROM public.feedbacks 
-                WHERE author_id = p_user_id
-            ) activities
-            WHERE activity_date = v_check_date
-        ) INTO v_has_activity;
+        -- DEBUG: Contar cada tipo de atividade separadamente
+        DECLARE
+            v_posts_count INTEGER;
+            v_comments_count INTEGER;
+            v_reactions_count INTEGER;
+            v_feedbacks_count INTEGER;
+        BEGIN
+            -- Contar posts
+            SELECT COUNT(*) INTO v_posts_count
+            FROM public.posts 
+            WHERE user_id = p_user_id 
+            AND (created_at AT TIME ZONE v_user_timezone)::DATE = v_check_date
+            AND (content ~ '@\w+' OR content IS NOT NULL);
+            
+            -- Contar comentários
+            SELECT COUNT(*) INTO v_comments_count
+            FROM public.comments 
+            WHERE user_id = p_user_id
+            AND (created_at AT TIME ZONE v_user_timezone)::DATE = v_check_date;
+            
+            -- Contar reações
+            SELECT COUNT(*) INTO v_reactions_count
+            FROM public.reactions 
+            WHERE user_id = p_user_id
+            AND (created_at AT TIME ZONE v_user_timezone)::DATE = v_check_date;
+            
+            -- Contar feedbacks
+            SELECT COUNT(*) INTO v_feedbacks_count
+            FROM public.feedbacks 
+            WHERE author_id = p_user_id
+            AND (created_at AT TIME ZONE v_user_timezone)::DATE = v_check_date;
+            
+            -- Log detalhado
+            RAISE NOTICE '📅 Verificando atividades em % (timezone: %): Posts=%, Comments=%, Reactions=%, Feedbacks=%', 
+                v_check_date, v_user_timezone, v_posts_count, v_comments_count, v_reactions_count, v_feedbacks_count;
+            
+            -- Verificar se houve atividade
+            v_has_activity := (v_posts_count + v_comments_count + v_reactions_count + v_feedbacks_count) > 0;
+        END;
         
         -- Se não houve atividade neste dia, parar o loop
         IF NOT v_has_activity THEN
