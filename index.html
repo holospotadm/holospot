@@ -14770,6 +14770,37 @@
             try {
                 console.log(`🔥 Verificando streak após atividade: ${activityType}`);
                 
+                // DEBUG: Verificar timezone e atividades do usuário
+                try {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('timezone')
+                        .eq('id', currentUser.id)
+                        .single();
+                    
+                    const userTimezone = profile?.timezone || 'America/Sao_Paulo';
+                    const now = new Date();
+                    const nowInUserTZ = now.toLocaleString('pt-BR', { timeZone: userTimezone });
+                    
+                    console.log(`🌍 Timezone do usuário: ${userTimezone}`);
+                    console.log(`⏰ Data/hora atual no timezone do usuário: ${nowInUserTZ}`);
+                    
+                    // Verificar feedbacks de hoje
+                    const { data: todayFeedbacks, error: feedbacksError } = await supabase
+                        .from('feedbacks')
+                        .select('id, created_at, author_id')
+                        .eq('author_id', currentUser.id)
+                        .gte('created_at', new Date(now.setHours(0,0,0,0)).toISOString());
+                    
+                    if (feedbacksError) {
+                        console.error('❌ Erro ao buscar feedbacks:', feedbacksError);
+                    } else {
+                        console.log(`📝 Feedbacks de hoje (${todayFeedbacks?.length || 0}):`, todayFeedbacks);
+                    }
+                } catch (debugError) {
+                    console.error('❌ Erro no debug:', debugError);
+                }
+                
                 const { data: streakResult, error: streakError } = await supabase.rpc('update_user_streak_with_data', {
                     p_user_id: currentUser.id
                 });
