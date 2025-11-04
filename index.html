@@ -14785,17 +14785,28 @@
                     console.log(`🌍 Timezone do usuário: ${userTimezone}`);
                     console.log(`⏰ Data/hora atual no timezone do usuário: ${nowInUserTZ}`);
                     
-                    // Verificar feedbacks de hoje
-                    const { data: todayFeedbacks, error: feedbacksError } = await supabase
+                    // Verificar TODOS os feedbacks do usuário (para debug)
+                    const { data: allFeedbacks, error: feedbacksError } = await supabase
                         .from('feedbacks')
                         .select('id, created_at, author_id')
                         .eq('author_id', currentUser.id)
-                        .gte('created_at', new Date(now.setHours(0,0,0,0)).toISOString());
+                        .order('created_at', { ascending: false })
+                        .limit(10);
                     
                     if (feedbacksError) {
                         console.error('❌ Erro ao buscar feedbacks:', feedbacksError);
                     } else {
-                        console.log(`📝 Feedbacks de hoje (${todayFeedbacks?.length || 0}):`, todayFeedbacks);
+                        console.log(`📝 Últimos 10 feedbacks do usuário:`, allFeedbacks);
+                        
+                        // Converter cada feedback para o timezone do usuário
+                        if (allFeedbacks && allFeedbacks.length > 0) {
+                            allFeedbacks.forEach(fb => {
+                                const fbDate = new Date(fb.created_at);
+                                const fbDateInUserTZ = fbDate.toLocaleString('pt-BR', { timeZone: userTimezone });
+                                const fbDateOnly = fbDate.toLocaleDateString('pt-BR', { timeZone: userTimezone });
+                                console.log(`  - Feedback ${fb.id}: ${fb.created_at} (UTC) = ${fbDateInUserTZ} (${userTimezone}) = Data: ${fbDateOnly}`);
+                            });
+                        }
                     }
                 } catch (debugError) {
                     console.error('❌ Erro no debug:', debugError);
