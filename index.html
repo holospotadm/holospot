@@ -8986,8 +8986,8 @@
                         .from('feedbacks')
                         .insert({
                             post_id: postId,
-                            author_id: post.user_id,
-                            mentioned_user_id: currentUser.id,
+                            author_id: post.user_id,  // Dono do post (recebe feedback)
+                            mentioned_user_id: currentUser.id,  // Quem está dando o feedback
                             feedback_text: feedbackText
                         });
                     
@@ -8997,8 +8997,9 @@
                     // 🚀 CACHE INTELIGENTE: Adicionar feedback ao cache local
                     const newFeedback = {
                         post_id: postId,
-                        feedback_text: feedbackText,
+                        author_id: post.user_id,
                         mentioned_user_id: currentUser.id,
+                        feedback_text: feedbackText,
                         created_at: new Date().toISOString()
                     };
                     addFeedbackToCache(postId, newFeedback);

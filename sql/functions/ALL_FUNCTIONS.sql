@@ -664,10 +664,10 @@ BEGIN
             WHERE user_id = p_user_id
             AND (created_at AT TIME ZONE v_user_timezone)::DATE = v_check_date;
             
-            -- Contar feedbacks
+            -- Contar feedbacks (quem escreveu = mentioned_user_id)
             SELECT COUNT(*) INTO v_feedbacks_count
             FROM public.feedbacks 
-            WHERE author_id = p_user_id
+            WHERE mentioned_user_id = p_user_id
             AND (created_at AT TIME ZONE v_user_timezone)::DATE = v_check_date;
             
             -- Log detalhado
