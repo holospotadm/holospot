@@ -6,7 +6,11 @@
 -- Solução: mentioned_user_id = quem ESCREVEU o feedback
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION public.calculate_user_streak(p_user_id UUID)
+-- Dropar função existente
+DROP FUNCTION IF EXISTS public.calculate_user_streak(UUID);
+
+-- Recriar função com correção
+CREATE FUNCTION public.calculate_user_streak(p_user_id UUID)
 RETURNS TABLE (
     current_streak INTEGER,
     longest_streak INTEGER,
