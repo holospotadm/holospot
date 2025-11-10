@@ -8989,7 +8989,8 @@
                             author_id: post.user_id,  // Dono do post (recebe feedback)
                             mentioned_user_id: currentUser.id,  // Quem está dando o feedback
                             feedback_text: feedbackText
-                        });
+                        })
+                        .select();
                     
                     if (error) throw error;
                     console.log('✅ Feedback salvo no banco');
