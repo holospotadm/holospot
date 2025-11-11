@@ -8982,14 +8982,24 @@
                 
                 // Tentar salvar no banco
                 try {
+                    const feedbackData = {
+                        post_id: postId,
+                        author_id: post.user_id,  // Dono do post (recebe feedback)
+                        mentioned_user_id: currentUser.id,  // Quem está dando o feedback
+                        feedback_text: feedbackText
+                    };
+                    
+                    console.log('📦 Dados do feedback a serem enviados:', feedbackData);
+                    console.log('🔍 Tipos:', {
+                        post_id: typeof postId,
+                        author_id: typeof post.user_id,
+                        mentioned_user_id: typeof currentUser.id,
+                        feedback_text: typeof feedbackText
+                    });
+                    
                     const { data, error } = await supabase
                         .from('feedbacks')
-                        .insert({
-                            post_id: postId,
-                            author_id: post.user_id,  // Dono do post (recebe feedback)
-                            mentioned_user_id: currentUser.id,  // Quem está dando o feedback
-                            feedback_text: feedbackText
-                        })
+                        .insert(feedbackData)
                         .select();
                     
                     if (error) throw error;
