@@ -5251,8 +5251,10 @@ BEGIN
     
     -- Calcular data atual no timezone do usuário
     v_current_date := (NOW() AT TIME ZONE v_user_timezone)::DATE;
-    -- Calcular novo streak
-    v_new_streak := calculate_user_streak(p_user_id);
+    
+    -- Calcular novo streak (CORRIGIDO: usar SELECT INTO em vez de atribuição direta)
+    SELECT current_streak INTO v_new_streak
+    FROM calculate_user_streak(p_user_id);
     
     -- Buscar dados atuais (se existirem)
     SELECT current_streak, next_milestone 
