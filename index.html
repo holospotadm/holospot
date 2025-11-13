@@ -14828,13 +14828,24 @@
                     p_user_id: currentUser.id
                 });
                 
+                console.log('🔍 RPC update_user_streak_with_data chamado');
+                console.log('📦 Resultado completo:', { data: streakResult, error: streakError });
+                
                 if (streakError) {
                     console.error('❌ Erro ao verificar streak:', streakError);
+                    console.error('🔍 Detalhes do erro:', JSON.stringify(streakError, null, 2));
                     return;
                 }
                 
                 if (streakResult) {
                     console.log('✅ Streak verificado:', streakResult);
+                    console.log('📊 Detalhes do streak:', {
+                        current_streak: streakResult.current_streak,
+                        longest_streak: streakResult.longest_streak,
+                        last_activity_date: streakResult.last_activity_date,
+                        milestone_reached: streakResult.milestone_reached,
+                        bonus_points: streakResult.bonus_points
+                    });
                     
                     const currentStreak = streakResult.current_streak || 0;
                     
