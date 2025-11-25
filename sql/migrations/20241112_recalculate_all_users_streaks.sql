@@ -9,7 +9,7 @@
 CREATE OR REPLACE FUNCTION public.recalculate_all_users_streaks()
 RETURNS TABLE (
     user_id UUID,
-    username TEXT,
+    username VARCHAR(50),
     old_streak INTEGER,
     new_streak INTEGER,
     status TEXT
@@ -73,7 +73,7 @@ BEGIN
             -- Retornar resultado
             RETURN QUERY SELECT 
                 v_user.id,
-                v_user.username,
+                v_user.username::VARCHAR(50),
                 v_old_streak,
                 v_new_streak,
                 CASE 
@@ -87,7 +87,7 @@ BEGIN
             
             RETURN QUERY SELECT 
                 v_user.id,
-                v_user.username,
+                v_user.username::VARCHAR(50),
                 v_old_streak,
                 0::INTEGER,
                 ('❌ Erro: ' || SQLERRM)::TEXT;
