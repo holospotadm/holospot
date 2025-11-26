@@ -7,6 +7,17 @@
 -- ============================================================================
 
 -- ============================================================================
+-- PARTE 0: Dropar funções antigas (se existirem)
+-- ============================================================================
+
+DROP FUNCTION IF EXISTS public.update_user_streak_incremental(UUID);
+DROP FUNCTION IF EXISTS public.update_user_streak(UUID);
+DROP FUNCTION IF EXISTS public.update_user_streak_with_data(UUID);
+DROP FUNCTION IF EXISTS public.recalculate_user_streak_from_scratch(UUID);
+DROP FUNCTION IF EXISTS public.recalculate_all_users_streaks();
+DROP FUNCTION IF EXISTS public.get_streak_statistics();
+
+-- ============================================================================
 -- PARTE 1: Função incremental
 -- ============================================================================
 
@@ -240,8 +251,6 @@ GRANT EXECUTE ON FUNCTION public.recalculate_user_streak_from_scratch(UUID) TO a
 -- PARTE 4: Função de recálculo em massa
 -- ============================================================================
 
-DROP FUNCTION IF EXISTS public.recalculate_all_users_streaks();
-
 CREATE OR REPLACE FUNCTION public.recalculate_all_users_streaks()
 RETURNS TABLE (
     user_id UUID,
@@ -305,8 +314,6 @@ GRANT EXECUTE ON FUNCTION public.recalculate_all_users_streaks() TO authenticate
 -- ============================================================================
 -- PARTE 5: Função de estatísticas
 -- ============================================================================
-
-DROP FUNCTION IF EXISTS public.get_streak_statistics();
 
 CREATE OR REPLACE FUNCTION public.get_streak_statistics()
 RETURNS TABLE (
