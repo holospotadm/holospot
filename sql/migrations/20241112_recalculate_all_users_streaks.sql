@@ -6,6 +6,9 @@
 -- Objetivo: Garantir que todos os streaks estejam corretos
 -- ============================================================================
 
+-- Dropar função antiga (se existir) para permitir mudança de tipo
+DROP FUNCTION IF EXISTS public.recalculate_all_users_streaks();
+
 CREATE OR REPLACE FUNCTION public.recalculate_all_users_streaks()
 RETURNS TABLE (
     user_id UUID,
@@ -105,6 +108,9 @@ GRANT EXECUTE ON FUNCTION public.recalculate_all_users_streaks() TO authenticate
 -- ============================================================================
 -- FUNÇÃO AUXILIAR: Estatísticas de streaks
 -- ============================================================================
+
+-- Dropar função antiga (se existir)
+DROP FUNCTION IF EXISTS public.get_streak_statistics();
 
 CREATE OR REPLACE FUNCTION public.get_streak_statistics()
 RETURNS TABLE (
