@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS public.user_streaks (
     -- Sequência atual de dias consecutivos
     current_streak INTEGER DEFAULT 0,
     
+    -- Maior sequência já alcançada (recorde pessoal)
+    longest_streak INTEGER DEFAULT 0,
+    
     -- Próximo milestone a ser atingido
     next_milestone INTEGER DEFAULT 7,
     
@@ -67,6 +70,7 @@ Sistema de engajamento e motivação contínua do HoloSpot.';
 
 COMMENT ON COLUMN public.user_streaks.user_id IS 'Usuário proprietário do streak (chave primária)';
 COMMENT ON COLUMN public.user_streaks.current_streak IS 'Sequência atual de dias consecutivos de atividade';
+COMMENT ON COLUMN public.user_streaks.longest_streak IS 'Maior sequência de dias consecutivos já alcançada (recorde pessoal)';
 COMMENT ON COLUMN public.user_streaks.next_milestone IS 'Próximo milestone de streak a ser atingido';
 COMMENT ON COLUMN public.user_streaks.last_activity_date IS 'Data da última atividade registrada para o streak';
 COMMENT ON COLUMN public.user_streaks.updated_at IS 'Timestamp de última atualização do streak';
