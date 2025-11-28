@@ -6218,7 +6218,7 @@ DECLARE
     v_bonus_points INTEGER := 0;
     v_next_milestone INTEGER;
 BEGIN
-    SELECT timezone INTO v_user_timezone FROM profiles WHERE id = p_user_id;
+    SELECT timezone INTO v_user_timezone FROM profiles WHERE profiles.id = p_user_id;
     IF v_user_timezone IS NULL THEN v_user_timezone := 'America/Sao_Paulo'; END IF;
     
     v_today := (NOW() AT TIME ZONE v_user_timezone)::DATE;
@@ -6226,9 +6226,10 @@ BEGIN
     
     RAISE NOTICE '🔍 Streak incremental - User: %, Hoje: %, Ontem: %', p_user_id, v_today, v_yesterday;
     
-    SELECT current_streak, longest_streak, last_activity_date
+    -- FIX: Qualificar explicitamente com user_streaks.
+    SELECT user_streaks.current_streak, user_streaks.longest_streak, user_streaks.last_activity_date
     INTO v_current_streak, v_longest_streak, v_last_activity
-    FROM user_streaks WHERE user_id = p_user_id;
+    FROM user_streaks WHERE user_streaks.user_id = p_user_id;
     
     RAISE NOTICE '📊 Streak atual: current=%, longest=%, last_activity=%', v_current_streak, v_longest_streak, v_last_activity;
     
@@ -6278,7 +6279,7 @@ BEGIN
             last_activity_date = v_today,
             next_milestone = v_next_milestone,
             updated_at = NOW()
-        WHERE user_id = p_user_id;
+        WHERE user_streaks.user_id = p_user_id;
         
         IF v_milestone_reached THEN PERFORM apply_streak_bonus_retroactive(p_user_id); END IF;
         
@@ -6289,8 +6290,12 @@ BEGIN
     -- CENÁRIO 4: Streak quebrado
     IF v_last_activity < v_yesterday THEN
         RAISE NOTICE '💔 Streak quebrado! Última atividade: %, Recomeçando do zero', v_last_activity;
-        UPDATE user_streaks SET current_streak = 1, last_activity_date = v_today, next_milestone = 7, updated_at = NOW()
-        WHERE user_id = p_user_id;
+        UPDATE user_streaks SET 
+            current_streak = 1, 
+            last_activity_date = v_today, 
+            next_milestone = 7, 
+            updated_at = NOW()
+        WHERE user_streaks.user_id = p_user_id;
         RETURN QUERY SELECT 1, v_longest_streak, v_today, FALSE, NULL::INTEGER, 0;
         RETURN;
     END IF;
