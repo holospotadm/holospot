@@ -6126,12 +6126,27 @@ BEGIN
     
     RAISE NOTICE '📊 Streak atual: current=%, longest=%, last_activity=%', v_current_streak, v_longest_streak, v_last_activity;
     
-    -- CENÁRIO 1: Primeira atividade
-    IF v_current_streak IS NULL THEN
-        RAISE NOTICE '✨ Primeira atividade! Criando streak inicial';
-        INSERT INTO user_streaks (user_id, current_streak, longest_streak, last_activity_date, next_milestone, updated_at)
-        VALUES (p_user_id, 1, 1, v_today, 7, NOW());
-        RETURN QUERY SELECT 1, 1, v_today, FALSE, NULL::INTEGER, 0;
+    -- CENÁRIO 1: Primeira atividade (current_streak NULL OU last_activity NULL)
+    -- FIX: Adicionar OR v_last_activity IS NULL
+    IF v_current_streak IS NULL OR v_last_activity IS NULL THEN
+        RAISE NOTICE '✨ Primeira atividade! Criando/atualizando streak inicial';
+        
+        -- Se já existe registro mas sem last_activity, fazer UPDATE
+        IF v_current_streak IS NOT NULL THEN
+            UPDATE user_streaks SET
+                current_streak = 1,
+                longest_streak = GREATEST(COALESCE(longest_streak, 0), 1),
+                last_activity_date = v_today,
+                next_milestone = 7,
+                updated_at = NOW()
+            WHERE user_streaks.user_id = p_user_id;
+            RETURN QUERY SELECT 1, GREATEST(COALESCE(v_longest_streak, 0), 1), v_today, FALSE, NULL::INTEGER, 0;
+        ELSE
+            -- Não existe registro, fazer INSERT
+            INSERT INTO user_streaks (user_id, current_streak, longest_streak, last_activity_date, next_milestone, updated_at)
+            VALUES (p_user_id, 1, 1, v_today, 7, NOW());
+            RETURN QUERY SELECT 1, 1, v_today, FALSE, NULL::INTEGER, 0;
+        END IF;
         RETURN;
     END IF;
     
