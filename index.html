@@ -14686,10 +14686,11 @@
                         // Fallback: zerar todos os streaks em caso de erro
                         updateStreakProgressBars(0);
                         updateStreakDisplay(0);
-                    } else if (streakResult) {
+                    } else if (streakResult && streakResult.length > 0) {
                         console.log('✅ Streak atualizado via backend:', streakResult);
                         
-                        currentStreak = streakResult.current_streak || 0;
+                        const streak = streakResult[0];
+                        currentStreak = streak.current_streak || 0;
                         
                         // Atualizar display principal
                         updateStreakDisplay(currentStreak);
@@ -14698,8 +14699,8 @@
                         updateStreakProgressBars(currentStreak);
                         
                         // Verificar se atingiu milestone e mostrar notificação
-                        if (streakResult.milestone_reached && streakResult.bonus_points > 0) {
-                            showStreakBonus(streakResult);
+                        if (streak.milestone_reached && streak.bonus_points > 0) {
+                            showStreakBonus(streak);
                         }
                         
                         console.log(`🔥 Streak atualizado: ${currentStreak} dias consecutivos`);
