@@ -6135,7 +6135,7 @@ BEGIN
         IF v_current_streak IS NOT NULL THEN
             UPDATE user_streaks SET
                 current_streak = 1,
-                longest_streak = GREATEST(COALESCE(longest_streak, 0), 1),
+                longest_streak = GREATEST(COALESCE(user_streaks.longest_streak, 0), 1),
                 last_activity_date = v_today,
                 next_milestone = 7,
                 updated_at = NOW()
