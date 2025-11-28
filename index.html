@@ -14837,17 +14837,19 @@
                     return;
                 }
                 
-                if (streakResult) {
-                    console.log('✅ Streak verificado:', streakResult);
+                if (streakResult && streakResult.length > 0) {
+                    // FIX: RPC retorna ARRAY, pegar primeiro elemento
+                    const streak = streakResult[0];
+                    console.log('✅ Streak verificado:', streak);
                     console.log('📊 Detalhes do streak:', {
-                        current_streak: streakResult.current_streak,
-                        longest_streak: streakResult.longest_streak,
-                        last_activity_date: streakResult.last_activity_date,
-                        milestone_reached: streakResult.milestone_reached,
-                        bonus_points: streakResult.bonus_points
+                        current_streak: streak.current_streak,
+                        longest_streak: streak.longest_streak,
+                        last_activity_date: streak.last_activity_date,
+                        milestone_reached: streak.milestone_reached,
+                        bonus_points: streak.bonus_points
                     });
                     
-                    const currentStreak = streakResult.current_streak || 0;
+                    const currentStreak = streak.current_streak || 0;
                     
                     // Atualizar display principal
                     updateStreakDisplay(currentStreak);
@@ -14856,12 +14858,12 @@
                     updateStreakProgressBars(currentStreak);
                     
                     // 🎉 MOSTRAR NOTIFICAÇÃO DE MILESTONE EM TEMPO REAL
-                    if (streakResult.milestone_reached && streakResult.bonus_points > 0) {
-                        console.log('🎉 MILESTONE ATINGIDO EM TEMPO REAL!', streakResult);
+                    if (streak.milestone_reached && streak.bonus_points > 0) {
+                        console.log('🎉 MILESTONE ATINGIDO EM TEMPO REAL!', streak);
                         
                         // Pequeno delay para garantir que a atividade foi processada
                         setTimeout(() => {
-                            showStreakBonus(streakResult);
+                            showStreakBonus(streak);
                         }, 1000);
                     }
                     
