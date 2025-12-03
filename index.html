@@ -14848,8 +14848,51 @@
                         longest_streak: streak.longest_streak,
                         last_activity_date: streak.last_activity_date,
                         milestone_reached: streak.milestone_reached,
+                        milestone_value: streak.milestone_value,
                         bonus_points: streak.bonus_points
                     });
+                    
+                    // 🔍 DEBUG: Verificar se bônus foi inserido no points_history
+                    if (streak.milestone_reached) {
+                        console.log('🎯 MILESTONE DETECTADO! Verificando points_history...');
+                        
+                        setTimeout(async () => {
+                            const { data: bonusHistory, error: bonusError } = await supabase
+                                .from('points_history')
+                                .select('*')
+                                .eq('user_id', currentUser.id)
+                                .eq('action_type', 'streak_bonus_retroactive')
+                                .order('created_at', { ascending: false })
+                                .limit(5);
+                            
+                            if (bonusError) {
+                                console.error('❌ Erro ao buscar histórico de bônus:', bonusError);
+                            } else {
+                                console.log('📜 Histórico de bônus de streak:', bonusHistory);
+                                
+                                if (!bonusHistory || bonusHistory.length === 0) {
+                                    console.error('❌ PROBLEMA: Milestone atingido mas NENHUM bônus no points_history!');
+                                    console.error('🔍 Milestone value:', streak.milestone_value);
+                                    console.error('🔍 Bonus points retornado:', streak.bonus_points);
+                                } else {
+                                    console.log('✅ Bônus encontrado no points_history:', bonusHistory[0]);
+                                }
+                            }
+                            
+                            // Verificar pontos totais do usuário
+                            const { data: userPoints, error: pointsError } = await supabase
+                                .from('user_points')
+                                .select('total_points')
+                                .eq('user_id', currentUser.id)
+                                .single();
+                            
+                            if (pointsError) {
+                                console.error('❌ Erro ao buscar pontos totais:', pointsError);
+                            } else {
+                                console.log('💰 Pontos totais do usuário:', userPoints?.total_points);
+                            }
+                        }, 2000);
+                    }
                     
                     const currentStreak = streak.current_streak || 0;
                     
