@@ -2984,6 +2984,11 @@
                         <div class="progress-fill" id="engagementStreakProgress365" style="width: 0%; background: linear-gradient(135deg, #ff6600 0%, #9c27b0 100%);"></div>
                     </div>
                     <div class="progress-text" id="engagementStreakText365">0/365</div>
+                    
+                    <!-- Última atividade -->
+                    <div style="text-align: right; margin-top: 1rem; font-size: 0.85rem; color: #888; font-style: italic;">
+                        <span id="lastActivityDate"></span>
+                    </div>
                 </div>
             </div>
 
@@ -14694,7 +14699,7 @@
                         currentStreak = streak.current_streak || 0;
                         
                         // Atualizar display principal
-                        updateStreakDisplay(currentStreak);
+                        updateStreakDisplay(currentStreak, streak.last_activity_date);
                         
                         // Atualizar barras de progresso
                         updateStreakProgressBars(currentStreak);
@@ -14849,7 +14854,7 @@
                     const currentStreak = streak.current_streak || 0;
                     
                     // Atualizar display principal
-                    updateStreakDisplay(currentStreak);
+                    updateStreakDisplay(currentStreak, streak.last_activity_date);
                     
                     // Atualizar barras de progresso
                     updateStreakProgressBars(currentStreak);
@@ -14872,13 +14877,42 @@
         }
 
         // 🔥 FUNÇÕES AUXILIARES PARA STREAK
-        function updateStreakDisplay(streak) {
+        function formatDatePortuguese(dateString) {
+            if (!dateString) return '';
+            
+            const date = new Date(dateString + 'T00:00:00');
+            const months = [
+                'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+            ];
+            
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            
+            return `${day} de ${month} de ${year}`;
+        }
+        
+        function updateStreakDisplay(streak, lastActivityDate = null) {
             const userStreakElement = document.getElementById('userStreakDisplay');
             if (userStreakElement) {
                 if (streak === 1) {
                     userStreakElement.textContent = '1 dia';
                 } else {
                     userStreakElement.textContent = streak + ' dias';
+                }
+            }
+            
+            // Atualizar data da última atividade
+            const lastActivityElement = document.getElementById('lastActivityDate');
+            if (lastActivityElement) {
+                if (lastActivityDate) {
+                    const formattedDate = formatDatePortuguese(lastActivityDate);
+                    lastActivityElement.textContent = `Última atividade: ${formattedDate}`;
+                } else if (streak === 0) {
+                    lastActivityElement.textContent = 'Nenhuma atividade registrada';
+                } else {
+                    lastActivityElement.textContent = '';
                 }
             }
         }
