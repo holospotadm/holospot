@@ -13205,6 +13205,9 @@
                 
                 console.log('✅ Comentário enviado com sucesso');
                 
+                // 🔥 VERIFICAR STREAK EM TEMPO REAL APÓS COMENTÁRIO
+                await checkStreakAfterActivity('comment_added');
+                
             } catch (error) {
                 console.error('❌ Erro ao enviar comentário:', error);
                 alert('Erro ao enviar comentário. Tente novamente.');
