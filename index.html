@@ -14856,6 +14856,55 @@
                     if (streak.milestone_reached) {
                         console.log('🎯 MILESTONE DETECTADO! Verificando points_history...');
                         
+                        // Chamar função de debug automaticamente
+                        setTimeout(async () => {
+                            console.log('🔍 Executando debug automático do bônus...');
+                            const { data: debugData, error: debugError } = await supabase.rpc('debug_streak_bonus', {
+                                p_user_id: currentUser.id
+                            });
+                            
+                            if (debugError) {
+                                console.error('❌ Erro ao executar debug:', debugError);
+                            } else {
+                                console.log('📊 RESULTADO DO DEBUG:');
+                                console.log('='.repeat(80));
+                                console.log('🎯 Streak atual:', debugData.current_streak, 'dias');
+                                console.log('🏆 Milestone detectado:', debugData.milestone, 'dias');
+                                console.log('📅 Período analisado:', debugData.days_back, 'dias');
+                                console.log('📈 Multiplicador:', debugData.multiplier);
+                                console.log('');
+                                console.log('💰 CÁLCULO DO BÔNUS:');
+                                console.log('   Pontos do período:', debugData.points_period);
+                                console.log('   Fórmula:', debugData.calculation);
+                                console.log('   Bônus calculado:', debugData.bonus_points, 'pontos');
+                                console.log('');
+                                console.log('✅ Já foi aplicado antes?', debugData.already_applied ? 'SIM' : 'NÃO');
+                                console.log('📝 Será inserido?', debugData.will_insert ? 'SIM ✅' : 'NÃO ❌');
+                                console.log('');
+                                
+                                if (!debugData.will_insert) {
+                                    console.error('❌ MOTIVO PARA NÃO INSERIR:', debugData.reason_not_insert);
+                                    console.log('');
+                                    
+                                    if (debugData.bonus_points <= 0) {
+                                        console.error('🔍 PROBLEMA IDENTIFICADO:');
+                                        console.error('   O bônus calculado é 0 ou negativo!');
+                                        console.error('   Isso acontece porque:');
+                                        console.error('   - Pontos do período:', debugData.points_period);
+                                        console.error('   - Se pontos do período = 0, então bônus = 0');
+                                    } else if (debugData.already_applied) {
+                                        console.warn('⚠️ O bônus já foi aplicado anteriormente para este milestone');
+                                    }
+                                } else {
+                                    console.log('✅ TUDO OK! O bônus DEVERIA ser inserido.');
+                                }
+                                
+                                console.log('='.repeat(80));
+                                console.log('📋 Dados completos:', debugData);
+                            }
+                        }, 500);
+                        
+                        
                         setTimeout(async () => {
                             const { data: bonusHistory, error: bonusError } = await supabase
                                 .from('points_history')
