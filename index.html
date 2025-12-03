@@ -14853,7 +14853,8 @@
                     });
                     
                     // 🔍 DEBUG: Verificar se bônus foi inserido no points_history
-                    if (streak.milestone_reached) {
+                    // MODIFICADO: Executar debug sempre que streak >= 7 para investigar
+                    if (streak.current_streak >= 7) {
                         console.log('🎯 MILESTONE DETECTADO! Verificando points_history...');
                         
                         // Chamar função de debug automaticamente
