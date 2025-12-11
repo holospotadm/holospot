@@ -9413,17 +9413,25 @@
                 }
                 
                 try {
+                    const postData = {
+                        user_id: currentUser.id,
+                        celebrated_person_name: personName,
+                        content: storyText,
+                        photo_url: photoUrl,
+                        type: mappedType,
+                        mentioned_user_id: mentionedUserId,
+                        community_id: activeCommunityId
+                    };
+                    
+                    // Adicionar chain_id se houver corrente ativa
+                    if (currentChain && currentChain.id) {
+                        postData.chain_id = currentChain.id;
+                        console.log('🔗 Post será vinculado à corrente:', currentChain.id);
+                    }
+                    
                     const { data, error } = await supabase
                         .from('posts')
-                        .insert({
-                            user_id: currentUser.id,
-                            celebrated_person_name: personName,
-                            content: storyText,
-                            photo_url: photoUrl,
-                            type: mappedType,
-                            mentioned_user_id: mentionedUserId,
-                            community_id: activeCommunityId
-                        })
+                        .insert(postData)
                         .select()
                         .single();
                     
@@ -9433,6 +9441,43 @@
                     }
                     
                     console.log('✅ Post criado no banco com sucesso');
+                    
+                    // Se o post foi vinculado a uma corrente, chamar add_post_to_chain
+                    if (currentChain && currentChain.id && data.id) {
+                        try {
+                            console.log('🔗 Adicionando post à corrente...');
+                            const { error: chainError } = await supabase.rpc('add_post_to_chain', {
+                                p_chain_id: currentChain.id,
+                                p_post_id: data.id,
+                                p_user_id: currentUser.id,
+                                p_parent_post_author_id: currentChain.parent_post_author_id || null
+                            });
+                            
+                            if (chainError) {
+                                console.error('❌ Erro ao adicionar post à corrente:', chainError);
+                            } else {
+                                console.log('✅ Post adicionado à corrente com sucesso');
+                                
+                                // Limpar estado da corrente após criar post
+                                const wasParticipating = currentChain.isParticipating;
+                                currentChain = null;
+                                selectedChainHighlightType = null;
+                                
+                                // Restaurar UI
+                                setTimeout(() => {
+                                    restoreDestacarTab();
+                                }, 500);
+                                
+                                if (wasParticipating) {
+                                    showNotification('🎉 Você participou da corrente com sucesso!', 'success');
+                                } else {
+                                    showNotification('🎉 Corrente iniciada com sucesso!', 'success');
+                                }
+                            }
+                        } catch (chainError) {
+                            console.error('❌ Erro ao processar corrente:', chainError);
+                        }
+                    }
                     
                     // Add user data and reactions array to the new post
                     data.user_data = {
