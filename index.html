@@ -8290,11 +8290,37 @@
                                     }
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
-                            ${post.type || post.highlight_type ? `
-                                <div class="post-type">
-                                    ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
-                                </div>
-                            ` : ''}
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                ${post.type || post.highlight_type ? `
+                                    <div class="post-type">
+                                        ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
+                                    </div>
+                                ` : ''}
+                                ${post.chain_id ? `
+                                    <div 
+                                        class="chain-badge" 
+                                        onclick="openChainModal('${post.chain_id}', '${post.user_id}')"
+                                        style="
+                                            display: inline-flex;
+                                            align-items: center;
+                                            gap: 6px;
+                                            padding: 6px 12px;
+                                            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                                            color: white;
+                                            border-radius: 20px;
+                                            font-size: 12px;
+                                            font-weight: 600;
+                                            cursor: pointer;
+                                            transition: all 0.2s;
+                                            box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+                                        "
+                                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 10px rgba(249, 115, 22, 0.4)'"
+                                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)'"
+                                    >
+                                        <span id="chain-name-${post.id}">Corrente</span> 🔗
+                                    </div>
+                                ` : ''}
+                            </div>
                             ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post" style="height: auto; object-fit: contain;">` : ''}
                             <div class="post-story">${post.content || post.story}</div>
                         </div>
@@ -8333,6 +8359,10 @@
             // 🚀 OTIMIZAÇÃO: Usar cache ao invés de consultas individuais
             setTimeout(() => {
                 updateAllCommentsCountersFromCache();
+                // Carregar nomes das correntes nos posts
+                if (window.loadChainNamesInPosts) {
+                    loadChainNamesInPosts();
+                }
             }, 100);
         }
         
@@ -16906,6 +16936,60 @@
         </div>
     </div>
 
+    <!-- Modal de Visualização de Corrente -->
+    <div id="viewChainModal" class="modal-overlay" style="display: none;" onclick="closeViewChainModal()">
+        <div class="modal-content" style="max-width: 550px; width: 90%;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 style="margin: 0; color: #f97316;" id="viewChainTitle">🔗 Corrente</h2>
+                <button class="modal-close" onclick="closeViewChainModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 8px;">Descrição:</div>
+                    <div id="viewChainDescription" style="color: #666; line-height: 1.6;"></div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 8px;">Tipo de Destaque:</div>
+                    <div id="viewChainType" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #fff7ed; border: 2px solid #f97316; border-radius: 8px; font-weight: 600;"></div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;">
+                    <div style="padding: 16px; background: #f9fafb; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #f97316;" id="viewChainPosts">0</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">Posts</div>
+                    </div>
+                    <div style="padding: 16px; background: #f9fafb; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #f97316;" id="viewChainParticipants">0</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">Participantes</div>
+                    </div>
+                </div>
+                
+                <button 
+                    id="participateChainBtn" 
+                    onclick="participateInChain()" 
+                    style="
+                        width: 100%;
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 14px;
+                        font-size: 16px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                    "
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(16, 185, 129, 0.3)'"
+                >
+                    🔗 Participar da Corrente
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Emoji Picker -->
     <div id="emojiPickerModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 500px;">
@@ -18710,6 +18794,244 @@ window.showChainTooltip = showChainTooltip;
 window.hideChainTooltip = hideChainTooltip;
 
 console.log('✅ Módulo chains.js carregado');
+// ============================================
+// CHAINS PARTICIPATION (PARTICIPAÇÃO EM CORRENTES)
+// ============================================
+
+// Variáveis para armazenar dados da corrente sendo visualizada
+let viewingChain = null; // {id, name, description, highlight_type, parent_post_author_id}
+
+// Abrir modal de visualização de corrente
+async function openChainModal(chainId, postAuthorId) {
+    try {
+        // Buscar informações da corrente
+        const { data, error } = await supabase.rpc('get_chain_info', {
+            p_chain_id: chainId
+        });
+        
+        if (error) throw error;
+        
+        if (!data) {
+            showNotification('❌ Corrente não encontrada', 'error');
+            return;
+        }
+        
+        // Armazenar dados da corrente e do autor do post
+        viewingChain = {
+            id: chainId,
+            name: data.name,
+            description: data.description,
+            highlight_type: data.highlight_type,
+            parent_post_author_id: postAuthorId // Guardar de qual post veio
+        };
+        
+        // Preencher modal
+        document.getElementById('viewChainTitle').textContent = `🔗 ${data.name}`;
+        document.getElementById('viewChainDescription').textContent = data.description;
+        
+        // Tipo de destaque
+        const typeEmojis = {
+            'gratidao': '🙏',
+            'memoria': '💭',
+            'conquista': '🏆',
+            'inspiracao': '✨',
+            'apoio': '🤝',
+            'admiracao': '🌟'
+        };
+        
+        const typeNames = {
+            'gratidao': 'Gratidão',
+            'memoria': 'Memória',
+            'conquista': 'Conquista',
+            'inspiracao': 'Inspiração',
+            'apoio': 'Apoio',
+            'admiracao': 'Admiração'
+        };
+        
+        document.getElementById('viewChainType').innerHTML = `
+            ${typeEmojis[data.highlight_type] || '✨'} ${typeNames[data.highlight_type] || 'Destaque'}
+        `;
+        
+        // Estatísticas
+        document.getElementById('viewChainPosts').textContent = data.posts_count || 0;
+        document.getElementById('viewChainParticipants').textContent = data.participants_count || 0;
+        
+        // Mostrar modal
+        document.getElementById('viewChainModal').style.display = 'flex';
+        
+    } catch (error) {
+        console.error('Erro ao abrir modal de corrente:', error);
+        showNotification('❌ Erro ao carregar corrente: ' + error.message, 'error');
+    }
+}
+
+// Fechar modal de visualização de corrente
+function closeViewChainModal() {
+    document.getElementById('viewChainModal').style.display = 'none';
+    viewingChain = null;
+}
+
+// Participar da corrente
+async function participateInChain() {
+    if (!viewingChain) return;
+    
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            showNotification('⚠️ Você precisa estar logado', 'error');
+            return;
+        }
+        
+        // Fechar modal de visualização
+        closeViewChainModal();
+        
+        // Abrir aba "Destacar"
+        document.querySelector('[data-tab="destacar"]').click();
+        
+        // Aguardar um pouco para a aba carregar
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Configurar estado de participação
+        currentChain = {
+            id: viewingChain.id,
+            name: viewingChain.name,
+            description: viewingChain.description,
+            highlight_type: viewingChain.highlight_type,
+            parent_post_author_id: viewingChain.parent_post_author_id,
+            isParticipating: true // Flag para indicar que é participação
+        };
+        
+        // Atualizar UI para modo de participação
+        updateDestacarTabForParticipation();
+        
+        showNotification('✅ Agora você pode criar seu post para participar da corrente!', 'success');
+        
+    } catch (error) {
+        console.error('Erro ao participar da corrente:', error);
+        showNotification('❌ Erro ao participar: ' + error.message, 'error');
+    }
+}
+
+// Atualizar UI da aba Destacar para modo de participação
+function updateDestacarTabForParticipation() {
+    const createChainBtn = document.getElementById('createChainBtn');
+    
+    if (currentChain && currentChain.isParticipating) {
+        // Substituir botão "Criar Corrente" por nome da corrente + botão cancelar
+        createChainBtn.outerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div 
+                    id="chainNameDisplay"
+                    style="
+                        color: #f97316;
+                        font-weight: 600;
+                        font-size: 14px;
+                        cursor: help;
+                        position: relative;
+                    "
+                    onmouseenter="showChainTooltip(event)"
+                    onmouseleave="hideChainTooltip()"
+                >
+                    ${currentChain.name} 🔗
+                </div>
+                <button 
+                    id="cancelParticipationBtn" 
+                    onclick="cancelParticipation()" 
+                    style="
+                        background: #6b7280;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 10px 16px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+                    "
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(107, 114, 128, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(107, 114, 128, 0.3)'"
+                >
+                    Cancelar
+                </button>
+            </div>
+        `;
+        
+        // Fixar tipo de destaque
+        fixHighlightType(currentChain.highlight_type);
+    }
+}
+
+// Cancelar participação (não deleta corrente, apenas desiste de participar)
+function cancelParticipation() {
+    if (!currentChain || !currentChain.isParticipating) return;
+    
+    if (!confirm('Deseja cancelar a participação nesta corrente?')) {
+        return;
+    }
+    
+    // Limpar estado
+    currentChain = null;
+    selectedChainHighlightType = null;
+    
+    // Restaurar UI
+    restoreDestacarTab();
+    
+    showNotification('✅ Participação cancelada', 'success');
+}
+
+// Carregar nomes das correntes nos posts (chamado após renderizar posts)
+async function loadChainNamesInPosts() {
+    // Buscar todos os posts com chain_id
+    const chainBadges = document.querySelectorAll('.chain-badge');
+    
+    if (chainBadges.length === 0) return;
+    
+    // Extrair chain_ids únicos
+    const chainIds = new Set();
+    chainBadges.forEach(badge => {
+        const onclick = badge.getAttribute('onclick');
+        const match = onclick.match(/openChainModal\('([^']+)'/);
+        if (match) {
+            chainIds.add(match[1]);
+        }
+    });
+    
+    // Buscar informações de cada corrente
+    for (const chainId of chainIds) {
+        try {
+            const { data, error } = await supabase.rpc('get_chain_info', {
+                p_chain_id: chainId
+            });
+            
+            if (error) throw error;
+            
+            if (data) {
+                // Atualizar todos os badges com este chain_id
+                chainBadges.forEach(badge => {
+                    const onclick = badge.getAttribute('onclick');
+                    if (onclick.includes(chainId)) {
+                        const nameSpan = badge.querySelector('span');
+                        if (nameSpan) {
+                            nameSpan.textContent = data.name;
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(`Erro ao carregar nome da corrente ${chainId}:`, error);
+        }
+    }
+}
+
+// Exportar funções globalmente
+window.openChainModal = openChainModal;
+window.closeViewChainModal = closeViewChainModal;
+window.participateInChain = participateInChain;
+window.cancelParticipation = cancelParticipation;
+window.loadChainNamesInPosts = loadChainNamesInPosts;
+
+console.log('✅ Módulo chains_participation.js carregado');
 
     </script>
 
