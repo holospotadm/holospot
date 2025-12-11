@@ -514,6 +514,36 @@ Serão introduzidos 8 novos badges para reconhecer e recompensar a atividade dos
 | **Multiplicador** | 📈 | Épico | Participar de 50 correntes diferentes. |
 | **Elo Profundo** | 🌊 | Lendário | Participar de uma corrente com profundidade 10 (10 níveis de participação). |
 
+#### O que é Profundidade de Participação?
+
+A **profundidade de participação** representa o número de "níveis" de distância que um usuário está do criador original da corrente. É uma métrica que indica o quão longe uma corrente se propagou de pessoa para pessoa.
+
+**Exemplo Prático:**
+
+- **Nível 0 (Profundidade 0):** João cria a corrente.
+- **Nível 1 (Profundidade 1):** Maria vê o post de João e participa.
+- **Nível 2 (Profundidade 2):** Pedro vê o post de Maria e participa.
+- **Nível 3 (Profundidade 3):** Ana vê o post de Pedro e participa.
+- ...
+- **Nível 10 (Profundidade 10):** Carlos vê o post de alguém no nível 9 e participa.
+
+Para ganhar o badge **"Elo Profundo"**, Carlos precisa estar no nível 10 ou mais profundo. Isso significa que a corrente passou por 10 pessoas antes de chegar até ele.
+
+**Visualização da Cadeia:**
+```
+João (criador) → Maria → Pedro → Ana → ... → Carlos
+  ↓                ↓       ↓       ↓           ↓
+Nível 0         Nível 1  Nível 2  Nível 3      Nível 10
+```
+
+**Importância da Métrica:**
+- **Viralização:** Mede o quão longe uma corrente se espalhou.
+- **Engajamento:** Indica que a corrente está gerando interesse contínuo.
+- **Recompensa:** Premia usuários que se engajam com conteúdo altamente propagado.
+
+**Cálculo Técnico:**
+O sistema rastreia o `parent_post_author_id` em cada participação, criando uma árvore de engajamento. A profundidade é calculada contando o número de "saltos" desde o criador até o participante atual.
+
 ### 12.3. Implementação dos Badges
 
 1.  **Adicionar Badges na Tabela `badges`:** Inserir os 8 novos badges com seus atributos (nome, ícone, raridade, condição e valor).
