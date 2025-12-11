@@ -2,476 +2,387 @@
 
 **Autor:** Manus AI  
 **Data:** 03 de Dezembro de 2025  
-**Versão:** 2.0 (Consolidada)
+**Versão:** 2.0 (Consolidada e Revisada)
 
 ## 1. Visão Geral
 
-Este documento descreve o plano completo para implementar o sistema de "Correntes" (Chains) na plataforma, incluindo a funcionalidade principal e o sistema de gamificação (badges e pontuação). O objetivo é permitir que usuários criem e participem de sequências de posts temáticos, incentivando o engajamento contínuo e rastreável.
+Este documento apresenta o plano completo para a implementação do sistema de "Correntes" (Chains) na plataforma. O objetivo é fomentar o engajamento contínuo e rastreável dos usuários através de sequências de posts temáticos. O plano abrange a funcionalidade principal das correntes, bem como um sistema de gamificação integrado, composto por badges e pontuação.
 
-O documento está dividido em duas partes principais:
-
-**PARTE 1: IMPLEMENTAÇÃO DO SISTEMA DE CORRENTES**
-1.  **Banco de Dados:** Novas tabelas para armazenar as correntes e os posts associados.
-2.  **Frontend:** Alterações na interface do usuário para criar, participar e visualizar correntes.
-3.  **Backend (Funções SQL):** Lógica para gerenciar o ciclo de vida das correntes.
-4.  **Fluxos de Usuário:** Criador e participante.
-5.  **Rastreamento e Análise:** Dados rastreáveis e consultas úteis.
-6.  **Ordem de Implementação:** 6 fases sequenciais.
-
-**PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES**
-1.  **Badges:** 8 novos badges de criação e participação.
-2.  **Pontuação:** Sistema de pontos para recompensar ações.
-3.  **Funções SQL:** Funções de suporte para badges.
-4.  **Triggers:** Automação de concessão de badges.
-5.  **Ordem de Implementação:** 5 fases sequenciais.
-
-**Nenhuma alteração será feita no código durante esta fase de planejamento.**
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
+O documento está estruturado em duas partes principais, detalhando os aspectos funcionais e técnicos de cada componente:
 
 ---
 
 # PARTE 1: IMPLEMENTAÇÃO DO SISTEMA DE CORRENTES
 
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+Esta seção detalha a funcionalidade central das correntes, abrangendo a estrutura de dados, as interações no frontend e a lógica de backend.
 
 ## 2. Estrutura do Banco de Dados
 
-Serão criadas duas novas tabelas para suportar o sistema de Correntes.
+Para suportar o sistema de Correntes, serão introduzidas duas novas tabelas e uma alteração em uma tabela existente.
 
-### a. Tabela `chains`
+### 2.1. Tabela `chains`
 
-Esta tabela armazenará as informações principais de cada corrente criada.
+Armazena as informações primárias de cada corrente criada.
 
 | Coluna | Tipo | Descrição |
 | :--- | :--- | :--- |
 | `id` | `UUID` | Identificador único da corrente (Chave Primária). |
-| `created_at` | `TIMESTAMPTZ` | Data e hora de criação. |
-| `creator_id` | `UUID` | ID do usuário que criou a corrente (FK para `profiles.id`). |
-| `name` | `TEXT` | Nome da corrente. |
-| `description` | `TEXT` | Descrição da corrente (para o tooltip). |
-| `highlight_type` | `TEXT` | Tipo de destaque fixo para a corrente (ex: "Apoio", "Inspiração"). |
-| `is_active` | `BOOLEAN` | Indica se a corrente está ativa. Será `false` se o criador cancelar antes do primeiro post. |
-| `first_post_id` | `UUID` | ID do primeiro post da corrente (FK para `posts.id`). Preenchido quando o criador posta. |
+| `created_at` | `TIMESTAMPTZ` | Carimbo de data/hora da criação da corrente. |
+| `creator_id` | `UUID` | ID do usuário que iniciou a corrente (Chave Estrangeira para `profiles.id`). |
+| `name` | `TEXT` | Nome atribuído à corrente. |
+| `description` | `TEXT` | Descrição detalhada da corrente, exibida em tooltips. |
+| `highlight_type` | `TEXT` | Tipo de destaque fixo associado à corrente (e.g., "Apoio", "Inspiração"). |
+| `is_active` | `BOOLEAN` | Indica o status operacional da corrente. `false` se cancelada antes do primeiro post. |
+| `first_post_id` | `UUID` | ID do primeiro post que iniciou a corrente (Chave Estrangeira para `posts.id`). Preenchido após a publicação do primeiro post pelo criador. |
 
 **Índices:**
-- `creator_id`
+- `creator_id` para otimização de consultas por criador.
 
-### b. Tabela `chain_posts`
+### 2.2. Tabela `chain_posts`
 
-Esta tabela associará cada post a uma corrente e rastreará a sua origem, permitindo a reconstrução da sequência.
+Associa posts individuais a uma corrente e rastreia a origem de cada participação, permitindo a reconstrução da árvore de engajamento.
 
 | Coluna | Tipo | Descrição |
 | :--- | :--- | :--- |
 | `id` | `UUID` | Identificador único da associação (Chave Primária). |
-| `chain_id` | `UUID` | ID da corrente (FK para `chains.id`). |
-| `post_id` | `UUID` | ID do post que faz parte da corrente (FK para `posts.id`). |
-| `author_id` | `UUID` | ID do autor do post (FK para `profiles.id`). |
-| `parent_post_author_id` | `UUID` | ID do autor do post que originou a participação (o post onde o usuário clicou em "Participar"). Será `NULL` para o criador. |
-| `created_at` | `TIMESTAMPTZ` | Data e hora de criação do post na corrente. |
+| `chain_id` | `UUID` | ID da corrente à qual o post pertence (Chave Estrangeira para `chains.id`). |
+| `post_id` | `UUID` | ID do post que integra a corrente (Chave Estrangeira para `posts.id`). |
+| `author_id` | `UUID` | ID do autor do post (Chave Estrangeira para `profiles.id`). |
+| `parent_post_author_id` | `UUID` | ID do autor do post que serviu como ponto de entrada para a participação atual. `NULL` para o post inicial do criador da corrente. |
+| `created_at` | `TIMESTAMPTZ` | Carimbo de data/hora da criação do post na corrente. |
 
 **Índices:**
-- `chain_id`
-- `post_id`
-- `parent_post_author_id`
+- `chain_id` para consultas por corrente.
+- `post_id` para consultas por post.
+- `parent_post_author_id` para rastreamento da cadeia de participação.
 
-### c. Alterações na Tabela `posts`
+### 2.3. Alterações na Tabela `posts`
 
-Uma nova coluna será adicionada à tabela `posts` para facilitar a identificação de posts de corrente.
+Uma nova coluna será adicionada à tabela `posts` para vincular posts diretamente às correntes.
 
 | Coluna | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `chain_id` | `UUID` | (Opcional) ID da corrente à qual o post pertence (FK para `chains.id`). Será `NULL` se não for um post de corrente. |
+| `chain_id` | `UUID` | (Opcional) ID da corrente à qual o post pertence (Chave Estrangeira para `chains.id`). Será `NULL` se o post não estiver associado a uma corrente. |
 
 **Índice:**
-- `chain_id`
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+- `chain_id` para otimização de consultas de posts por corrente.
 
 ## 3. Alterações no Frontend
 
-As alterações no frontend serão concentradas na aba "Destacar" e nos posts exibidos na timeline.
+As modificações na interface do usuário serão implementadas na aba "Destacar" e na exibição de posts na timeline, proporcionando uma experiência fluida para criação e participação em correntes.
 
-### a. Aba "Destacar" - Botão "Criar Corrente"
+### 3.1. Aba "Destacar" - Gerenciamento de Correntes
 
-**Localização:** Canto superior direito, alinhado ao texto "Destacar Alguém".
+**3.1.1. Botão "Criar Corrente"**
 
-**Estado Inicial:**
-- Exibir botão: **"Criar Corrente 🔗"**
+- **Localização:** Canto superior direito da aba "Destacar", alinhado ao texto "Destacar Alguém".
+- **Estado Inicial:** Exibe o botão **"Criar Corrente 🔗"**.
 
-**Ao clicar no botão:**
-1. Abrir modal com título: **"Criar Corrente 🔗"**
-2. Campos do modal:
-   - **Nome da Corrente** (input text, obrigatório)
-   - **Descrição** (textarea, obrigatório)
-   - **Tipo de Destaque** (select, mesmas opções da aba Destacar, obrigatório)
-3. Botão: **"Criar"**
+**3.1.2. Modal de Criação de Corrente**
 
-**Após criar a corrente:**
-1. Fechar o modal automaticamente.
-2. Voltar para a aba "Destacar".
-3. Substituir o botão "Criar Corrente 🔗" por: **"Cancelar Corrente"**
-4. Exibir ao lado esquerdo do botão: **"[Nome da Corrente] 🔗"**
-5. Ao passar o mouse sobre o nome da corrente, exibir tooltip **em cima do mouse** com a descrição da corrente.
-6. **Fixar o tipo de destaque** no tipo escolhido na criação da corrente (sem possibilidade de alterar).
-7. Permitir que o usuário crie um post destacando alguém, linkado à corrente.
+- **Acionamento:** Ao clicar no botão "Criar Corrente 🔗".
+- **Título:** "Criar Corrente 🔗".
+- **Campos:**
+    - **Nome da Corrente:** Campo de texto obrigatório.
+    - **Descrição:** Área de texto obrigatória para detalhes da corrente.
+    - **Tipo de Destaque:** Dropdown com as mesmas opções da aba "Destacar", obrigatório.
+- **Ação:** Botão **"Criar"**.
 
-**Ao clicar em "Cancelar Corrente":**
-1. Deletar a corrente criada (apenas se nenhum post foi criado ainda).
-2. Voltar ao estado inicial (botão "Criar Corrente 🔗").
+**3.1.3. Pós-Criação da Corrente**
 
-**Após criar o primeiro post:**
-1. O botão "Cancelar Corrente" desaparece.
-2. A corrente não pode mais ser deletada.
-3. O usuário volta ao estado inicial da aba "Destacar".
+- O modal é fechado automaticamente.
+- A interface retorna à aba "Destacar".
+- O botão "Criar Corrente 🔗" é substituído por **"Cancelar Corrente"**.
+- O nome da corrente recém-criada, **"[Nome da Corrente] 🔗"**, é exibido à esquerda do botão.
+- Um tooltip contendo a descrição da corrente aparece **em cima do mouse** ao passar sobre o nome da corrente.
+- O **tipo de destaque** selecionado na criação da corrente é fixado, impedindo alterações.
+- O usuário pode agora criar um post, que será automaticamente vinculado à corrente ativa.
 
-### b. Posts na Timeline - Destaque de Corrente
+**3.1.4. Cancelamento da Corrente (Pelo Criador)**
 
-**Exibição:**
-- Ao lado do ícone de "tipo de post", exibir: **"[Nome da Corrente] 🔗"**
+- **Acionamento:** Clicar no botão "Cancelar Corrente".
+- **Condição:** A corrente só pode ser deletada se nenhum post tiver sido criado nela.
+- **Resultado:** A corrente é deletada, e a interface retorna ao estado inicial (botão "Criar Corrente 🔗").
 
-**Ao clicar no destaque da corrente:**
-1. Abrir modal com título: **"[Nome da Corrente] 🔗"**
-2. Informações exibidas:
-   - **Nome da Corrente**
-   - **Descrição**
-   - **Tipo de Destaque**
-3. Botão: **"Participar"**
+**3.1.5. Corrente Ativa com Posts**
 
-**Ao clicar em "Participar":**
-1. Guardar o ID do autor do post no qual o usuário clicou (para rastreamento).
-2. Fechar o modal.
-3. Abrir automaticamente a aba "Destacar".
-4. Exibir: **"[Nome da Corrente] 🔗"** (com tooltip da descrição ao passar o mouse).
-5. Exibir botão: **"Cancelar"** (não "Cancelar Corrente").
-6. **Fixar o tipo de destaque** no tipo da corrente.
-7. Permitir que o usuário crie um post destacando alguém, linkado à corrente.
+- Após a criação do primeiro post vinculado à corrente, o botão "Cancelar Corrente" desaparece.
+- A corrente não pode mais ser deletada pelo criador.
+- A interface da aba "Destacar" retorna ao seu estado inicial, permitindo a criação de posts comuns ou a participação em outras correntes.
 
-**Ao clicar em "Cancelar":**
-1. Remover destaque de corrente selecionada.
-2. Remover seleção fixa do tipo de destaque.
-3. Voltar ao estado inicial (botão "Criar Corrente 🔗").
+### 3.2. Posts na Timeline - Interação com Correntes
 
-**Após criar o post:**
-1. Guardar o autor do post pelo qual o usuário clicou (para rastreamento da cadeia).
-2. Voltar ao estado inicial da aba "Destacar".
+**3.2.1. Destaque Visual**
 
-### c. Variáveis de Estado (Frontend)
+- Ao lado do ícone de "tipo de post", será exibido o nome da corrente: **"[Nome da Corrente] 🔗"**.
 
-Para gerenciar o estado da corrente no frontend, serão necessárias as seguintes variáveis:
+**3.2.2. Modal de Visualização da Corrente**
+
+- **Acionamento:** Clicar no destaque da corrente em um post.
+- **Título:** "[Nome da Corrente] 🔗".
+- **Informações:** Exibe o Nome, Descrição e Tipo de Destaque da corrente.
+- **Ação:** Botão **"Participar"**.
+
+**3.2.3. Participação em uma Corrente**
+
+- **Acionamento:** Clicar no botão "Participar" no modal.
+- **Rastreamento:** O ID do autor do post original (onde o usuário clicou para participar) é registrado para análise da cadeia.
+- **Navegação:** O modal é fechado, e a aba "Destacar" é aberta automaticamente.
+- **Interface:** O nome da corrente, **"[Nome da Corrente] 🔗"**, é exibido (com tooltip da descrição).
+- **Ação:** O botão **"Cancelar"** (diferente de "Cancelar Corrente") é exibido.
+- **Fixação:** O tipo de destaque da corrente é fixado.
+- O usuário pode agora criar um post, que será vinculado à corrente selecionada.
+
+**3.2.4. Cancelamento da Participação**
+
+- **Acionamento:** Clicar no botão "Cancelar".
+- **Resultado:** A seleção da corrente é removida, o tipo de destaque fixo é liberado, e a interface retorna ao estado inicial (botão "Criar Corrente 🔗").
+
+**3.2.5. Pós-Criação de Post como Participante**
+
+- Após a criação do post vinculado à corrente, o ID do autor do post original (que levou à participação) é guardado.
+- A interface da aba "Destacar" retorna ao seu estado inicial.
+
+### 3.3. Variáveis de Estado (Frontend)
+
+Para gerenciar o estado das correntes no frontend, as seguintes variáveis serão essenciais:
 
 | Variável | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `activeChain` | `Object` ou `null` | Armazena a corrente ativa (criada ou participando). Contém: `id`, `name`, `description`, `highlight_type`. |
-| `isChainCreator` | `Boolean` | `true` se o usuário criou a corrente, `false` se está participando. |
-| `parentPostAuthorId` | `UUID` ou `null` | ID do autor do post que originou a participação (apenas para participantes). |
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+| `activeChain` | `Object` ou `null` | Armazena os detalhes da corrente atualmente ativa (criada ou participada), incluindo `id`, `name`, `description`, `highlight_type`. |
+| `isChainCreator` | `Boolean` | Indica se o usuário logado é o criador da `activeChain`. `true` para criadores, `false` para participantes. |
+| `parentPostAuthorId` | `UUID` ou `null` | Armazena o ID do autor do post que serviu como gatilho para a participação em uma corrente. Relevante apenas para participantes. |
 
 ## 4. Funções SQL Necessárias
 
-Serão criadas funções SQL para gerenciar o ciclo de vida das correntes.
+As seguintes funções SQL serão desenvolvidas para gerenciar o ciclo de vida das correntes e suas interações com posts.
 
-### a. `create_chain`
+### 4.1. `create_chain(p_creator_id UUID, p_name TEXT, p_description TEXT, p_highlight_type TEXT)`
 
-**Descrição:** Cria uma nova corrente.
+- **Descrição:** Cria um novo registro na tabela `chains`.
+- **Retorna:** O `id` (UUID) da corrente recém-criada.
+- **Lógica:** Insere uma nova linha em `chains` com `is_active = true` e `first_post_id = NULL`.
 
-**Parâmetros:**
-- `p_creator_id` (UUID): ID do usuário criador.
-- `p_name` (TEXT): Nome da corrente.
-- `p_description` (TEXT): Descrição da corrente.
-- `p_highlight_type` (TEXT): Tipo de destaque.
+### 4.2. `cancel_chain(p_chain_id UUID, p_user_id UUID)`
 
-**Retorna:** UUID da corrente criada.
+- **Descrição:** Inativa uma corrente, permitindo seu cancelamento apenas se nenhum post tiver sido associado a ela.
+- **Retorna:** `BOOLEAN` indicando sucesso (`true`) ou falha (`false`).
+- **Lógica:** Verifica se `p_user_id` corresponde ao `creator_id` da corrente e se `first_post_id` é `NULL`. Se ambas as condições forem verdadeiras, atualiza `is_active` para `false`.
 
-**Lógica:**
-1. Inserir registro na tabela `chains` com `is_active = true` e `first_post_id = NULL`.
-2. Retornar o `id` da corrente.
+### 4.3. `add_post_to_chain(p_chain_id UUID, p_post_id UUID, p_author_id UUID, p_parent_post_author_id UUID DEFAULT NULL)`
 
-### b. `cancel_chain`
+- **Descrição:** Vincula um post a uma corrente e registra a participação.
+- **Retorna:** `VOID`.
+- **Lógica:**
+    1. Insere um registro na tabela `chain_posts`.
+    2. Atualiza a coluna `chain_id` na tabela `posts` para o `p_post_id` fornecido.
+    3. Se `p_parent_post_author_id` for `NULL` (indicando que o post é do criador da corrente), atualiza `chains.first_post_id` com o `p_post_id`.
 
-**Descrição:** Cancela uma corrente (apenas se nenhum post foi criado).
+### 4.4. `get_chain_info(p_chain_id UUID)`
 
-**Parâmetros:**
-- `p_chain_id` (UUID): ID da corrente.
-- `p_user_id` (UUID): ID do usuário (para validar que é o criador).
+- **Descrição:** Recupera informações detalhadas sobre uma corrente específica.
+- **Retorna:** Um objeto `JSON` contendo `id`, `name`, `description`, `highlight_type`, `creator_id`, `first_post_id` e `total_posts` (contagem de posts na corrente).
+- **Lógica:** Consulta a tabela `chains` e realiza uma contagem de posts associados na tabela `chain_posts`.
 
-**Retorna:** BOOLEAN (sucesso ou falha).
+### 4.5. `get_chain_tree(p_chain_id UUID)`
 
-**Lógica:**
-1. Verificar se `p_user_id` é o criador da corrente.
-2. Verificar se `first_post_id` é `NULL`.
-3. Se sim, atualizar `is_active = false`.
-4. Retornar `true` se sucesso, `false` se falha.
-
-### c. `add_post_to_chain`
-
-**Descrição:** Adiciona um post a uma corrente.
-
-**Parâmetros:**
-- `p_chain_id` (UUID): ID da corrente.
-- `p_post_id` (UUID): ID do post criado.
-- `p_author_id` (UUID): ID do autor do post.
-- `p_parent_post_author_id` (UUID, opcional): ID do autor do post que originou a participação (NULL para o criador).
-
-**Retorna:** VOID.
-
-**Lógica:**
-1. Inserir registro na tabela `chain_posts`.
-2. Atualizar `posts.chain_id` com o `p_chain_id`.
-3. Se `p_parent_post_author_id` for `NULL` (criador), atualizar `chains.first_post_id` com `p_post_id`.
-
-### d. `get_chain_info`
-
-**Descrição:** Retorna informações de uma corrente.
-
-**Parâmetros:**
-- `p_chain_id` (UUID): ID da corrente.
-
-**Retorna:** JSON com:
-- `id`
-- `name`
-- `description`
-- `highlight_type`
-- `creator_id`
-- `first_post_id`
-- `total_posts` (contagem de posts na corrente)
-
-**Lógica:**
-1. Buscar dados de `chains`.
-2. Contar posts em `chain_posts`.
-3. Retornar JSON.
-
-### e. `get_chain_tree`
-
-**Descrição:** Retorna a árvore de posts de uma corrente (para análise futura).
-
-**Parâmetros:**
-- `p_chain_id` (UUID): ID da corrente.
-
-**Retorna:** JSON com a estrutura hierárquica dos posts.
-
-**Lógica:**
-1. Buscar todos os posts de `chain_posts` para a corrente.
-2. Construir árvore usando `parent_post_author_id`.
-3. Retornar JSON.
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+- **Descrição:** Constrói e retorna a estrutura hierárquica dos posts dentro de uma corrente, útil para análises de propagação.
+- **Retorna:** Um objeto `JSON` representando a árvore de posts.
+- **Lógica:** Utiliza uma consulta recursiva na tabela `chain_posts` para mapear as relações `parent_post_author_id`.
 
 ## 5. Fluxos de Usuário
 
-### a. Fluxo: Criador da Corrente
+Esta seção detalha as interações do usuário com o sistema de Correntes, tanto para o criador quanto para o participante.
 
-```
-1. Usuário acessa aba "Destacar"
-2. Clica em "Criar Corrente 🔗"
-3. Preenche modal (Nome, Descrição, Tipo de Destaque)
-4. Clica em "Criar"
-5. Modal fecha, botão vira "Cancelar Corrente"
-6. Nome da corrente aparece ao lado do botão (com tooltip)
-7. Tipo de destaque fica fixo
-8. [OPÇÃO A] Usuário clica em "Cancelar Corrente"
-   → Corrente é deletada
-   → Volta ao estado inicial
-9. [OPÇÃO B] Usuário cria post destacando alguém
-   → Post é criado e linkado à corrente
-   → Corrente não pode mais ser cancelada
-   → Usuário volta ao estado inicial da aba "Destacar"
-```
+### 5.1. Fluxo do Criador da Corrente
 
-### b. Fluxo: Participante da Corrente
+```mermaid
+graph TD
+    A[Usuário acessa aba 
+"Destacar"]
+    A --> B{Clica em "Criar Corrente 🔗"}
+    B --> C[Abre Modal "Criar Corrente 🔗"]
+    C --> D[Preenche: Nome, Descrição, Tipo de Destaque]
+    D --> E{Clica "Criar"}
+    E --> F[Modal fecha, Frontend armazena activeChain]
+    F --> G[Botão muda para "Cancelar Corrente"]
+    G --> H[Exibe "[Nome da Corrente] 🔗" com Tooltip]
+    H --> I[Tipo de Destaque Fixo]
+    I --> J{Usuário interage}
 
-```
-1. Usuário vê post com destaque "[Nome da Corrente] 🔗"
-2. Clica no destaque
-3. Modal abre com informações da corrente
-4. Clica em "Participar"
-5. Modal fecha, aba "Destacar" abre automaticamente
-6. Nome da corrente aparece (com tooltip)
-7. Botão "Cancelar" aparece
-8. Tipo de destaque fica fixo
-9. [OPÇÃO A] Usuário clica em "Cancelar"
-   → Corrente é removida da seleção
-   → Volta ao estado inicial
-10. [OPÇÃO B] Usuário cria post destacando alguém
-    → Post é criado e linkado à corrente
-    → ID do autor do post original é guardado
-    → Usuário volta ao estado inicial da aba "Destacar"
+    J --> K{Clica "Cancelar Corrente"}
+    K --> L{Nenhum post criado?}
+    L -- Sim --> M[Backend: cancel_chain()]
+    M --> N[Corrente deletada]
+    N --> O[Volta ao estado inicial]
+    L -- Não --> P[Erro: Corrente não pode ser cancelada]
+
+    J --> Q[Cria Post Destacando Alguém]
+    Q --> R[Post é criado e linkado à corrente]
+    R --> S[Backend: add_post_to_chain()]
+    S --> T[Corrente não pode mais ser cancelada]
+    T --> U[Volta ao estado inicial da aba "Destacar"]
 ```
 
----
+### 5.2. Fluxo do Participante da Corrente
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
+```mermaid
+graph TD
+    A[Usuário vê Post com Destaque "[Nome da Corrente] 🔗"]
+    A --> B{Clica no Destaque}
+    B --> C[Abre Modal "[Nome da Corrente] 🔗"]
+    C --> D[Exibe: Nome, Descrição, Tipo de Destaque]
+    D --> E{Clica "Participar"}
+    E --> F[Frontend: Guarda parentPostAuthorId]
+    F --> G[Modal fecha, Abre aba "Destacar"]
+    G --> H[Exibe "[Nome da Corrente] 🔗" com Tooltip]
+    H --> I[Botão "Cancelar" aparece]
+    I --> J[Tipo de Destaque Fixo]
+    J --> K{Usuário interage}
 
----
+    K --> L{Clica "Cancelar"}
+    L --> M[Remove seleção da corrente]
+    M --> N[Libera tipo de destaque fixo]
+    N --> O[Volta ao estado inicial]
+
+    K --> P[Cria Post Destacando Alguém]
+    P --> Q[Post é criado e linkado à corrente]
+    Q --> R[Backend: add_post_to_chain()]
+    R --> S[Guarda parentPostAuthorId no chain_posts]
+    S --> T[Volta ao estado inicial da aba "Destacar"]
+```
 
 ## 6. Rastreamento e Análise
 
-O sistema de correntes permitirá rastreamento completo da cadeia de participação.
+O sistema de correntes foi projetado para permitir um rastreamento abrangente da cadeia de participação, fornecendo insights valiosos sobre o engajamento e a propagação de conteúdo.
 
-### a. Dados Rastreáveis
+### 6.1. Dados Rastreáveis
 
 | Dado | Descrição |
 | :--- | :--- |
-| **Criador** | Quem iniciou a corrente. |
-| **Primeiro Post** | Post inicial da corrente. |
-| **Total de Posts** | Quantos posts foram criados na corrente. |
-| **Árvore de Participação** | Quem participou a partir de qual post. |
-| **Profundidade da Cadeia** | Quantos níveis de participação existem. |
-| **Taxa de Conversão** | Quantos usuários que viram a corrente participaram. |
+| **Criador da Corrente** | Identifica o usuário que iniciou a corrente. |
+| **Primeiro Post da Corrente** | O post que marca o início oficial da corrente. |
+| **Total de Posts na Corrente** | Contagem de todos os posts vinculados a uma corrente específica. |
+| **Árvore de Participação** | Representação hierárquica de como os usuários participaram, a partir de qual post. |
+| **Profundidade da Cadeia** | O número máximo de níveis de participação em uma corrente. |
+| **Taxa de Conversão** | Métrica que indica quantos usuários que visualizaram a corrente decidiram participar.
 
-### b. Consultas Úteis
+### 6.2. Consultas SQL Úteis
 
-**Exemplo 1: Total de posts em uma corrente**
+**Exemplo 1: Contagem total de posts em uma corrente específica**
 ```sql
-SELECT COUNT(*) FROM chain_posts WHERE chain_id = '<chain_id>';
+SELECT COUNT(*) FROM chain_posts WHERE chain_id = <chain_id>;
 ```
 
-**Exemplo 2: Usuários que participaram**
+**Exemplo 2: Listagem de todos os usuários que participaram de uma corrente**
 ```sql
-SELECT DISTINCT author_id FROM chain_posts WHERE chain_id = '<chain_id>';
+SELECT DISTINCT author_id FROM chain_posts WHERE chain_id = <chain_id>;
 ```
 
-**Exemplo 3: Profundidade máxima da cadeia**
+**Exemplo 3: Determinação da profundidade máxima de uma cadeia de participação**
 ```sql
 WITH RECURSIVE chain_tree AS (
   SELECT post_id, author_id, parent_post_author_id, 1 AS depth
   FROM chain_posts
-  WHERE chain_id = '<chain_id>' AND parent_post_author_id IS NULL
+  WHERE chain_id = <chain_id> AND parent_post_author_id IS NULL
   
   UNION ALL
   
   SELECT cp.post_id, cp.author_id, cp.parent_post_author_id, ct.depth + 1
   FROM chain_posts cp
   JOIN chain_tree ct ON cp.parent_post_author_id = ct.author_id
-  WHERE cp.chain_id = '<chain_id>'
+  WHERE cp.chain_id = <chain_id>
 )
 SELECT MAX(depth) FROM chain_tree;
 ```
 
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
 ## 7. Considerações de Implementação
 
-### a. Validações Necessárias
+### 7.1. Validações
 
-**Frontend:**
-- Nome da corrente: mínimo 3 caracteres, máximo 50.
-- Descrição: mínimo 10 caracteres, máximo 200.
-- Tipo de destaque: deve ser um dos tipos válidos.
+- **Frontend:**
+    - **Nome da Corrente:** Mínimo de 3 e máximo de 50 caracteres.
+    - **Descrição:** Mínimo de 10 e máximo de 200 caracteres.
+    - **Tipo de Destaque:** Deve corresponder a um dos tipos válidos predefinidos.
 
-**Backend:**
-- Verificar se o usuário é o criador antes de cancelar.
-- Verificar se a corrente já tem posts antes de permitir cancelamento.
-- Garantir que `parent_post_author_id` seja válido (autor de um post existente na corrente).
+- **Backend:**
+    - **Cancelamento:** O usuário que tenta cancelar uma corrente deve ser o criador.
+    - **Integridade:** O cancelamento só é permitido se a corrente não possuir posts associados (`first_post_id` é `NULL`).
+    - **Validade de `parent_post_author_id`:** O ID do autor do post pai deve corresponder a um post existente na corrente.
 
-### b. Permissões (RLS - Row Level Security)
+### 7.2. Permissões (Row Level Security - RLS)
 
-**Tabela `chains`:**
-- Todos podem ler correntes ativas.
-- Apenas o criador pode cancelar (se `first_post_id` for NULL).
+- **Tabela `chains`:**
+    - **Leitura:** Todos os usuários podem visualizar correntes ativas.
+    - **Escrita/Atualização:** Apenas o criador pode modificar ou inativar sua própria corrente (com restrições de `first_post_id`).
 
-**Tabela `chain_posts`:**
-- Todos podem ler.
-- Apenas autenticados podem inserir.
+- **Tabela `chain_posts`:**
+    - **Leitura:** Todos os usuários podem visualizar os posts de uma corrente.
+    - **Escrita:** Apenas usuários autenticados podem adicionar posts a uma corrente.
 
-### c. Notificações
+### 7.3. Notificações (Futuras)
 
-**Possíveis notificações futuras:**
-- Quando alguém participa da corrente que você criou.
-- Quando alguém participa a partir do seu post.
-- Quando a corrente atinge X participantes.
+O sistema pode ser expandido para incluir notificações automatizadas, como:
 
-### d. Pontuação
+- Alerta para o criador quando um novo usuário participa de sua corrente.
+- Notificação para o participante quando alguém se engaja a partir de seu post.
+- Avisos quando uma corrente atinge um número significativo de participantes.
 
-**Possível sistema de pontos futuro:**
-- Criar corrente: +X pontos.
-- Participar de corrente: +Y pontos.
-- Corrente atingir Z participantes: bônus para o criador.
+### 7.4. Pontuação (Futura)
 
----
+Embora detalhada na Parte 2, a integração de um sistema de pontuação pode incluir:
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+- Pontos pela criação de correntes.
+- Pontos pela participação em correntes.
+- Bônus para o criador quando sua corrente atinge marcos de participação.
 
 ## 8. Ordem de Implementação Sugerida
 
-Para garantir uma implementação organizada e testável, sugere-se a seguinte ordem:
+Para uma implementação estruturada e eficiente, sugere-se a seguinte sequência de fases:
 
 ### Fase 1: Banco de Dados
-1. Criar tabela `chains`.
-2. Criar tabela `chain_posts`.
-3. Adicionar coluna `chain_id` em `posts`.
-4. Criar índices.
-5. Configurar RLS (Row Level Security).
+1. Criação da tabela `chains`.
+2. Criação da tabela `chain_posts`.
+3. Adição da coluna `chain_id` à tabela `posts`.
+4. Criação dos índices necessários.
+5. Configuração das políticas de RLS.
 
-### Fase 2: Funções SQL
-1. Implementar `create_chain`.
-2. Implementar `cancel_chain`.
-3. Implementar `add_post_to_chain`.
-4. Implementar `get_chain_info`.
-5. Implementar `get_chain_tree` (opcional, para análise futura).
+### Fase 2: Funções SQL (Backend)
+1. Implementação da função `create_chain`.
+2. Implementação da função `cancel_chain`.
+3. Implementação da função `add_post_to_chain`.
+4. Implementação da função `get_chain_info`.
+5. Implementação da função `get_chain_tree` (opcional, para análises futuras).
 
-### Fase 3: Frontend - Criação
-1. Adicionar botão "Criar Corrente 🔗" na aba "Destacar".
-2. Criar modal de criação de corrente.
-3. Implementar lógica de criação (chamada à função `create_chain`).
-4. Implementar estado de corrente ativa (botão "Cancelar Corrente", nome, tooltip).
-5. Fixar tipo de destaque.
-6. Implementar cancelamento de corrente.
+### Fase 3: Frontend - Criação de Correntes
+1. Desenvolvimento do botão "Criar Corrente 🔗".
+2. Implementação do modal de criação de corrente.
+3. Integração com a função `create_chain`.
+4. Gerenciamento do estado da corrente ativa no frontend (botão "Cancelar Corrente", exibição do nome, tooltip).
+5. Fixação do tipo de destaque.
+6. Implementação da lógica de cancelamento de corrente no frontend.
 
-### Fase 4: Frontend - Participação
-1. Adicionar destaque de corrente nos posts.
-2. Criar modal de visualização de corrente.
-3. Implementar botão "Participar".
-4. Implementar lógica de participação (abrir aba "Destacar" com corrente selecionada).
-5. Implementar botão "Cancelar" (remover seleção).
+### Fase 4: Frontend - Participação em Correntes
+1. Exibição do destaque de corrente nos posts da timeline.
+2. Implementação do modal de visualização da corrente.
+3. Desenvolvimento do botão "Participar".
+4. Lógica de participação (abertura da aba "Destacar" com a corrente selecionada).
+5. Implementação do botão "Cancelar" (para remover a seleção da corrente).
 
-### Fase 5: Integração
-1. Modificar função de criação de post para incluir `chain_id`.
-2. Chamar `add_post_to_chain` ao criar post linkado.
-3. Guardar `parent_post_author_id` corretamente.
-4. Testar fluxo completo (criador e participante).
+### Fase 5: Integração e Testes
+1. Modificação da função de criação de post para incluir `chain_id`.
+2. Chamada de `add_post_to_chain` ao criar posts vinculados.
+3. Armazenamento correto de `parent_post_author_id`.
+4. Testes abrangentes do fluxo completo (criação, participação, cancelamento).
 
-### Fase 6: Testes e Ajustes
-1. Testar cancelamento de corrente antes do primeiro post.
-2. Testar impossibilidade de cancelar após primeiro post.
-3. Testar rastreamento da cadeia.
-4. Testar tooltip e exibição de informações.
-5. Ajustar UI/UX conforme necessário.
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+### Fase 6: Ajustes e Otimizações
+1. Testes de cancelamento de corrente em diferentes cenários.
+2. Verificação da rastreabilidade da cadeia de participação.
+3. Ajustes na UI/UX para otimizar a experiência do usuário.
 
 ## 9. Arquivos a Serem Modificados/Criados
 
-### Banco de Dados (SQL)
+### 9.1. Banco de Dados (SQL)
 - `sql/schema/chains.sql` (novo)
 - `sql/schema/chain_posts.sql` (novo)
 - `sql/migrations/YYYYMMDD_add_chain_id_to_posts.sql` (novo)
@@ -481,125 +392,94 @@ Para garantir uma implementação organizada e testável, sugere-se a seguinte o
 - `sql/functions/get_chain_info.sql` (novo)
 - `sql/functions/get_chain_tree.sql` (novo, opcional)
 
-### Frontend (HTML/JavaScript)
-- `index.html` (modificar aba "Destacar" e exibição de posts)
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
+### 9.2. Frontend (HTML/JavaScript)
+- `index.html` (modificações na aba "Destacar" e na exibição de posts)
 
 ## 10. Diagramas
 
-### a. Diagrama de Entidade-Relacionamento (Simplificado)
+### 10.1. Diagrama de Entidade-Relacionamento (Simplificado)
 
-```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   chains    │         │ chain_posts  │         │    posts    │
-├─────────────┤         ├──────────────┤         ├─────────────┤
-│ id (PK)     │◄────────│ chain_id (FK)│         │ id (PK)     │
-│ creator_id  │         │ post_id (FK) │────────►│ chain_id    │
-│ name        │         │ author_id    │         │ ...         │
-│ description │         │ parent_post_ │         └─────────────┘
-│ highlight_  │         │ author_id    │
-│ type        │         │ created_at   │
-│ is_active   │         └──────────────┘
-│ first_post_ │
-│ id          │
-│ created_at  │
-└─────────────┘
+```mermaid
+erDiagram
+    chains ||--o{ chain_posts : "tem"
+    posts ||--o{ chain_posts : "contém"
+    chains { UUID id PK, TIMESTAMPTZ created_at, UUID creator_id FK, TEXT name, TEXT description, TEXT highlight_type, BOOLEAN is_active, UUID first_post_id FK }
+    chain_posts { UUID id PK, UUID chain_id FK, UUID post_id FK, UUID author_id FK, UUID parent_post_author_id FK, TIMESTAMPTZ created_at }
+    posts { UUID id PK, UUID chain_id FK, ... }
 ```
 
-### b. Fluxograma de Criação de Corrente
+### 10.2. Fluxograma de Criação de Corrente
 
+```mermaid
+graph TD
+    A[Usuário acessa aba "Destacar"]
+    A --> B{Clica em "Criar Corrente 🔗"}
+    B --> C[Abre Modal "Criar Corrente 🔗"]
+    C --> D[Preenche: Nome, Descrição, Tipo de Destaque]
+    D --> E{Clica "Criar"}
+    E --> F[Modal fecha, Frontend armazena activeChain]
+    F --> G[Botão muda para "Cancelar Corrente"]
+    G --> H[Exibe "[Nome da Corrente] 🔗" com Tooltip]
+    H --> I[Tipo de Destaque Fixo]
+    I --> J{Usuário interage}
+
+    J --> K{Clica "Cancelar Corrente"}
+    K --> L{Nenhum post criado?}
+    L -- Sim --> M[Backend: cancel_chain()]
+    M --> N[Corrente deletada]
+    N --> O[Volta ao estado inicial]
+    L -- Não --> P[Erro: Corrente não pode ser cancelada]
+
+    J --> Q[Cria Post Destacando Alguém]
+    Q --> R[Post é criado e linkado à corrente]
+    R --> S[Backend: add_post_to_chain()]
+    S --> T[Corrente não pode mais ser cancelada]
+    T --> U[Volta ao estado inicial da aba "Destacar"]
 ```
-[Usuário clica "Criar Corrente"]
-            ↓
-[Preenche modal: Nome, Descrição, Tipo]
-            ↓
-[Clica "Criar"]
-            ↓
-[Backend: create_chain()]
-            ↓
-[Retorna chain_id]
-            ↓
-[Frontend: Armazena activeChain]
-            ↓
-[Exibe "Cancelar Corrente" + Nome + Tooltip]
-            ↓
-[Fixa tipo de destaque]
-            ↓
-┌───────────┴───────────┐
-│                       │
-[Cancelar Corrente]   [Criar Post]
-│                       │
-[cancel_chain()]      [add_post_to_chain()]
-│                       │
-[Deleta corrente]     [Corrente ativa]
-│                       │
-[Volta ao normal]     [Volta ao normal]
+
+### 10.3. Fluxograma de Participação em Corrente
+
+```mermaid
+graph TD
+    A[Usuário vê Post com Destaque "[Nome da Corrente] 🔗"]
+    A --> B{Clica no Destaque}
+    B --> C[Abre Modal "[Nome da Corrente] 🔗"]
+    C --> D[Exibe: Nome, Descrição, Tipo de Destaque]
+    D --> E{Clica "Participar"}
+    E --> F[Frontend: Guarda parentPostAuthorId]
+    F --> G[Modal fecha, Abre aba "Destacar"]
+    G --> H[Exibe "[Nome da Corrente] 🔗" com Tooltip]
+    H --> I[Botão "Cancelar" aparece]
+    I --> J[Tipo de Destaque Fixo]
+    J --> K{Usuário interage}
+
+    K --> L{Clica "Cancelar"}
+    L --> M[Remove seleção da corrente]
+    M --> N[Libera tipo de destaque fixo]
+    N --> O[Volta ao estado inicial]
+
+    K --> P[Cria Post Destacando Alguém]
+    P --> Q[Post é criado e linkado à corrente]
+    Q --> R[Backend: add_post_to_chain()]
+    R --> S[Guarda parentPostAuthorId no chain_posts]
+    S --> T[Volta ao estado inicial da aba "Destacar"]
 ```
+
+## 11. Considerações Finais sobre a Implementação
+
+O sistema de Correntes representa uma funcionalidade robusta para impulsionar o engajamento e a criação de conteúdo temático. A abordagem modular proposta facilita a implementação e permite futuras expansões, como análises de correntes, gamificação avançada e notificações personalizadas.
 
 ---
 
 # PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
 
----
+Esta seção detalha a integração de elementos de gamificação ao sistema de Correntes, visando incentivar a criação e participação ativa dos usuários através de badges e um sistema de pontuação.
 
-## 11. Considerações Finais
+## 12. Novos Badges de Correntes
 
-O sistema de Correntes é uma funcionalidade poderosa para incentivar engajamento e criar sequências temáticas rastreáveis. A implementação sugerida é modular e permite expansões futuras, como:
+Serão introduzidos 8 novos badges para reconhecer e recompensar a atividade dos usuários no sistema de Correntes. A lógica de concessão será integrada à função `auto_badge_check_bonus`.
 
-- **Análise de Correntes:** Dashboards mostrando as correntes mais populares.
-- **Gamificação:** Badges para criadores de correntes virais.
-- **Notificações:** Avisos quando alguém participa da sua corrente.
-- **Pontuação:** Sistema de pontos para criadores e participantes.
-
-A estrutura de banco de dados foi projetada para permitir rastreamento completo da cadeia de participação, possibilitando análises profundas sobre o alcance e impacto de cada corrente.
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-**Fim do Plano de Implementação**
-
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-
-# Plano Complementar: Gamificação do Sistema de Correntes
-
-**Autor:** Manus AI  
-**Data:** 03 de Dezembro de 2025  
-**Versão:** 1.0
-
-## 1. Visão Geral
-
-Este documento complementa o plano de implementação do sistema de Correntes, detalhando a adição de:
-
-1.  **Badges:** Novas conquistas relacionadas à criação e participação em correntes.
-2.  **Pontuação:** Sistema de pontos para recompensar a criação e participação.
-
-O objetivo é aumentar o engajamento e incentivar o uso da nova funcionalidade.
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 2. Novos Badges de Correntes
-
-Serão criados novos badges para reconhecer a atividade dos usuários no sistema de Correntes. A lógica de concessão será integrada à função `auto_badge_check_bonus`.
-
-### a. Badges de Criação de Correntes
+### 12.1. Badges de Criação de Correntes
 
 | Nome do Badge | Ícone | Raridade | Condição para Conceder |
 | :--- | :--- | :--- | :--- |
@@ -608,7 +488,7 @@ Serão criados novos badges para reconhecer a atividade dos usuários no sistema
 | **Engrenagem** | ⚙️ | Épico | Criar 20 correntes. |
 | **Corrente Viral** | 🔥 | Lendário | Criar uma corrente que atinja 50 participantes. |
 
-### b. Badges de Participação em Correntes
+### 12.2. Badges de Participação em Correntes
 
 | Nome do Badge | Ícone | Raridade | Condição para Conceder |
 | :--- | :--- | :--- | :--- |
@@ -617,360 +497,113 @@ Serão criados novos badges para reconhecer a atividade dos usuários no sistema
 | **Multiplicador** | 📈 | Épico | Participar de 50 correntes diferentes. |
 | **Elo Profundo** | 🌊 | Lendário | Participar de uma corrente com profundidade 10 (10 níveis de participação). |
 
-### c. Implementação dos Badges
+### 12.3. Implementação dos Badges
 
-1.  **Adicionar Badges na Tabela `badges`:**
-    - Inserir os 8 novos badges com seus nomes, ícones, raridades e condições.
+1.  **Adicionar Badges na Tabela `badges`:** Inserir os 8 novos badges com seus atributos (nome, ícone, raridade, condição e valor).
+2.  **Atualizar Função `auto_badge_check_bonus`:** Modificar a função para incluir a verificação das novas condições de badges relacionadas a correntes.
+3.  **Criar Funções de Suporte:** Desenvolver funções auxiliares para calcular as métricas necessárias para as condições dos badges:
+    - `count_user_created_chains(p_user_id)`: Retorna o número de correntes criadas por um usuário.
+    - `count_user_participated_chains(p_user_id)`: Retorna o número de correntes distintas em que um usuário participou.
+    - `get_chain_participants_count(p_chain_id)`: Retorna o número total de participantes únicos em uma corrente.
+    - `get_user_participation_depth(p_user_id, p_chain_id)`: Retorna a profundidade máxima de participação de um usuário em uma corrente específica.
 
-2.  **Atualizar Função `auto_badge_check_bonus`:**
-    - Adicionar lógica para verificar as novas condições:
-      - Contar correntes criadas pelo usuário.
-      - Contar correntes participadas pelo usuário.
-      - Verificar o número de participantes em correntes criadas pelo usuário.
-      - Verificar a profundidade da participação do usuário em correntes.
+## 13. Sistema de Pontuação para Correntes
 
-3.  **Criar Funções de Suporte:**
-    - `count_user_created_chains(p_user_id)`: Retorna o número de correntes criadas.
-    - `count_user_participated_chains(p_user_id)`: Retorna o número de correntes participadas.
-    - `get_chain_participants_count(p_chain_id)`: Retorna o número de participantes em uma corrente.
-    - `get_user_participation_depth(p_user_id, p_chain_id)`: Retorna a profundidade da participação de um usuário em uma corrente.
+Serão introduzidos novos tipos de ação (`action_type`) na tabela `points_history` para recompensar diretamente a criação e participação em correntes.
 
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 3. Sistema de Pontuação para Correntes
-
-Serão criados novos `action_type` na tabela `points_history` para recompensar a criação e participação em correntes.
-
-### a. Pontos por Ação
+### 13.1. Pontos por Ação
 
 | Ação | `action_type` | Pontos |
 | :--- | :--- | :--- |
 | **Criar uma corrente** | `chain_created` | **+25 pontos** |
 | **Participar de uma corrente** | `chain_participated` | **+15 pontos** |
 
-### b. Implementação da Pontuação
+### 13.2. Implementação da Pontuação
 
-1.  **Atualizar Função `create_chain`:**
-    - Após criar a corrente com sucesso, inserir um registro em `points_history`:
-      - `user_id` = `p_creator_id`
-      - `points_earned` = 25
-      - `action_type` = `chain_created`
-      - `reference_id` = ID da corrente criada
+1.  **Atualizar Função `create_chain`:** Após a criação bem-sucedida de uma corrente, um registro `chain_created` será inserido em `points_history` para o criador.
+2.  **Atualizar Função `add_post_to_chain`:** Quando um post é adicionado a uma corrente por um participante (ou seja, `p_parent_post_author_id` não é `NULL`), um registro `chain_participated` será inserido em `points_history` para o autor do post.
+3.  **Atualizar Função `recalculate_user_points_secure`:** Garantir que os novos `action_type` (`chain_created`, `chain_participated`) sejam corretamente considerados no cálculo do total de pontos do usuário.
 
-2.  **Atualizar Função `add_post_to_chain`:**
-    - Após adicionar o post à corrente, verificar se é uma participação (não o criador).
-    - Se `p_parent_post_author_id` **NÃO** for `NULL`:
-      - Inserir um registro em `points_history`:
-        - `user_id` = `p_author_id` (quem está participando)
-        - `points_earned` = 15
-        - `action_type` = `chain_participated`
-        - `reference_id` = ID da corrente
+## 14. Alterações Necessárias no Banco de Dados
 
-3.  **Atualizar Função `recalculate_user_points_secure`:**
-    - Garantir que os novos `action_type` (`chain_created`, `chain_participated`) sejam incluídos na soma total de pontos.
+### 14.1. Tabela `badges`
 
----
+Inserir os 8 novos badges de correntes. O script SQL para isso é:
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 4. Alterações Necessárias no Banco de Dados
-
-### a. Tabela `badges`
-
-Inserir os 8 novos badges relacionados a correntes.
-
-**Script SQL:**
 ```sql
 INSERT INTO badges (name, icon, rarity, condition_type, condition_value, bonus_points) VALUES
 -- Badges de Criação
-('Iniciador', '🔗', 'comum', 'chains_created', 1, 50),
-('Conector', '⛓️', 'raro', 'chains_created', 5, 150),
-('Engrenagem', '⚙️', 'épico', 'chains_created', 20, 500),
-('Corrente Viral', '🔥', 'lendário', 'chains_created_with_participants', 50, 1000),
+("Iniciador", "🔗", "comum", "chains_created", 1, 50),
+("Conector", "⛓️", "raro", "chains_created", 5, 150),
+("Engrenagem", "⚙️", "épico", "chains_created", 20, 500),
+("Corrente Viral", "🔥", "lendário", "chains_created_with_participants", 50, 1000),
 
 -- Badges de Participação
-('Elo', '🔗', 'comum', 'chains_participated', 1, 50),
-('Corrente Forte', '💪', 'raro', 'chains_participated', 10, 150),
-('Multiplicador', '📈', 'épico', 'chains_participated', 50, 500),
-('Elo Profundo', '🌊', 'lendário', 'chain_participation_depth', 10, 1000);
+("Elo", "🔗", "comum", "chains_participated", 1, 50),
+("Corrente Forte", "💪", "raro", "chains_participated", 10, 150),
+("Multiplicador", "📈", "épico", "chains_participated", 50, 500),
+("Elo Profundo", "🌊", "lendário", "chain_participation_depth", 10, 1000);
 ```
 
-### b. Tabela `points_history`
+### 14.2. Tabela `points_history`
 
-Nenhuma alteração estrutural necessária. Os novos `action_type` serão inseridos dinamicamente.
+Não são necessárias alterações estruturais. Os novos `action_type` (`chain_created`, `chain_participated`) serão inseridos dinamicamente.
 
----
+## 15. Funções SQL Necessárias
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
+### 15.1. Funções de Suporte para Badges
 
----
+- **`count_user_created_chains(p_user_id UUID)`:** Retorna o número de correntes ativas criadas por `p_user_id`.
+- **`count_user_participated_chains(p_user_id UUID)`:** Retorna a contagem de correntes distintas em que `p_user_id` participou (excluindo as que criou).
+- **`get_chain_participants_count(p_chain_id UUID)`:** Retorna o número de autores únicos de posts em uma corrente.
+- **`get_user_participation_depth(p_user_id UUID, p_chain_id UUID)`:** Retorna a profundidade máxima de participação de `p_user_id` em `p_chain_id`.
 
-## 5. Funções SQL Necessárias
+### 15.2. Atualização da Função `auto_badge_check_bonus`
 
-### a. `count_user_created_chains`
+Será necessário adicionar blocos `WHEN` para cada novo `condition_type` dentro da função `auto_badge_check_bonus` para verificar as condições dos badges de correntes.
 
-**Descrição:** Retorna o número de correntes criadas por um usuário.
+## 16. Triggers e Automação
 
-**Parâmetros:**
-- `p_user_id` (UUID): ID do usuário.
+Para automatizar a concessão de badges e pontos, serão implementados triggers no banco de dados.
 
-**Retorna:** INTEGER (número de correntes criadas).
+### 16.1. Trigger: `trigger_check_badges_after_chain_created`
 
-**Lógica:**
-```sql
-CREATE OR REPLACE FUNCTION count_user_created_chains(p_user_id UUID)
-RETURNS INTEGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN (
-        SELECT COUNT(*) 
-        FROM chains 
-        WHERE creator_id = p_user_id 
-        AND is_active = true
-    );
-END;
-$$;
-```
+- **Evento:** `AFTER INSERT ON chains`.
+- **Ação:** Chama `auto_badge_check_bonus(NEW.creator_id)` para verificar e conceder badges de criação de correntes.
 
-### b. `count_user_participated_chains`
+### 16.2. Trigger: `trigger_check_badges_after_chain_participation`
 
-**Descrição:** Retorna o número de correntes em que um usuário participou (excluindo as que criou).
+- **Evento:** `AFTER INSERT ON chain_posts`.
+- **Condição:** Apenas se `NEW.parent_post_author_id IS NOT NULL` (indicando uma participação, não o post inicial do criador).
+- **Ação:** Chama `auto_badge_check_bonus(NEW.author_id)` para verificar e conceder badges de participação em correntes.
 
-**Parâmetros:**
-- `p_user_id` (UUID): ID do usuário.
+## 17. Ordem de Implementação Sugerida
 
-**Retorna:** INTEGER (número de correntes participadas).
-
-**Lógica:**
-```sql
-CREATE OR REPLACE FUNCTION count_user_participated_chains(p_user_id UUID)
-RETURNS INTEGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN (
-        SELECT COUNT(DISTINCT chain_id) 
-        FROM chain_posts 
-        WHERE author_id = p_user_id 
-        AND parent_post_author_id IS NOT NULL
-    );
-END;
-$$;
-```
-
-### c. `get_chain_participants_count`
-
-**Descrição:** Retorna o número de participantes em uma corrente.
-
-**Parâmetros:**
-- `p_chain_id` (UUID): ID da corrente.
-
-**Retorna:** INTEGER (número de participantes).
-
-**Lógica:**
-```sql
-CREATE OR REPLACE FUNCTION get_chain_participants_count(p_chain_id UUID)
-RETURNS INTEGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN (
-        SELECT COUNT(DISTINCT author_id) 
-        FROM chain_posts 
-        WHERE chain_id = p_chain_id
-    );
-END;
-$$;
-```
-
-### d. `get_user_participation_depth`
-
-**Descrição:** Retorna a profundidade máxima da participação de um usuário em uma corrente.
-
-**Parâmetros:**
-- `p_user_id` (UUID): ID do usuário.
-- `p_chain_id` (UUID): ID da corrente.
-
-**Retorna:** INTEGER (profundidade máxima).
-
-**Lógica:**
-```sql
-CREATE OR REPLACE FUNCTION get_user_participation_depth(p_user_id UUID, p_chain_id UUID)
-RETURNS INTEGER
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_max_depth INTEGER := 0;
-BEGIN
-    WITH RECURSIVE chain_tree AS (
-        -- Nível 0: Criador da corrente
-        SELECT post_id, author_id, parent_post_author_id, 0 AS depth
-        FROM chain_posts
-        WHERE chain_id = p_chain_id 
-        AND parent_post_author_id IS NULL
-        
-        UNION ALL
-        
-        -- Níveis subsequentes
-        SELECT cp.post_id, cp.author_id, cp.parent_post_author_id, ct.depth + 1
-        FROM chain_posts cp
-        JOIN chain_tree ct ON cp.parent_post_author_id = ct.author_id
-        WHERE cp.chain_id = p_chain_id
-    )
-    SELECT MAX(depth) INTO v_max_depth
-    FROM chain_tree
-    WHERE author_id = p_user_id;
-    
-    RETURN COALESCE(v_max_depth, 0);
-END;
-$$;
-```
-
-### e. Atualizar `auto_badge_check_bonus`
-
-**Descrição:** Adicionar verificação dos novos badges de correntes.
-
-**Lógica a ser adicionada:**
-```sql
--- Verificar badges de criação de correntes
-WHEN v_badge.condition_type = 'chains_created' THEN
-    v_condition_met := count_user_created_chains(p_user_id) >= v_badge.condition_value;
-
--- Verificar badge "Corrente Viral"
-WHEN v_badge.condition_type = 'chains_created_with_participants' THEN
-    v_condition_met := EXISTS (
-        SELECT 1 FROM chains c
-        WHERE c.creator_id = p_user_id
-        AND get_chain_participants_count(c.id) >= v_badge.condition_value
-    );
-
--- Verificar badges de participação em correntes
-WHEN v_badge.condition_type = 'chains_participated' THEN
-    v_condition_met := count_user_participated_chains(p_user_id) >= v_badge.condition_value;
-
--- Verificar badge "Elo Profundo"
-WHEN v_badge.condition_type = 'chain_participation_depth' THEN
-    v_condition_met := EXISTS (
-        SELECT 1 FROM chain_posts cp
-        WHERE cp.author_id = p_user_id
-        AND get_user_participation_depth(p_user_id, cp.chain_id) >= v_badge.condition_value
-    );
-```
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 6. Triggers e Automação
-
-Para garantir que os badges sejam concedidos automaticamente, será necessário adicionar triggers.
-
-### a. Trigger: Verificar Badges ao Criar Corrente
-
-**Quando:** Após inserir um registro em `chains`.
-
-**Ação:** Chamar `auto_badge_check_bonus` para o criador.
-
-**SQL:**
-```sql
-CREATE OR REPLACE FUNCTION check_badges_after_chain_created()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    PERFORM auto_badge_check_bonus(NEW.creator_id);
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER trigger_check_badges_after_chain_created
-AFTER INSERT ON chains
-FOR EACH ROW
-EXECUTE FUNCTION check_badges_after_chain_created();
-```
-
-### b. Trigger: Verificar Badges ao Participar de Corrente
-
-**Quando:** Após inserir um registro em `chain_posts` (com `parent_post_author_id` não nulo).
-
-**Ação:** Chamar `auto_badge_check_bonus` para o participante.
-
-**SQL:**
-```sql
-CREATE OR REPLACE FUNCTION check_badges_after_chain_participation()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    IF NEW.parent_post_author_id IS NOT NULL THEN
-        PERFORM auto_badge_check_bonus(NEW.author_id);
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER trigger_check_badges_after_chain_participation
-AFTER INSERT ON chain_posts
-FOR EACH ROW
-EXECUTE FUNCTION check_badges_after_chain_participation();
-```
-
----
-
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 7. Ordem de Implementação Sugerida
-
-Para garantir uma implementação organizada, sugere-se a seguinte ordem:
+Para uma implementação eficiente da gamificação, sugere-se a seguinte sequência de fases, a ser executada após a implementação da funcionalidade base das correntes (Parte 1):
 
 ### Fase 1: Funções de Suporte
-1. Criar `count_user_created_chains`.
-2. Criar `count_user_participated_chains`.
-3. Criar `get_chain_participants_count`.
-4. Criar `get_user_participation_depth`.
+1. Criação das funções `count_user_created_chains`, `count_user_participated_chains`, `get_chain_participants_count` e `get_user_participation_depth`.
 
 ### Fase 2: Badges
-1. Inserir os 8 novos badges na tabela `badges`.
-2. Atualizar a função `auto_badge_check_bonus` com as novas condições.
+1. Inserção dos 8 novos badges na tabela `badges`.
+2. Atualização da função `auto_badge_check_bonus` com a lógica para os novos `condition_type`.
 
 ### Fase 3: Pontuação
-1. Atualizar `create_chain` para inserir pontos.
-2. Atualizar `add_post_to_chain` para inserir pontos.
-3. Verificar se `recalculate_user_points_secure` inclui os novos `action_type`.
+1. Modificação da função `create_chain` para registrar `chain_created` em `points_history`.
+2. Modificação da função `add_post_to_chain` para registrar `chain_participated` em `points_history`.
+3. Verificação e ajuste de `recalculate_user_points_secure` para incluir os novos `action_type`.
 
 ### Fase 4: Triggers
-1. Criar trigger para verificar badges ao criar corrente.
-2. Criar trigger para verificar badges ao participar de corrente.
+1. Criação do trigger `trigger_check_badges_after_chain_created`.
+2. Criação do trigger `trigger_check_badges_after_chain_participation`.
 
-### Fase 5: Testes
-1. Testar criação de corrente e concessão de pontos.
-2. Testar participação em corrente e concessão de pontos.
-3. Testar concessão de badges:
-   - Criar 1 corrente → Badge "Iniciador".
-   - Participar de 1 corrente → Badge "Elo".
-   - Criar corrente com 50 participantes → Badge "Corrente Viral".
-   - Participar em profundidade 10 → Badge "Elo Profundo".
+### Fase 5: Testes e Validação
+1. Testes de concessão de pontos por criação e participação.
+2. Testes de concessão de todos os 8 badges em diferentes cenários.
 
----
+## 18. Arquivos a Serem Criados/Modificados
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 8. Arquivos a Serem Criados/Modificados
-
-### Banco de Dados (SQL)
+### 18.1. Banco de Dados (SQL)
 - `sql/migrations/YYYYMMDD_add_chain_badges.sql` (novo)
 - `sql/functions/count_user_created_chains.sql` (novo)
 - `sql/functions/count_user_participated_chains.sql` (novo)
@@ -982,13 +615,9 @@ Para garantir uma implementação organizada, sugere-se a seguinte ordem:
 - `sql/triggers/check_badges_after_chain_created.sql` (novo)
 - `sql/triggers/check_badges_after_chain_participation.sql` (novo)
 
----
+## 19. Resumo da Pontuação e Ganhos
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 9. Resumo da Pontuação
+Esta tabela resume os pontos diretos e os pontos de bônus de badges que um usuário pode ganhar ao interagir com o sistema de Correntes.
 
 | Ação | Pontos Diretos | Badge Possível | Pontos do Badge |
 | :--- | :--- | :--- | :--- |
@@ -1001,30 +630,20 @@ Para garantir uma implementação organizada, sugere-se a seguinte ordem:
 | **Participar 50 correntes** | +750 (50×15) | Multiplicador (Épico) | +500 |
 | **Participar profundidade 10** | +15 | Elo Profundo (Lendário) | +1000 |
 
-**Exemplo de Ganho Total:**
-- Usuário cria 1 corrente: **25 + 50 = 75 pontos**
-- Usuário participa de 10 correntes: **150 + 50 + 150 = 350 pontos**
+**Exemplo de Ganhos Totais:**
+- **Criação de 1 Corrente:** 25 pontos (diretos) + 50 pontos (badge Iniciador) = **75 pontos**.
+- **Participação em 10 Correntes:** 150 pontos (diretos) + 50 pontos (badge Elo) + 150 pontos (badge Corrente Forte) = **350 pontos**.
 
----
+## 20. Considerações Finais sobre a Gamificação
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-## 10. Considerações Finais
-
-O sistema de gamificação proposto para as Correntes incentivará tanto a criação quanto a participação, recompensando usuários com pontos e badges. A estrutura é escalável e permite a adição de novos badges e condições no futuro.
+O sistema de gamificação proposto visa não apenas recompensar, mas também guiar o comportamento do usuário, incentivando a criação de correntes de alta qualidade e a participação ativa. A estrutura é flexível para futuras expansões, permitindo a introdução de novos desafios e recompensas.
 
 **Possíveis Expansões Futuras:**
-- Badge para corrente com maior profundidade da plataforma.
-- Badge para usuário que participou de correntes de todos os tipos de destaque.
-- Sistema de ranking de criadores de correntes mais virais.
-- Notificações quando um badge de corrente é conquistado.
+- Badges para correntes que atingem a maior profundidade na plataforma.
+- Badges para usuários que participam de correntes de todos os tipos de destaque.
+- Sistema de ranking para criadores de correntes mais virais.
+- Notificações em tempo real quando um badge de corrente é conquistado.
 
 ---
 
-# PARTE 2: GAMIFICAÇÃO DO SISTEMA DE CORRENTES
-
----
-
-**Fim do Plano Complementar**
+**Fim da Documentação Completa**
