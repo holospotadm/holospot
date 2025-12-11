@@ -2788,7 +2788,26 @@
 
         <div id="destacarTab" class="tab-content">
             <div class="create-post-form">
-                <h2 style="margin-bottom: 1.5rem; color: #e65100;"><img src="./holofote.png" style="width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;"> Destacar Alguém</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; color: #e65100;"><img src="./holofote.png" style="width: 20px; height: 20px; margin-right: 6px; vertical-align: middle;"> Destacar Alguém</h2>
+                    <button id="createChainBtn" onclick="openCreateChainModal()" style="
+                        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 10px 16px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+                        transition: all 0.2s;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)'">
+                        🔗 Criar Corrente
+                    </button>
+                </div>
                 
                 <!-- Dropdown de Comunidade -->
                 <div class="form-group" id="destacarCommunityDropdownContainer" style="display: none;">
@@ -16798,6 +16817,95 @@
     </script>
 
 
+    <!-- Modal de Criar Corrente -->
+    <div id="createChainModal" class="modal-overlay" style="display: none;" onclick="closeCreateChainModal()">
+        <div class="modal-content" style="max-width: 550px; width: 90%;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 style="margin: 0; color: #f97316;">🔗 Criar Corrente</h2>
+                <button class="modal-close" onclick="closeCreateChainModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Nome da Corrente</label>
+                    <input 
+                        type="text" 
+                        id="chainName" 
+                        class="form-input" 
+                        placeholder="Ex: Corrente de Gratidão"
+                        maxlength="50"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                    >
+                    <small style="color: #666; display: block; margin-top: 5px;">Mínimo 3, máximo 50 caracteres</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Descrição</label>
+                    <textarea 
+                        id="chainDescription" 
+                        class="form-input" 
+                        rows="3"
+                        placeholder="Descreva o propósito desta corrente..."
+                        maxlength="200"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;"
+                    ></textarea>
+                    <small style="color: #666; display: block; margin-top: 5px;">Mínimo 10, máximo 200 caracteres</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label" style="display: block; margin-bottom: 12px; font-weight: 600; color: #333;">Tipo de Destaque</label>
+                    <div class="highlight-types" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div class="highlight-type chain-highlight-type" data-type="gratidao" onclick="selectChainHighlightType('gratidao')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s;">
+                            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">🙏</div>
+                            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">Gratidão</div>
+                        </div>
+                        <div class="highlight-type chain-highlight-type" data-type="memoria" onclick="selectChainHighlightType('memoria')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s;">
+                            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">💭</div>
+                            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">Memória</div>
+                        </div>
+                        <div class="highlight-type chain-highlight-type" data-type="conquista" onclick="selectChainHighlightType('conquista')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s;">
+                            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">🏆</div>
+                            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">Conquista</div>
+                        </div>
+                        <div class="highlight-type chain-highlight-type" data-type="inspiracao" onclick="selectChainHighlightType('inspiracao')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s;">
+                            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">✨</div>
+                            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">Inspiração</div>
+                        </div>
+                        <div class="highlight-type chain-highlight-type" data-type="apoio" onclick="selectChainHighlightType('apoio')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s;">
+                            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">🤝</div>
+                            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">Apoio</div>
+                        </div>
+                        <div class="highlight-type chain-highlight-type" data-type="admiracao" onclick="selectChainHighlightType('admiracao')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s;">
+                            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">🌟</div>
+                            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">Admiração</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button 
+                    id="confirmCreateChainBtn" 
+                    onclick="createChain()" 
+                    style="
+                        width: 100%;
+                        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 14px;
+                        font-size: 16px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+                    "
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)'"
+                >
+                    🔗 Criar Corrente
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Emoji Picker -->
     <div id="emojiPickerModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 500px;">
@@ -18301,6 +18409,307 @@ window.deletePost = deletePost;
 window.initCommunityManagement = initCommunityManagement;
 
 console.log('✅ Módulo community_management.js carregado');
+// ============================================
+// CHAINS (CORRENTES)
+// ============================================
+
+// Variáveis globais para gerenciar estado da corrente
+let currentChain = null; // {id, name, description, highlight_type}
+let selectedChainHighlightType = null;
+
+// Abrir modal de criar corrente
+function openCreateChainModal() {
+    const modal = document.getElementById('createChainModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Limpar campos
+        document.getElementById('chainName').value = '';
+        document.getElementById('chainDescription').value = '';
+        selectedChainHighlightType = null;
+        // Remover seleção de todos os tipos
+        document.querySelectorAll('.chain-highlight-type').forEach(el => {
+            el.style.border = '2px solid #ddd';
+            el.style.background = 'white';
+        });
+    }
+}
+
+// Fechar modal de criar corrente
+function closeCreateChainModal() {
+    const modal = document.getElementById('createChainModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Selecionar tipo de destaque na criação da corrente
+function selectChainHighlightType(type) {
+    selectedChainHighlightType = type;
+    // Remover seleção de todos
+    document.querySelectorAll('.chain-highlight-type').forEach(el => {
+        el.style.border = '2px solid #ddd';
+        el.style.background = 'white';
+    });
+    // Selecionar o clicado
+    const selected = document.querySelector(`.chain-highlight-type[data-type="${type}"]`);
+    if (selected) {
+        selected.style.border = '2px solid #f97316';
+        selected.style.background = '#fff7ed';
+    }
+}
+
+// Criar corrente
+async function createChain() {
+    const name = document.getElementById('chainName').value.trim();
+    const description = document.getElementById('chainDescription').value.trim();
+    
+    // Validações
+    if (!name || name.length < 3 || name.length > 50) {
+        showNotification('⚠️ Nome da corrente deve ter entre 3 e 50 caracteres', 'error');
+        return;
+    }
+    
+    if (!description || description.length < 10 || description.length > 200) {
+        showNotification('⚠️ Descrição deve ter entre 10 e 200 caracteres', 'error');
+        return;
+    }
+    
+    if (!selectedChainHighlightType) {
+        showNotification('⚠️ Selecione um tipo de destaque', 'error');
+        return;
+    }
+    
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            showNotification('⚠️ Você precisa estar logado', 'error');
+            return;
+        }
+        
+        // Desabilitar botão
+        const btn = document.getElementById('confirmCreateChainBtn');
+        btn.disabled = true;
+        btn.textContent = 'Criando...';
+        
+        // Chamar função SQL
+        const { data, error } = await supabase.rpc('create_chain', {
+            p_creator_id: user.id,
+            p_name: name,
+            p_description: description,
+            p_highlight_type: selectedChainHighlightType
+        });
+        
+        if (error) throw error;
+        
+        // Armazenar corrente criada
+        currentChain = {
+            id: data,
+            name: name,
+            description: description,
+            highlight_type: selectedChainHighlightType
+        };
+        
+        // Fechar modal
+        closeCreateChainModal();
+        
+        // Atualizar UI da aba Destacar
+        updateDestacarTab();
+        
+        showNotification('🎉 Corrente criada com sucesso! Agora crie seu primeiro post.', 'success');
+        
+    } catch (error) {
+        console.error('Erro ao criar corrente:', error);
+        showNotification('❌ Erro ao criar corrente: ' + error.message, 'error');
+    } finally {
+        // Reabilitar botão
+        const btn = document.getElementById('confirmCreateChainBtn');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '🔗 Criar Corrente';
+        }
+    }
+}
+
+// Atualizar UI da aba Destacar quando corrente é criada
+function updateDestacarTab() {
+    const createChainBtn = document.getElementById('createChainBtn');
+    
+    if (currentChain) {
+        // Substituir botão "Criar Corrente" por nome da corrente + botão cancelar
+        createChainBtn.outerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div 
+                    id="chainNameDisplay"
+                    style="
+                        color: #f97316;
+                        font-weight: 600;
+                        font-size: 14px;
+                        cursor: help;
+                        position: relative;
+                    "
+                    onmouseenter="showChainTooltip(event)"
+                    onmouseleave="hideChainTooltip()"
+                >
+                    ${currentChain.name} 🔗
+                </div>
+                <button 
+                    id="cancelChainBtn" 
+                    onclick="cancelChain()" 
+                    style="
+                        background: #ef4444;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 10px 16px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+                    "
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(239, 68, 68, 0.3)'"
+                >
+                    Cancelar Corrente
+                </button>
+            </div>
+        `;
+        
+        // Fixar tipo de destaque
+        fixHighlightType(currentChain.highlight_type);
+    }
+}
+
+// Fixar tipo de destaque (desabilitar outros)
+function fixHighlightType(type) {
+    const highlightTypes = document.querySelectorAll('.highlight-type');
+    highlightTypes.forEach(el => {
+        const elType = el.getAttribute('data-type');
+        if (elType === type) {
+            el.classList.add('selected');
+            el.style.pointerEvents = 'none';
+            el.style.opacity = '1';
+        } else {
+            el.style.opacity = '0.3';
+            el.style.pointerEvents = 'none';
+        }
+    });
+}
+
+// Mostrar tooltip com descrição da corrente
+function showChainTooltip(event) {
+    if (!currentChain) return;
+    
+    // Remover tooltip anterior se existir
+    hideChainTooltip();
+    
+    const tooltip = document.createElement('div');
+    tooltip.id = 'chainTooltip';
+    tooltip.style.cssText = `
+        position: fixed;
+        left: ${event.clientX}px;
+        top: ${event.clientY - 60}px;
+        background: #333;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        max-width: 300px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        pointer-events: none;
+    `;
+    tooltip.textContent = currentChain.description;
+    document.body.appendChild(tooltip);
+}
+
+// Esconder tooltip
+function hideChainTooltip() {
+    const tooltip = document.getElementById('chainTooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
+}
+
+// Cancelar corrente
+async function cancelChain() {
+    if (!currentChain) return;
+    
+    if (!confirm('Tem certeza que deseja cancelar esta corrente? Ela será deletada.')) {
+        return;
+    }
+    
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        // Chamar função SQL
+        const { error } = await supabase.rpc('cancel_chain', {
+            p_chain_id: currentChain.id,
+            p_user_id: user.id
+        });
+        
+        if (error) throw error;
+        
+        // Limpar estado
+        currentChain = null;
+        selectedChainHighlightType = null;
+        
+        // Restaurar UI
+        restoreDestacarTab();
+        
+        showNotification('✅ Corrente cancelada com sucesso', 'success');
+        
+    } catch (error) {
+        console.error('Erro ao cancelar corrente:', error);
+        showNotification('❌ Erro ao cancelar corrente: ' + error.message, 'error');
+    }
+}
+
+// Restaurar UI da aba Destacar (remover corrente)
+function restoreDestacarTab() {
+    const cancelBtn = document.getElementById('cancelChainBtn');
+    if (cancelBtn) {
+        const parent = cancelBtn.parentElement;
+        parent.outerHTML = `
+            <button id="createChainBtn" onclick="openCreateChainModal()" style="
+                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 16px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+                transition: all 0.2s;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)'">
+                🔗 Criar Corrente
+            </button>
+        `;
+    }
+    
+    // Reabilitar todos os tipos de destaque
+    const highlightTypes = document.querySelectorAll('.highlight-type');
+    highlightTypes.forEach(el => {
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+    });
+}
+
+// Exportar funções globalmente
+window.openCreateChainModal = openCreateChainModal;
+window.closeCreateChainModal = closeCreateChainModal;
+window.selectChainHighlightType = selectChainHighlightType;
+window.createChain = createChain;
+window.cancelChain = cancelChain;
+window.showChainTooltip = showChainTooltip;
+window.hideChainTooltip = hideChainTooltip;
+
+console.log('✅ Módulo chains.js carregado');
 
     </script>
 
