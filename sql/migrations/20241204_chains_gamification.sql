@@ -14,21 +14,21 @@
 -- ============================================================================
 
 -- Badges de Criação de Correntes
-INSERT INTO badges (name, description, rarity, icon, points_bonus, condition_type, condition_value)
+INSERT INTO badges (name, description, rarity, icon, points_required, condition_type, condition_value, category, is_active)
 VALUES
-    ('Iniciador', 'Crie sua primeira corrente', 'comum', '🔗', 50, 'chains_created', 1),
-    ('Conector', 'Crie 5 correntes', 'raro', '⛓️', 150, 'chains_created', 5),
-    ('Engrenagem', 'Crie 20 correntes', 'épico', '⚙️', 500, 'chains_created', 20),
-    ('Corrente Viral', 'Crie uma corrente com 50 participantes', 'lendário', '🔥', 1000, 'chain_participants', 50)
+    ('Iniciador', 'Crie sua primeira corrente', 'comum', '🔗', 50, 'chains_created', 1, 'correntes', true),
+    ('Conector', 'Crie 5 correntes', 'raro', '⛓️', 150, 'chains_created', 5, 'correntes', true),
+    ('Engrenagem', 'Crie 20 correntes', 'épico', '⚙️', 500, 'chains_created', 20, 'correntes', true),
+    ('Corrente Viral', 'Crie uma corrente com 50 participantes', 'lendário', '🔥', 1000, 'chain_participants', 50, 'correntes', true)
 ON CONFLICT (name) DO NOTHING;
 
 -- Badges de Participação em Correntes
-INSERT INTO badges (name, description, rarity, icon, points_bonus, condition_type, condition_value)
+INSERT INTO badges (name, description, rarity, icon, points_required, condition_type, condition_value, category, is_active)
 VALUES
-    ('Elo', 'Participe da sua primeira corrente', 'comum', '🔗', 50, 'chains_participated', 1),
-    ('Corrente Forte', 'Participe de 10 correntes', 'raro', '💪', 150, 'chains_participated', 10),
-    ('Multiplicador', 'Participe de 50 correntes', 'épico', '📈', 500, 'chains_participated', 50),
-    ('Elo Profundo', 'Participe de uma corrente em profundidade 10', 'lendário', '🌊', 1000, 'chain_depth', 10)
+    ('Elo', 'Participe da sua primeira corrente', 'comum', '🔗', 50, 'chains_participated', 1, 'correntes', true),
+    ('Corrente Forte', 'Participe de 10 correntes', 'raro', '💪', 150, 'chains_participated', 10, 'correntes', true),
+    ('Multiplicador', 'Participe de 50 correntes', 'épico', '📈', 500, 'chains_participated', 50, 'correntes', true),
+    ('Elo Profundo', 'Participe de uma corrente em profundidade 10', 'lendário', '🌊', 1000, 'chain_depth', 10, 'correntes', true)
 ON CONFLICT (name) DO NOTHING;
 
 DO $$
@@ -175,8 +175,9 @@ DECLARE
 BEGIN
     -- Iterar sobre todos os badges
     FOR v_badge IN 
-        SELECT id, name, condition_type, condition_value, points_bonus 
+        SELECT id, name, condition_type, condition_value, points_required 
         FROM badges 
+        WHERE is_active = true
         ORDER BY condition_value ASC
     LOOP
         -- Verificar se usuário já ganhou este badge
@@ -234,9 +235,9 @@ BEGIN
             ON CONFLICT DO NOTHING;
             
             -- Adicionar pontos bônus
-            IF v_badge.points_bonus > 0 THEN
+            IF v_badge.points_required > 0 THEN
                 INSERT INTO points_history (user_id, action_type, points_earned, reference_type, reference_id)
-                VALUES (p_user_id, 'badge_earned', v_badge.points_bonus, 'badge', v_badge.id);
+                VALUES (p_user_id, 'badge_earned', v_badge.points_required, 'badge', v_badge.id);
                 
                 -- Atualizar total de pontos
                 PERFORM recalculate_user_points_secure(p_user_id);
@@ -248,7 +249,7 @@ BEGIN
                 p_user_id,
                 'badge_earned',
                 'Novo Badge Conquistado! ' || v_badge.name,
-                'Você ganhou o badge "' || v_badge.name || '" e ' || v_badge.points_bonus || ' pontos bônus!',
+                'Você ganhou o badge "' || v_badge.name || '" e ' || v_badge.points_required || ' pontos bônus!',
                 'badge',
                 v_badge.id
             );
