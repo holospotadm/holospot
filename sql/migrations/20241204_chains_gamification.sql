@@ -31,7 +31,10 @@ VALUES
     ('Elo Profundo', 'Participe de uma corrente em profundidade 10', 'lendário', '🌊', 1000, 'chain_depth', 10)
 ON CONFLICT (name) DO NOTHING;
 
-RAISE NOTICE '✅ 8 badges de correntes inseridos';
+DO $$
+BEGIN
+    RAISE NOTICE '✅ 8 badges de correntes inseridos';
+END $$;
 
 -- ============================================================================
 -- 2. FUNÇÕES DE SUPORTE PARA BADGES
@@ -149,7 +152,10 @@ $function$;
 
 COMMENT ON FUNCTION public.get_user_participation_depth IS 'Calcula a profundidade máxima de participação de um usuário em correntes';
 
-RAISE NOTICE '✅ 4 funções de suporte criadas';
+DO $$
+BEGIN
+    RAISE NOTICE '✅ 4 funções de suporte criadas';
+END $$;
 
 -- ============================================================================
 -- 3. ATUALIZAR FUNÇÃO auto_badge_check_bonus
@@ -255,7 +261,10 @@ $function$;
 
 COMMENT ON FUNCTION public.auto_badge_check_bonus IS 'Verifica e concede badges automaticamente, incluindo badges de correntes';
 
-RAISE NOTICE '✅ Função auto_badge_check_bonus atualizada';
+DO $$
+BEGIN
+    RAISE NOTICE '✅ Função auto_badge_check_bonus atualizada';
+END $$;
 
 -- ============================================================================
 -- 4. TRIGGERS PARA VERIFICAÇÃO AUTOMÁTICA DE BADGES
@@ -321,7 +330,10 @@ CREATE TRIGGER trigger_check_chain_participation_badges
 
 COMMENT ON TRIGGER trigger_check_chain_participation_badges ON chain_posts IS 'Adiciona pontos e verifica badges ao participar de corrente';
 
-RAISE NOTICE '✅ 2 triggers criados';
+DO $$
+BEGIN
+    RAISE NOTICE '✅ 2 triggers criados';
+END $$;
 
 -- ============================================================================
 -- 5. PERMISSÕES
@@ -333,15 +345,21 @@ GRANT EXECUTE ON FUNCTION public.count_user_participated_chains TO authenticated
 GRANT EXECUTE ON FUNCTION public.get_chain_participants_count TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_user_participation_depth TO authenticated;
 
-RAISE NOTICE '✅ Permissões configuradas';
+DO $$
+BEGIN
+    RAISE NOTICE '✅ Permissões configuradas';
+END $$;
 
 -- ============================================================================
 -- FIM DA MIGRATION
 -- ============================================================================
 
-RAISE NOTICE '🎉 FASE 6 CONCLUÍDA COM SUCESSO!';
-RAISE NOTICE '📊 8 badges de correntes adicionados';
-RAISE NOTICE '💰 2 action_types de pontuação: chain_created (25 pts), chain_participated (15 pts)';
-RAISE NOTICE '🔧 4 funções de suporte criadas';
-RAISE NOTICE '⚡ 2 triggers automáticos configurados';
-RAISE NOTICE '🏆 Sistema de gamificação de correntes 100% funcional!';
+DO $$
+BEGIN
+    RAISE NOTICE '🎉 FASE 6 CONCLUÍDA COM SUCESSO!';
+    RAISE NOTICE '📊 8 badges de correntes adicionados';
+    RAISE NOTICE '💰 2 action_types de pontuação: chain_created (25 pts), chain_participated (15 pts)';
+    RAISE NOTICE '🔧 4 funções de suporte criadas';
+    RAISE NOTICE '⚡ 2 triggers automáticos configurados';
+    RAISE NOTICE '🏆 Sistema de gamificação de correntes 100% funcional!';
+END $$;
