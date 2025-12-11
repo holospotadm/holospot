@@ -32,7 +32,9 @@ Armazena as informações primárias de cada corrente criada.
 | `name` | `TEXT` | Nome atribuído à corrente. |
 | `description` | `TEXT` | Descrição detalhada da corrente, exibida em tooltips. |
 | `highlight_type` | `TEXT` | Tipo de destaque fixo associado à corrente (e.g., "Apoio", "Inspiração"). |
-| `is_active` | `BOOLEAN` | Indica o status operacional da corrente. `false` se cancelada antes do primeiro post. |
+| `status` | `TEXT` | Status da corrente ('pending', 'active', 'closed'). Default: 'pending'. |
+| `start_date` | `TIMESTAMPTZ` | Data de início da corrente (quando o primeiro post é criado). |
+| `end_date` | `TIMESTAMPTZ` | Data de fechamento da corrente (quando o criador a encerra). |
 | `first_post_id` | `UUID` | ID do primeiro post que iniciou a corrente (Chave Estrangeira para `posts.id`). Preenchido após a publicação do primeiro post pelo criador. |
 
 **Índices:**
@@ -161,13 +163,13 @@ As seguintes funções SQL serão desenvolvidas para gerenciar o ciclo de vida d
 
 - **Descrição:** Cria um novo registro na tabela `chains`.
 - **Retorna:** O `id` (UUID) da corrente recém-criada.
-- **Lógica:** Insere uma nova linha em `chains` com `is_active = true` e `first_post_id = NULL`.
+- **Lógica:** Insere uma nova linha em `chains` com `status = 'pending'` e `first_post_id = NULL`.
 
 ### 4.2. `cancel_chain(p_chain_id UUID, p_user_id UUID)`
 
 - **Descrição:** Inativa uma corrente, permitindo seu cancelamento apenas se nenhum post tiver sido associado a ela.
 - **Retorna:** `BOOLEAN` indicando sucesso (`true`) ou falha (`false`).
-- **Lógica:** Verifica se `p_user_id` corresponde ao `creator_id` da corrente e se `first_post_id` é `NULL`. Se ambas as condições forem verdadeiras, atualiza `is_active` para `false`.
+- **Lógica:** Verifica se `p_user_id` corresponde ao `creator_id` da corrente e se `first_post_id` é `NULL`. Se ambas as condições forem verdadeiras, deleta o registro da corrente.
 
 ### 4.3. `add_post_to_chain(p_chain_id UUID, p_post_id UUID, p_author_id UUID, p_parent_post_author_id UUID DEFAULT NULL)`
 
@@ -176,7 +178,7 @@ As seguintes funções SQL serão desenvolvidas para gerenciar o ciclo de vida d
 - **Lógica:**
     1. Insere um registro na tabela `chain_posts`.
     2. Atualiza a coluna `chain_id` na tabela `posts` para o `p_post_id` fornecido.
-    3. Se `p_parent_post_author_id` for `NULL` (indicando que o post é do criador da corrente), atualiza `chains.first_post_id` com o `p_post_id`.
+    3. Se `p_parent_post_author_id` for `NULL` (indicando que o post é do criador da corrente), atualiza `chains.first_post_id` com o `p_post_id`, `status` para 'active' e `start_date` para a data/hora atual.
 
 ### 4.4. `get_chain_info(p_chain_id UUID)`
 
@@ -189,6 +191,16 @@ As seguintes funções SQL serão desenvolvidas para gerenciar o ciclo de vida d
 - **Descrição:** Constrói e retorna a estrutura hierárquica dos posts dentro de uma corrente, útil para análises de propagação.
 - **Retorna:** Um objeto `JSON` representando a árvore de posts.
 - **Lógica:** Utiliza uma consulta recursiva na tabela `chain_posts` para mapear as relações `parent_post_author_id`.
+
+### 4.6. `close_chain(p_chain_id UUID, p_user_id UUID)`
+
+- **Descrição:** Encerra uma corrente ativa, impedindo novas participações. **Implementação futura.**
+- **Retorna:** `BOOLEAN` indicando sucesso (`true`) ou falha (`false`).
+- **Lógica:** 
+    1. Verifica se `p_user_id` corresponde ao `creator_id` da corrente.
+    2. Verifica se `status` é 'active' (corrente deve estar ativa para ser fechada).
+    3. Se ambas as condições forem verdadeiras, atualiza `status` para 'closed' e `end_date` para a data/hora atual.
+    4. Retorna `true` se sucesso, `false` se falha.
 
 ## 5. Fluxos de Usuário
 
@@ -309,16 +321,17 @@ SELECT MAX(depth) FROM chain_tree;
     - **Cancelamento:** O usuário que tenta cancelar uma corrente deve ser o criador.
     - **Integridade:** O cancelamento só é permitido se a corrente não possuir posts associados (`first_post_id` é `NULL`).
     - **Validade de `parent_post_author_id`:** O ID do autor do post pai deve corresponder a um post existente na corrente.
+    - **Fechamento de Corrente:** O usuário que tenta fechar uma corrente deve ser o criador, e a corrente deve estar com `status = 'active'`. **Implementação futura.**
 
 ### 7.2. Permissões (Row Level Security - RLS)
 
 - **Tabela `chains`:**
-    - **Leitura:** Todos os usuários podem visualizar correntes ativas.
-    - **Escrita/Atualização:** Apenas o criador pode modificar ou inativar sua própria corrente (com restrições de `first_post_id`).
+    - **Leitura:** Todos os usuários podem visualizar correntes com `status = 'active'` ou `status = 'closed'`.
+    - **Escrita/Atualização:** Apenas o criador pode modificar ou inativar sua própria corrente (com restrições de `first_post_id` e `status`).
 
 - **Tabela `chain_posts`:**
     - **Leitura:** Todos os usuários podem visualizar os posts de uma corrente.
-    - **Escrita:** Apenas usuários autenticados podem adicionar posts a uma corrente.
+    - **Escrita:** Apenas usuários autenticados podem adicionar posts a uma corrente com `status = 'active'` (correntes fechadas não aceitam novos posts).
 
 ### 7.3. Notificações (Futuras)
 
@@ -353,6 +366,7 @@ Para uma implementação estruturada e eficiente, sugere-se a seguinte sequênci
 3. Implementação da função `add_post_to_chain`.
 4. Implementação da função `get_chain_info`.
 5. Implementação da função `get_chain_tree` (opcional, para análises futuras).
+6. Implementação da função `close_chain` (**implementação futura**).
 
 ### Fase 3: Frontend - Criação de Correntes
 1. Desenvolvimento do botão "Criar Corrente 🔗".
@@ -391,6 +405,7 @@ Para uma implementação estruturada e eficiente, sugere-se a seguinte sequênci
 - `sql/functions/add_post_to_chain.sql` (novo)
 - `sql/functions/get_chain_info.sql` (novo)
 - `sql/functions/get_chain_tree.sql` (novo, opcional)
+- `sql/functions/close_chain.sql` (novo, **implementação futura**)
 
 ### 9.2. Frontend (HTML/JavaScript)
 - `index.html` (modificações na aba "Destacar" e na exibição de posts)
@@ -403,7 +418,7 @@ Para uma implementação estruturada e eficiente, sugere-se a seguinte sequênci
 erDiagram
     chains ||--o{ chain_posts : "tem"
     posts ||--o{ chain_posts : "contém"
-    chains { UUID id PK, TIMESTAMPTZ created_at, UUID creator_id FK, TEXT name, TEXT description, TEXT highlight_type, BOOLEAN is_active, UUID first_post_id FK }
+    chains { UUID id PK, TIMESTAMPTZ created_at, UUID creator_id FK, TEXT name, TEXT description, TEXT highlight_type, TEXT status, TIMESTAMPTZ start_date, TIMESTAMPTZ end_date, UUID first_post_id FK }
     chain_posts { UUID id PK, UUID chain_id FK, UUID post_id FK, UUID author_id FK, UUID parent_post_author_id FK, TIMESTAMPTZ created_at }
     posts { UUID id PK, UUID chain_id FK, ... }
 ```
@@ -468,6 +483,8 @@ graph TD
 ## 11. Considerações Finais sobre a Implementação
 
 O sistema de Correntes representa uma funcionalidade robusta para impulsionar o engajamento e a criação de conteúdo temático. A abordagem modular proposta facilita a implementação e permite futuras expansões, como análises de correntes, gamificação avançada e notificações personalizadas.
+
+**Funcionalidade de Fechamento de Correntes:** A estrutura do banco de dados foi preparada para suportar o fechamento de correntes (campos `status`, `start_date`, `end_date`). A função `close_chain` está documentada e pronta para implementação futura, permitindo que criadores encerrem suas correntes e impeçam novas participações, mantendo o histórico visível.
 
 ---
 
