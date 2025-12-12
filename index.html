@@ -18933,6 +18933,16 @@ async function participateInChain() {
             return;
         }
         
+        // ✅ GUARDAR DADOS ANTES de fechar o modal (closeViewChainModal faz viewingChain = null)
+        const chainData = {
+            id: viewingChain.id,
+            name: viewingChain.name,
+            description: viewingChain.description,
+            highlight_type: viewingChain.highlight_type,
+            parent_post_author_id: viewingChain.parent_post_author_id,
+            isParticipating: true // Flag para indicar que é participação
+        };
+        
         // Fechar modal de visualização
         closeViewChainModal();
         
@@ -18942,15 +18952,8 @@ async function participateInChain() {
         // Aguardar um pouco para a aba carregar
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Configurar estado de participação
-        currentChain = {
-            id: viewingChain.id,
-            name: viewingChain.name,
-            description: viewingChain.description,
-            highlight_type: viewingChain.highlight_type,
-            parent_post_author_id: viewingChain.parent_post_author_id,
-            isParticipating: true // Flag para indicar que é participação
-        };
+        // Configurar estado de participação com os dados salvos
+        currentChain = chainData;
         
         // Atualizar UI para modo de participação
         updateDestacarTabForParticipation();
