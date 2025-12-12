@@ -9574,6 +9574,9 @@
                 
                 alert('✨ Post criado com sucesso!');
                 
+                // Recarregar posts para mostrar o novo post com badge de corrente
+                await loadPosts();
+                
                 // 🔥 VERIFICAR STREAK EM TEMPO REAL APÓS CRIAR POST
                 await checkStreakAfterActivity('post_created');
                 
@@ -18676,7 +18679,7 @@ function updateDestacarTab() {
                         color: #f97316;
                         font-weight: 600;
                         font-size: 14px;
-                        cursor: help;
+                        cursor: pointer;
                         position: relative;
                     "
                     onmouseenter="showChainTooltip(event)"
@@ -18974,7 +18977,7 @@ function updateDestacarTabForParticipation() {
                         color: #f97316;
                         font-weight: 600;
                         font-size: 14px;
-                        cursor: help;
+                        cursor: pointer;
                         position: relative;
                     "
                     onmouseenter="showChainTooltip(event)"
