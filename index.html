@@ -9449,7 +9449,7 @@
                             const { error: chainError } = await supabase.rpc('add_post_to_chain', {
                                 p_chain_id: currentChain.id,
                                 p_post_id: data.id,
-                                p_user_id: currentUser.id,
+                                p_author_id: currentUser.id,
                                 p_parent_post_author_id: currentChain.parent_post_author_id || null
                             });
                             
