@@ -4,7 +4,10 @@
 -- PROBLEMA: Triggers estão usando NEW.user_id quando deveria ser NEW.creator_id
 -- ============================================================================
 
--- Recriar trigger de criação de corrente
+-- Remover trigger antigo
+DROP TRIGGER IF EXISTS trigger_check_chain_creation_badges ON chains;
+
+-- Recriar função de trigger de criação de corrente
 CREATE OR REPLACE FUNCTION public.check_chain_creation_badges()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -29,4 +32,12 @@ $function$;
 -- Comentário
 COMMENT ON FUNCTION public.check_chain_creation_badges IS 'Adiciona pontos e verifica badges ao criar corrente (CORRIGIDO: usa creator_id)';
 
--- ✅ Trigger de criação corrigido
+-- Recriar trigger
+CREATE TRIGGER trigger_check_chain_creation_badges
+    AFTER INSERT ON chains
+    FOR EACH ROW
+    EXECUTE FUNCTION check_chain_creation_badges();
+
+COMMENT ON TRIGGER trigger_check_chain_creation_badges ON chains IS 'Adiciona pontos e verifica badges ao criar corrente';
+
+-- ✅ Trigger de criação corrigido e recriado
