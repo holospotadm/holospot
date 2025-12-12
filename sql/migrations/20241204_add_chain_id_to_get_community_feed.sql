@@ -2,9 +2,13 @@
 -- FIX: Adicionar chain_id na função get_community_feed
 -- ============================================================================
 -- PROBLEMA: Função não retorna chain_id, então badge não aparece nos posts de comunidades
--- SOLUÇÃO: Adicionar chain_id no RETURNS TABLE e no SELECT
+-- SOLUÇÃO: DROP e recriar função com chain_id no RETURNS TABLE
 -- ============================================================================
 
+-- PASSO 1: Remover função antiga
+DROP FUNCTION IF EXISTS public.get_community_feed(uuid, uuid, integer, integer);
+
+-- PASSO 2: Criar função nova com chain_id
 CREATE OR REPLACE FUNCTION public.get_community_feed(
     p_community_id UUID,
     p_user_id UUID,
@@ -70,4 +74,4 @@ $function$;
 COMMENT ON FUNCTION public.get_community_feed IS 
 'Retorna posts de uma comunidade (apenas membros) com dados do autor (ATUALIZADO: inclui chain_id)';
 
--- ✅ Função atualizada com chain_id
+-- ✅ Função recriada com chain_id

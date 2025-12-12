@@ -2,9 +2,13 @@
 -- FIX: Adicionar chain_id na função get_feed_posts
 -- ============================================================================
 -- PROBLEMA: Função não retorna chain_id, então badge não aparece nos posts
--- SOLUÇÃO: Adicionar chain_id no RETURNS TABLE e em todos os SELECTs
+-- SOLUÇÃO: DROP e recriar função com chain_id no RETURNS TABLE
 -- ============================================================================
 
+-- PASSO 1: Remover função antiga
+DROP FUNCTION IF EXISTS public.get_feed_posts(uuid, text, integer, integer);
+
+-- PASSO 2: Criar função nova com chain_id
 CREATE OR REPLACE FUNCTION public.get_feed_posts(
     p_user_id uuid, 
     p_filter_type text DEFAULT 'all'::text, 
@@ -118,4 +122,4 @@ $function$;
 
 COMMENT ON FUNCTION public.get_feed_posts IS 'Retorna posts do feed com dados do autor (ATUALIZADO: inclui chain_id)';
 
--- ✅ Função atualizada com chain_id
+-- ✅ Função recriada com chain_id
