@@ -18803,9 +18803,38 @@ async function cancelChain() {
 
 // Restaurar UI da aba Destacar (remover corrente)
 function restoreDestacarTab() {
-    const cancelBtn = document.getElementById('cancelChainBtn');
-    if (cancelBtn) {
-        const parent = cancelBtn.parentElement;
+    // ✅ Procurar por ambos os botões: cancelChainBtn (criar corrente) e cancelParticipationBtn (participar)
+    const cancelChainBtn = document.getElementById('cancelChainBtn');
+    const cancelParticipationBtn = document.getElementById('cancelParticipationBtn');
+    const chainNameDisplay = document.getElementById('chainNameDisplay');
+    
+    // Se estiver no modo de criação de corrente
+    if (cancelChainBtn) {
+        const parent = cancelChainBtn.parentElement;
+        parent.outerHTML = `
+            <button id="createChainBtn" onclick="openCreateChainModal()" style="
+                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 16px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+                transition: all 0.2s;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)'">
+                🔗 Criar Corrente
+            </button>
+        `;
+    }
+    
+    // ✅ Se estiver no modo de participação (nome da corrente + botão cancelar)
+    if (cancelParticipationBtn && chainNameDisplay) {
+        const parent = cancelParticipationBtn.parentElement;
         parent.outerHTML = `
             <button id="createChainBtn" onclick="openCreateChainModal()" style="
                 background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
