@@ -9340,7 +9340,10 @@
                 }
             }
 
-            if (!selectedHighlightType) {
+            // ✅ Se estiver participando de uma corrente, usar o tipo da corrente
+            const effectiveHighlightType = currentChain ? currentChain.highlight_type : selectedHighlightType;
+            
+            if (!effectiveHighlightType) {
                 alert('Por favor, selecione um tipo de destaque.');
                 return;
             }
@@ -9355,7 +9358,7 @@
                 'admiracao': 'admiration'
             };
             
-            const mappedType = typeMapping[selectedHighlightType] || selectedHighlightType;
+            const mappedType = typeMapping[effectiveHighlightType] || effectiveHighlightType;
             
             const createBtn = document.getElementById('createPostBtn');
             createBtn.disabled = true;
