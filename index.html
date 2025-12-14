@@ -16903,7 +16903,7 @@
     <div id="createChainModal" class="modal-overlay" style="display: none;" onclick="closeCreateChainModal()">
         <div class="modal-content" style="max-width: 550px; width: 90%;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 style="margin: 0; color: #f97316;">🔗 Criar Corrente</h2>
+                <h2 style="margin: 0; color: white;">🔗 Criar Corrente</h2>
                 <button class="modal-close" onclick="closeCreateChainModal()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 24px;">
@@ -16992,7 +16992,7 @@
     <div id="viewChainModal" class="modal-overlay" style="display: none;" onclick="closeViewChainModal()">
         <div class="modal-content" style="max-width: 550px; width: 90%;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 style="margin: 0; color: #f97316;" id="viewChainTitle">🔗 Corrente</h2>
+                <h2 style="margin: 0; color: white;" id="viewChainTitle">🔗 Corrente</h2>
                 <button class="modal-close" onclick="closeViewChainModal()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 24px;">
@@ -18934,8 +18934,8 @@ async function openChainModal(chainId, postAuthorId) {
         `;
         
         // Estatísticas
-        document.getElementById('viewChainPosts').textContent = data.posts_count || 0;
-        document.getElementById('viewChainParticipants').textContent = data.participants_count || 0;
+        document.getElementById('viewChainPosts').textContent = data.total_posts || 0;
+        document.getElementById('viewChainParticipants').textContent = data.total_participants || 0;
         
         // Mostrar modal
         document.getElementById('viewChainModal').style.display = 'flex';
