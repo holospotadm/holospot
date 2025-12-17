@@ -10329,15 +10329,18 @@
                     z-index: 999999;
                     opacity: 0;
                     transition: opacity 0.3s ease;
+                    pointer-events: none;
                 `;
                 document.body.appendChild(toast);
             }
             
             toast.textContent = message;
             toast.style.opacity = '1';
+            toast.style.pointerEvents = 'auto'; // Permitir cliques quando visível
             
             setTimeout(() => {
                 toast.style.opacity = '0';
+                toast.style.pointerEvents = 'none'; // Bloquear cliques quando invisível
             }, 3000);
         }
 
