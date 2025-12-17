@@ -3767,11 +3767,14 @@
     </div>
     <script>
         // Supabase configuration
-        const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
+        const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabaseClient.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3Y21yYnJoeXVmbGh0eW1iaGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNDU0NDgsImV4cCI6MjA3MTkyMTQ0OH0.55BtZc5dcwTlF7TXNMuoD0Sa6bUO2WkB-r1itj5t2tw';
         
         // SECURITY FIX: Using ANON_KEY instead of SERVICE_KEY for client-side operations
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // NOTA: Usamos supabaseClient porque 'supabase' já é declarado pelo CDN como var global
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Alias para compatibilidade com código existente
+        window.supabaseInstance = supabaseClient;
         
         // ACCESSIBILITY: ESC key gerenciado pelo sistema de pilha de modais
 
@@ -3792,7 +3795,7 @@
                     return currentUser;
                 }
                 
-                const { data: { user }, error } = await supabase.auth.getUser();
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
                 if (error) throw error;
                 
                 return user;
@@ -3934,7 +3937,7 @@
                 
                 // Check if user is already logged in
                 console.log('🔍 Verificando sessão...');
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
                 if (error) {
                     console.error('❌ Erro ao verificar sessão:', error);
@@ -4285,7 +4288,7 @@
                 console.log('🔐 Iniciando login...');
                 trackEvent('login_attempt');
                 
-                const { data, error } = await supabase.auth.signInWithOAuth({
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
                         redirectTo: 'https://holospot.vercel.app'
@@ -4305,7 +4308,7 @@
         async function handleLogout() {
             try {
                 console.log('🚪 Fazendo logout...');
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 currentUser = null;
                 
                 // Limpar completamente o conteúdo da página
@@ -5132,13 +5135,13 @@
                 if (dataDiv) dataDiv.style.display = 'none';
                 
                 // Obter usuário atual
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) {
                     throw new Error('Usuário não autenticado');
                 }
                 
                 // Chamar função do backend para obter dados de gamificação
-                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                const { data, error } = await supabaseClient.rpc('get_user_gamification_data', {
                     p_user_id: user.id
                 });
                 
@@ -5650,8 +5653,8 @@
                 if (postIds.length > 0) {
                     try {
                         const [commentsResult, feedbacksResult] = await Promise.all([
-                            supabase.from('comments').select('id, post_id').in('post_id', postIds),
-                            supabase.from('feedbacks').select('id, post_id').in('post_id', postIds)
+                            supabaseClient.from('comments').select('id, post_id').in('post_id', postIds),
+                            supabaseClient.from('feedbacks').select('id, post_id').in('post_id', postIds)
                         ]);
                         
                         allComments = commentsResult.data || [];
@@ -7540,7 +7543,7 @@
             // Verificar disponibilidade com debounce
             usernameCheckTimeout = setTimeout(async () => {
                 try {
-                    const { data, error } = await supabase.rpc('check_username_availability', {
+                    const { data, error } = await supabaseClient.rpc('check_username_availability', {
                         p_username: username,
                         p_current_user_id: currentUser.id
                     });
@@ -7593,7 +7596,7 @@
                     const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
                     const filePath = `avatars/${fileName}`;
                     
-                    const { data: uploadData, error: uploadError } = await supabase.storage
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage
                         .from('avatars')
                         .upload(filePath, currentAvatarFile, {
                             cacheControl: '3600',
@@ -7603,7 +7606,7 @@
                     if (uploadError) throw uploadError;
                     
                     // Get public URL
-                    const { data: urlData } = supabase.storage
+                    const { data: urlData } = supabaseClient.storage
                         .from('avatars')
                         .getPublicUrl(filePath);
                     
@@ -7614,7 +7617,7 @@
                 // Atualizar perfil
                 console.log('🔄 Atualizando perfil...');
                 
-                const { data, error } = await supabase.rpc('update_user_profile', {
+                const { data, error } = await supabaseClient.rpc('update_user_profile', {
                     p_user_id: currentUser.id,
                     p_name: fullName,
                     p_username: username,
@@ -7698,7 +7701,7 @@
                 console.log('🔍 Filtro atual:', window.currentFeedFilter || 'recommended');
                 
                 // Usar função SQL com filtro
-                const postsQuery = supabase.rpc('get_feed_posts', {
+                const postsQuery = supabaseClient.rpc('get_feed_posts', {
                     p_user_id: currentUser.id,
                     p_filter_type: window.currentFeedFilter || 'recommended',
                     p_limit: 50,
@@ -9156,7 +9159,7 @@
                 console.log('📝 Nome do arquivo:', fileName);
                 
                 // Fazer upload do arquivo diretamente
-                const { data, error } = await supabase.storage
+                const { data, error } = await supabaseClient.storage
                     .from('photos')
                     .upload(fileName, file, {
                         cacheControl: '3600',
@@ -9169,11 +9172,11 @@
                     if (error.message.includes('Bucket not found')) {
                         console.log('🔧 Tentando criar bucket photos...');
                         try {
-                            await supabase.storage.createBucket('photos', { public: true });
+                            await supabaseClient.storage.createBucket('photos', { public: true });
                             console.log('✅ Bucket photos criado');
                             
                             // Tentar upload novamente
-                            const { data: retryData, error: retryError } = await supabase.storage
+                            const { data: retryData, error: retryError } = await supabaseClient.storage
                                 .from('photos')
                                 .upload(fileName, file, {
                                     cacheControl: '3600',
@@ -9195,7 +9198,7 @@
                 console.log('✅ Upload realizado com sucesso:', data?.path || fileName);
                 
                 // Obter URL pública
-                const { data: urlData } = supabase.storage
+                const { data: urlData } = supabaseClient.storage
                     .from('photos')
                     .getPublicUrl(fileName);
                 
@@ -9450,7 +9453,7 @@
                     if (currentChain && currentChain.id && data.id) {
                         try {
                             console.log('🔗 Adicionando post à corrente...');
-                            const { error: chainError } = await supabase.rpc('add_post_to_chain', {
+                            const { error: chainError } = await supabaseClient.rpc('add_post_to_chain', {
                                 p_chain_id: currentChain.id,
                                 p_post_id: data.id,
                                 p_author_id: currentUser.id,
@@ -9793,7 +9796,7 @@
                 // Tentar usar a função do banco com timeout
                 try {
                     const { data, error } = await withTimeout(
-                        supabase.rpc('mark_all_notifications_read', { 
+                        supabaseClient.rpc('mark_all_notifications_read', { 
                             p_user_id: currentUser.id 
                         }),
                         5000
@@ -10612,13 +10615,13 @@
                     followersResult
                 ] = await Promise.all([
                     // Posts criados
-                    supabase.from('posts').select('id').eq('user_id', userId),
+                    supabaseClient.from('posts').select('id').eq('user_id', userId),
                     // Holofotes recebidos
-                    supabase.from('posts').select('id').eq('mentioned_user_id', userId),
+                    supabaseClient.from('posts').select('id').eq('mentioned_user_id', userId),
                     // Seguindo
-                    supabase.from('follows').select('id').eq('follower_id', userId),
+                    supabaseClient.from('follows').select('id').eq('follower_id', userId),
                     // Seguidores
-                    supabase.from('follows').select('id').eq('following_id', userId)
+                    supabaseClient.from('follows').select('id').eq('following_id', userId)
                 ]);
                 
                 const stats = {
@@ -10955,7 +10958,7 @@
         async function loadUserLevelData(userId, levelCard) {
             try {
                 // Buscar dados de gamificação do usuário específico
-                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                const { data, error } = await supabaseClient.rpc('get_user_gamification_data', {
                     p_user_id: userId
                 });
                 
@@ -11627,28 +11630,28 @@
                         const [commentsGiven, commentsReceived, feedbacksGiven, feedbacksReceived] = await Promise.all([
                             // Comentários que eu fiz
                             withTimeout(
-                                supabase.from('comments')
+                                supabaseClient.from('comments')
                                     .select('post_id')
                                     .eq('user_id', currentUser.id),
                                 3000
                             ),
                             // Comentários nos meus posts
                             withTimeout(
-                                supabase.from('comments')
+                                supabaseClient.from('comments')
                                     .select('user_id')
                                     .in('post_id', myPostIds),
                                 3000
                             ),
                             // Feedbacks que eu dei (onde fui mencionado para dar feedback)
                             withTimeout(
-                                supabase.from('feedbacks')
+                                supabaseClient.from('feedbacks')
                                     .select('post_id, author_id')
                                     .eq('mentioned_user_id', currentUser.id),
                                 3000
                             ),
                             // Feedbacks nos meus posts (pessoas que deram feedback nos meus posts)
                             withTimeout(
-                                supabase.from('feedbacks')
+                                supabaseClient.from('feedbacks')
                                     .select('mentioned_user_id, post_id')
                                     .in('post_id', myPostIds),
                                 3000
@@ -12717,7 +12720,7 @@
                 console.log('🏆 Carregando contagem de emblemas para usuário:', userId);
                 
                 // Usar a mesma função que já existe para buscar dados de gamificação
-                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                const { data, error } = await supabaseClient.rpc('get_user_gamification_data', {
                     p_user_id: userId
                 });
                 
@@ -12746,7 +12749,7 @@
                 console.log('🏆 Abrindo modal de emblemas para usuário:', userId);
                 
                 // Buscar dados completos de gamificação do usuário
-                const { data, error } = await supabase.rpc('get_user_gamification_data', {
+                const { data, error } = await supabaseClient.rpc('get_user_gamification_data', {
                     p_user_id: userId
                 });
                 
@@ -13650,7 +13653,7 @@
         let isInitialLoad = true;
         let isAppAlreadyShown = false; // Evitar recarregamento ao mudar aba
         
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 
@@ -14259,7 +14262,7 @@
                     });
                 } else {
                     // Fallback: consulta individual apenas se não tiver no cache
-                    const reactionsResult = await supabase.from('reactions').select('type').eq('post_id', postId);
+                    const reactionsResult = await supabaseClient.from('reactions').select('type').eq('post_id', postId);
                     reactionsResult.data?.forEach(reaction => {
                         if (reaction.type === 'touched') reactionCounts.heart++;
                         else if (reaction.type === 'grateful') reactionCounts.gratitude++;
@@ -14764,9 +14767,9 @@
 
                 // Buscar métricas de reconhecimento DADO
                 const [commentsResult, feedbacksResult, reactionsResult] = await Promise.all([
-                    supabase.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
-                    supabase.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id), // Feedbacks Dados: fui mencionado, vou dar feedback
-                    supabase.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
+                    supabaseClient.from('comments').select('id', { count: 'exact' }).eq('user_id', currentUser.id),
+                    supabaseClient.from('feedbacks').select('id', { count: 'exact' }).eq('mentioned_user_id', currentUser.id), // Feedbacks Dados: fui mencionado, vou dar feedback
+                    supabaseClient.from('reactions').select('id', { count: 'exact' }).eq('user_id', currentUser.id)
                 ]);
 
                 console.log('📊 Contagens das consultas:', {
@@ -14790,7 +14793,7 @@
                     console.log('🔥 Carregando streak do usuário...');
                     
                     // Apenas LER o streak, sem atualizar (só atualiza em atividades reais)
-                    const { data: streakResult, error: streakError } = await supabase.rpc('get_user_streak', {
+                    const { data: streakResult, error: streakError } = await supabaseClient.rpc('get_user_streak', {
                         p_user_id: currentUser.id
                     });
                     
@@ -14852,9 +14855,9 @@
                 const userPostIds = userPosts.map(post => post.id);
                 
                 const [reactionsReceivedResult, commentsReceivedResult, feedbacksReceivedResult] = await Promise.all([
-                    userPostIds.length > 0 ? supabase.from('reactions').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 },
-                    userPostIds.length > 0 ? supabase.from('comments').select('id', { count: 'exact' }).in('post_id', userPostIds).neq('user_id', currentUser.id) : { count: 0 },
-                    userPostIds.length > 0 ? supabase.from('feedbacks').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 } // Feedbacks nos posts do usuário
+                    userPostIds.length > 0 ? supabaseClient.from('reactions').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 },
+                    userPostIds.length > 0 ? supabaseClient.from('comments').select('id', { count: 'exact' }).in('post_id', userPostIds).neq('user_id', currentUser.id) : { count: 0 },
+                    userPostIds.length > 0 ? supabaseClient.from('feedbacks').select('id', { count: 'exact' }).in('post_id', userPostIds) : { count: 0 } // Feedbacks nos posts do usuário
                 ]);
 
                 // 4. Atualizar elementos das métricas recebidas
@@ -14933,7 +14936,7 @@
                     console.error('❌ Erro no debug:', debugError);
                 }
                 
-                const { data: streakResult, error: streakError } = await supabase.rpc('update_user_streak_with_data', {
+                const { data: streakResult, error: streakError } = await supabaseClient.rpc('update_user_streak_with_data', {
                     p_user_id: currentUser.id
                 });
                 
@@ -14970,7 +14973,7 @@
                         setTimeout(async () => {
                             console.log('⏰ Timeout executado, iniciando debug...');
                             console.log('🔍 Executando debug automático do bônus...');
-                            const { data: debugData, error: debugError } = await supabase.rpc('debug_streak_bonus', {
+                            const { data: debugData, error: debugError } = await supabaseClient.rpc('debug_streak_bonus', {
                                 p_user_id: currentUser.id
                             });
                             
@@ -17421,7 +17424,7 @@ async function loadCommunityFeed(communityId) {
             feedEmoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
         }
 
-        const { data: posts, error } = await supabase.rpc('get_community_feed', {
+        const { data: posts, error } = await supabaseClient.rpc('get_community_feed', {
             p_community_id: communityId,
             p_user_id: currentUser.id,
             p_limit: 20,
@@ -17741,7 +17744,7 @@ async function createCommunity() {
     }
     
     // Adicionar owner como membro da comunidade
-    const { error: memberError } = await supabase.rpc('add_community_member', {
+    const { error: memberError } = await supabaseClient.rpc('add_community_member', {
         p_community_id: data.id,
         p_user_id: currentUser.id,
         p_role: 'owner'
@@ -18123,7 +18126,7 @@ async function selectMemberToAdd(userId, username) {
     if (!communityId) return;
     
     // Adicionar membro (com p_role para evitar ambiguidade)
-    const { error } = await supabase.rpc('add_community_member', {
+    const { error } = await supabaseClient.rpc('add_community_member', {
         p_community_id: communityId,
         p_user_id: userId,
         p_role: 'member'
@@ -18619,7 +18622,7 @@ async function createChain() {
     }
     
     try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) {
             showNotification('⚠️ Você precisa estar logado', 'error');
             return;
@@ -18631,7 +18634,7 @@ async function createChain() {
         btn.textContent = 'Criando...';
         
         // Chamar função SQL
-        const { data, error } = await supabase.rpc('create_chain', {
+        const { data, error } = await supabaseClient.rpc('create_chain', {
             p_creator_id: user.id,
             p_name: name,
             p_description: description,
@@ -18779,11 +18782,11 @@ async function cancelChain() {
     }
     
     try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return;
         
         // Chamar função SQL
-        const { error } = await supabase.rpc('cancel_chain', {
+        const { error } = await supabaseClient.rpc('cancel_chain', {
             p_chain_id: currentChain.id,
             p_user_id: user.id
         });
@@ -18889,7 +18892,7 @@ let viewingChain = null; // {id, name, description, highlight_type, parent_post_
 async function openChainModal(chainId, postAuthorId) {
     try {
         // Buscar informações da corrente
-        const { data, error } = await supabase.rpc('get_chain_info', {
+        const { data, error } = await supabaseClient.rpc('get_chain_info', {
             p_chain_id: chainId
         });
         
@@ -18960,7 +18963,7 @@ async function participateInChain() {
     if (!viewingChain) return;
     
     try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) {
             showNotification('⚠️ Você precisa estar logado', 'error');
             return;
@@ -19087,7 +19090,7 @@ async function loadChainNamesInPosts() {
     // Buscar informações de cada corrente
     for (const chainId of chainIds) {
         try {
-            const { data, error } = await supabase.rpc('get_chain_info', {
+            const { data, error } = await supabaseClient.rpc('get_chain_info', {
                 p_chain_id: chainId
             });
             
