@@ -3960,7 +3960,7 @@
                     // Buscar default_feed do perfil ANTES de carregar posts
                     try {
                         console.log('🔍 Verificando feed padrão do usuário...');
-                        const { data: profile } = await supabase
+                        const { data: profile } = await supabaseClient
                             .from('profiles')
                             .select('default_feed')
                             .eq('id', currentUser.id)
@@ -3989,7 +3989,7 @@
                             window.feedInitialized = true;
                             
                             // Buscar dados da comunidade para atualizar emoji
-                            const { data: community } = await supabase
+                            const { data: community } = await supabaseClient
                                 .from('communities')
                                 .select('emoji, name')
                                 .eq('id', communityId)
@@ -4474,7 +4474,7 @@
             
             for (const { post, reaction } of localReactions) {
                 try {
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('reactions')
                         .insert({
                             post_id: reaction.post_id,
@@ -4815,7 +4815,7 @@
         async function loadLevelsData() {
             console.log('📊 Carregando dados dos níveis...');
             try {
-                const { data: levels, error } = await supabase
+                const { data: levels, error } = await supabaseClient
                     .from('levels')
                     .select('*')
                     .order('id');
@@ -4911,13 +4911,13 @@
                 if (!currentUser) throw new Error('Usuário não encontrado');
 
                 // Buscar dados de gamificação do usuário
-                const { data: gamificationData, error: gamError } = await supabase
+                const { data: gamificationData, error: gamError } = await supabaseClient
                     .rpc('get_user_gamification_data', { p_user_id: currentUser.id });
 
                 if (gamError) throw gamError;
 
                 // Buscar todos os badges disponíveis
-                const { data: allBadges, error: badgesError } = await supabase
+                const { data: allBadges, error: badgesError } = await supabaseClient
                     .from('badges')
                     .select('*')
                     .order('rarity', { ascending: false });
@@ -5007,7 +5007,7 @@
 
                 switch (badge.condition_type) {
                     case 'posts_count':
-                        const { count: postsCount } = await supabase
+                        const { count: postsCount } = await supabaseClient
                             .from('posts')
                             .select('*', { count: 'exact', head: true })
                             .eq('user_id', userId);
@@ -5016,7 +5016,7 @@
                         break;
                         
                     case 'reactions_given':
-                        const { count: reactionsCount } = await supabase
+                        const { count: reactionsCount } = await supabaseClient
                             .from('reactions')
                             .select('*', { count: 'exact', head: true })
                             .eq('user_id', userId);
@@ -5025,7 +5025,7 @@
                         break;
                         
                     case 'comments_written':
-                        const { count: commentsCount } = await supabase
+                        const { count: commentsCount } = await supabaseClient
                             .from('comments')
                             .select('*', { count: 'exact', head: true })
                             .eq('user_id', userId);
@@ -5034,7 +5034,7 @@
                         break;
                         
                     case 'unique_people_highlighted':
-                        const { data: uniqueHighlights } = await supabase
+                        const { data: uniqueHighlights } = await supabaseClient
                             .from('posts')
                             .select('mentioned_user_id')
                             .eq('user_id', userId)
@@ -5410,7 +5410,7 @@
                 
                 // Tentar primeira estrutura (to_user_id)
                 try {
-                    const { data: feedbacksData, error: feedbacksError } = await supabase
+                    const { data: feedbacksData, error: feedbacksError } = await supabaseClient
                         .from('feedbacks')
                         .select(`
                             *,
@@ -5430,7 +5430,7 @@
                     
                     // Tentar segunda estrutura (mentioned_user_id)
                     try {
-                        const { data: feedbacksData2, error: feedbacksError2 } = await supabase
+                        const { data: feedbacksData2, error: feedbacksError2 } = await supabaseClient
                             .from('feedbacks')
                             .select(`
                                 *,
@@ -5449,7 +5449,7 @@
                         console.log('Tentando buscar todos os feedbacks...');
                         
                         // Tentar buscar todos e filtrar
-                        const { data: allFeedbacks, error: allError } = await supabase
+                        const { data: allFeedbacks, error: allError } = await supabaseClient
                             .from('feedbacks')
                             .select('*')
                             .order('created_at', { ascending: false });
@@ -5598,7 +5598,7 @@
                 }
                 
                 // Recarregar posts do usuário especificado
-                const { data: userPosts, error } = await supabase
+                const { data: userPosts, error } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .eq('user_id', userId)
@@ -5635,7 +5635,7 @@
                 
                 if (postIds.length > 0) {
                     try {
-                        const { data: reactionsData } = await supabase
+                        const { data: reactionsData } = await supabaseClient
                             .from('reactions')
                             .select('*')
                             .in('post_id', postIds);
@@ -5674,7 +5674,7 @@
                 
                 if (allUserIds.length > 0) {
                     try {
-                        const { data: profiles, error } = await supabase
+                        const { data: profiles, error } = await supabaseClient
                             .from('profiles')
                             .select('id, name, username, email, avatar_url')
                             .in('id', allUserIds);
@@ -5981,7 +5981,7 @@
                     created_at: new Date().toISOString()
                 };
                 
-                const { data: savedFeedback, error } = await supabase
+                const { data: savedFeedback, error } = await supabaseClient
                     .from('feedbacks')
                     .insert([feedbackData])
                     .select()
@@ -6019,7 +6019,7 @@
                 console.log('📬 Carregando feedbacks para post:', postId, 'origem:', source);
                 
                 // Buscar todos os feedbacks do post (não filtrar por author_id)
-                const { data: feedbacks, error } = await supabase
+                const { data: feedbacks, error } = await supabaseClient
                     .from('feedbacks')
                     .select('*')
                     .eq('post_id', postId)
@@ -6086,7 +6086,7 @@
                 if (userIds.length > 0) {
                     // Tentar tabela 'profiles' com colunas corretas
                     try {
-                        const { data: profilesData, error: profilesError } = await supabase
+                        const { data: profilesData, error: profilesError } = await supabaseClient
                             .from('profiles')
                             .select('id, name, email')
                             .filter('id', 'in', `(${userIds.join(',')})`);
@@ -6176,13 +6176,13 @@
                 console.log('🔍 Carregando dados de seguir/seguidores reais do Supabase com timeout...');
                 
                 // Carregar quem eu sigo
-                const followingQuery = supabase
+                const followingQuery = supabaseClient
                     .from('follows')
                     .select('following_id')
                     .eq('follower_id', currentUser.id);
                 
                 // Carregar meus seguidores
-                const followersQuery = supabase
+                const followersQuery = supabaseClient
                     .from('follows')
                     .select('follower_id')
                     .eq('following_id', currentUser.id);
@@ -6241,7 +6241,7 @@
                 console.log('🔄 Atualizando header com dados do banco...');
                 
                 // Buscar dados atualizados da tabela profiles
-                const { data: profile, error } = await supabase
+                const { data: profile, error } = await supabaseClient
                     .from('profiles')
                     .select('name, username, avatar_url, community_owner')
                     .eq('id', currentUser.id)
@@ -6377,7 +6377,7 @@
             }
             
             // Buscar dados do perfil do Supabase
-            const { data: profile, error } = await supabase
+            const { data: profile, error } = await supabaseClient
                 .from('profiles')
                 .select('name, username, avatar_url, default_feed')
                 .eq('id', currentUser.id)
@@ -6392,7 +6392,7 @@
             modal.style.display = 'flex';
             
             // Carregar comunidades do usuário para o dropdown
-            const { data: userCommunities, error: communitiesError } = await supabase
+            const { data: userCommunities, error: communitiesError } = await supabaseClient
                 .from('community_members')
                 .select('community_id, communities(id, name, emoji)')
                 .eq('user_id', currentUser.id);
@@ -6507,7 +6507,7 @@
             
             try {
                 // Buscar conversas do usuário
-                const { data: conversations, error } = await supabase
+                const { data: conversations, error } = await supabaseClient
                     .from('conversations')
                     .select('*')
                     .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
@@ -6531,7 +6531,7 @@
                     c.user1_id === currentUser.id ? c.user2_id : c.user1_id
                 );
                 
-                const { data: profiles, error: profilesError } = await supabase
+                const { data: profiles, error: profilesError } = await supabaseClient
                     .from('profiles')
                     .select('id, name, username, avatar_url')
                     .in('id', otherUserIds);
@@ -6540,7 +6540,7 @@
                 
                 // Buscar última mensagem de cada conversa
                 const conversationIds = conversations.map(c => c.id);
-                const { data: lastMessages, error: messagesError } = await supabase
+                const { data: lastMessages, error: messagesError } = await supabaseClient
                     .from('messages')
                     .select('*')
                     .in('conversation_id', conversationIds)
@@ -6549,7 +6549,7 @@
                 if (messagesError) throw messagesError;
                 
                 // Buscar mensagens não lidas por conversa
-                const { data: unreadMessages, error: unreadError } = await supabase
+                const { data: unreadMessages, error: unreadError } = await supabaseClient
                     .from('messages')
                     .select('conversation_id')
                     .in('conversation_id', conversationIds)
@@ -6656,7 +6656,7 @@
             
             try {
                 // Buscar conversas do usuário
-                const { data: conversations, error } = await supabase
+                const { data: conversations, error } = await supabaseClient
                     .from('conversations')
                     .select('*')
                     .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
@@ -6671,7 +6671,7 @@
                     c.user1_id === currentUser.id ? c.user2_id : c.user1_id
                 );
                 
-                const { data: profiles, error: profilesError } = await supabase
+                const { data: profiles, error: profilesError } = await supabaseClient
                     .from('profiles')
                     .select('id, name, username, avatar_url')
                     .in('id', otherUserIds);
@@ -6680,7 +6680,7 @@
                 
                 // Buscar última mensagem de cada conversa
                 const conversationIds = conversations.map(c => c.id);
-                const { data: lastMessages, error: messagesError } = await supabase
+                const { data: lastMessages, error: messagesError } = await supabaseClient
                     .from('messages')
                     .select('*')
                     .in('conversation_id', conversationIds)
@@ -6689,7 +6689,7 @@
                 if (messagesError) throw messagesError;
                 
                 // Buscar mensagens não lidas por conversa
-                const { data: unreadMessages, error: unreadError } = await supabase
+                const { data: unreadMessages, error: unreadError } = await supabaseClient
                     .from('messages')
                     .select('conversation_id')
                     .in('conversation_id', conversationIds)
@@ -6782,7 +6782,7 @@
                 // Buscar usuários por nome ou username
                 const searchTerm = query.trim().toLowerCase().replace('@', '');
                 
-                const { data: users, error } = await supabase
+                const { data: users, error } = await supabaseClient
                     .from('profiles')
                     .select('id, name, username, avatar_url')
                     .or(`name.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
@@ -6803,7 +6803,7 @@
                 }
                 
                 // Buscar conversas existentes com esses usuários
-                const { data: existingConversations, error: convError } = await supabase
+                const { data: existingConversations, error: convError } = await supabaseClient
                     .from('conversations')
                     .select('*')
                     .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
@@ -6815,7 +6815,7 @@
                 let lastMessages = [];
                 
                 if (conversationIds.length > 0) {
-                    const { data: messages, error: msgError } = await supabase
+                    const { data: messages, error: msgError } = await supabaseClient
                         .from('messages')
                         .select('*')
                         .in('conversation_id', conversationIds)
@@ -6894,7 +6894,7 @@
             
             try {
                 // Buscar perfil do outro usuário
-                const { data: profile, error: profileError } = await supabase
+                const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
                     .select('id, name, username, avatar_url')
                     .eq('id', userId)
@@ -6908,7 +6908,7 @@
                 document.getElementById('chatUserAvatar').src = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=667eea&color=fff`;
                 
                 // Buscar ou criar conversa
-                const { data: conversationId, error: convError } = await supabase
+                const { data: conversationId, error: convError } = await supabaseClient
                     .rpc('get_or_create_conversation', {
                         p_user1_id: currentUser.id,
                         p_user2_id: userId
@@ -6979,7 +6979,7 @@
             const messagesContent = document.getElementById('chatMessagesContent');
             
             try {
-                const { data: messages, error } = await supabase
+                const { data: messages, error } = await supabaseClient
                     .from('messages')
                     .select('*')
                     .eq('conversation_id', currentConversationId)
@@ -7047,7 +7047,7 @@
         
         async function markMessagesAsRead() {
             try {
-                await supabase
+                await supabaseClient
                     .from('messages')
                     .update({ is_read: true })
                     .eq('conversation_id', currentConversationId)
@@ -7138,7 +7138,7 @@
                     messageInput.value = '';
                     
                     // Enviar para o banco
-                    const { data: savedMessage, error } = await supabase
+                    const { data: savedMessage, error } = await supabaseClient
                         .from('messages')
                         .insert({
                             conversation_id: currentConversationId,
@@ -7154,7 +7154,7 @@
                     
                     // Atualizar updated_at da conversa via RPC (bypass RLS)
                     console.log('🔄 Atualizando updated_at via RPC:', currentConversationId);
-                    const { error: rpcError } = await supabase
+                    const { error: rpcError } = await supabaseClient
                         .rpc('update_conversation_timestamp', {
                             conversation_id_param: currentConversationId
                         });
@@ -7196,7 +7196,7 @@
             readStatusPollingInterval = setInterval(async () => {
                 try {
                     // Buscar mensagens enviadas por mim nesta conversa
-                    const { data: myMessages, error } = await supabase
+                    const { data: myMessages, error } = await supabaseClient
                         .from('messages')
                         .select('id, is_read')
                         .eq('conversation_id', currentConversationId)
@@ -7249,7 +7249,7 @@
             // Verificar novas mensagens a cada 3 segundos
             chatPollingInterval = setInterval(async () => {
                 try {
-                    const { data: newMessages, error } = await supabase
+                    const { data: newMessages, error } = await supabaseClient
                         .from('messages')
                         .select('*')
                         .eq('conversation_id', currentConversationId)
@@ -7312,7 +7312,7 @@
                             
                             // Atualizar updated_at da conversa via RPC (bypass RLS)
                             console.log('🔄 [RECEBIDA] Atualizando updated_at via RPC:', currentConversationId);
-                            const { error: rpcError } = await supabase
+                            const { error: rpcError } = await supabaseClient
                                 .rpc('update_conversation_timestamp', {
                                     conversation_id_param: currentConversationId
                                 });
@@ -7339,7 +7339,7 @@
             }
             
             // Criar nova subscription
-            chatRealtimeSubscription = supabase
+            chatRealtimeSubscription = supabaseClient
                 .channel(`conversation:${currentConversationId}`)
                 .on('postgres_changes', {
                     event: 'INSERT',
@@ -7437,7 +7437,7 @@
         async function updateUnreadCount() {
             try {
                 // Buscar conversas do usuário
-                const { data: conversations, error: convError } = await supabase
+                const { data: conversations, error: convError } = await supabaseClient
                     .from('conversations')
                     .select('id')
                     .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
@@ -7453,7 +7453,7 @@
                 const conversationIds = conversations.map(c => c.id);
                 
                 // Contar mensagens não lidas
-                const { count, error: countError } = await supabase
+                const { count, error: countError } = await supabaseClient
                     .from('messages')
                     .select('*', { count: 'exact', head: true })
                     .in('conversation_id', conversationIds)
@@ -7765,7 +7765,7 @@
                         setTimeout(() => reject(new Error('Timeout na query de reações')), 5000)
                     );
                     
-                    const queryPromise = supabase
+                    const queryPromise = supabaseClient
                         .from('reactions')
                         .select('*')
                         .in('post_id', postIds);
@@ -7868,7 +7868,7 @@
                         } else {
                             // Outro usuário foi mencionado - buscar do banco
                             try {
-                                const { data: mentionedUser } = await supabase
+                                const { data: mentionedUser } = await supabaseClient
                                     .from('profiles')
                                     .select('id, name, username, email, avatar_url')
                                     .eq('id', post.mentioned_user_id)
@@ -8016,7 +8016,7 @@
             console.log('🔍 Carregando todos os feedbacks em lote...');
             
             try {
-                const { data: allFeedbacks, error } = await supabase
+                const { data: allFeedbacks, error } = await supabaseClient
                     .from('feedbacks')
                     .select('post_id, feedback_text, mentioned_user_id, created_at')
                     .in('post_id', postIds)
@@ -8055,7 +8055,7 @@
             console.log('🔍 Carregando todos os comentários em lote...');
             
             try {
-                const { data: allComments, error } = await supabase
+                const { data: allComments, error } = await supabaseClient
                     .from('comments')
                     .select('post_id, id')
                     .in('post_id', postIds);
@@ -8098,7 +8098,7 @@
             console.log(`🔍 Carregando ${userIds.length} perfis em lote...`);
             
             try {
-                const { data: profiles, error } = await supabase
+                const { data: profiles, error } = await supabaseClient
                     .from('profiles')
                     .select('id, name, email')
                     .in('id', userIds);
@@ -8381,7 +8381,7 @@
                 if (isFollowing) {
                     // Unfollow
                     try {
-                        const unfollowQuery = supabase
+                        const unfollowQuery = supabaseClient
                             .from('follows')
                             .delete()
                             .eq('follower_id', currentUser.id)
@@ -8398,7 +8398,7 @@
                 } else {
                     // Follow
                     try {
-                        const followQuery = supabase
+                        const followQuery = supabaseClient
                             .from('follows')
                             .insert({
                                 follower_id: currentUser.id,
@@ -8436,7 +8436,7 @@
         async function updateFeedbackCounter(postId) {
             try {
                 // Buscar número atual de feedbacks
-                const { data: feedbacks, error } = await supabase
+                const { data: feedbacks, error } = await supabaseClient
                     .from('feedbacks')
                     .select('id')
                     .eq('post_id', postId);
@@ -8478,7 +8478,7 @@
         async function updateCommentCounter(postId) {
             try {
                 // Buscar número atual de comentários
-                const { data: comments, error } = await supabase
+                const { data: comments, error } = await supabaseClient
                     .from('comments')
                     .select('id')
                     .eq('post_id', postId);
@@ -8559,7 +8559,7 @@
                 console.log(`🔄 Atualizando reações do post ${postId} no modal`);
                 
                 // Buscar reações atualizadas do post
-                const { data: reactions, error } = await supabase
+                const { data: reactions, error } = await supabaseClient
                     .from('reactions')
                     .select('*')
                     .eq('post_id', postId);
@@ -8702,7 +8702,7 @@
                     console.log('🔍 Post não encontrado no array local, buscando no banco...');
                     
                     try {
-                        const { data: postData, error: postError } = await supabase
+                        const { data: postData, error: postError } = await supabaseClient
                             .from('posts')
                             .select('*')
                             .eq('id', postId)
@@ -8738,7 +8738,7 @@
                         // Só tentar deletar do banco se não for ID local
                         if (!existingReaction.id.toString().startsWith('local-')) {
                             await retryWithBackoff(async () => {
-                                const { error: deleteError } = await supabase
+                                const { error: deleteError } = await supabaseClient
                                     .from('reactions')
                                     .delete()
                                     .eq('id', existingReaction.id);
@@ -8779,7 +8779,7 @@
                     
                     try {
                         await retryWithBackoff(async () => {
-                            const { data, error } = await supabase
+                            const { data, error } = await supabaseClient
                                 .from('reactions')
                                 .insert({
                                     post_id: postId,
@@ -8922,7 +8922,7 @@
             let feedbacksHtml = '';
             if (readOnly) {
                 try {
-                    const { data: feedbacks, error } = await supabase
+                    const { data: feedbacks, error } = await supabaseClient
                         .from('feedbacks')
                         .select(`
                             *,
@@ -9055,7 +9055,7 @@
                         feedback_text: typeof feedbackText
                     });
                     
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('feedbacks')
                         .insert(feedbackData)
                         .select();
@@ -9227,7 +9227,7 @@
                 
                 // BUSCAR POR USERNAME PRIMEIRO (mais preciso)
                 try {
-                    const { data: usernameData, error: usernameError } = await supabase
+                    const { data: usernameData, error: usernameError } = await supabaseClient
                         .from('profiles')
                         .select('id')
                         .eq('username', searchTerm)
@@ -9243,7 +9243,7 @@
                 
                 // FALLBACK: BUSCAR POR NOME
                 try {
-                    const { data: nameData, error: nameError } = await supabase
+                    const { data: nameData, error: nameError } = await supabaseClient
                         .from('profiles')
                         .select('id')
                         .ilike('name', `%${searchTerm}%`)
@@ -9260,7 +9260,7 @@
                 // FALLBACK: Tentar apenas gmail.com (mais comum)
                 try {
                     const email = `${searchTerm}@gmail.com`;
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('profiles')
                         .select('id')
                         .eq('email', email)
@@ -9308,7 +9308,7 @@
                 
                 if (mentionUsername && mentionId) {
                     try {
-                        const { data: user, error } = await supabase
+                        const { data: user, error } = await supabaseClient
                             .from('profiles')
                             .select('id, username')
                             .eq('id', mentionId)
@@ -9436,7 +9436,7 @@
                         console.log('🔗 Post será vinculado à corrente:', currentChain.id);
                     }
                     
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('posts')
                         .insert(postData)
                         .select()
@@ -9600,7 +9600,7 @@
             try {
                 console.log('🔔 Criando notificação:', { userId, type, message });
                 
-                const insertQuery = supabase
+                const insertQuery = supabaseClient
                     .from('notifications')
                     .insert({
                         user_id: userId,
@@ -9622,7 +9622,7 @@
                 console.log('🔔 Carregando notificações...');
                 console.log('🔍 Carregando notificações reais do Supabase com timeout...');
                 
-                const notificationsQuery = supabase
+                const notificationsQuery = supabaseClient
                     .from('notifications')
                     .select('*')
                     .eq('user_id', currentUser.id)
@@ -9757,7 +9757,7 @@
                 
                 // Tentar atualizar no banco com timeout
                 try {
-                    const updateQuery = supabase
+                    const updateQuery = supabaseClient
                         .from('notifications')
                         .update({ read: true })
                         .eq('id', notificationId);
@@ -9820,7 +9820,7 @@
                     const unreadNotifications = notifications.filter(n => !n.read);
                     
                     if (unreadNotifications.length > 0) {
-                        const updateQuery = supabase
+                        const updateQuery = supabaseClient
                             .from('notifications')
                             .update({ read: true })
                             .eq('user_id', currentUser.id)
@@ -9892,7 +9892,7 @@
                 console.log('🔍 Buscando detalhes do post:', postId);
                 
                 // Buscar post básico primeiro
-                const { data: post, error } = await supabase
+                const { data: post, error } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .eq('id', postId)
@@ -9906,7 +9906,7 @@
                 // Buscar dados do autor separadamente
                 let authorData = null;
                 if (post.user_id) {
-                    const { data: author } = await supabase
+                    const { data: author } = await supabaseClient
                         .from('profiles')
                         .select('id, username, avatar_url, name')
                         .eq('id', post.user_id)
@@ -9917,7 +9917,7 @@
                 // Buscar dados do usuário mencionado separadamente
                 let mentionedUserData = null;
                 if (post.mentioned_user_id) {
-                    const { data: mentionedUser } = await supabase
+                    const { data: mentionedUser } = await supabaseClient
                         .from('profiles')
                         .select('id, username, avatar_url, name')
                         .eq('id', post.mentioned_user_id)
@@ -9926,20 +9926,20 @@
                 }
                 
                 // Buscar reações do post (query simples)
-                const { data: reactions } = await supabase
+                const { data: reactions } = await supabaseClient
                     .from('reactions')
                     .select('*')
                     .eq('post_id', postId);
                 
                 // Buscar comentários do post (query simples)
-                const { data: comments } = await supabase
+                const { data: comments } = await supabaseClient
                     .from('comments')
                     .select('*')
                     .eq('post_id', postId)
                     .order('created_at', { ascending: true });
                 
                 // Buscar feedbacks do post (query simples)
-                const { data: feedbacks } = await supabase
+                const { data: feedbacks } = await supabaseClient
                     .from('feedbacks')
                     .select('*')
                     .eq('post_id', postId);
@@ -10518,7 +10518,7 @@
             try {
                 console.log('🔍 Buscando dados do usuário por ID:', userId);
                 
-                const { data: user, error } = await supabase
+                const { data: user, error } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .eq('id', userId)
@@ -10569,7 +10569,7 @@
                 console.log('🔍 Buscando dados do usuário:', username);
                 
                 // Buscar por username (campo dedicado)
-                let { data: user, error } = await supabase
+                let { data: user, error } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .eq('username', username)
@@ -10578,7 +10578,7 @@
                 // Fallback: buscar por email se não encontrar por username
                 if (error || !user) {
                     console.log('⚠️ Não encontrado por username, tentando por email...');
-                    const { data: userByEmail, error: emailError } = await supabase
+                    const { data: userByEmail, error: emailError } = await supabaseClient
                         .from('profiles')
                         .select('*')
                         .ilike('email', `${username}%`)
@@ -10931,7 +10931,7 @@
         // Função para verificar status de seguir
         async function checkFollowStatus(userId, followBtn) {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('follows')
                     .select('id')
                     .eq('follower_id', currentUser.id)
@@ -11019,7 +11019,7 @@
                 console.log('🎯 Calculando ranking para usuário:', userId, 'com pontos:', userPoints);
                 
                 // Buscar total de usuários primeiro
-                const { data: totalUsersData, error: totalError } = await supabase
+                const { data: totalUsersData, error: totalError } = await supabaseClient
                     .from('profiles')
                     .select('id', { count: 'exact' });
                 
@@ -11038,7 +11038,7 @@
                 }
                 
                 // Tentar buscar da tabela user_ranking
-                const { data: rankingData, error: rankingError } = await supabase
+                const { data: rankingData, error: rankingError } = await supabaseClient
                     .from('user_ranking')
                     .select('rank_position')
                     .eq('user_id', userId)
@@ -11092,7 +11092,7 @@
                 if (isFollowing) {
                     // Unfollow
                     try {
-                        const unfollowQuery = supabase
+                        const unfollowQuery = supabaseClient
                             .from('follows')
                             .delete()
                             .eq('follower_id', currentUser.id)
@@ -11113,7 +11113,7 @@
                 } else {
                     // Follow
                     try {
-                        const followQuery = supabase
+                        const followQuery = supabaseClient
                             .from('follows')
                             .insert({
                                 follower_id: currentUser.id,
@@ -11341,7 +11341,7 @@
                 console.log('🤝 Calculando reciprocidade real (algoritmo correto)...');
                 
                 // Buscar TODOS os posts que EU criei destacando outras pessoas
-                const { data: myPosts, error: myPostsError } = await supabase
+                const { data: myPosts, error: myPostsError } = await supabaseClient
                     .from('posts')
                     .select('id, mentioned_user_id')
                     .eq('user_id', currentUser.id)
@@ -11373,7 +11373,7 @@
 
                 for (const [personId, countAtoB] of Object.entries(mentionsAtoB)) {
                     // Contar quantas vezes esta pessoa ME mencionou
-                    const { data: reciprocalPosts, error: reciprocalError } = await supabase
+                    const { data: reciprocalPosts, error: reciprocalError } = await supabaseClient
                         .from('posts')
                         .select('id')
                         .eq('user_id', personId)
@@ -11414,7 +11414,7 @@
                 if (!currentUser || !currentUser.id) return 0;
                 
                 // Buscar TODOS os posts do usuário diretamente do Supabase
-                const { data: myPosts, error } = await supabase
+                const { data: myPosts, error } = await supabaseClient
                     .from('posts')
                     .select('id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
@@ -11457,7 +11457,7 @@
                 if (!currentUser || !currentUser.id) return 0;
                 
                 // Buscar TODOS os posts do usuário diretamente do Supabase
-                const { data: myPosts, error } = await supabase
+                const { data: myPosts, error } = await supabaseClient
                     .from('posts')
                     .select('id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
@@ -11517,7 +11517,7 @@
                 if (!currentUser || !currentUser.id) return 0;
                 
                 // Buscar TODOS os posts do usuário diretamente do Supabase
-                const { data: userPosts, error } = await supabase
+                const { data: userPosts, error } = await supabaseClient
                     .from('posts')
                     .select('id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
@@ -11562,7 +11562,7 @@
                 const networkPeople = new Set();
                 
                 // Buscar TODOS os meus posts do Supabase
-                const { data: myPosts, error: myPostsError } = await supabase
+                const { data: myPosts, error: myPostsError } = await supabaseClient
                     .from('posts')
                     .select('id, user_id, mentioned_user_id, reactions(*)')
                     .eq('user_id', currentUser.id);
@@ -11575,7 +11575,7 @@
                 const myPostsArray = myPosts || [];
                 
                 // Buscar TODOS os posts (para verificar menções e reações)
-                const { data: allPosts, error: allPostsError } = await supabase
+                const { data: allPosts, error: allPostsError } = await supabaseClient
                     .from('posts')
                     .select('id, user_id, mentioned_user_id, reactions(*)');
                 
@@ -12072,14 +12072,14 @@
                         const fourWeeksAgo = new Date();
                         fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
                         
-                        const { data: userPosts, error: postsError } = await supabase
+                        const { data: userPosts, error: postsError } = await supabaseClient
                             .from('posts')
                             .select('created_at')
                             .eq('user_id', currentUser.id)
                             .gte('created_at', fourWeeksAgo.toISOString());
                         
                         // Buscar holofotes recebidos (posts que mencionaram o usuário) nas últimas 4 semanas
-                        const { data: holofotsData, error: holofotesError } = await supabase
+                        const { data: holofotsData, error: holofotesError } = await supabaseClient
                             .from('posts')
                             .select('created_at')
                             .eq('mentioned_user_id', currentUser.id)
@@ -12372,7 +12372,7 @@
             let followingData;
             if (userId && userId !== currentUser.id) {
                 // Buscar seguindo de outro usuário
-                const { data: userFollowing, error } = await supabase
+                const { data: userFollowing, error } = await supabaseClient
                     .from('follows')
                     .select('following_id')
                     .eq('follower_id', userId);
@@ -12394,7 +12394,7 @@
                 let username = 'usuario';
                 
                 try {
-                    const userQuery = supabase
+                    const userQuery = supabaseClient
                         .from('profiles')
                         .select('name, email, avatar_url, username')
                         .eq('id', f.following_id)
@@ -12485,7 +12485,7 @@
             let followersData;
             if (userId && userId !== currentUser.id) {
                 // Buscar seguidores de outro usuário
-                const { data: userFollowers, error } = await supabase
+                const { data: userFollowers, error } = await supabaseClient
                     .from('follows')
                     .select('follower_id')
                     .eq('following_id', userId);
@@ -12507,7 +12507,7 @@
                 let username = 'usuario';
                 
                 try {
-                    const userQuery = supabase
+                    const userQuery = supabaseClient
                         .from('profiles')
                         .select('name, email, avatar_url, username')
                         .eq('id', f.follower_id)
@@ -12760,7 +12760,7 @@
                 }
                 
                 // Buscar username do usuário para personalizar título
-                const { data: userData, error: userError } = await supabase
+                const { data: userData, error: userError } = await supabaseClient
                     .from('profiles')
                     .select('name, username')
                     .eq('id', userId)
@@ -12854,7 +12854,7 @@
                 }
                 
                 // Verificar se já está seguindo
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('follows')
                     .select('id')
                     .eq('follower_id', currentUser.id)
@@ -12903,7 +12903,7 @@
                 
                 if (isFollowing) {
                     // Deixar de seguir
-                    const { error } = await supabase
+                    const { error } = await supabaseClient
                         .from('follows')
                         .delete()
                         .eq('follower_id', currentUser.id)
@@ -12926,7 +12926,7 @@
                     
                 } else {
                     // Seguir
-                    const { error } = await supabase
+                    const { error } = await supabaseClient
                         .from('follows')
                         .insert({
                             follower_id: currentUser.id,
@@ -12981,7 +12981,7 @@
             try {
                 console.log('👥 Carregando usuários para sistema de menções...');
                 
-                const { data: users, error } = await supabase
+                const { data: users, error } = await supabaseClient
                     .from('profiles')
                     .select('id, name, email, avatar_url, username')
                     .order('name');
@@ -13010,7 +13010,7 @@
             try {
                 console.log('💬 Carregando comentários para post:', postId);
                 
-                const commentsQuery = supabase
+                const commentsQuery = supabaseClient
                     .from('comments')
                     .select('*')
                     .eq('post_id', postId)
@@ -13082,7 +13082,7 @@
                 let usersData = {};
                 
                 try {
-                    const usersQuery = supabase
+                    const usersQuery = supabaseClient
                         .from('profiles')
                         .select('id, name, email, avatar_url')
                         .in('id', userIds);
@@ -13207,7 +13207,7 @@
                     created_at: new Date().toISOString()
                 };
                 
-                const { data: savedComment, error } = await supabase
+                const { data: savedComment, error } = await supabaseClient
                     .from('comments')
                     .insert([commentData])
                     .select()
@@ -13474,7 +13474,7 @@
             // Se comunidade selecionada, buscar apenas membros
             if (selectedCommunityId) {
                 try {
-                    const { data: members, error } = await supabase
+                    const { data: members, error } = await supabaseClient
                         .from('community_members')
                         .select('user_id')
                         .eq('community_id', selectedCommunityId)
@@ -13760,7 +13760,7 @@
                 }
                 
                 // Buscar posts do usuário diretamente do banco
-                const { data: userPosts, error: postsError } = await supabase
+                const { data: userPosts, error: postsError } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .eq('user_id', currentUser.id);
@@ -13850,7 +13850,7 @@
                         const userIds = peopleWithIds.map(p => p.userId);
                         console.log('🔍 Buscando perfis por IDs:', userIds);
                         
-                        const { data: usersByIds, error: idsError } = await supabase
+                        const { data: usersByIds, error: idsError } = await supabaseClient
                             .from('profiles')
                             .select('*')
                             .in('id', userIds);
@@ -13866,7 +13866,7 @@
                     // Buscar por usernames (fallback) se necessário
                     if (peopleWithUsernames.length > 0) {
                         console.log('🔍 Buscando perfis por username (fallback)...');
-                        const { data: allProfiles, error: allError } = await supabase
+                        const { data: allProfiles, error: allError } = await supabaseClient
                             .from('profiles')
                             .select('*');
                         
@@ -14302,7 +14302,7 @@
                 console.log('📨 Carregando holofotes recebidos no modal para usuário:', userId);
                 
                 // Recarregar posts onde o usuário especificado foi mencionado
-                const { data: userPosts, error } = await supabase
+                const { data: userPosts, error } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .eq('mentioned_user_id', userId)
@@ -14332,7 +14332,7 @@
                 
                 if (postIds.length > 0) {
                     try {
-                        const { data: reactionsData } = await supabase
+                        const { data: reactionsData } = await supabaseClient
                             .from('reactions')
                             .select('*')
                             .in('post_id', postIds);
@@ -14348,7 +14348,7 @@
                 
                 if (authorIds.length > 0) {
                     try {
-                        const { data: authorsData, error: authorsError } = await supabase
+                        const { data: authorsData, error: authorsError } = await supabaseClient
                             .from('profiles')
                             .select('id, name, username, email, avatar_url')
                             .filter('id', 'in', `(${authorIds.join(',')})`);
@@ -14527,7 +14527,7 @@
                 console.log('👥 Carregando pessoas que te destacaram no modal...');
                 
                 // Buscar posts que mencionaram o usuário atual diretamente do banco
-                const { data: postsAboutUser, error: holofotesError } = await supabase
+                const { data: postsAboutUser, error: holofotesError } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .eq('mentioned_user_id', currentUser.id);
@@ -14553,7 +14553,7 @@
                 }
 
                 // Buscar dados reais dos usuários da tabela profiles
-                const { data: authorsData, error } = await supabase
+                const { data: authorsData, error } = await supabaseClient
                     .from('profiles')
                     .select('id, name, email, avatar_url')
                     .filter('id', 'in', `(${authorIds.join(',')})`);
@@ -14654,7 +14654,7 @@
                 console.log('📊 Atualizando métricas reais...');
 
                 // 1. Buscar posts do usuário diretamente do Supabase (mesma lógica do modal)
-                const { data: userPosts, error: postsError } = await supabase
+                const { data: userPosts, error: postsError } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .eq('user_id', currentUser.id);
@@ -14711,7 +14711,7 @@
                     
                     if (peopleWithIds.length > 0) {
                         const userIds = peopleWithIds.map(p => p.userId);
-                        const { data: usersByIds } = await supabase
+                        const { data: usersByIds } = await supabaseClient
                             .from('profiles')
                             .select('id')
                             .in('id', userIds);
@@ -14726,7 +14726,7 @@
                     
                     if (peopleWithUsernames.length > 0) {
                         // Buscar IDs reais dos usernames para evitar duplicação
-                        const { data: allProfiles } = await supabase
+                        const { data: allProfiles } = await supabaseClient
                             .from('profiles')
                             .select('id, username, email');
                         
@@ -14829,7 +14829,7 @@
                 console.log('🔍 Buscando holofotes recebidos do banco usando mentioned_user_id...');
                 console.log('Current user ID:', currentUser?.id);
                 
-                const { data: postsAboutUser, error: holofotesError } = await supabase
+                const { data: postsAboutUser, error: holofotesError } = await supabaseClient
                     .from('posts')
                     .select('id, user_id, mentioned_user_id')
                     .eq('mentioned_user_id', currentUser.id);
@@ -14896,7 +14896,7 @@
                 
                 // DEBUG: Verificar timezone e atividades do usuário
                 try {
-                    const { data: profile } = await supabase
+                    const { data: profile } = await supabaseClient
                         .from('profiles')
                         .select('timezone')
                         .eq('id', currentUser.id)
@@ -14910,7 +14910,7 @@
                     console.log(`⏰ Data/hora atual no timezone do usuário: ${nowInUserTZ}`);
                     
                     // Verificar TODOS os feedbacks do usuário (para debug)
-                    const { data: allFeedbacks, error: feedbacksError } = await supabase
+                    const { data: allFeedbacks, error: feedbacksError } = await supabaseClient
                         .from('feedbacks')
                         .select('id, created_at, author_id')
                         .eq('author_id', currentUser.id)
@@ -15020,7 +15020,7 @@
                         
                         
                         setTimeout(async () => {
-                            const { data: bonusHistory, error: bonusError } = await supabase
+                            const { data: bonusHistory, error: bonusError } = await supabaseClient
                                 .from('points_history')
                                 .select('*')
                                 .eq('user_id', currentUser.id)
@@ -15043,7 +15043,7 @@
                             }
                             
                             // Verificar pontos totais do usuário
-                            const { data: userPoints, error: pointsError } = await supabase
+                            const { data: userPoints, error: pointsError } = await supabaseClient
                                 .from('user_points')
                                 .select('total_points')
                                 .eq('user_id', currentUser.id)
@@ -15312,7 +15312,7 @@
                     return;
                 }
 
-                const { data: commentsReceived, error } = await supabase
+                const { data: commentsReceived, error } = await supabaseClient
                     .from('comments')
                     .select('*, profiles(name, username)')
                     .in('post_id', userPostIds)
@@ -15348,7 +15348,7 @@
 
         async function loadFeedbacksReceivedInModal() {
             try {
-                const { data: feedbacksReceived, error } = await supabase
+                const { data: feedbacksReceived, error } = await supabaseClient
                     .from('feedbacks')
                     .select('*, profiles(name, username)')
                     .eq('mentioned_user_id', currentUser.id)
@@ -15451,7 +15451,7 @@
         // Buscar posts no banco
         async function searchPosts(query) {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('posts')
                     .select('id, content, celebrated_person_name, type, created_at, user_id')
                     .or(`content.ilike.%${query}%,celebrated_person_name.ilike.%${query}%`)
@@ -15470,7 +15470,7 @@
         // Buscar perfis no banco
         async function searchProfiles(query) {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('profiles')
                     .select('id, name, username, email')
                     .or(`name.ilike.%${query}%,username.ilike.%${query}%,email.ilike.%${query}%`)
@@ -15798,7 +15798,7 @@
             static async fetchUserDataByUsername(username) {
                 try {
                     // Primeiro tentar buscar por campo username
-                    let { data, error } = await supabase
+                    let { data, error } = await supabaseClient
                         .from('profiles')
                         .select('*')
                         .eq('username', username)
@@ -15806,7 +15806,7 @@
                     
                     if (!data && !error) {
                         // Se não encontrou, tentar buscar por email (username@domain)
-                        const { data: emailData, error: emailError } = await supabase
+                        const { data: emailData, error: emailError } = await supabaseClient
                             .from('profiles')
                             .select('*')
                             .like('email', username + '@%')
@@ -16120,7 +16120,7 @@
                     } else {
                         // Buscar dados do usuário para pegar o username
                         try {
-                            const { data: userData } = await supabase
+                            const { data: userData } = await supabaseClient
                                 .from('profiles')
                                 .select('email')
                                 .eq('id', userId)
@@ -16194,7 +16194,7 @@
                     } else {
                         // Buscar dados do usuário para pegar o username
                         try {
-                            const { data: userData } = await supabase
+                            const { data: userData } = await supabaseClient
                                 .from('profiles')
                                 .select('email')
                                 .eq('id', userId)
@@ -16409,7 +16409,7 @@
                     console.log('🚀 Buscando post otimizado:', postId);
                     
                     // Uma única query com joins para reduzir requests
-                    const { data: postData, error } = await supabase
+                    const { data: postData, error } = await supabaseClient
                         .from('posts')
                         .select(`
                             *,
@@ -16711,7 +16711,7 @@
                     const communityId = savedFilter.replace('community-', '');
                     
                     // Buscar dados da comunidade para atualizar emoji
-                    const { data: community } = await supabase
+                    const { data: community } = await supabaseClient
                         .from('communities')
                         .select('emoji, name')
                         .eq('id', communityId)
@@ -16878,7 +16878,7 @@
                 
                 // Recarregar dados da página (igual como funciona na aba Perfil)
                 // Buscar dados atualizados do usuário
-                const { data: userData, error } = await supabase
+                const { data: userData, error } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .eq('id', userId)
@@ -17285,7 +17285,7 @@ async function loadUserCommunities() {
 
     try {
         // Buscar comunidades que o usuário é membro
-        const { data: communities, error } = await supabase
+        const { data: communities, error } = await supabaseClient
             .from('community_members')
             .select(`
                 community_id,
@@ -17617,7 +17617,7 @@ async function loadOwnedCommunities() {
         return;
     }
 
-    const { data: communities, error } = await supabase
+    const { data: communities, error } = await supabaseClient
         .from('communities')
         .select('*')
         .eq('owner_id', currentUser.id)
@@ -17726,7 +17726,7 @@ async function createCommunity() {
         return;
     }
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('communities')
         .insert({
             name,
@@ -17775,7 +17775,7 @@ async function updateCommunity() {
         return;
     }
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('communities')
         .update({ name, description, emoji })
         .eq('id', communityId);
@@ -17826,7 +17826,7 @@ function switchManagementTab(tabName) {
 
 async function loadCommunityMembers(communityId) {
     // Buscar informações da comunidade para saber quem é o owner
-    const { data: community } = await supabase
+    const { data: community } = await supabaseClient
         .from('communities')
         .select('owner_id')
         .eq('id', communityId)
@@ -17835,7 +17835,7 @@ async function loadCommunityMembers(communityId) {
     const ownerId = community?.owner_id;
     
     // Buscar todos os membros (incluindo owner)
-    const { data: members, error } = await supabase
+    const { data: members, error } = await supabaseClient
         .from('community_members')
         .select(`
             user_id,
@@ -17977,7 +17977,7 @@ function setupUserSearch() {
 
 async function loadAllUsersForAutocomplete() {
     try {
-        const { data: users, error } = await supabase
+        const { data: users, error } = await supabaseClient
             .from('profiles')
             .select('id, name, username, avatar_url')
             .order('name');
@@ -17996,7 +17996,7 @@ async function showMemberAutocomplete(query) {
     if (!communityId) return;
     
     // Buscar membros atuais
-    const { data: members } = await supabase
+    const { data: members } = await supabaseClient
         .from('community_members')
         .select('user_id')
         .eq('community_id', communityId)
@@ -18156,7 +18156,7 @@ async function removeMember(communityId, userId) {
         return;
     }
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('community_members')
         .update({ is_active: false })
         .eq('community_id', communityId)
@@ -18180,7 +18180,7 @@ async function loadCommunityPosts(communityId, forceModal = false) {
     // Marcar como carregando
     window.isLoadingPosts = true;
     
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await supabaseClient
         .from('posts')
         .select(`
             *,
@@ -18293,7 +18293,7 @@ async function loadCommunityPosts(communityId, forceModal = false) {
     
     if (postsToRender.length === 0) {
         // Buscar emoji da comunidade
-        const { data: community } = await supabase
+        const { data: community } = await supabaseClient
             .from('communities')
             .select('emoji')
             .eq('id', communityId)
@@ -18480,7 +18480,7 @@ async function deletePost(postId, communityId) {
         return;
     }
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('posts')
         .delete()
         .eq('id', postId);
@@ -18505,7 +18505,7 @@ async function deleteCommunity() {
         return;
     }
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('communities')
         .update({ is_active: false })
         .eq('id', communityId);
