@@ -8346,7 +8346,6 @@
                                             cursor: pointer;
                                             transition: all 0.2s;
                                             box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
-                                            margin-bottom: 0.5rem;
                                         "
                                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 10px rgba(249, 115, 22, 0.4)'"
                                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)'"
@@ -10243,7 +10242,6 @@
                                         cursor: pointer;
                                         transition: all 0.2s;
                                         box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
-                                        margin-bottom: 0.5rem;
                                     "
                                     onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 10px rgba(249, 115, 22, 0.4)'"
                                     onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)'"
@@ -10375,25 +10373,29 @@
             if (!toast) {
                 toast = document.createElement('div');
                 toast.id = 'toast';
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #333;
-                    color: white;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    z-index: 999999;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                    pointer-events: none;
-                `;
                 document.body.appendChild(toast);
             }
             
+            // Sempre reposicionar no final do body para garantir que fique acima de tudo
+            document.body.appendChild(toast);
+            
+            // Aplicar estilos inline para garantir prioridade
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #333;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 9999999;
+                opacity: 1;
+                transition: opacity 0.3s ease;
+                pointer-events: auto;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            
             toast.textContent = message;
-            toast.style.opacity = '1';
-            toast.style.pointerEvents = 'auto'; // Permitir cliques quando visível
             
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -18813,6 +18815,9 @@ function fixHighlightType(type) {
     const highlightTypes = document.querySelectorAll('.highlight-type');
     highlightTypes.forEach(el => {
         const elType = el.getAttribute('data-type');
+        // ✅ SEMPRE remover selected primeiro para evitar duplicação
+        el.classList.remove('selected');
+        
         if (elType === type) {
             el.classList.add('selected');
             el.style.pointerEvents = 'none';
@@ -19067,6 +19072,9 @@ async function participateInChain() {
         
         // Fechar modal de visualização
         closeViewChainModal();
+        
+        // Fechar TODOS os outros modais que possam estar abertos
+        closeAllModals();
         
         // Abrir aba "Destacar"
         document.querySelector('[data-tab="destacar"]').click();
