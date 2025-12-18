@@ -10221,7 +10221,7 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                             ${postData.type || postData.highlight_type ? `
-                                <div class="post-type" style="color: white; font-size: 14px; margin-bottom: 0.5rem;">
+                                <div class="post-type" style="color: white; font-size: 14px;">
                                     ${typeEmojis[postData.type || postData.highlight_type] || '✨'} ${typeNames[postData.type || postData.highlight_type] || 'Destaque'}
                                 </div>
                             ` : ''}
@@ -16666,7 +16666,7 @@
                     padding: 1rem 1.5rem;
                     border-radius: 25px;
                     box-shadow: 0 4px 12px rgba(230, 81, 0, 0.3);
-                    z-index: 10002;
+                    z-index: 9999999;
                     font-weight: 600;
                     animation: slideIn 0.3s ease;
                 ">
@@ -16996,7 +16996,7 @@
 
 
     <!-- Modal de Criar Corrente -->
-    <div id="createChainModal" class="modal-overlay" style="display: none;" onclick="closeCreateChainModal()">
+    <div id="createChainModal" class="modal-overlay" style="display: none; z-index: 60000;" onclick="closeCreateChainModal()">
         <div class="modal-content" style="max-width: 550px; width: 90%;" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2 style="margin: 0; color: white;">🔗 Criar Corrente</h2>
@@ -17085,7 +17085,7 @@
     </div>
 
     <!-- Modal de Visualização de Corrente -->
-    <div id="viewChainModal" class="modal-overlay" style="display: none;" onclick="closeViewChainModal()">
+    <div id="viewChainModal" class="modal-overlay" style="display: none; z-index: 60000;" onclick="closeViewChainModal()">
         <div class="modal-content" style="max-width: 550px; width: 90%;" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2 style="margin: 0; color: white;" id="viewChainTitle">🔗 Corrente</h2>
