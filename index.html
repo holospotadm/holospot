@@ -12656,8 +12656,8 @@
                 }
             });
             
-            // Close dynamic modals (remove from DOM) - MAS NÃO OS MODAIS DE IMPACTO, CONQUISTAS, SEGUINDO E SEGUIDORES
-            const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal):not(#achievementsModal):not(#levelsModal):not(#progressModal):not(#followingModal):not(#followersModal):not(#settingsModal):not(#chatListModal):not(#manageCommunityModal)');
+            // Close dynamic modals (remove from DOM) - MAS NÃO OS MODAIS DE IMPACTO, CONQUISTAS, SEGUINDO, SEGUIDORES E CORRENTES
+            const dynamicModal = document.querySelector('.modal-overlay:not(#impactModal):not(#achievementsModal):not(#levelsModal):not(#progressModal):not(#followingModal):not(#followersModal):not(#settingsModal):not(#chatListModal):not(#manageCommunityModal):not(#viewChainModal):not(#createChainModal)');
             if (dynamicModal) {
                 dynamicModal.remove();
             }
@@ -12713,7 +12713,9 @@
                     'settingsModal',           // ✅ Modal de configurações
                     'chatListModal',           // ✅ Modal de lista de conversas
                     'chatModal',               // ✅ Modal de conversa individual
-                    'manageCommunityModal'     // ✅ Modal de gerenciamento de comunidades
+                    'manageCommunityModal',    // ✅ Modal de gerenciamento de comunidades
+                    'viewChainModal',          // ✅ Modal de visualização de corrente
+                    'createChainModal'         // ✅ Modal de criação de corrente
                 ];
                 
                 if (!permanentModals.includes(modal.id)) {
