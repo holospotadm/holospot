@@ -19112,7 +19112,21 @@ async function participateInChain() {
 
 // Atualizar UI da aba Destacar para modo de participação
 function updateDestacarTabForParticipation() {
+    // Primeiro, restaurar o botão "Criar Corrente" se já estiver no modo de participação anterior
+    const existingChainDisplay = document.getElementById('chainNameDisplay');
+    const existingCancelBtn = document.getElementById('cancelParticipationBtn');
+    
+    if (existingChainDisplay || existingCancelBtn) {
+        // Já está no modo de participação, restaurar primeiro
+        restoreDestacarTab();
+    }
+    
     const createChainBtn = document.getElementById('createChainBtn');
+    
+    if (!createChainBtn) {
+        console.error('❌ Botão createChainBtn não encontrado');
+        return;
+    }
     
     if (currentChain && currentChain.isParticipating) {
         // Substituir botão "Criar Corrente" por nome da corrente + botão cancelar
