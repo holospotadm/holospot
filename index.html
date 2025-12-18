@@ -18661,6 +18661,9 @@ function openCreateChainModal() {
             el.style.border = '2px solid #ddd';
             el.style.background = 'white';
         });
+        
+        // Adicionar à pilha de modais para controle de ESC e z-index
+        addModalToStack('createChainModal', closeCreateChainModal);
     }
 }
 
@@ -18669,6 +18672,9 @@ function closeCreateChainModal() {
     const modal = document.getElementById('createChainModal');
     if (modal) {
         modal.style.display = 'none';
+        
+        // Remover da pilha de modais
+        removeModalFromStack('createChainModal');
     }
 }
 
@@ -19037,6 +19043,9 @@ async function openChainModal(chainId, postAuthorId) {
         // Mostrar modal
         document.getElementById('viewChainModal').style.display = 'flex';
         
+        // Adicionar à pilha de modais para controle de ESC e z-index
+        addModalToStack('viewChainModal', closeViewChainModal);
+        
     } catch (error) {
         console.error('Erro ao abrir modal de corrente:', error);
         showNotification('❌ Erro ao carregar corrente: ' + error.message, 'error');
@@ -19046,6 +19055,9 @@ async function openChainModal(chainId, postAuthorId) {
 // Fechar modal de visualização de corrente
 function closeViewChainModal() {
     document.getElementById('viewChainModal').style.display = 'none';
+    
+    // Remover da pilha de modais
+    removeModalFromStack('viewChainModal');
     viewingChain = null;
 }
 
