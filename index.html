@@ -5791,8 +5791,8 @@
                                 transition: all 0.2s ease;
                                 z-index: 10;
                                 backdrop-filter: blur(5px);
-                            " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
-                                🔗
+                            " onmouseover="this.style.background='#e65100'; this.style.color='white'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#666'; this.style.transform='scale(1)';">
+                                🌐
                             </button>
                             <div class="post-header">
                                 <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
@@ -5823,11 +5823,37 @@
                                     }
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
-                                ${post.type || post.highlight_type ? `
-                                    <div class="post-type">
-                                        ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
-                                    </div>
-                                ` : ''}
+                                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                    ${post.type || post.highlight_type ? `
+                                        <div class="post-type">
+                                            ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
+                                        </div>
+                                    ` : ''}
+                                    ${post.chain_id ? `
+                                        <div 
+                                            class="chain-badge" 
+                                            onclick="openChainModal('${post.chain_id}', '${post.user_id}')"
+                                            style="
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 6px;
+                                                padding: 6px 12px;
+                                                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                                                color: white;
+                                                border-radius: 20px;
+                                                font-size: 12px;
+                                                font-weight: 600;
+                                                cursor: pointer;
+                                                transition: all 0.2s;
+                                                box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+                                            "
+                                            onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 10px rgba(249, 115, 22, 0.4)'"
+                                            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)'"
+                                        >
+                                            <span id="chain-name-modal-${post.id}">Corrente</span> 🔗
+                                        </div>
+                                    ` : ''}
+                                </div>
                                 ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post" style="height: auto; object-fit: contain;">` : ''}
                                 <div class="post-story">${post.content || post.story}</div>
                             </div>
@@ -10143,8 +10169,8 @@
                         transition: all 0.2s ease;
                         z-index: 10;
                         backdrop-filter: blur(5px);
-                    " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
-                        🔗
+                    " onmouseover="this.style.background='#e65100'; this.style.color='white'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#666'; this.style.transform='scale(1)';">
+                        🌐
                     </button>
                     ${modalType === 'own_post' ? `
                         <span class="close" style="
@@ -10194,11 +10220,38 @@
                                 }
                             ` : `<span>${postData.celebrated_person_name || postData.person_name || 'Alguém especial'}</span>`}
                         </div>
-                        ${postData.type || postData.highlight_type ? `
-                            <div class="post-type" style="color: white; font-size: 14px; margin-bottom: 0.5rem;">
-                                ${typeEmojis[postData.type || postData.highlight_type] || '✨'} ${typeNames[postData.type || postData.highlight_type] || 'Destaque'}
-                            </div>
-                        ` : ''}
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            ${postData.type || postData.highlight_type ? `
+                                <div class="post-type" style="color: white; font-size: 14px; margin-bottom: 0.5rem;">
+                                    ${typeEmojis[postData.type || postData.highlight_type] || '✨'} ${typeNames[postData.type || postData.highlight_type] || 'Destaque'}
+                                </div>
+                            ` : ''}
+                            ${postData.chain_id ? `
+                                <div 
+                                    class="chain-badge" 
+                                    onclick="openChainModal('${postData.chain_id}', '${postData.user_id}')"
+                                    style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 6px;
+                                        padding: 6px 12px;
+                                        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                                        color: white;
+                                        border-radius: 20px;
+                                        font-size: 12px;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s;
+                                        box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+                                        margin-bottom: 0.5rem;
+                                    "
+                                    onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 10px rgba(249, 115, 22, 0.4)'"
+                                    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)'"
+                                >
+                                    <span id="chain-name-single-${postData.id}">Corrente</span> 🔗
+                                </div>
+                            ` : ''}
+                        </div>
                         ${postData.photo_url ? `
                             <img class="post-image" src="${postData.photo_url}" alt="Foto do post" style="
                                 width: 100%;
@@ -14435,8 +14488,8 @@
                             transition: all 0.2s ease;
                             z-index: 10;
                             backdrop-filter: blur(5px);
-                        " onmouseover="this.style.background='rgba(229, 90, 43, 0.1)'; this.style.borderColor='#e55a2b'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.borderColor='#ddd'; this.style.transform='scale(1)';">
-                            🔗
+                        " onmouseover="this.style.background='#e65100'; this.style.color='white'; this.style.transform='scale(1.1)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#666'; this.style.transform='scale(1)';">
+                            🌐
                         </button>
                         <div class="post-header">
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
@@ -14475,11 +14528,37 @@
                                     }
                                 ` : `${post.celebrated_person_name || post.person_name}`}
                             </div>
-                                ${post.type || post.highlight_type ? `
-                                    <div class="post-type">
-                                        ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
-                                    </div>
-                                ` : ''}
+                                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                    ${post.type || post.highlight_type ? `
+                                        <div class="post-type">
+                                            ${typeEmojis[post.type || post.highlight_type] || '✨'} ${typeNames[post.type || post.highlight_type] || 'Destaque'}
+                                        </div>
+                                    ` : ''}
+                                    ${post.chain_id ? `
+                                        <div 
+                                            class="chain-badge" 
+                                            onclick="openChainModal('${post.chain_id}', '${post.user_id}')"
+                                            style="
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 6px;
+                                                padding: 6px 12px;
+                                                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+                                                color: white;
+                                                border-radius: 20px;
+                                                font-size: 12px;
+                                                font-weight: 600;
+                                                cursor: pointer;
+                                                transition: all 0.2s;
+                                                box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+                                            "
+                                            onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 10px rgba(249, 115, 22, 0.4)'"
+                                            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)'"
+                                        >
+                                            <span id="chain-name-holofotes-${post.id}">Corrente</span> 🔗
+                                        </div>
+                                    ` : ''}
+                                </div>
                                 ${post.photo_url ? `<img class="post-image" src="${post.photo_url}" alt="Foto do post" style="height: auto; object-fit: contain;">` : ''}
                                 <div class="post-story">${post.content || post.story}</div>
                             </div>
