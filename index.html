@@ -796,7 +796,6 @@
             border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
         }
 
         .post-story {
@@ -19089,6 +19088,16 @@ async function participateInChain() {
         
         // Fechar TODOS os outros modais que possam estar abertos
         closeAllModals();
+        
+        // Fechar página de post único se estiver aberta
+        if (typeof PostRouter !== 'undefined' && document.getElementById('singlePostPageContainer')?.style.display !== 'none') {
+            PostRouter.closeSinglePostPage();
+        }
+        
+        // Fechar perfil completo se estiver aberto
+        if (typeof ProfileRouter !== 'undefined' && document.getElementById('fullProfileContainer')?.style.display !== 'none') {
+            ProfileRouter.closeFullProfile();
+        }
         
         // Abrir aba "Destacar"
         document.querySelector('[data-tab="destacar"]').click();
