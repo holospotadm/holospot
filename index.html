@@ -11399,7 +11399,7 @@
 
         async function calculateTrueReciprocity() {
             try {
-                console.log('🤝 Calculando reciprocidade real (algoritmo correto)...');
+                console.log('🤝 Calculando reciprocidade real (com correntes)...');
                 
                 // Buscar TODOS os posts que EU criei destacando outras pessoas
                 const { data: myPosts, error: myPostsError } = await supabaseClient
@@ -11418,6 +11418,32 @@
                     return 0;
                 }
 
+                // Buscar correntes que EU criei
+                const { data: myChains, error: myChainsError } = await supabaseClient
+                    .from('chains')
+                    .select('id')
+                    .eq('creator_id', currentUser.id);
+
+                const myChainIds = (!myChainsError && myChains) ? myChains.map(c => c.id) : [];
+                console.log('⛓️ Minhas correntes:', myChainIds.length);
+
+                // Buscar participantes das minhas correntes (reciprocidade indireta)
+                let chainParticipants = {};
+                if (myChainIds.length > 0) {
+                    const { data: chainPosts, error: chainPostsError } = await supabaseClient
+                        .from('chain_posts')
+                        .select('author_id')
+                        .in('chain_id', myChainIds)
+                        .neq('author_id', currentUser.id);
+
+                    if (!chainPostsError && chainPosts) {
+                        chainPosts.forEach(cp => {
+                            chainParticipants[cp.author_id] = (chainParticipants[cp.author_id] || 0) + 1;
+                        });
+                    }
+                }
+                console.log('⛓️ Participantes das minhas correntes:', Object.keys(chainParticipants).length);
+
                 // Contar menções A→B (eu para cada pessoa)
                 const mentionsAtoB = {};
                 myPosts.forEach(post => {
@@ -11425,12 +11451,12 @@
                     mentionsAtoB[personId] = (mentionsAtoB[personId] || 0) + 1;
                 });
 
-                console.log('📊 Menções que EU fiz (A→B):', mentionsAtoB);
+                console.log('📊 Menções que EU fiz (A→B):', Object.keys(mentionsAtoB).length);
 
-                // Para cada pessoa que mencionei, contar menções B→A (ela para mim)
+                // Para cada pessoa que mencionei, contar menções B→A + participações em correntes
                 const mentionsBtoA = {};
-                let numerator = 0; // Σ min(x_AB, y_BA)
-                let denominator = 0; // Σ x_AB
+                let numerator = 0;
+                let denominator = 0;
 
                 for (const [personId, countAtoB] of Object.entries(mentionsAtoB)) {
                     // Contar quantas vezes esta pessoa ME mencionou
@@ -11440,28 +11466,27 @@
                         .eq('user_id', personId)
                         .eq('mentioned_user_id', currentUser.id);
 
-                    const countBtoA = (!reciprocalError && reciprocalPosts) ? reciprocalPosts.length : 0;
+                    const directCountBtoA = (!reciprocalError && reciprocalPosts) ? reciprocalPosts.length : 0;
+                    
+                    // Participações em correntes contam como 0.5 cada (reciprocidade indireta)
+                    const chainCountBtoA = (chainParticipants[personId] || 0) * 0.5;
+                    
+                    const countBtoA = directCountBtoA + chainCountBtoA;
                     mentionsBtoA[personId] = countBtoA;
 
-                    // Aplicar fórmula: r(A,B) = min(x,y) / max(x,y)
+                    // Aplicar fórmula
                     const minCount = Math.min(countAtoB, countBtoA);
-                    const maxCount = Math.max(countAtoB, countBtoA);
-                    const pairReciprocity = maxCount > 0 ? (minCount / maxCount) * 100 : 0;
-
-                    console.log(`👥 Par (eu→${personId}): ${countAtoB} menções, (${personId}→eu): ${countBtoA} menções, reciprocidade: ${pairReciprocity.toFixed(1)}%`);
 
                     // Acumular para índice geral
                     numerator += minCount;
                     denominator += countAtoB;
                 }
 
-                console.log('📊 Menções que recebi (B→A):', mentionsBtoA);
-
-                // Calcular índice geral: numerador / denominador
+                // Calcular índice geral
                 const generalIndex = denominator > 0 ? (numerator / denominator) * 100 : 0;
 
-                console.log(`🧮 Cálculo final: ${numerator}/${denominator} = ${generalIndex.toFixed(1)}%`);
-                console.log(`🤝 Reciprocidade geral calculada: ${generalIndex.toFixed(1)}%`);
+                console.log('🧮 Cálculo final (com correntes): ' + numerator.toFixed(1) + '/' + denominator + ' = ' + generalIndex.toFixed(1) + '%');
+                console.log('🤝 Reciprocidade geral calculada: ' + generalIndex.toFixed(1) + '%');
 
                 return generalIndex;
             } catch (error) {
@@ -11477,7 +11502,7 @@
                 // Buscar TODOS os posts do usuário diretamente do Supabase
                 const { data: myPosts, error } = await supabaseClient
                     .from('posts')
-                    .select('id, reactions(*), comments(*), feedbacks(*)')
+                    .select('id, chain_id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (error) {
@@ -11488,24 +11513,61 @@
                 if (!myPosts || myPosts.length === 0) return 0;
                 
                 let totalInteractions = 0;
+                let chainInteractions = 0;
                 
-                // 🚀 USAR CACHE INTELIGENTE ao invés de requests diretos
                 for (const post of myPosts) {
+                    let postInteractions = 0;
+                    
                     // Reações (já carregadas nos posts)
                     if (post.reactions && Array.isArray(post.reactions)) {
-                        totalInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
+                        postInteractions += post.reactions.filter(r => r.user_id !== currentUser.id).length;
                     }
                     
                     // Comentários (usar cache)
                     const cachedComments = commentsCache.get(post.id) || [];
-                    totalInteractions += cachedComments.length;
+                    postInteractions += cachedComments.length;
                     
                     // Feedbacks (usar cache)
                     const cachedFeedbacks = feedbacksCache.get(post.id) || [];
-                    totalInteractions += cachedFeedbacks.length;
+                    postInteractions += cachedFeedbacks.length;
+                    
+                    totalInteractions += postInteractions;
+                    
+                    // Posts de correntes contam separadamente
+                    if (post.chain_id) {
+                        chainInteractions += postInteractions;
+                    }
                 }
                 
-                return totalInteractions / myPosts.length;
+                // Buscar participações em correntes que eu criei (conta como engajamento)
+                let chainParticipations = 0;
+                try {
+                    const { data: myChains } = await supabaseClient
+                        .from('chains')
+                        .select('id')
+                        .eq('creator_id', currentUser.id);
+                    
+                    if (myChains && myChains.length > 0) {
+                        const chainIds = myChains.map(c => c.id);
+                        const { data: participants } = await supabaseClient
+                            .from('chain_posts')
+                            .select('id')
+                            .in('chain_id', chainIds)
+                            .neq('author_id', currentUser.id);
+                        
+                        chainParticipations = participants ? participants.length : 0;
+                    }
+                } catch (e) {
+                    console.log('⚠️ Erro ao buscar participações em correntes:', e);
+                }
+                
+                // Participações em correntes contam como 2 interações cada
+                const totalWithChains = totalInteractions + (chainParticipations * 2);
+                const rate = totalWithChains / myPosts.length;
+                
+                console.log('📈 Engajamento: Interações=' + totalInteractions + ', Participações em correntes=' + chainParticipations + ', Taxa=' + rate.toFixed(2));
+                
+                return rate;
                 
             } catch (error) {
                 console.error('Erro ao calcular taxa de engajamento:', error);
@@ -11520,7 +11582,7 @@
                 // Buscar TODOS os posts do usuário diretamente do Supabase
                 const { data: myPosts, error } = await supabaseClient
                     .from('posts')
-                    .select('id, reactions(*), comments(*), feedbacks(*)')
+                    .select('id, chain_id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (error) {
@@ -11531,8 +11593,8 @@
                 if (!myPosts || myPosts.length === 0) return 0;
 
                 let totalPessoasQueEngajaram = 0;
+                const todasPessoasUnicas = new Set();
 
-                // 🚀 USAR CACHE INTELIGENTE ao invés de requests diretos
                 for (const post of myPosts) {
                     const pessoasUnicasDoPost = new Set();
 
@@ -11541,6 +11603,7 @@
                         post.reactions.forEach(reaction => {
                             if (reaction.user_id && reaction.user_id !== currentUser.id) {
                                 pessoasUnicasDoPost.add(reaction.user_id);
+                                todasPessoasUnicas.add(reaction.user_id);
                             }
                         });
                     }
@@ -11550,6 +11613,7 @@
                     cachedComments.forEach(comment => {
                         if (comment.user_id && comment.user_id !== currentUser.id) {
                             pessoasUnicasDoPost.add(comment.user_id);
+                            todasPessoasUnicas.add(comment.user_id);
                         }
                     });
 
@@ -11558,14 +11622,50 @@
                     cachedFeedbacks.forEach(feedback => {
                         if (feedback.mentioned_user_id && feedback.mentioned_user_id !== currentUser.id) {
                             pessoasUnicasDoPost.add(feedback.mentioned_user_id);
+                            todasPessoasUnicas.add(feedback.mentioned_user_id);
                         }
                     });
 
                     totalPessoasQueEngajaram += pessoasUnicasDoPost.size;
                 }
 
-                // Média de pessoas que engajaram por post
-                return Math.round(totalPessoasQueEngajaram / myPosts.length);
+                // Buscar participantes únicos das correntes que eu criei
+                let chainParticipantsUnique = new Set();
+                try {
+                    const { data: myChains } = await supabaseClient
+                        .from('chains')
+                        .select('id')
+                        .eq('creator_id', currentUser.id);
+                    
+                    if (myChains && myChains.length > 0) {
+                        const chainIds = myChains.map(c => c.id);
+                        const { data: participants } = await supabaseClient
+                            .from('chain_posts')
+                            .select('author_id')
+                            .in('chain_id', chainIds)
+                            .neq('author_id', currentUser.id);
+                        
+                        if (participants) {
+                            participants.forEach(p => {
+                                chainParticipantsUnique.add(p.author_id);
+                                todasPessoasUnicas.add(p.author_id);
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.log('⚠️ Erro ao buscar participantes de correntes:', e);
+                }
+
+                // Participantes de correntes contam como impacto adicional
+                const chainImpact = chainParticipantsUnique.size;
+                const totalImpact = totalPessoasQueEngajaram + chainImpact;
+                
+                // Média de pessoas que engajaram por post (incluindo correntes)
+                const avgImpact = Math.round(totalImpact / myPosts.length);
+                
+                console.log('🎯 Impacto: Engajaram=' + totalPessoasQueEngajaram + ', Participantes correntes=' + chainImpact + ', Pessoas únicas total=' + todasPessoasUnicas.size + ', Média=' + avgImpact);
+
+                return avgImpact;
                 
             } catch (error) {
                 console.error('Erro ao calcular impacto médio:', error);
@@ -11580,7 +11680,7 @@
                 // Buscar TODOS os posts do usuário diretamente do Supabase
                 const { data: userPosts, error } = await supabaseClient
                     .from('posts')
-                    .select('id, reactions(*), comments(*), feedbacks(*)')
+                    .select('id, chain_id, reactions(*), comments(*), feedbacks(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (error) {
@@ -11591,19 +11691,41 @@
                 if (!userPosts || userPosts.length === 0) return 0;
                 
                 let postsWithInteraction = 0;
+                let chainPostsWithInteraction = 0;
+                let normalPosts = 0;
+                let chainPosts = 0;
                 
                 for (const post of userPosts) {
+                    const isChainPost = post.chain_id !== null;
+                    
                     // Verificar se o post tem alguma interação
                     const hasReactions = post.reactions && post.reactions.length > 0;
                     const hasComments = post.comments && post.comments.length > 0;
                     const hasFeedbacks = post.feedbacks && post.feedbacks.length > 0;
                     
-                    if (hasReactions || hasComments || hasFeedbacks) {
-                        postsWithInteraction++;
+                    if (isChainPost) {
+                        chainPosts++;
+                        if (hasReactions || hasComments || hasFeedbacks) {
+                            chainPostsWithInteraction++;
+                            postsWithInteraction++;
+                        }
+                    } else {
+                        normalPosts++;
+                        if (hasReactions || hasComments || hasFeedbacks) {
+                            postsWithInteraction++;
+                        }
                     }
                 }
 
-                return userPosts.length > 0 ? (postsWithInteraction / userPosts.length) * 100 : 0;
+                // Posts de correntes têm peso maior (1.5x) pois alcançam mais pessoas
+                const weightedInteractions = (postsWithInteraction - chainPostsWithInteraction) + (chainPostsWithInteraction * 1.5);
+                const weightedTotal = normalPosts + (chainPosts * 1.5);
+                
+                const reach = weightedTotal > 0 ? (weightedInteractions / weightedTotal) * 100 : 0;
+                
+                console.log('⚡ Alcance: Normal=' + normalPosts + ', Correntes=' + chainPosts + ', Interações=' + postsWithInteraction + ', Reach=' + reach.toFixed(1) + '%');
+
+                return reach;
             } catch (error) {
                 console.error('Erro ao calcular alcance efetivo:', error);
                 return 0;
@@ -11617,7 +11739,7 @@
                     return 0;
                 }
                 
-                console.log('🔗 Calculando rede de engajamento completa...');
+                console.log('🔗 Calculando rede de engajamento completa (com correntes)...');
                 
                 // Set para armazenar IDs únicos de pessoas que interagiram
                 const networkPeople = new Set();
@@ -11625,7 +11747,7 @@
                 // Buscar TODOS os meus posts do Supabase
                 const { data: myPosts, error: myPostsError } = await supabaseClient
                     .from('posts')
-                    .select('id, user_id, mentioned_user_id, reactions(*)')
+                    .select('id, user_id, mentioned_user_id, chain_id, reactions(*)')
                     .eq('user_id', currentUser.id);
                 
                 if (myPostsError) {
@@ -11682,35 +11804,98 @@
                     }
                 });
                 
-                // 5. BUSCAR COMENTÁRIOS E FEEDBACKS DO BANCO (com timeout)
+                // 5. CONEXÕES VIA CORRENTES
+                let chainConnections = 0;
+                try {
+                    // Buscar correntes que eu criei
+                    const { data: myChains } = await supabaseClient
+                        .from('chains')
+                        .select('id')
+                        .eq('creator_id', currentUser.id);
+                    
+                    if (myChains && myChains.length > 0) {
+                        const myChainIds = myChains.map(c => c.id);
+                        
+                        // Participantes das minhas correntes
+                        const { data: participants } = await supabaseClient
+                            .from('chain_posts')
+                            .select('author_id')
+                            .in('chain_id', myChainIds)
+                            .neq('author_id', currentUser.id);
+                        
+                        if (participants) {
+                            participants.forEach(p => {
+                                networkPeople.add(p.author_id);
+                                chainConnections++;
+                            });
+                        }
+                    }
+                    
+                    // Buscar correntes em que eu participei
+                    const { data: myParticipations } = await supabaseClient
+                        .from('chain_posts')
+                        .select('chain_id')
+                        .eq('author_id', currentUser.id);
+                    
+                    if (myParticipations && myParticipations.length > 0) {
+                        const participatedChainIds = myParticipations.map(p => p.chain_id);
+                        
+                        // Criadores das correntes que participei
+                        const { data: chainCreators } = await supabaseClient
+                            .from('chains')
+                            .select('creator_id')
+                            .in('id', participatedChainIds)
+                            .neq('creator_id', currentUser.id);
+                        
+                        if (chainCreators) {
+                            chainCreators.forEach(c => {
+                                networkPeople.add(c.creator_id);
+                                chainConnections++;
+                            });
+                        }
+                        
+                        // Outros participantes das mesmas correntes
+                        const { data: coParticipants } = await supabaseClient
+                            .from('chain_posts')
+                            .select('author_id')
+                            .in('chain_id', participatedChainIds)
+                            .neq('author_id', currentUser.id);
+                        
+                        if (coParticipants) {
+                            coParticipants.forEach(p => {
+                                networkPeople.add(p.author_id);
+                                chainConnections++;
+                            });
+                        }
+                    }
+                } catch (chainError) {
+                    console.warn('⚠️ Erro ao buscar conexões via correntes:', chainError);
+                }
+                
+                // 6. BUSCAR COMENTÁRIOS E FEEDBACKS DO BANCO (com timeout)
                 try {
                     const myPostIds = myPostsArray.map(p => p.id);
                     
-                    // Só fazer queries se houver posts
                     if (myPostIds.length > 0) {
                         const [commentsGiven, commentsReceived, feedbacksGiven, feedbacksReceived] = await Promise.all([
-                            // Comentários que eu fiz
                             withTimeout(
                                 supabaseClient.from('comments')
                                     .select('post_id')
                                     .eq('user_id', currentUser.id),
                                 3000
                             ),
-                            // Comentários nos meus posts
                             withTimeout(
                                 supabaseClient.from('comments')
                                     .select('user_id')
                                     .in('post_id', myPostIds),
                                 3000
                             ),
-                            // Feedbacks que eu dei (onde fui mencionado para dar feedback)
                             withTimeout(
                                 supabaseClient.from('feedbacks')
                                     .select('post_id, author_id')
                                     .eq('mentioned_user_id', currentUser.id),
                                 3000
                             ),
-                            // Feedbacks nos meus posts (pessoas que deram feedback nos meus posts)
                             withTimeout(
                                 supabaseClient.from('feedbacks')
                                     .select('mentioned_user_id, post_id')
@@ -11719,7 +11904,6 @@
                             )
                         ]);
                         
-                        // Processar comentários que eu fiz
                         if (commentsGiven.data) {
                             const postIds = commentsGiven.data.map(c => c.post_id);
                             allPostsArray.forEach(post => {
@@ -11729,7 +11913,6 @@
                             });
                         }
                         
-                        // Processar comentários nos meus posts
                         if (commentsReceived.data) {
                             commentsReceived.data.forEach(comment => {
                                 if (comment.user_id && comment.user_id !== currentUser.id) {
@@ -11738,10 +11921,8 @@
                             });
                         }
                         
-                        // Processar feedbacks que eu dei (onde fui mencionado)
                         if (feedbacksGiven.data) {
                             feedbacksGiven.data.forEach(feedback => {
-                                // O author_id é quem deu o feedback (eu), então busco o dono do post
                                 const post = allPostsArray.find(p => p.id === feedback.post_id);
                                 if (post && post.user_id !== currentUser.id) {
                                     networkPeople.add(post.user_id);
@@ -11749,7 +11930,6 @@
                             });
                         }
                         
-                        // Processar feedbacks nos meus posts (pessoas mencionadas para dar feedback)
                         if (feedbacksReceived.data) {
                             feedbacksReceived.data.forEach(feedback => {
                                 if (feedback.mentioned_user_id && feedback.mentioned_user_id !== currentUser.id) {
@@ -11757,11 +11937,6 @@
                                 }
                             });
                         }
-                        
-                        console.log('✅ Comentários e feedbacks processados para rede de engajamento');
-                        
-                    } else {
-                        console.log('📝 Nenhum post próprio encontrado, pulando queries de comentários/feedbacks');
                     }
                     
                 } catch (dbError) {
@@ -11769,16 +11944,7 @@
                 }
                 
                 const networkSize = networkPeople.size;
-                console.log(`🔗 Rede de engajamento calculada: ${networkSize} pessoas únicas`);
-                console.log('👥 IDs na rede:', Array.from(networkPeople));
-                
-                // Log detalhado para debug
-                console.log('📊 Detalhamento da rede:');
-                console.log(`   📝 Meus posts: ${myPostsArray.length}`);
-                console.log(`   🎯 Pessoas que destaquei: ${myPostsArray.filter(p => p.mentioned_user_id).length}`);
-                console.log(`   🏆 Posts que me destacaram: ${allPostsArray.filter(p => p.mentioned_user_id === currentUser.id).length}`);
-                console.log(`   👍 Posts meus com reações: ${myPostsArray.filter(p => p.reactions && p.reactions.length > 0).length}`);
-                console.log(`   💬 Posts de outros onde reagi: ${allPostsArray.filter(p => p.user_id !== currentUser.id && p.reactions && p.reactions.find(r => r.user_id === currentUser.id)).length}`);
+                console.log('🔗 Rede de engajamento calculada: ' + networkSize + ' pessoas únicas (inclui ' + chainConnections + ' conexões via correntes)');
                 
                 return networkSize;
                 
@@ -11788,45 +11954,69 @@
             }
         }
 
-        function calculateAltruismIndex() {
+        async function calculateAltruismIndex() {
             const holofotesRecebidos = parseInt(document.getElementById('userHolofotesReceived')?.textContent || '0');
             const holofotesDados = parseInt(document.getElementById('userPostsCount')?.textContent || '0');
             
-            if (holofotesDados === 0) return { 
+            // Buscar correntes criadas pelo usuário (conta como dar mais)
+            let correntesCriadas = 0;
+            try {
+                const { data: chains, error } = await supabaseClient
+                    .from('chains')
+                    .select('id')
+                    .eq('creator_id', currentUser.id);
+                
+                if (!error && chains) {
+                    correntesCriadas = chains.length;
+                }
+            } catch (e) {
+                console.log('⚠️ Erro ao buscar correntes para altruísmo:', e);
+            }
+            
+            // Correntes criadas contam como 2x (mais esforço e valor)
+            const holofotesDadosPonderado = holofotesDados + (correntesCriadas * 2);
+            
+            console.log('💝 Altruísmo: Posts=' + holofotesDados + ', Correntes=' + correntesCriadas + ', Ponderado=' + holofotesDadosPonderado);
+            
+            if (holofotesDadosPonderado === 0) return { 
                 value: "0:0", 
                 message: "Sem dados", 
                 type: "balanced",
                 given: 0,
-                received: 0
+                received: 0,
+                chainsCreated: 0
             };
             
-            const ratio = holofotesRecebidos / holofotesDados;
+            const ratio = holofotesRecebidos / holofotesDadosPonderado;
             
             if (ratio > 1.2) {
-                const multiplier = (holofotesRecebidos / holofotesDados).toFixed(1);
+                const multiplier = (holofotesRecebidos / holofotesDadosPonderado).toFixed(1);
                 return {
-                    value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
-                    message: `Você recebe ${multiplier}x mais do que dá`,
+                    value: holofotesDadosPonderado + ':' + holofotesRecebidos,
+                    message: 'Você recebe ' + multiplier + 'x mais do que dá',
                     type: "received",
-                    given: holofotesDados,
-                    received: holofotesRecebidos
+                    given: holofotesDadosPonderado,
+                    received: holofotesRecebidos,
+                    chainsCreated: correntesCriadas
                 };
             } else if (ratio < 0.8) {
-                const multiplier = (holofotesDados / holofotesRecebidos).toFixed(1);
+                const multiplier = (holofotesDadosPonderado / holofotesRecebidos).toFixed(1);
                 return {
-                    value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
-                    message: `Você dá ${multiplier}x mais do que recebe`,
+                    value: holofotesDadosPonderado + ':' + holofotesRecebidos,
+                    message: 'Você dá ' + multiplier + 'x mais do que recebe' + (correntesCriadas > 0 ? ' (inclui ' + correntesCriadas + ' correntes)' : ''),
                     type: "giving",
-                    given: holofotesDados,
-                    received: holofotesRecebidos
+                    given: holofotesDadosPonderado,
+                    received: holofotesRecebidos,
+                    chainsCreated: correntesCriadas
                 };
             } else {
                 return {
-                    value: `${holofotesDados}:${holofotesRecebidos}`, // dar:receber
+                    value: holofotesDadosPonderado + ':' + holofotesRecebidos,
                     message: "Você dá e recebe quase igualmente",
                     type: "balanced",
-                    given: holofotesDados,
-                    received: holofotesRecebidos
+                    given: holofotesDadosPonderado,
+                    received: holofotesRecebidos,
+                    chainsCreated: correntesCriadas
                 };
             }
         }
