@@ -12045,7 +12045,7 @@
                 const impact = await calculateAverageImpact();
                 const reach = await calculateEffectiveReach();
                 const network = await calculateNetworkSize();
-                const altruism = calculateAltruismIndex();
+                const altruism = await calculateAltruismIndex();
                 
                 // Atualizar valores na interface
                 const reciprocityValueEl = document.getElementById('reciprocityValue');
