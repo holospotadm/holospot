@@ -6204,6 +6204,10 @@
                 console.log('📊 Carregando dados do usuário...');
                 console.log('🔍 Carregando dados de seguir/seguidores reais do Supabase com timeout...');
                 
+                // Guardar dados existentes para preservar em caso de erro
+                const existingFollowing = following || [];
+                const existingFollowers = followers || [];
+                
                 // Carregar quem eu sigo
                 const followingQuery = supabaseClient
                     .from('follows')
@@ -6231,13 +6235,19 @@
                     console.log(`✅ Dados reais carregados: ${following.length} seguindo, ${followers.length} seguidores`);
                     
                 } catch (queryError) {
-                    console.warn('⚠️ Erro nas queries, mantendo arrays vazios:', queryError.message);
+                    console.warn('⚠️ Erro nas queries, preservando dados existentes:', queryError.message);
                     
-                    // Manter arrays vazios em caso de erro
-                    following = [];
-                    followers = [];
-                    
-                    console.log('✅ Arrays vazios configurados devido ao erro');
+                    // CORREÇÃO: Preservar dados existentes em vez de zerar
+                    // Só zera se não tinha dados antes (carregamento inicial)
+                    if (existingFollowing.length > 0 || existingFollowers.length > 0) {
+                        following = existingFollowing;
+                        followers = existingFollowers;
+                        console.log(`✅ Dados preservados: ${following.length} seguindo, ${followers.length} seguidores`);
+                    } else {
+                        following = [];
+                        followers = [];
+                        console.log('✅ Arrays vazios configurados (carregamento inicial)');
+                    }
                 }
                 
                 // Atualizar contadores na interface
@@ -6247,11 +6257,10 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar dados do usuário:', error);
                 
-                // Fallback final
-                following = [];
-                followers = [];
+                // CORREÇÃO: Não zerar dados em caso de erro se já existem
+                // Apenas atualizar contadores com dados existentes
                 updateFollowCounts();
-                console.log('✅ Fallback aplicado');
+                console.log('✅ Contadores atualizados com dados existentes');
             }
         }
 
