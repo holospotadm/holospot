@@ -4058,39 +4058,37 @@
                 window.isLoadingPosts = false;
                 window.feedInitialized = false; // Flag para evitar loadPosts antes de verificar default_feed
                 
-                // Check if user is already logged in
-                console.log('🔍 Verificando sessão...');
+                // MOSTRAR LOGIN IMEDIATAMENTE para evitar tela branca
+                console.log('👤 Mostrando tela de login...');
+                showLogin();
+                setupEventListeners();
                 
-                // Timeout de segurança - se getSession travar, mostrar login após 5s
-                let sessionResolved = false;
-                const timeoutId = setTimeout(() => {
-                    if (!sessionResolved) {
-                        console.warn('⚠️ Timeout na verificação de sessão, mostrando login...');
-                        showLogin();
-                        setupEventListeners();
-                    }
-                }, 5000);
+                // Verificar sessão em background (não bloqueia a UI)
+                console.log('🔍 Verificando sessão em background...');
                 
                 let session = null;
                 let error = null;
                 
                 try {
-                    const result = await supabaseClient.auth.getSession();
+                    // Timeout de 3 segundos para não travar
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout')), 3000)
+                    );
+                    const sessionPromise = supabaseClient.auth.getSession();
+                    
+                    const result = await Promise.race([sessionPromise, timeoutPromise]);
                     session = result.data?.session;
                     error = result.error;
                     console.log('🔍 getSession retornou:', { session: !!session, error });
                 } catch (e) {
-                    console.error('❌ Erro no getSession:', e);
-                    error = e;
+                    console.warn('⚠️ getSession falhou ou timeout:', e.message);
+                    // Não é erro crítico, usuário pode fazer login manualmente
+                    return;
                 }
-                
-                sessionResolved = true;
-                clearTimeout(timeoutId);
                 
                 if (error) {
                     console.error('❌ Erro ao verificar sessão:', error);
-                    showLogin();
-                    return;
+                    return; // Já está na tela de login
                 }
                 
                 if (session) {
