@@ -4060,7 +4060,32 @@
                 
                 // Check if user is already logged in
                 console.log('🔍 Verificando sessão...');
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                // Timeout de segurança - se getSession travar, mostrar login após 5s
+                let sessionResolved = false;
+                const timeoutId = setTimeout(() => {
+                    if (!sessionResolved) {
+                        console.warn('⚠️ Timeout na verificação de sessão, mostrando login...');
+                        showLogin();
+                        setupEventListeners();
+                    }
+                }, 5000);
+                
+                let session = null;
+                let error = null;
+                
+                try {
+                    const result = await supabaseClient.auth.getSession();
+                    session = result.data?.session;
+                    error = result.error;
+                    console.log('🔍 getSession retornou:', { session: !!session, error });
+                } catch (e) {
+                    console.error('❌ Erro no getSession:', e);
+                    error = e;
+                }
+                
+                sessionResolved = true;
+                clearTimeout(timeoutId);
                 
                 if (error) {
                     console.error('❌ Erro ao verificar sessão:', error);
