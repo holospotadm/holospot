@@ -2693,6 +2693,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="holospot-index.css">
 </head>
 <body>
     <!-- Login Screen -->
@@ -2895,6 +2896,42 @@
 
         <div id="perfilTab" class="tab-content">
             <div class="follow-stats" style="justify-content: space-between; align-items: flex-start;">
+                <!-- Card Índice HoloSpot (esquerda) -->
+                <div id="holoSpotIndexCard" class="holospot-index-card holospot-level-observando" onclick="showHoloSpotIndexModal()">
+                    <div class="holospot-index-header">
+                        <span class="holospot-index-title">Índice HoloSpot</span>
+                        <span class="holospot-index-info" title="Seu índice de bem-estar social">ℹ️</span>
+                    </div>
+                    <div class="holospot-index-main">
+                        <div class="holospot-gauge-container">
+                            <svg viewBox="0 0 36 36" width="70" height="70">
+                                <circle class="holospot-gauge-bg" cx="18" cy="18" r="14"></circle>
+                                <circle id="holoSpotGaugeFill" class="holospot-gauge-fill" cx="18" cy="18" r="14" 
+                                    stroke="var(--holospot-color, #9CA3AF)" 
+                                    stroke-dasharray="88" 
+                                    stroke-dashoffset="88"></circle>
+                            </svg>
+                            <div class="holospot-gauge-text">
+                                <div id="holoSpotGaugeValue" class="holospot-gauge-value">--</div>
+                            </div>
+                        </div>
+                        <div class="holospot-index-details">
+                            <div class="holospot-level">
+                                <span id="holoSpotLevelEmoji" class="holospot-level-emoji">👁️</span>
+                                <span id="holoSpotLevelName" class="holospot-level-name">Carregando...</span>
+                            </div>
+                            <div id="holoSpotNextLevel" class="holospot-next-level"></div>
+                            <div class="holospot-progress-bar">
+                                <div id="holoSpotProgressFill" class="holospot-progress-fill" style="width: 0%; background: var(--holospot-color, #9CA3AF);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="holoSpotHistoryChart" class="holospot-history-chart">
+                        <!-- Barras do histórico serão inseridas via JS -->
+                    </div>
+                </div>
+                
+                <!-- Cards Seguindo/Seguidores (direita) -->
                 <div style="display: flex; gap: 0.5rem;">
                     <div class="follow-stat" onclick="showFollowingModal()">
                         <div class="follow-number" id="followingCount">0</div>
@@ -15171,6 +15208,9 @@
                 
                 // Reconfigurar event listeners após atualizar métricas
                 setupStatCardListeners();
+                
+                // 🌟 Atualizar Índice HoloSpot
+                await updateHoloSpotIndex();
             } catch (error) {
                 console.error('❌ Erro ao atualizar métricas reais:', error);
                 // Em caso de erro, manter valores existentes
@@ -19452,6 +19492,339 @@ window.cancelParticipation = cancelParticipation;
 window.loadChainNamesInPosts = loadChainNamesInPosts;
 
 console.log('✅ Módulo chains_participation.js carregado');
+
+// =====================================================
+// 🌟 ÍNDICE HOLOSPOT - FUNÇÕES
+// =====================================================
+
+// Variável global para armazenar histórico do índice
+let holoSpotIndexHistory = [];
+
+// Cores por nível
+const HOLOSPOT_LEVEL_COLORS = {
+    'Observando': '#9CA3AF',
+    'Participando': '#60A5FA',
+    'Contribuindo': '#34D399',
+    'Fortalecendo': '#FBBF24',
+    'Pertencendo': '#F97316',
+    'Sustentando': '#EF4444'
+};
+
+// Função principal para atualizar o Índice HoloSpot
+async function updateHoloSpotIndex() {
+    try {
+        console.log('🌟 Calculando Índice HoloSpot...');
+        
+        if (!currentUser || !currentUser.id) {
+            console.log('⚠️ Usuário não logado, ignorando cálculo do Índice HoloSpot');
+            return;
+        }
+        
+        // Chamar a função RPC do Supabase
+        const { data, error } = await supabaseClient.rpc('calculate_holospot_index', {
+            p_user_id: currentUser.id
+        });
+        
+        if (error) {
+            console.error('❌ Erro ao calcular Índice HoloSpot:', error);
+            renderHoloSpotIndexError();
+            return;
+        }
+        
+        console.log('✅ Índice HoloSpot calculado:', data);
+        
+        // Renderizar o card com os dados
+        renderHoloSpotIndex(data);
+        
+        // Salvar no histórico local (simulação - em produção seria no banco)
+        saveHoloSpotHistory(data.index);
+        
+        // Renderizar gráfico de histórico
+        renderHoloSpotHistoryChart(data.level);
+        
+    } catch (err) {
+        console.error('❌ Erro ao atualizar Índice HoloSpot:', err);
+        renderHoloSpotIndexError();
+    }
+}
+
+// Renderizar o card do Índice HoloSpot
+function renderHoloSpotIndex(data) {
+    const card = document.getElementById('holoSpotIndexCard');
+    const gaugeValue = document.getElementById('holoSpotGaugeValue');
+    const gaugeFill = document.getElementById('holoSpotGaugeFill');
+    const levelEmoji = document.getElementById('holoSpotLevelEmoji');
+    const levelName = document.getElementById('holoSpotLevelName');
+    const nextLevel = document.getElementById('holoSpotNextLevel');
+    const progressFill = document.getElementById('holoSpotProgressFill');
+    
+    if (!card) return;
+    
+    const index = data.index || 0;
+    const level = data.level || 'Observando';
+    const emoji = data.emoji || '👁️';
+    const color = HOLOSPOT_LEVEL_COLORS[level] || '#9CA3AF';
+    
+    // Atualizar classe de cor do card
+    card.className = 'holospot-index-card holospot-level-' + level.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
+    // Atualizar valor do gauge
+    if (gaugeValue) {
+        gaugeValue.textContent = Math.round(index);
+    }
+    
+    // Animar o gauge circular
+    if (gaugeFill) {
+        const circumference = 2 * Math.PI * 14; // r=14
+        const offset = circumference - (index / 100) * circumference;
+        gaugeFill.style.stroke = color;
+        gaugeFill.style.strokeDasharray = circumference;
+        gaugeFill.style.strokeDashoffset = offset;
+    }
+    
+    // Atualizar emoji e nome do nível
+    if (levelEmoji) levelEmoji.textContent = emoji;
+    if (levelName) {
+        levelName.textContent = level;
+        levelName.style.color = color;
+    }
+    
+    // Atualizar próximo nível
+    if (nextLevel) {
+        if (data.next_level && data.points_to_next > 0) {
+            nextLevel.textContent = `${data.next_emoji} Faltam ${data.points_to_next} pts para ${data.next_level}`;
+            nextLevel.style.display = 'block';
+        } else if (level === 'Sustentando') {
+            nextLevel.textContent = '✨ Nível máximo alcançado!';
+            nextLevel.style.display = 'block';
+        } else {
+            nextLevel.style.display = 'none';
+        }
+    }
+    
+    // Atualizar barra de progresso dentro do nível atual
+    if (progressFill) {
+        const levelMin = data.level_min || 0;
+        const levelMax = data.level_max || 15;
+        const levelRange = levelMax - levelMin + 1;
+        const progressInLevel = ((index - levelMin) / levelRange) * 100;
+        progressFill.style.width = Math.min(progressInLevel, 100) + '%';
+        progressFill.style.background = color;
+    }
+    
+    // Definir variável CSS para cor
+    card.style.setProperty('--holospot-color', color);
+}
+
+// Renderizar estado de erro
+function renderHoloSpotIndexError() {
+    const gaugeValue = document.getElementById('holoSpotGaugeValue');
+    const levelName = document.getElementById('holoSpotLevelName');
+    const nextLevel = document.getElementById('holoSpotNextLevel');
+    
+    if (gaugeValue) gaugeValue.textContent = '--';
+    if (levelName) levelName.textContent = 'Erro ao carregar';
+    if (nextLevel) nextLevel.style.display = 'none';
+}
+
+// Salvar histórico do índice (localStorage para simulação)
+function saveHoloSpotHistory(index) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const storageKey = `holospot_history_${currentUser.id}`;
+        
+        // Carregar histórico existente
+        let history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        
+        // Verificar se já tem registro de hoje
+        const todayIndex = history.findIndex(h => h.date === today);
+        if (todayIndex >= 0) {
+            history[todayIndex].index = index;
+        } else {
+            history.push({ date: today, index: index });
+        }
+        
+        // Manter apenas os últimos 30 dias
+        history = history.slice(-30);
+        
+        localStorage.setItem(storageKey, JSON.stringify(history));
+        holoSpotIndexHistory = history;
+        
+    } catch (err) {
+        console.error('Erro ao salvar histórico do Índice HoloSpot:', err);
+    }
+}
+
+// Carregar histórico do índice
+function loadHoloSpotHistory() {
+    try {
+        if (!currentUser || !currentUser.id) return [];
+        
+        const storageKey = `holospot_history_${currentUser.id}`;
+        const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        holoSpotIndexHistory = history;
+        return history;
+        
+    } catch (err) {
+        console.error('Erro ao carregar histórico do Índice HoloSpot:', err);
+        return [];
+    }
+}
+
+// Renderizar gráfico de histórico
+function renderHoloSpotHistoryChart(currentLevel) {
+    const chartContainer = document.getElementById('holoSpotHistoryChart');
+    if (!chartContainer) return;
+    
+    const history = loadHoloSpotHistory();
+    const color = HOLOSPOT_LEVEL_COLORS[currentLevel] || '#ff9800';
+    
+    // Se não tem histórico suficiente, criar dados simulados
+    let chartData = history;
+    if (chartData.length < 7) {
+        // Preencher com valores vazios para ter pelo menos 7 barras
+        const today = new Date();
+        chartData = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            const existing = history.find(h => h.date === dateStr);
+            chartData.push({
+                date: dateStr,
+                index: existing ? existing.index : (i === 0 ? (history[history.length - 1]?.index || 0) : 0)
+            });
+        }
+    }
+    
+    // Pegar os últimos 7 dias
+    const last7Days = chartData.slice(-7);
+    
+    // Encontrar valor máximo para normalizar
+    const maxIndex = Math.max(...last7Days.map(d => d.index), 1);
+    
+    // Gerar HTML das barras
+    let barsHTML = '';
+    last7Days.forEach((day, i) => {
+        const heightPercent = (day.index / 100) * 100; // Usar 100 como máximo
+        const isToday = i === last7Days.length - 1;
+        const opacity = isToday ? '1' : '0.5';
+        barsHTML += `<div class="holospot-history-bar" style="height: ${Math.max(heightPercent, 5)}%; background: ${color}; opacity: ${opacity};" title="${day.date}: ${Math.round(day.index)} pts"></div>`;
+    });
+    
+    chartContainer.innerHTML = barsHTML;
+}
+
+// Modal de detalhes do Índice HoloSpot
+function showHoloSpotIndexModal() {
+    // Buscar dados atuais
+    supabaseClient.rpc('calculate_holospot_index', {
+        p_user_id: currentUser.id
+    }).then(({ data, error }) => {
+        if (error) {
+            console.error('Erro ao buscar detalhes do Índice HoloSpot:', error);
+            showToast('Erro ao carregar detalhes do índice', 'error');
+            return;
+        }
+        
+        const index = data.index || 0;
+        const level = data.level || 'Observando';
+        const emoji = data.emoji || '👁️';
+        const color = HOLOSPOT_LEVEL_COLORS[level] || '#9CA3AF';
+        const components = data.components || {};
+        
+        const modalHTML = `
+            <div id="holoSpotIndexModal" class="modal-overlay" onclick="closeHoloSpotIndexModal()">
+                <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 420px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, ${color}, ${color}dd);">
+                        <h3 style="color: white;">🌟 Índice HoloSpot</h3>
+                        <button class="modal-close" onclick="closeHoloSpotIndexModal()">×</button>
+                    </div>
+                    <div class="modal-body" style="padding: 20px;">
+                        <!-- Índice Principal -->
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 4rem; font-weight: bold; color: ${color};">${Math.round(index)}</div>
+                            <div style="font-size: 1.5rem; margin-top: 5px;">${emoji} ${level}</div>
+                            ${data.next_level ? `<div style="font-size: 0.9rem; color: #888; margin-top: 8px;">Faltam ${data.points_to_next} pontos para ${data.next_emoji} ${data.next_level}</div>` : '<div style="font-size: 0.9rem; color: #888; margin-top: 8px;">✨ Nível máximo alcançado!</div>'}
+                        </div>
+                        
+                        <!-- Componentes -->
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 12px; color: #333;">Componentes do Índice</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #34D399;">${Math.round(components.positivity || 0)}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Positividade Recebida</div>
+                                    <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.positivity || 0}%; background: #34D399; border-radius: 2px;"></div></div>
+                                </div>
+                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #60A5FA;">${Math.round(components.reciprocity || 0)}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Reciprocidade</div>
+                                    <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.reciprocity || 0}%; background: #60A5FA; border-radius: 2px;"></div></div>
+                                </div>
+                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #F97316;">${Math.round(components.impact || 0)}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Impacto Gerado</div>
+                                    <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.impact || 0}%; background: #F97316; border-radius: 2px;"></div></div>
+                                </div>
+                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #FBBF24;">${Math.round(components.evolution || 0)}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Evolução</div>
+                                    <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.evolution || 0}%; background: #FBBF24; border-radius: 2px;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Escala de Níveis -->
+                        <div style="background: #f8f9fa; border-radius: 12px; padding: 15px;">
+                            <h4 style="margin-bottom: 10px; color: #333; font-size: 0.9rem;">Níveis de Bem-Estar Social</h4>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
+                                <div style="display: flex; justify-content: space-between; opacity: ${level === 'Observando' ? '1' : '0.5'};">
+                                    <span>👁️ Observando</span><span style="color: #9CA3AF;">0-15</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; opacity: ${level === 'Participando' ? '1' : '0.5'};">
+                                    <span>👋 Participando</span><span style="color: #60A5FA;">16-30</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; opacity: ${level === 'Contribuindo' ? '1' : '0.5'};">
+                                    <span>🤝 Contribuindo</span><span style="color: #34D399;">31-50</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; opacity: ${level === 'Fortalecendo' ? '1' : '0.5'};">
+                                    <span>💪 Fortalecendo</span><span style="color: #FBBF24;">51-70</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; opacity: ${level === 'Pertencendo' ? '1' : '0.5'};">
+                                    <span>🏠 Pertencendo</span><span style="color: #F97316;">71-85</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; opacity: ${level === 'Sustentando' ? '1' : '0.5'};">
+                                    <span>☀️ Sustentando</span><span style="color: #EF4444;">86-100</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remover modal existente se houver
+        const existingModal = document.getElementById('holoSpotIndexModal');
+        if (existingModal) existingModal.remove();
+        
+        // Adicionar novo modal
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    });
+}
+
+// Fechar modal do Índice HoloSpot
+function closeHoloSpotIndexModal() {
+    const modal = document.getElementById('holoSpotIndexModal');
+    if (modal) modal.remove();
+}
+
+// Exportar funções globalmente
+window.updateHoloSpotIndex = updateHoloSpotIndex;
+window.showHoloSpotIndexModal = showHoloSpotIndexModal;
+window.closeHoloSpotIndexModal = closeHoloSpotIndexModal;
+
+console.log('✅ Módulo Índice HoloSpot carregado');
 
     </script>
 

@@ -1,0 +1,236 @@
+/* =====================================================
+   ÍNDICE HOLOSPOT - CSS
+   Card de bem-estar social na aba Perfil
+   ===================================================== */
+
+/* Card principal */
+.holospot-index-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    border-radius: 16px;
+    padding: 1rem;
+    min-width: 180px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(255, 152, 0, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.holospot-index-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(255, 152, 0, 0.25);
+    border-color: rgba(255, 152, 0, 0.5);
+}
+
+/* Header do card */
+.holospot-index-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.holospot-index-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.holospot-index-info {
+    font-size: 0.9rem;
+    cursor: help;
+    opacity: 0.6;
+}
+
+/* Área principal com gauge e detalhes */
+.holospot-index-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Gauge circular */
+.holospot-gauge-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+}
+
+.holospot-gauge-bg {
+    fill: none;
+    stroke: #e0e0e0;
+    stroke-width: 8;
+}
+
+.holospot-gauge-fill {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: stroke-dashoffset 1s ease-out, stroke 0.5s ease;
+}
+
+.holospot-gauge-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.holospot-gauge-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+    line-height: 1;
+}
+
+/* Detalhes do índice */
+.holospot-index-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.holospot-level {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.3rem;
+}
+
+.holospot-level-emoji {
+    font-size: 1.2rem;
+}
+
+.holospot-level-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.holospot-next-level {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 0.4rem;
+}
+
+/* Barra de progresso */
+.holospot-progress-bar {
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.holospot-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease-out;
+}
+
+/* Cores por nível */
+.holospot-level-observando { --holospot-color: #9CA3AF; }
+.holospot-level-participando { --holospot-color: #60A5FA; }
+.holospot-level-contribuindo { --holospot-color: #34D399; }
+.holospot-level-fortalecendo { --holospot-color: #FBBF24; }
+.holospot-level-pertencendo { --holospot-color: #F97316; }
+.holospot-level-sustentando { --holospot-color: #EF4444; }
+
+/* Mini gráfico de histórico */
+.holospot-history-chart {
+    margin-top: 0.5rem;
+    height: 30px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.holospot-history-bar {
+    flex: 1;
+    background: var(--holospot-color, #ff9800);
+    border-radius: 2px 2px 0 0;
+    min-height: 3px;
+    opacity: 0.6;
+    transition: height 0.3s ease, opacity 0.3s ease;
+}
+
+.holospot-history-bar:last-child {
+    opacity: 1;
+}
+
+.holospot-history-bar:hover {
+    opacity: 1;
+}
+
+/* Modal de detalhes do índice */
+.holospot-modal-content {
+    max-width: 400px;
+}
+
+.holospot-components {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 1rem;
+}
+
+.holospot-component-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+}
+
+.holospot-component-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.holospot-component-label {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+.holospot-component-bar {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.holospot-component-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .holospot-index-card {
+        min-width: 150px;
+        padding: 0.8rem;
+    }
+    
+    .holospot-gauge-container {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .holospot-gauge-value {
+        font-size: 1.1rem;
+    }
+    
+    .holospot-level-name {
+        font-size: 0.9rem;
+    }
+    
+    .holospot-history-chart {
+        height: 25px;
+    }
+}
