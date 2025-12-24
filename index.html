@@ -2903,8 +2903,8 @@
         </div>
 
         <div id="perfilTab" class="tab-content">
-            <!-- Container principal com flex-wrap para mobile -->
-            <div class="follow-stats" style="justify-content: flex-start; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+            <!-- Linha 1: Índice HoloSpot + Botões -->
+            <div class="perfil-top-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
                 <!-- Card Índice HoloSpot -->
                 <div id="holoSpotIndexCard" onclick="showHoloSpotIndexModal()" style="
                     background: white;
@@ -2937,20 +2937,8 @@
                     </div>
                 </div>
                 
-                <!-- Cards Seguindo/Seguidores -->
-                <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
-                    <div class="follow-stat" onclick="showFollowingModal()">
-                        <div class="follow-number" id="followingCount">0</div>
-                        <div class="follow-label">Seguindo</div>
-                    </div>
-                    <div class="follow-stat" onclick="showFollowersModal()">
-                        <div class="follow-number" id="followersCount">0</div>
-                        <div class="follow-label">Seguidores</div>
-                    </div>
-                </div>
-                
-                <!-- Botões de Ação -->
-                <div style="display: flex; gap: 12px; margin-left: auto;">
+                <!-- Botões de Ação (direita) -->
+                <div style="display: flex; gap: 10px; flex-shrink: 0;">
                     <!-- Botão Gerenciar Comunidades (apenas para community_owner) -->
                     <button id="manageCommunityBtn" onclick="openManageCommunityModal()" style="
                         background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
@@ -2985,6 +2973,18 @@
                     " onmouseover="this.style.transform='scale(1.1) rotate(90deg)'; this.style.boxShadow='0 6px 20px rgba(30, 64, 175, 0.6)';" onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.boxShadow='0 4px 12px rgba(30, 64, 175, 0.4)';">
                         ⚙️
                     </button>
+                </div>
+            </div>
+            
+            <!-- Linha 2: Cards Seguindo/Seguidores -->
+            <div class="follow-stats" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                <div class="follow-stat" onclick="showFollowingModal()">
+                    <div class="follow-number" id="followingCount">0</div>
+                    <div class="follow-label">Seguindo</div>
+                </div>
+                <div class="follow-stat" onclick="showFollowersModal()">
+                    <div class="follow-number" id="followersCount">0</div>
+                    <div class="follow-label">Seguidores</div>
                 </div>
             </div>
             
