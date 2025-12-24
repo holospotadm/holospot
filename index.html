@@ -4058,41 +4058,29 @@
                 window.isLoadingPosts = false;
                 window.feedInitialized = false; // Flag para evitar loadPosts antes de verificar default_feed
                 
-                // MOSTRAR LOGIN IMEDIATAMENTE para evitar tela branca
-                console.log('👤 Mostrando tela de login...');
-                showLogin();
+                // Configurar event listeners primeiro
                 setupEventListeners();
                 
-                // Verificar sessão em background (não bloqueia a UI)
-                console.log('🔍 Verificando sessão em background...');
-                
-                let session = null;
-                let error = null;
+                // Verificar sessão - o onAuthStateChange vai cuidar do resto
+                console.log('🔍 Verificando sessão...');
                 
                 try {
-                    // Timeout de 3 segundos para não travar
-                    const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Timeout')), 3000)
-                    );
-                    const sessionPromise = supabaseClient.auth.getSession();
+                    const { data: { session }, error } = await supabaseClient.auth.getSession();
                     
-                    const result = await Promise.race([sessionPromise, timeoutPromise]);
-                    session = result.data?.session;
-                    error = result.error;
-                    console.log('🔍 getSession retornou:', { session: !!session, error });
-                } catch (e) {
-                    console.warn('⚠️ getSession falhou ou timeout:', e.message);
-                    // Não é erro crítico, usuário pode fazer login manualmente
-                    return;
-                }
-                
-                if (error) {
-                    console.error('❌ Erro ao verificar sessão:', error);
-                    return; // Já está na tela de login
-                }
-                
-                if (session) {
-                    console.log('✅ Usuário logado encontrado:', session.user.email);
+                    if (error) {
+                        console.error('❌ Erro ao verificar sessão:', error);
+                        showLogin();
+                        return;
+                    }
+                    
+                    if (!session) {
+                        console.log('👤 Nenhuma sessão encontrada, mostrando login...');
+                        showLogin();
+                        return;
+                    }
+                    
+                    // Sessão encontrada - onAuthStateChange vai processar
+                    console.log('✅ Sessão encontrada:', session.user.email);
                     currentUser = session.user;
                     showApp();
                     
@@ -4202,14 +4190,11 @@
                     } catch (error) {
                         console.error('❌ Erro ao atualizar estatísticas:', error);
                     }
-                } else {
-                    console.log('👤 Nenhum usuário logado, mostrando tela de login');
+                } catch (sessionError) {
+                    console.error('❌ Erro ao verificar sessão:', sessionError);
                     showLogin();
                 }
-
-                // Setup event listeners
-                console.log('🎯 Configurando event listeners...');
-                setupEventListeners();
+                
                 console.log('✅ HoloSpot v8 carregado com sucesso!');
                 
             } catch (error) {
