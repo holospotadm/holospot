@@ -139,11 +139,11 @@ BEGIN
     
     -- Participantes nas correntes do usuário
     IF v_chains_created > 0 THEN
-        SELECT COUNT(DISTINCT cp.user_id) INTO v_chain_participants
+        SELECT COUNT(DISTINCT cp.author_id) INTO v_chain_participants
         FROM chain_posts cp
         INNER JOIN chains c ON cp.chain_id = c.id
         WHERE c.creator_id = p_user_id
-        AND cp.user_id != p_user_id;
+        AND cp.author_id != p_user_id;
     END IF;
     
     -- Calcular impacto (normalizado 0-100)
