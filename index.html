@@ -1566,17 +1566,16 @@
             }
 
             .follow-stats {
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 0.5rem !important;
                 align-items: stretch;
             }
             
-            /* Container dos cards Seguindo/Seguidores no mobile */
-            #perfilTab .follow-stats > div:nth-child(2) {
-                display: flex;
-                justify-content: flex-start;
-                gap: 0.5rem;
+            .follow-stats .follow-stat {
+                flex: 1 !important;
+                min-width: 0 !important;
             }
             
             /* Reorganizar APENAS a aba Perfil no mobile */
