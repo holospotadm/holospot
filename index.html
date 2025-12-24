@@ -1064,6 +1064,32 @@
                 grid-template-columns: repeat(5, 1fr);
                 gap: 0.8rem;
             }
+            
+            /* Desktop: Alinhar linha superior com cards de métricas */
+            /* Índice HoloSpot = Posts Criados (1 coluna) */
+            /* Seguindo+Seguidores = Pessoas Destacadas (1 coluna) */
+            .perfil-left-group {
+                display: flex;
+                gap: 0.8rem;
+            }
+            
+            #holoSpotIndexCard {
+                flex: 1;
+                max-width: calc(20% - 0.64rem);
+            }
+            
+            .follow-stats-desktop {
+                flex: 1;
+                max-width: calc(20% - 0.64rem);
+                display: flex !important;
+                gap: 0.4rem;
+            }
+            
+            .follow-stats-desktop .follow-stat {
+                flex: 1;
+                min-width: 0;
+                padding: 0.6rem 0.4rem;
+            }
         }
 
         .stat-card {
