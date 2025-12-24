@@ -2896,38 +2896,15 @@
 
         <div id="perfilTab" class="tab-content">
             <div class="follow-stats" style="justify-content: space-between; align-items: flex-start;">
-                <!-- Card Índice HoloSpot (esquerda) -->
-                <div id="holoSpotIndexCard" class="holospot-index-card holospot-level-observando" onclick="showHoloSpotIndexModal()">
-                    <div class="holospot-index-header">
-                        <span class="holospot-index-title">Índice HoloSpot</span>
-                        <span class="holospot-index-info" title="Seu índice de bem-estar social">ℹ️</span>
+                <!-- Card Índice HoloSpot (esquerda) - mesmo estilo dos cards Seguindo/Seguidores -->
+                <div id="holoSpotIndexCard" class="holospot-index-card" onclick="showHoloSpotIndexModal()">
+                    <div class="holospot-index-title">
+                        Índice HoloSpot <span class="holospot-index-info" title="Clique para ver detalhes">ℹ️</span>
                     </div>
-                    <div class="holospot-index-main">
-                        <div class="holospot-gauge-container">
-                            <svg viewBox="0 0 36 36" width="70" height="70">
-                                <circle class="holospot-gauge-bg" cx="18" cy="18" r="14"></circle>
-                                <circle id="holoSpotGaugeFill" class="holospot-gauge-fill" cx="18" cy="18" r="14" 
-                                    stroke="var(--holospot-color, #9CA3AF)" 
-                                    stroke-dasharray="88" 
-                                    stroke-dashoffset="88"></circle>
-                            </svg>
-                            <div class="holospot-gauge-text">
-                                <div id="holoSpotGaugeValue" class="holospot-gauge-value">--</div>
-                            </div>
-                        </div>
-                        <div class="holospot-index-details">
-                            <div class="holospot-level">
-                                <span id="holoSpotLevelEmoji" class="holospot-level-emoji">👁️</span>
-                                <span id="holoSpotLevelName" class="holospot-level-name">Carregando...</span>
-                            </div>
-                            <div id="holoSpotNextLevel" class="holospot-next-level"></div>
-                            <div class="holospot-progress-bar">
-                                <div id="holoSpotProgressFill" class="holospot-progress-fill" style="width: 0%; background: var(--holospot-color, #9CA3AF);"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="holoSpotHistoryChart" class="holospot-history-chart">
-                        <!-- Barras do histórico serão inseridas via JS -->
+                    <div id="holoSpotIndexValue" class="holospot-index-value">--</div>
+                    <div class="holospot-index-label">
+                        <span id="holoSpotLevelEmoji" class="holospot-level-emoji">👁️</span>
+                        <span id="holoSpotLevelName" class="holospot-level-name">Carregando...</span>
                     </div>
                 </div>
                 
@@ -19536,95 +19513,42 @@ async function updateHoloSpotIndex() {
         // Renderizar o card com os dados
         renderHoloSpotIndex(data);
         
-        // Salvar no histórico local (simulação - em produção seria no banco)
-        saveHoloSpotHistory(data.index);
-        
-        // Renderizar gráfico de histórico
-        renderHoloSpotHistoryChart(data.level);
-        
     } catch (err) {
         console.error('❌ Erro ao atualizar Índice HoloSpot:', err);
         renderHoloSpotIndexError();
     }
 }
 
-// Renderizar o card do Índice HoloSpot
+// Renderizar o card do Índice HoloSpot (design simplificado)
 function renderHoloSpotIndex(data) {
     const card = document.getElementById('holoSpotIndexCard');
-    const gaugeValue = document.getElementById('holoSpotGaugeValue');
-    const gaugeFill = document.getElementById('holoSpotGaugeFill');
+    const indexValue = document.getElementById('holoSpotIndexValue');
     const levelEmoji = document.getElementById('holoSpotLevelEmoji');
     const levelName = document.getElementById('holoSpotLevelName');
-    const nextLevel = document.getElementById('holoSpotNextLevel');
-    const progressFill = document.getElementById('holoSpotProgressFill');
     
     if (!card) return;
     
     const index = data.index || 0;
     const level = data.level || 'Observando';
     const emoji = data.emoji || '👁️';
-    const color = HOLOSPOT_LEVEL_COLORS[level] || '#9CA3AF';
     
-    // Atualizar classe de cor do card
-    card.className = 'holospot-index-card holospot-level-' + level.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    
-    // Atualizar valor do gauge
-    if (gaugeValue) {
-        gaugeValue.textContent = Math.round(index);
+    // Atualizar valor do índice
+    if (indexValue) {
+        indexValue.textContent = Math.round(index);
     }
     
-    // Animar o gauge circular
-    if (gaugeFill) {
-        const circumference = 2 * Math.PI * 14; // r=14
-        const offset = circumference - (index / 100) * circumference;
-        gaugeFill.style.stroke = color;
-        gaugeFill.style.strokeDasharray = circumference;
-        gaugeFill.style.strokeDashoffset = offset;
-    }
-    
-    // Atualizar emoji e nome do nível
+    // Atualizar emoji e nome
     if (levelEmoji) levelEmoji.textContent = emoji;
-    if (levelName) {
-        levelName.textContent = level;
-        levelName.style.color = color;
-    }
-    
-    // Atualizar próximo nível
-    if (nextLevel) {
-        if (data.next_level && data.points_to_next > 0) {
-            nextLevel.textContent = `${data.next_emoji} Faltam ${data.points_to_next} pts para ${data.next_level}`;
-            nextLevel.style.display = 'block';
-        } else if (level === 'Sustentando') {
-            nextLevel.textContent = '✨ Nível máximo alcançado!';
-            nextLevel.style.display = 'block';
-        } else {
-            nextLevel.style.display = 'none';
-        }
-    }
-    
-    // Atualizar barra de progresso dentro do nível atual
-    if (progressFill) {
-        const levelMin = data.level_min || 0;
-        const levelMax = data.level_max || 15;
-        const levelRange = levelMax - levelMin + 1;
-        const progressInLevel = ((index - levelMin) / levelRange) * 100;
-        progressFill.style.width = Math.min(progressInLevel, 100) + '%';
-        progressFill.style.background = color;
-    }
-    
-    // Definir variável CSS para cor
-    card.style.setProperty('--holospot-color', color);
+    if (levelName) levelName.textContent = level;
 }
 
 // Renderizar estado de erro
 function renderHoloSpotIndexError() {
-    const gaugeValue = document.getElementById('holoSpotGaugeValue');
+    const indexValue = document.getElementById('holoSpotIndexValue');
     const levelName = document.getElementById('holoSpotLevelName');
-    const nextLevel = document.getElementById('holoSpotNextLevel');
     
-    if (gaugeValue) gaugeValue.textContent = '--';
-    if (levelName) levelName.textContent = 'Erro ao carregar';
-    if (nextLevel) nextLevel.style.display = 'none';
+    if (indexValue) indexValue.textContent = '--';
+    if (levelName) levelName.textContent = 'Erro';
 }
 
 // Salvar histórico do índice (localStorage para simulação)
@@ -19745,7 +19669,7 @@ function showHoloSpotIndexModal() {
                         <div style="text-align: center; margin-bottom: 20px;">
                             <div style="font-size: 4rem; font-weight: bold; color: ${color};">${Math.round(index)}</div>
                             <div style="font-size: 1.5rem; margin-top: 5px;">${emoji} ${level}</div>
-                            ${data.next_level ? `<div style="font-size: 0.9rem; color: #888; margin-top: 8px;">Faltam ${data.points_to_next} pontos para ${data.next_emoji} ${data.next_level}</div>` : '<div style="font-size: 0.9rem; color: #888; margin-top: 8px;">✨ Nível máximo alcançado!</div>'}
+                            <div style="font-size: 0.85rem; color: #888; margin-top: 8px;">Seu índice de bem-estar social</div>
                         </div>
                         
                         <!-- Componentes -->
@@ -19775,9 +19699,9 @@ function showHoloSpotIndexModal() {
                             </div>
                         </div>
                         
-                        <!-- Escala de Níveis -->
+                        <!-- Escala do Índice -->
                         <div style="background: #f8f9fa; border-radius: 12px; padding: 15px;">
-                            <h4 style="margin-bottom: 10px; color: #333; font-size: 0.9rem;">Níveis de Bem-Estar Social</h4>
+                            <h4 style="margin-bottom: 10px; color: #333; font-size: 0.9rem;">Escala do Índice</h4>
                             <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; opacity: ${level === 'Observando' ? '1' : '0.5'};">
                                     <span>👁️ Observando</span><span style="color: #9CA3AF;">0-15</span>
