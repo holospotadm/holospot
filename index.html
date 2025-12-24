@@ -2896,15 +2896,30 @@
 
         <div id="perfilTab" class="tab-content">
             <div class="follow-stats" style="justify-content: space-between; align-items: flex-start;">
-                <!-- Card Índice HoloSpot (esquerda) - mesmo estilo dos cards Seguindo/Seguidores -->
+                <!-- Card Índice HoloSpot (esquerda) - design diferenciado -->
                 <div id="holoSpotIndexCard" class="holospot-index-card" onclick="showHoloSpotIndexModal()">
-                    <div class="holospot-index-title">
-                        Índice HoloSpot <span class="holospot-index-info" title="Clique para ver detalhes">ℹ️</span>
+                    <div class="holospot-index-header">
+                        <span class="holospot-index-title">Índice HoloSpot</span>
+                        <span class="holospot-index-info" title="Clique para ver detalhes">ℹ️</span>
                     </div>
-                    <div id="holoSpotIndexValue" class="holospot-index-value">--</div>
-                    <div class="holospot-index-label">
-                        <span id="holoSpotLevelEmoji" class="holospot-level-emoji">👁️</span>
-                        <span id="holoSpotLevelName" class="holospot-level-name">Carregando...</span>
+                    <div class="holospot-index-main">
+                        <div id="holoSpotIndexValue" class="holospot-index-value">--</div>
+                        <div class="holospot-index-details">
+                            <div class="holospot-index-label">
+                                <span id="holoSpotLevelEmoji" class="holospot-level-emoji">👁️</span>
+                                <span id="holoSpotLevelName" class="holospot-level-name">Carregando...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="holospot-progress-container">
+                        <div class="holospot-progress-bar">
+                            <div id="holoSpotProgressFill" class="holospot-progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="holospot-progress-markers">
+                            <span>0</span>
+                            <span>50</span>
+                            <span>100</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -19519,12 +19534,13 @@ async function updateHoloSpotIndex() {
     }
 }
 
-// Renderizar o card do Índice HoloSpot (design simplificado)
+// Renderizar o card do Índice HoloSpot
 function renderHoloSpotIndex(data) {
     const card = document.getElementById('holoSpotIndexCard');
     const indexValue = document.getElementById('holoSpotIndexValue');
     const levelEmoji = document.getElementById('holoSpotLevelEmoji');
     const levelName = document.getElementById('holoSpotLevelName');
+    const progressFill = document.getElementById('holoSpotProgressFill');
     
     if (!card) return;
     
@@ -19540,6 +19556,11 @@ function renderHoloSpotIndex(data) {
     // Atualizar emoji e nome
     if (levelEmoji) levelEmoji.textContent = emoji;
     if (levelName) levelName.textContent = level;
+    
+    // Atualizar barra de progresso
+    if (progressFill) {
+        progressFill.style.width = Math.min(index, 100) + '%';
+    }
 }
 
 // Renderizar estado de erro

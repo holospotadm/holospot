@@ -1,133 +1,152 @@
 /* =====================================================
    ÍNDICE HOLOSPOT - CSS
    Card de bem-estar social na aba Perfil
-   Design limpo e integrado
+   Design diferenciado mas harmonioso
    ===================================================== */
 
-/* Card principal - mesmo estilo dos cards Seguindo/Seguidores */
+/* Card principal - estilo card branco com destaque */
 .holospot-index-card {
-    text-align: center;
+    background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.2);
     cursor: pointer;
-    padding: 1rem;
-    border-radius: 10px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Borda superior colorida */
+.holospot-index-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff9800, #ff5722, #ff9800);
+    border-radius: 16px 16px 0 0;
 }
 
 .holospot-index-card:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.2);
+    border-color: rgba(255, 152, 0, 0.4);
 }
 
-/* Título pequeno */
-.holospot-index-title {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.3rem;
+/* Header com título */
+.holospot-index-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+}
+
+.holospot-index-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .holospot-index-info {
-    font-size: 0.7rem;
-    opacity: 0.7;
+    font-size: 0.85rem;
+    opacity: 0.5;
     cursor: help;
+    transition: opacity 0.2s;
 }
 
-/* Número do índice - grande e destacado */
+.holospot-index-info:hover {
+    opacity: 1;
+}
+
+/* Área principal */
+.holospot-index-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Número do índice */
 .holospot-index-value {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    line-height: 1.1;
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+/* Área de detalhes */
+.holospot-index-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
 }
 
 /* Label com emoji e nome */
 .holospot-index-label {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    margin-top: 0.2rem;
+    gap: 0.4rem;
 }
 
 .holospot-level-emoji {
-    font-size: 1rem;
+    font-size: 1.3rem;
 }
 
 .holospot-level-name {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Modal de detalhes do índice */
-.holospot-modal-content {
-    max-width: 400px;
-}
-
-.holospot-components {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 1rem;
-}
-
-.holospot-component-card {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-}
-
-.holospot-component-value {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1rem;
+    font-weight: 600;
     color: #333;
 }
 
-.holospot-component-label {
-    font-size: 0.75rem;
-    color: #666;
-    margin-top: 4px;
+/* Barra de progresso horizontal */
+.holospot-progress-container {
+    width: 100%;
+    margin-top: 0.5rem;
 }
 
-.holospot-component-bar {
-    height: 4px;
-    background: #e0e0e0;
-    border-radius: 2px;
-    margin-top: 8px;
+.holospot-progress-bar {
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
     overflow: hidden;
+    position: relative;
 }
 
-.holospot-component-bar-fill {
+.holospot-progress-fill {
     height: 100%;
-    border-radius: 2px;
-    transition: width 0.5s ease;
+    background: linear-gradient(90deg, #ff9800, #ff5722);
+    border-radius: 3px;
+    transition: width 0.8s ease-out;
+}
+
+.holospot-progress-markers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 0.65rem;
+    color: #aaa;
 }
 
 /* Responsivo */
 @media (max-width: 480px) {
     .holospot-index-card {
-        min-width: 120px;
-        padding: 0.8rem;
+        min-width: 160px;
+        padding: 1rem;
     }
     
     .holospot-index-value {
-        font-size: 1.5rem;
+        font-size: 2.2rem;
     }
     
     .holospot-level-name {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 }
