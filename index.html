@@ -3564,6 +3564,19 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Seção Deletar Conta -->
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #fee2e2;">
+                <h4 style="margin-bottom: 1rem; color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                    ⚠️ Zona de Perigo
+                </h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                    Ao deletar sua conta, todos os seus dados serão permanentemente removidos, incluindo posts, comentários e interações. Esta ação não pode ser desfeita.
+                </p>
+                <button type="button" onclick="confirmDeleteAccount()" style="padding: 10px 20px; background: #fee2e2; color: #dc2626; border: 2px solid #dc2626; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#dc2626'; this.style.color='white';" onmouseout="this.style.background='#fee2e2'; this.style.color='#dc2626';">
+                    🗑️ Deletar Minha Conta
+                </button>
+            </div>
             </div>
             
             <!-- Botões fixos no rodapé -->
@@ -6788,6 +6801,134 @@
             if (message) message.textContent = '';
             
             console.log('❌ Modal de configurações fechado');
+        }
+
+        // ========================================
+        // DELETAR CONTA
+        // ========================================
+        
+        async function confirmDeleteAccount() {
+            // Primeira confirmação
+            const confirm1 = confirm('⚠️ ATENÇÃO!\n\nVocê está prestes a deletar sua conta permanentemente.\n\nTodos os seus dados serão removidos:\n- Posts\n- Comentários\n- Feedbacks\n- Notificações\n- Seguidores/Seguindo\n\nDeseja continuar?');
+            
+            if (!confirm1) return;
+            
+            // Segunda confirmação com digitação
+            const confirmText = prompt('🚨 CONFIRMAÇÃO FINAL\n\nDigite "DELETAR" para confirmar a exclusão permanente da sua conta:');
+            
+            if (confirmText !== 'DELETAR') {
+                if (confirmText !== null) {
+                    alert('Texto incorreto. A conta NÃO foi deletada.');
+                }
+                return;
+            }
+            
+            // Executar deleção
+            await deleteAccount();
+        }
+        
+        async function deleteAccount() {
+            try {
+                const userId = currentUser.id;
+                console.log('🗑️ Iniciando deleção da conta:', userId);
+                
+                // Mostrar loading
+                const btn = document.querySelector('button[onclick="confirmDeleteAccount()"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '⏳ Deletando...';
+                }
+                
+                // 1. Anonimizar participações em correntes (não deletar)
+                console.log('🔗 Anonimizando participações em correntes...');
+                await supabaseClient
+                    .from('chain_participations')
+                    .update({ user_id: null })
+                    .eq('user_id', userId);
+                
+                // 2. Anonimizar correntes criadas pelo usuário
+                console.log('🔗 Anonimizando correntes criadas...');
+                await supabaseClient
+                    .from('chains')
+                    .update({ created_by: null })
+                    .eq('created_by', userId);
+                
+                // 3. Deletar feedbacks do usuário
+                console.log('👍 Deletando feedbacks...');
+                await supabaseClient
+                    .from('feedbacks')
+                    .delete()
+                    .eq('user_id', userId);
+                
+                // 4. Deletar comentários do usuário
+                console.log('💬 Deletando comentários...');
+                await supabaseClient
+                    .from('comments')
+                    .delete()
+                    .eq('user_id', userId);
+                
+                // 5. Deletar notificações do usuário (enviadas e recebidas)
+                console.log('🔔 Deletando notificações...');
+                await supabaseClient
+                    .from('notifications')
+                    .delete()
+                    .or(`user_id.eq.${userId},from_user_id.eq.${userId}`);
+                
+                // 6. Deletar follows (seguindo e seguidores)
+                console.log('👥 Deletando relações de follow...');
+                await supabaseClient
+                    .from('follows')
+                    .delete()
+                    .or(`follower_id.eq.${userId},following_id.eq.${userId}`);
+                
+                // 7. Deletar mensagens do chat
+                console.log('📬 Deletando mensagens...');
+                await supabaseClient
+                    .from('messages')
+                    .delete()
+                    .eq('sender_id', userId);
+                
+                // 8. Deletar participações em comunidades
+                console.log('👨‍👩‍👧‍👦 Deletando participações em comunidades...');
+                await supabaseClient
+                    .from('community_members')
+                    .delete()
+                    .eq('user_id', userId);
+                
+                // 9. Deletar posts do usuário
+                console.log('📝 Deletando posts...');
+                await supabaseClient
+                    .from('posts')
+                    .delete()
+                    .eq('user_id', userId);
+                
+                // 10. Deletar perfil
+                console.log('👤 Deletando perfil...');
+                await supabaseClient
+                    .from('profiles')
+                    .delete()
+                    .eq('id', userId);
+                
+                console.log('✅ Todos os dados deletados com sucesso!');
+                
+                // 11. Fazer logout
+                alert('✅ Sua conta foi deletada com sucesso. Você será desconectado.');
+                await supabaseClient.auth.signOut();
+                
+                // Recarregar página
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('❌ Erro ao deletar conta:', error);
+                alert('❌ Erro ao deletar conta. Tente novamente ou entre em contato com o suporte.');
+                
+                // Restaurar botão
+                const btn = document.querySelector('button[onclick="confirmDeleteAccount()"]');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '🗑️ Deletar Minha Conta';
+                }
+            }
         }
 
         // ========================================
