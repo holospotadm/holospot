@@ -20544,22 +20544,36 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     
     // Copiar todos os códigos
     function copyAllInviteCodes() {
-        const list = document.getElementById('generatedCodesList');
-        if (!list) return;
+        // Usar códigos salvos ou buscar dos elementos code
+        let codes = [];
         
-        const codes = Array.from(list.querySelectorAll('span')).map(s => s.textContent).join('\n');
+        if (window.lastGeneratedCodes && window.lastGeneratedCodes.length > 0) {
+            codes = window.lastGeneratedCodes;
+        } else {
+            const list = document.getElementById('generatedCodesList');
+            if (list) {
+                codes = Array.from(list.querySelectorAll('code')).map(c => c.textContent);
+            }
+        }
         
-        navigator.clipboard.writeText(codes).then(() => {
-            showToast('Todos os códigos copiados!');
+        if (codes.length === 0) {
+            showToast('Nenhum código para copiar');
+            return;
+        }
+        
+        const codesText = codes.join('\n');
+        
+        navigator.clipboard.writeText(codesText).then(() => {
+            showToast(`${codes.length} código(s) copiado(s)!`);
         }).catch(() => {
             // Fallback
             const textarea = document.createElement('textarea');
-            textarea.value = codes;
+            textarea.value = codesText;
             document.body.appendChild(textarea);
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
-            showToast('Todos os códigos copiados!');
+            showToast(`${codes.length} código(s) copiado(s)!`);
         });
     }
     
