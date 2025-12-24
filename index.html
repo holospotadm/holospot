@@ -19797,27 +19797,32 @@ function showHoloSpotIndexModal() {
                         
                         <!-- Componentes -->
                         <div style="margin-bottom: 20px;">
-                            <h4 style="margin-bottom: 12px; color: #333;">Componentes do Índice</h4>
+                            <h4 style="margin-bottom: 8px; color: #333;">Componentes do Índice</h4>
+                            <p style="font-size: 0.7rem; color: #888; margin-bottom: 12px;">Toque em um componente para ver a descrição</p>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; " title="Reconhecimento que você recebe: holofotes, diversidade de pessoas que te destacam e variedade de tipos de reconhecimento">
+                                <div class="holospot-component" onclick="toggleComponentDesc(this)" data-desc="Reconhecimento que você recebe: holofotes, diversidade de pessoas que te destacam e variedade de tipos de reconhecimento" style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s;" title="Reconhecimento que você recebe: holofotes, diversidade de pessoas que te destacam e variedade de tipos de reconhecimento">
                                     <div style="font-size: 1.5rem; font-weight: bold; color: #34D399;">${Math.round(components.positivity || 0)}</div>
                                     <div style="font-size: 0.75rem; color: #666;">Positividade Recebida</div>
                                     <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.positivity || 0}%; background: #34D399; border-radius: 2px;"></div></div>
+                                    <div class="component-desc" style="display: none; font-size: 0.7rem; color: #555; margin-top: 8px; text-align: left; padding-top: 8px; border-top: 1px solid #e0e0e0;"></div>
                                 </div>
-                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; " title="Qualidade dos seus relacionamentos: pessoas que você destaca e que também te destacam de volta">
+                                <div class="holospot-component" onclick="toggleComponentDesc(this)" data-desc="Qualidade dos seus relacionamentos: pessoas que você destaca e que também te destacam de volta" style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s;" title="Qualidade dos seus relacionamentos: pessoas que você destaca e que também te destacam de volta">
                                     <div style="font-size: 1.5rem; font-weight: bold; color: #60A5FA;">${Math.round(components.reciprocity || 0)}</div>
                                     <div style="font-size: 0.75rem; color: #666;">Reciprocidade</div>
                                     <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.reciprocity || 0}%; background: #60A5FA; border-radius: 2px;"></div></div>
+                                    <div class="component-desc" style="display: none; font-size: 0.7rem; color: #555; margin-top: 8px; text-align: left; padding-top: 8px; border-top: 1px solid #e0e0e0;"></div>
                                 </div>
-                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; " title="Sua contribuição para a comunidade: pessoas destacadas, reações geradas e participação em correntes">
+                                <div class="holospot-component" onclick="toggleComponentDesc(this)" data-desc="Sua contribuição para a comunidade: pessoas destacadas, reações geradas e participação em correntes" style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s;" title="Sua contribuição para a comunidade: pessoas destacadas, reações geradas e participação em correntes">
                                     <div style="font-size: 1.5rem; font-weight: bold; color: #F97316;">${Math.round(components.impact || 0)}</div>
                                     <div style="font-size: 0.75rem; color: #666;">Impacto Gerado</div>
                                     <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.impact || 0}%; background: #F97316; border-radius: 2px;"></div></div>
+                                    <div class="component-desc" style="display: none; font-size: 0.7rem; color: #555; margin-top: 8px; text-align: left; padding-top: 8px; border-top: 1px solid #e0e0e0;"></div>
                                 </div>
-                                <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; " title="Seu crescimento ao longo do tempo: streak de engajamento e tempo ativo na plataforma">
+                                <div class="holospot-component" onclick="toggleComponentDesc(this)" data-desc="Seu crescimento ao longo do tempo: streak de engajamento e tempo ativo na plataforma" style="background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s;" title="Seu crescimento ao longo do tempo: streak de engajamento e tempo ativo na plataforma">
                                     <div style="font-size: 1.5rem; font-weight: bold; color: #FBBF24;">${Math.round(components.evolution || 0)}</div>
                                     <div style="font-size: 0.75rem; color: #666;">Evolução</div>
                                     <div style="height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 8px;"><div style="height: 100%; width: ${components.evolution || 0}%; background: #FBBF24; border-radius: 2px;"></div></div>
+                                    <div class="component-desc" style="display: none; font-size: 0.7rem; color: #555; margin-top: 8px; text-align: left; padding-top: 8px; border-top: 1px solid #e0e0e0;"></div>
                                 </div>
                             </div>
                         </div>
@@ -19866,10 +19871,35 @@ function closeHoloSpotIndexModal() {
     if (modal) modal.remove();
 }
 
+// Toggle descrição do componente (para mobile)
+function toggleComponentDesc(element) {
+    const descDiv = element.querySelector('.component-desc');
+    const desc = element.getAttribute('data-desc');
+    
+    // Fechar todas as outras descrições abertas
+    document.querySelectorAll('.holospot-component .component-desc').forEach(d => {
+        if (d !== descDiv) {
+            d.style.display = 'none';
+            d.parentElement.style.background = '#f8f9fa';
+        }
+    });
+    
+    // Toggle a descrição atual
+    if (descDiv.style.display === 'none') {
+        descDiv.textContent = desc;
+        descDiv.style.display = 'block';
+        element.style.background = '#e8f4f8';
+    } else {
+        descDiv.style.display = 'none';
+        element.style.background = '#f8f9fa';
+    }
+}
+
 // Exportar funções globalmente
 window.updateHoloSpotIndex = updateHoloSpotIndex;
 window.showHoloSpotIndexModal = showHoloSpotIndexModal;
 window.closeHoloSpotIndexModal = closeHoloSpotIndexModal;
+window.toggleComponentDesc = toggleComponentDesc;
 
 console.log('✅ Módulo Índice HoloSpot carregado');
 
