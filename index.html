@@ -20442,7 +20442,14 @@ console.log('✅ Módulo Índice HoloSpot carregado');
                 .select('*', { count: 'exact', head: true })
                 .not('used_at', 'is', null);
             
-            // Atualizar UI
+            // Buscar códigos disponíveis (não usados)
+            const { data: availableCodes, error: codesError } = await supabaseClient
+                .from('invites')
+                .select('code, created_at')
+                .is('used_at', null)
+                .order('created_at', { ascending: false });
+            
+            // Atualizar UI - estatísticas
             const totalEl = document.getElementById('statsTotalInvites');
             const usedEl = document.getElementById('statsUsedInvites');
             const availableEl = document.getElementById('statsAvailableInvites');
@@ -20450,6 +20457,28 @@ console.log('✅ Módulo Índice HoloSpot carregado');
             if (totalEl) totalEl.textContent = total || 0;
             if (usedEl) usedEl.textContent = used || 0;
             if (availableEl) availableEl.textContent = (total || 0) - (used || 0);
+            
+            // Atualizar UI - lista de códigos disponíveis
+            const container = document.getElementById('generatedCodesContainer');
+            const list = document.getElementById('generatedCodesList');
+            
+            if (container && list && availableCodes && availableCodes.length > 0) {
+                // Salvar códigos para função de copiar todos
+                window.lastGeneratedCodes = availableCodes.map(c => c.code);
+                
+                list.innerHTML = availableCodes.map(invite => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: white; border-radius: 6px; margin-bottom: 6px;">
+                        <code style="font-family: monospace; font-size: 14px; color: #333; font-weight: 600;">${invite.code}</code>
+                        <button onclick="copyInviteCode('${invite.code}')" style="background: #667eea; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            Copiar
+                        </button>
+                    </div>
+                `).join('');
+                
+                container.style.display = 'block';
+            } else if (container) {
+                container.style.display = 'none';
+            }
             
         } catch (err) {
             console.error('❌ Erro ao carregar estatísticas:', err);
