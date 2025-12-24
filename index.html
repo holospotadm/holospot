@@ -4058,6 +4058,9 @@
         let notifications = [];
         let following = [];
         
+        // Flag global para controlar se a inicialização já processou a sessão
+        window.sessionProcessedByInit = false;
+        
         // ===== SISTEMA DE PILHA DE MODAIS PARA ESC =====
         const modalStack = [];
         let globalEscHandler = null;
@@ -4224,6 +4227,7 @@
                     }
                     
                     console.log('✅ Perfil encontrado, continuando...');
+                    window.sessionProcessedByInit = true; // Marcar que a inicialização processou a sessão
                     showApp();
                     
                     try {
@@ -14207,9 +14211,14 @@
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 
-                // SISTEMA DE CONVITES: Verificar se usuário tem perfil (apenas para novos logins via Google)
-                // A verificação principal já é feita no DOMContentLoaded
-                // Aqui só verificamos se o app já foi mostrado (para evitar duplicação)
+                // Se a inicialização já processou a sessão, ignorar este evento
+                // Isso evita duplicação em refresh
+                if (window.sessionProcessedByInit) {
+                    console.log('✅ Sessão já processada pela inicialização, ignorando onAuthStateChange');
+                    return;
+                }
+                
+                // Se o app já foi mostrado, ignorar
                 if (isAppAlreadyShown) {
                     console.log('✅ App já mostrado, ignorando SIGNED_IN duplicado');
                     return;
