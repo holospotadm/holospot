@@ -3953,10 +3953,13 @@
     </div>
     
     <!-- Modal de Código de Convite -->
-    <div id="inviteCodeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; max-width: 400px; width: 90%; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+    <div id="inviteCodeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; max-width: 400px; width: 90%; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative;">
+            <!-- Botão X para fechar -->
+            <button onclick="cancelInviteAndLogout()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'; this.style.color='#333';" onmouseout="this.style.background='none'; this.style.color='#999';">×</button>
+            
             <div style="margin-bottom: 20px;">
-                <img src="./holospot_logo_cropped-Photoroom.png" alt="HoloSpot" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                <img src="./holospot_logo_cropped-Photoroom.png" alt="HoloSpot" style="width: 100px; height: auto; margin-bottom: 10px; object-fit: contain;">
                 <h2 style="margin: 0; color: #333;">Bem-vindo ao HoloSpot!</h2>
                 <p style="color: #666; margin-top: 10px;">O HoloSpot é uma rede exclusiva por convite.</p>
             </div>
@@ -3979,13 +3982,6 @@
                 <button onclick="showWaitlistModal()" 
                         style="background: none; border: 2px solid #667eea; color: #667eea; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">
                     Entrar na Lista de Espera
-                </button>
-            </div>
-            
-            <div style="margin-top: 16px;">
-                <button onclick="cancelInviteAndLogout()" 
-                        style="background: none; border: none; color: #999; font-size: 12px; cursor: pointer;">
-                    Cancelar e sair
                 </button>
             </div>
         </div>
@@ -4236,11 +4232,12 @@
                         .single();
                     
                     if (profileError || !userProfile) {
-                        // Usuário não tem perfil - mostrar modal de convite
-                        console.log('📝 Usuário sem perfil, mostrando modal de convite...');
+                        // Usuário não tem perfil - fazer logout e mostrar tela de login
+                        // Isso acontece quando o usuário dá refresh sem completar o convite
+                        console.log('📝 Usuário sem perfil, fazendo logout...');
                         window.initializationInProgress = false;
-                        pendingGoogleEmail = session.user.email;
-                        showInviteCodeModal();
+                        await supabaseClient.auth.signOut();
+                        showLogin();
                         return; // Não continuar com o carregamento do app
                     }
                     
@@ -14380,6 +14377,7 @@
                 
                 if (profileError || !profile) {
                     // Usuário não tem perfil - mostrar modal de convite
+                    // Isso só acontece em novo login (não em refresh)
                     console.log('📝 Usuário sem perfil, mostrando modal de convite...');
                     pendingGoogleEmail = session.user.email;
                     showInviteCodeModal();
@@ -20275,11 +20273,19 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     
     // Mostrar modal de código de convite
     function showInviteCodeModal() {
+        // Esconder o app/header
+        const appContainer = document.getElementById('app-container');
+        const loginScreen = document.getElementById('login-screen');
+        if (appContainer) appContainer.style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'none';
+        
         const modal = document.getElementById('inviteCodeModal');
         if (modal) {
             modal.style.display = 'flex';
-            document.getElementById('inviteCodeInput').value = '';
-            document.getElementById('inviteCodeError').style.display = 'none';
+            const input = document.getElementById('inviteCodeInput');
+            const error = document.getElementById('inviteCodeError');
+            if (input) input.value = '';
+            if (error) error.style.display = 'none';
         }
     }
     
