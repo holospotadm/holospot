@@ -3508,6 +3508,62 @@
                 </div>
                 
             </form>
+            
+            <!-- Seção Admin de Convites -->
+            <div id="adminInviteSection" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e5e7eb;">
+                <h4 style="margin-bottom: 1rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                    🎟️ Gerar Códigos de Convite
+                </h4>
+                
+                <!-- Estatísticas -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #16a34a;" id="statsTotalInvites">0</div>
+                        <div style="font-size: 12px; color: #666;">Total</div>
+                    </div>
+                    <div style="background: #fef3c7; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #d97706;" id="statsUsedInvites">0</div>
+                        <div style="font-size: 12px; color: #666;">Usados</div>
+                    </div>
+                    <div style="background: #dbeafe; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #2563eb;" id="statsAvailableInvites">0</div>
+                        <div style="font-size: 12px; color: #666;">Disponíveis</div>
+                    </div>
+                </div>
+                
+                <!-- Gerar convites -->
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <select id="inviteQuantity" style="padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+                        <option value="1">1 convite</option>
+                        <option value="5">5 convites</option>
+                        <option value="10">10 convites</option>
+                        <option value="20">20 convites</option>
+                    </select>
+                    <button onclick="generateInviteCodes(parseInt(document.getElementById('inviteQuantity').value))" 
+                            style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        Gerar Convites
+                    </button>
+                </div>
+                
+                <!-- Códigos gerados -->
+                <div id="generatedCodesContainer" style="display: none; background: #f8f9fa; border-radius: 12px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-weight: 600; color: #333;">Códigos Gerados:</span>
+                        <button onclick="copyAllInviteCodes()" style="background: #e5e7eb; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+                            📋 Copiar Todos
+                        </button>
+                    </div>
+                    <div id="generatedCodesList" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                
+                <!-- Lista de espera -->
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #666; font-size: 14px;">📝 Lista de Espera:</span>
+                        <span style="font-weight: 600; color: #333;" id="statsWaitlistCount">0</span>
+                    </div>
+                </div>
+            </div>
             </div>
             
             <!-- Botões fixos no rodapé -->
@@ -3888,6 +3944,74 @@
             </div>
         </div>
     </div>
+    
+    <!-- Modal de Código de Convite -->
+    <div id="inviteCodeModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <img src="./holospot_logo_cropped-Photoroom.png" alt="HoloSpot" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                <h2 style="margin: 0; color: #333;">Bem-vindo ao HoloSpot!</h2>
+                <p style="color: #666; margin-top: 10px;">O HoloSpot é uma rede exclusiva por convite.</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; text-align: left; margin-bottom: 8px; font-weight: 600; color: #333;">Código de Convite:</label>
+                <input type="text" id="inviteCodeInput" placeholder="HOLO-XXXXXX" 
+                       oninput="formatInviteCode(this)"
+                       style="width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 18px; text-align: center; letter-spacing: 2px; font-family: monospace; box-sizing: border-box;">
+                <p id="inviteCodeError" style="color: #ef4444; font-size: 14px; margin-top: 8px; display: none;"></p>
+            </div>
+            
+            <button onclick="validateInviteCode()" 
+                    style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 16px;">
+                Entrar
+            </button>
+            
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                <p style="color: #666; font-size: 14px; margin-bottom: 12px;">Não tem um código?</p>
+                <button onclick="showWaitlistModal()" 
+                        style="background: none; border: 2px solid #667eea; color: #667eea; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">
+                    Entrar na Lista de Espera
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Lista de Espera -->
+    <div id="waitlistModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <span style="font-size: 48px;">📝</span>
+                <h2 style="margin: 10px 0; color: #333;">Lista de Espera</h2>
+                <p style="color: #666;">Deixe seu email e avisaremos quando houver uma vaga!</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <input type="email" id="waitlistEmail" placeholder="seu@email.com" 
+                       style="width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
+                <p id="waitlistError" style="color: #ef4444; font-size: 14px; margin-top: 8px; display: none;"></p>
+                <p id="waitlistSuccess" style="color: #10b981; font-size: 14px; margin-top: 8px; display: none;">✅ Você foi adicionado à lista de espera!</p>
+            </div>
+            
+            <button onclick="submitWaitlist()" 
+                    style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 16px;">
+                Entrar na Lista
+            </button>
+            
+            <button onclick="backToInviteCode()" 
+                    style="background: none; border: none; color: #667eea; font-size: 14px; cursor: pointer;">
+                ← Voltar
+            </button>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                <button onclick="closeWaitlistAndLogout()" 
+                        style="background: none; border: none; color: #999; font-size: 12px; cursor: pointer;">
+                    Cancelar e sair
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://dwcmrbrhyuflhtymbhll.supabase.co';
@@ -6614,6 +6738,11 @@
                 // Avatar preview
                 const avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=667eea&color=fff&size=200`;
                 if (avatarPreview) avatarPreview.src = avatarUrl;
+                
+                // Verificar se usuário é admin e mostrar seção de convites
+                if (typeof checkAndShowAdminSection === 'function') {
+                    checkAndShowAdminSection();
+                }
             }, 10);
             console.log('⚙️ Modal de configurações aberto', profile);
         }
@@ -14058,6 +14187,24 @@
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 
+                // SISTEMA DE CONVITES: Verificar se usuário tem perfil
+                console.log('🔍 Verificando se usuário tem perfil...');
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (profileError || !profile) {
+                    // Usuário não tem perfil - mostrar modal de convite
+                    console.log('📝 Usuário sem perfil, mostrando modal de convite...');
+                    pendingGoogleEmail = session.user.email;
+                    showInviteCodeModal();
+                    return; // Não continuar com o carregamento do app
+                }
+                
+                console.log('✅ Perfil encontrado, continuando...');
+                
                 // Só mostrar app se ainda não foi mostrado (evita limpar tela ao mudar aba)
                 if (!isAppAlreadyShown) {
                     showApp();
@@ -14094,6 +14241,7 @@
                 showLogin();
                 isInitialLoad = true; // Reset para próximo login
                 isAppAlreadyShown = false; // Reset para próximo login
+                pendingGoogleEmail = null; // Limpar email pendente
             }
          });
         
@@ -19911,6 +20059,415 @@ window.toggleComponentDesc = toggleComponentDesc;
 
 console.log('✅ Módulo Índice HoloSpot carregado');
 
+    </script>
+    
+    <!-- Script de Sistema de Convites -->
+    <script>
+    // ==================== SISTEMA DE CONVITES ====================
+    
+    // Lista de IDs de admins que podem gerar convites
+    const ADMIN_USER_IDS = [
+        'e1eda873-5c70-49c1-b141-91e6e3928edf' // Admin principal
+    ];
+    
+    // Variável para armazenar email do Google para waitlist
+    let pendingGoogleEmail = null;
+    
+    // Formatar código de convite enquanto digita
+    function formatInviteCode(input) {
+        let value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        
+        // Adicionar prefixo HOLO- automaticamente
+        if (value.length > 4) {
+            value = 'HOLO-' + value.substring(4);
+        } else if (value.length > 0 && !value.startsWith('HOLO')) {
+            value = 'HOLO-' + value;
+        } else if (value.length <= 4) {
+            value = value.substring(0, 4);
+        }
+        
+        // Limitar a 11 caracteres (HOLO-XXXXXX)
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+        
+        input.value = value;
+    }
+    
+    // Mostrar modal de código de convite
+    function showInviteCodeModal() {
+        const modal = document.getElementById('inviteCodeModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.getElementById('inviteCodeInput').value = '';
+            document.getElementById('inviteCodeError').style.display = 'none';
+        }
+    }
+    
+    // Fechar modal de código de convite
+    function closeInviteCodeModal() {
+        const modal = document.getElementById('inviteCodeModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Mostrar modal de lista de espera
+    function showWaitlistModal() {
+        closeInviteCodeModal();
+        const modal = document.getElementById('waitlistModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            // Preencher email se tiver do Google
+            if (pendingGoogleEmail) {
+                document.getElementById('waitlistEmail').value = pendingGoogleEmail;
+            } else if (currentUser && currentUser.email) {
+                document.getElementById('waitlistEmail').value = currentUser.email;
+            }
+            document.getElementById('waitlistError').style.display = 'none';
+            document.getElementById('waitlistSuccess').style.display = 'none';
+        }
+    }
+    
+    // Voltar para modal de código
+    function backToInviteCode() {
+        const waitlistModal = document.getElementById('waitlistModal');
+        if (waitlistModal) {
+            waitlistModal.style.display = 'none';
+        }
+        showInviteCodeModal();
+    }
+    
+    // Validar código de convite
+    async function validateInviteCode() {
+        const input = document.getElementById('inviteCodeInput');
+        const errorEl = document.getElementById('inviteCodeError');
+        const code = input.value.trim().toUpperCase();
+        
+        // Validar formato
+        if (!code.match(/^HOLO-[A-Z0-9]{6}$/)) {
+            errorEl.textContent = 'Código inválido. Formato: HOLO-XXXXXX';
+            errorEl.style.display = 'block';
+            return;
+        }
+        
+        errorEl.style.display = 'none';
+        input.style.borderColor = '#e5e7eb';
+        
+        try {
+            // Verificar se código existe e não foi usado
+            const { data: invite, error: inviteError } = await supabaseClient
+                .from('invites')
+                .select('*')
+                .eq('code', code)
+                .single();
+            
+            if (inviteError || !invite) {
+                errorEl.textContent = 'Código de convite não encontrado.';
+                errorEl.style.display = 'block';
+                input.style.borderColor = '#ef4444';
+                return;
+            }
+            
+            if (invite.used_at) {
+                errorEl.textContent = 'Este código já foi utilizado.';
+                errorEl.style.display = 'block';
+                input.style.borderColor = '#ef4444';
+                return;
+            }
+            
+            // Código válido! Criar perfil do usuário
+            console.log('✅ Código válido! Criando perfil...');
+            
+            if (!currentUser) {
+                throw new Error('Usuário não autenticado');
+            }
+            
+            // Criar perfil manualmente
+            const { error: profileError } = await supabaseClient
+                .from('profiles')
+                .insert({
+                    id: currentUser.id,
+                    email: currentUser.email,
+                    name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Usuário',
+                    avatar_url: currentUser.user_metadata?.avatar_url || null,
+                    invited_by: invite.created_by,
+                    invite_code_used: code
+                });
+            
+            if (profileError) {
+                throw profileError;
+            }
+            
+            // Marcar convite como usado
+            const { error: updateError } = await supabaseClient
+                .from('invites')
+                .update({
+                    used_at: new Date().toISOString(),
+                    used_by: currentUser.id
+                })
+                .eq('id', invite.id);
+            
+            if (updateError) {
+                console.error('Erro ao marcar convite como usado:', updateError);
+            }
+            
+            // Fechar modal e continuar
+            closeInviteCodeModal();
+            
+            // Recarregar a página para iniciar o app normalmente
+            window.location.reload();
+            
+        } catch (err) {
+            console.error('❌ Erro ao validar convite:', err);
+            errorEl.textContent = 'Erro ao validar código. Tente novamente.';
+            errorEl.style.display = 'block';
+        }
+    }
+    
+    // Submeter para lista de espera
+    async function submitWaitlist() {
+        const emailInput = document.getElementById('waitlistEmail');
+        const errorEl = document.getElementById('waitlistError');
+        const email = emailInput.value.trim().toLowerCase();
+        
+        if (!email || !email.includes('@')) {
+            errorEl.textContent = 'Por favor, insira um email válido.';
+            errorEl.style.display = 'block';
+            return;
+        }
+        
+        errorEl.style.display = 'none';
+        
+        try {
+            // Verificar se email já está na lista
+            const { data: existing } = await supabaseClient
+                .from('waitlist')
+                .select('id')
+                .eq('email', email)
+                .single();
+            
+            if (existing) {
+                // Já está na lista
+                document.getElementById('waitlistSuccess').textContent = '✅ Você já está na lista de espera!';
+                document.getElementById('waitlistSuccess').style.display = 'block';
+                return;
+            }
+            
+            // Inserir na lista de espera
+            const { error: insertError } = await supabaseClient
+                .from('waitlist')
+                .insert({
+                    email: email,
+                    google_id: currentUser?.id || null,
+                    google_name: currentUser?.user_metadata?.full_name || null
+                });
+            
+            if (insertError) {
+                throw insertError;
+            }
+            
+            document.getElementById('waitlistSuccess').style.display = 'block';
+            
+        } catch (err) {
+            console.error('❌ Erro ao adicionar à lista de espera:', err);
+            errorEl.textContent = 'Erro ao adicionar à lista. Tente novamente.';
+            errorEl.style.display = 'block';
+        }
+    }
+    
+    // Fechar waitlist e fazer logout
+    async function closeWaitlistAndLogout() {
+        const modal = document.getElementById('waitlistModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        // Fazer logout do Google
+        await supabaseClient.auth.signOut();
+        pendingGoogleEmail = null;
+    }
+    
+    // Verificar se usuário é admin
+    function isUserAdmin(userId) {
+        return ADMIN_USER_IDS.includes(userId);
+    }
+    
+    // Gerar código aleatório
+    function generateRandomCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = 'HOLO-';
+        for (let i = 0; i < 6; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+    }
+    
+    // Gerar convites (admin)
+    async function generateInviteCodes(quantity = 1) {
+        if (!currentUser || !isUserAdmin(currentUser.id)) {
+            alert('Você não tem permissão para gerar convites.');
+            return;
+        }
+        
+        const codes = [];
+        
+        try {
+            for (let i = 0; i < quantity; i++) {
+                const code = generateRandomCode();
+                
+                const { error } = await supabaseClient
+                    .from('invites')
+                    .insert({
+                        code: code,
+                        created_by: currentUser.id
+                    });
+                
+                if (!error) {
+                    codes.push(code);
+                }
+            }
+            
+            // Mostrar códigos gerados
+            const container = document.getElementById('generatedCodesContainer');
+            const list = document.getElementById('generatedCodesList');
+            
+            if (list && container) {
+                list.innerHTML = codes.map(code => 
+                    `<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: white; border-radius: 6px; margin-bottom: 6px;">
+                        <span style="color: #333;">${code}</span>
+                        <button onclick="copyInviteCode('${code}')" style="background: none; border: none; cursor: pointer; font-size: 16px;" title="Copiar">📋</button>
+                    </div>`
+                ).join('');
+                
+                container.style.display = 'block';
+            }
+            
+            // Atualizar estatísticas
+            loadInviteStats();
+            
+            console.log(`✅ ${codes.length} convites gerados com sucesso!`);
+            
+        } catch (err) {
+            console.error('❌ Erro ao gerar convites:', err);
+            alert('Erro ao gerar convites. Tente novamente.');
+        }
+    }
+    
+    // Copiar um código de convite
+    function copyInviteCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            showToast('Código copiado!');
+        }).catch(() => {
+            // Fallback
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Código copiado!');
+        });
+    }
+    
+    // Copiar todos os códigos
+    function copyAllInviteCodes() {
+        const list = document.getElementById('generatedCodesList');
+        if (!list) return;
+        
+        const codes = Array.from(list.querySelectorAll('span')).map(s => s.textContent).join('\n');
+        
+        navigator.clipboard.writeText(codes).then(() => {
+            showToast('Todos os códigos copiados!');
+        }).catch(() => {
+            // Fallback
+            const textarea = document.createElement('textarea');
+            textarea.value = codes;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Todos os códigos copiados!');
+        });
+    }
+    
+    // Carregar estatísticas de convites
+    async function loadInviteStats() {
+        try {
+            // Total de convites
+            const { count: total } = await supabaseClient
+                .from('invites')
+                .select('*', { count: 'exact', head: true });
+            
+            // Convites usados
+            const { count: used } = await supabaseClient
+                .from('invites')
+                .select('*', { count: 'exact', head: true })
+                .not('used_at', 'is', null);
+            
+            // Atualizar UI
+            const totalEl = document.getElementById('statsTotalInvites');
+            const usedEl = document.getElementById('statsUsedInvites');
+            const availableEl = document.getElementById('statsAvailableInvites');
+            
+            if (totalEl) totalEl.textContent = total || 0;
+            if (usedEl) usedEl.textContent = used || 0;
+            if (availableEl) availableEl.textContent = (total || 0) - (used || 0);
+            
+        } catch (err) {
+            console.error('❌ Erro ao carregar estatísticas:', err);
+        }
+    }
+    
+    // Carregar estatísticas da lista de espera
+    async function loadWaitlistStats() {
+        try {
+            const { count } = await supabaseClient
+                .from('waitlist')
+                .select('*', { count: 'exact', head: true });
+            
+            const el = document.getElementById('statsWaitlistCount');
+            if (el) el.textContent = count || 0;
+            
+        } catch (err) {
+            console.error('❌ Erro ao carregar lista de espera:', err);
+        }
+    }
+    
+    // Verificar e mostrar seção admin
+    function checkAndShowAdminSection() {
+        if (!currentUser) return;
+        
+        const adminSection = document.getElementById('adminInviteSection');
+        if (adminSection) {
+            if (isUserAdmin(currentUser.id)) {
+                adminSection.style.display = 'block';
+                loadInviteStats();
+                loadWaitlistStats();
+            } else {
+                adminSection.style.display = 'none';
+            }
+        }
+    }
+    
+    // Exportar funções globalmente
+    window.formatInviteCode = formatInviteCode;
+    window.showInviteCodeModal = showInviteCodeModal;
+    window.closeInviteCodeModal = closeInviteCodeModal;
+    window.showWaitlistModal = showWaitlistModal;
+    window.backToInviteCode = backToInviteCode;
+    window.validateInviteCode = validateInviteCode;
+    window.submitWaitlist = submitWaitlist;
+    window.closeWaitlistAndLogout = closeWaitlistAndLogout;
+    window.generateInviteCodes = generateInviteCodes;
+    window.copyInviteCode = copyInviteCode;
+    window.copyAllInviteCodes = copyAllInviteCodes;
+    window.loadInviteStats = loadInviteStats;
+    window.loadWaitlistStats = loadWaitlistStats;
+    window.checkAndShowAdminSection = checkAndShowAdminSection;
+    window.isUserAdmin = isUserAdmin;
+    
+    console.log('✅ Sistema de Convites carregado');
     </script>
 
 </body>
