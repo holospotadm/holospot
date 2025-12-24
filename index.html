@@ -14182,28 +14182,36 @@
         // Listen for auth state changes
         let isInitialLoad = true;
         let isAppAlreadyShown = false; // Evitar recarregamento ao mudar aba
+        let profileCheckedThisSession = false; // Flag para verificar perfil apenas uma vez por sessão
         
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            console.log('🔔 Auth state change:', event);
+            
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 
                 // SISTEMA DE CONVITES: Verificar se usuário tem perfil
-                console.log('🔍 Verificando se usuário tem perfil...');
-                const { data: profile, error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .select('id')
-                    .eq('id', session.user.id)
-                    .single();
-                
-                if (profileError || !profile) {
-                    // Usuário não tem perfil - mostrar modal de convite
-                    console.log('📝 Usuário sem perfil, mostrando modal de convite...');
-                    pendingGoogleEmail = session.user.email;
-                    showInviteCodeModal();
-                    return; // Não continuar com o carregamento do app
+                // Só verificar se ainda não verificou nesta sessão (evita verificar em refresh)
+                if (!profileCheckedThisSession) {
+                    console.log('🔍 Verificando se usuário tem perfil...');
+                    const { data: profile, error: profileError } = await supabaseClient
+                        .from('profiles')
+                        .select('id')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    profileCheckedThisSession = true;
+                    
+                    if (profileError || !profile) {
+                        // Usuário não tem perfil - mostrar modal de convite
+                        console.log('📝 Usuário sem perfil, mostrando modal de convite...');
+                        pendingGoogleEmail = session.user.email;
+                        showInviteCodeModal();
+                        return; // Não continuar com o carregamento do app
+                    }
+                    
+                    console.log('✅ Perfil encontrado, continuando...');
                 }
-                
-                console.log('✅ Perfil encontrado, continuando...');
                 
                 // Só mostrar app se ainda não foi mostrado (evita limpar tela ao mudar aba)
                 if (!isAppAlreadyShown) {
@@ -14241,6 +14249,7 @@
                 showLogin();
                 isInitialLoad = true; // Reset para próximo login
                 isAppAlreadyShown = false; // Reset para próximo login
+                profileCheckedThisSession = false; // Reset para próximo login
                 pendingGoogleEmail = null; // Limpar email pendente
             }
          });
