@@ -4058,8 +4058,9 @@
         let notifications = [];
         let following = [];
         
-        // Flag global para controlar se a inicialização já processou a sessão
-        window.sessionProcessedByInit = false;
+        // Flag global para controlar se a inicialização está em andamento
+        // Começa como true para bloquear onAuthStateChange até a inicialização terminar
+        window.initializationInProgress = true;
         
         // ===== SISTEMA DE PILHA DE MODAIS PARA ESC =====
         const modalStack = [];
@@ -4196,12 +4197,14 @@
                     
                     if (error) {
                         console.error('❌ Erro ao verificar sessão:', error);
+                        window.initializationInProgress = false;
                         showLogin();
                         return;
                     }
                     
                     if (!session) {
                         console.log('👤 Nenhuma sessão encontrada, mostrando login...');
+                        window.initializationInProgress = false;
                         showLogin();
                         return;
                     }
@@ -4221,13 +4224,14 @@
                     if (profileError || !userProfile) {
                         // Usuário não tem perfil - mostrar modal de convite
                         console.log('📝 Usuário sem perfil, mostrando modal de convite...');
+                        window.initializationInProgress = false;
                         pendingGoogleEmail = session.user.email;
                         showInviteCodeModal();
                         return; // Não continuar com o carregamento do app
                     }
                     
                     console.log('✅ Perfil encontrado, continuando...');
-                    window.sessionProcessedByInit = true; // Marcar que a inicialização processou a sessão
+                    window.initializationInProgress = false; // Marcar fim da inicialização
                     showApp();
                     
                     try {
@@ -14211,10 +14215,10 @@
             if (event === 'SIGNED_IN') {
                 currentUser = session.user;
                 
-                // Se a inicialização já processou a sessão, ignorar este evento
-                // Isso evita duplicação em refresh
-                if (window.sessionProcessedByInit) {
-                    console.log('✅ Sessão já processada pela inicialização, ignorando onAuthStateChange');
+                // Se a inicialização está em andamento, ignorar este evento
+                // A inicialização já vai processar a sessão
+                if (window.initializationInProgress) {
+                    console.log('✅ Inicialização em andamento, ignorando onAuthStateChange');
                     return;
                 }
                 
