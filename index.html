@@ -3981,6 +3981,13 @@
                     Entrar na Lista de Espera
                 </button>
             </div>
+            
+            <div style="margin-top: 16px;">
+                <button onclick="cancelInviteAndLogout()" 
+                        style="background: none; border: none; color: #999; font-size: 12px; cursor: pointer;">
+                    Cancelar e sair
+                </button>
+            </div>
         </div>
     </div>
     
@@ -20448,6 +20455,19 @@ console.log('✅ Módulo Índice HoloSpot carregado');
         }
     }
     
+    // Cancelar convite e fazer logout
+    async function cancelInviteAndLogout() {
+        const modal = document.getElementById('inviteCodeModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        // Fazer logout do Google
+        await supabaseClient.auth.signOut();
+        pendingGoogleEmail = null;
+        showLogin();
+    }
+    
     // Fechar waitlist e fazer logout
     async function closeWaitlistAndLogout() {
         const modal = document.getElementById('waitlistModal');
@@ -20458,6 +20478,7 @@ console.log('✅ Módulo Índice HoloSpot carregado');
         // Fazer logout do Google
         await supabaseClient.auth.signOut();
         pendingGoogleEmail = null;
+        showLogin();
     }
     
     // Verificar se usuário é admin
@@ -20674,6 +20695,7 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     window.validateInviteCode = validateInviteCode;
     window.submitWaitlist = submitWaitlist;
     window.closeWaitlistAndLogout = closeWaitlistAndLogout;
+    window.cancelInviteAndLogout = cancelInviteAndLogout;
     window.generateInviteCodes = generateInviteCodes;
     window.copyInviteCode = copyInviteCode;
     window.copyAllInviteCodes = copyAllInviteCodes;
