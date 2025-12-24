@@ -1583,10 +1583,14 @@
                 display: none !important;
             }
             
-            /* Mobile: reorganizar perfil-left-group em coluna */
+            /* Mobile: perfil-top-row fica em linha com Índice e botões */
+            .perfil-top-row {
+                flex-wrap: nowrap !important;
+            }
+            
+            /* Mobile: perfil-left-group só mostra o Índice (Seguindo/Seguidores fica na linha 2) */
             .perfil-left-group {
-                flex-direction: column !important;
-                width: 100%;
+                flex-wrap: nowrap !important;
             }
             
             /* Reorganizar APENAS a aba Perfil no mobile */
