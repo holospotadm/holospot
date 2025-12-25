@@ -20272,11 +20272,19 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     
     // Mostrar modal de código de convite
     function showInviteCodeModal() {
-        // Esconder o app/header
-        const appContainer = document.getElementById('app-container');
-        const loginScreen = document.getElementById('login-screen');
+        // Esconder TUDO - app, header, navigação
+        const appContainer = document.getElementById('appContainer');
+        const loginScreen = document.getElementById('loginScreen');
+        const header = document.querySelector('.header');
+        const navTabs = document.querySelector('.nav-tabs');
+        
         if (appContainer) appContainer.style.display = 'none';
         if (loginScreen) loginScreen.style.display = 'none';
+        if (header) header.style.display = 'none';
+        if (navTabs) navTabs.style.display = 'none';
+        
+        // Esconder qualquer outro elemento visível
+        document.body.style.overflow = 'hidden';
         
         const modal = document.getElementById('inviteCodeModal');
         if (modal) {
