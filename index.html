@@ -4232,12 +4232,11 @@
                         .single();
                     
                     if (profileError || !userProfile) {
-                        // Usuário não tem perfil - fazer logout e mostrar tela de login
-                        // Isso acontece quando o usuário dá refresh sem completar o convite
-                        console.log('📝 Usuário sem perfil, fazendo logout...');
+                        // Usuário não tem perfil - mostrar modal de convite
+                        console.log('📝 Usuário sem perfil, mostrando modal de convite...');
                         window.initializationInProgress = false;
-                        await supabaseClient.auth.signOut();
-                        showLogin();
+                        pendingGoogleEmail = session.user.email;
+                        showInviteCodeModal();
                         return; // Não continuar com o carregamento do app
                     }
                     
