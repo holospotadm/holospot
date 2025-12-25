@@ -3558,7 +3558,7 @@
                 
                 <!-- Lista de espera -->
                 <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div onclick="openWaitlistViewModal()" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
                         <span style="color: #666; font-size: 14px;">📝 Lista de Espera:</span>
                         <span style="font-weight: 600; color: #333;" id="statsWaitlistCount">0</span>
                     </div>
@@ -3988,36 +3988,48 @@
     </div>
     
     <!-- Modal de Lista de Espera -->
-    <div id="waitlistModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; max-width: 400px; width: 90%; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+    <div id="waitlistModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; max-width: 400px; width: 90%; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative;">
+            <!-- Botão X para fechar -->
+            <button onclick="closeWaitlistAndLogout()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'; this.style.color='#333';" onmouseout="this.style.background='none'; this.style.color='#999';">×</button>
+            
             <div style="margin-bottom: 20px;">
                 <span style="font-size: 48px;">📝</span>
                 <h2 style="margin: 10px 0; color: #333;">Lista de Espera</h2>
-                <p style="color: #666;">Deixe seu email e avisaremos quando houver uma vaga!</p>
+                <p style="color: #666;">Você será notificado quando houver uma vaga!</p>
             </div>
             
             <div style="margin-bottom: 20px;">
-                <input type="email" id="waitlistEmail" placeholder="seu@email.com" 
-                       style="width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box;">
+                <label style="display: block; text-align: left; margin-bottom: 8px; font-weight: 600; color: #333;">Seu email:</label>
+                <div id="waitlistEmailDisplay" style="width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box; background: #f9fafb; color: #333; text-align: center;"></div>
                 <p id="waitlistError" style="color: #ef4444; font-size: 14px; margin-top: 8px; display: none;"></p>
                 <p id="waitlistSuccess" style="color: #10b981; font-size: 14px; margin-top: 8px; display: none;">✅ Você foi adicionado à lista de espera!</p>
             </div>
             
-            <button onclick="submitWaitlist()" 
+            <button id="waitlistSubmitBtn" onclick="submitWaitlist()" 
                     style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 16px;">
                 Entrar na Lista
             </button>
             
             <button onclick="backToInviteCode()" 
                     style="background: none; border: none; color: #667eea; font-size: 14px; cursor: pointer;">
-                ← Voltar
+                ← Tenho um código
             </button>
+        </div>
+    </div>
+    
+    <!-- Modal de Visualização da Lista de Espera -->
+    <div id="waitlistViewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; justify-content: center; align-items: center;">
+        <div style="background: white; max-width: 500px; width: 90%; max-height: 80vh; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column;">
+            <!-- Header -->
+            <div style="padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #333;">📝 Lista de Espera</h3>
+                <button onclick="closeWaitlistViewModal()" style="background: none; border: none; font-size: 24px; color: #999; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='none'">×</button>
+            </div>
             
-            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-                <button onclick="closeWaitlistAndLogout()" 
-                        style="background: none; border: none; color: #999; font-size: 12px; cursor: pointer;">
-                    Cancelar e sair
-                </button>
+            <!-- Content -->
+            <div id="waitlistViewContent" style="padding: 20px 24px; overflow-y: auto; flex: 1;">
+                <p style="color: #666; text-align: center;">Carregando...</p>
             </div>
         </div>
     </div>
@@ -20310,14 +20322,23 @@ console.log('✅ Módulo Índice HoloSpot carregado');
         const modal = document.getElementById('waitlistModal');
         if (modal) {
             modal.style.display = 'flex';
-            // Preencher email se tiver do Google
-            if (pendingGoogleEmail) {
-                document.getElementById('waitlistEmail').value = pendingGoogleEmail;
-            } else if (currentUser && currentUser.email) {
-                document.getElementById('waitlistEmail').value = currentUser.email;
+            // Mostrar email do Google (não editável)
+            const emailDisplay = document.getElementById('waitlistEmailDisplay');
+            if (emailDisplay) {
+                if (pendingGoogleEmail) {
+                    emailDisplay.textContent = pendingGoogleEmail;
+                } else if (currentUser && currentUser.email) {
+                    emailDisplay.textContent = currentUser.email;
+                }
             }
             document.getElementById('waitlistError').style.display = 'none';
             document.getElementById('waitlistSuccess').style.display = 'none';
+            // Resetar botão
+            const btn = document.getElementById('waitlistSubmitBtn');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Entrar na Lista';
+            }
         }
     }
     
@@ -20419,9 +20440,9 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     
     // Submeter para lista de espera
     async function submitWaitlist() {
-        const emailInput = document.getElementById('waitlistEmail');
+        const emailDisplay = document.getElementById('waitlistEmailDisplay');
         const errorEl = document.getElementById('waitlistError');
-        const email = emailInput.value.trim().toLowerCase();
+        const email = (pendingGoogleEmail || (currentUser && currentUser.email) || '').trim().toLowerCase();
         
         if (!email || !email.includes('@')) {
             errorEl.textContent = 'Por favor, insira um email válido.';
@@ -20595,7 +20616,7 @@ console.log('✅ Módulo Índice HoloSpot carregado');
             return;
         }
         
-        const codesText = codes.join('\n');
+        const codesText = codes.join(', ');
         
         navigator.clipboard.writeText(codesText).then(() => {
             showToast(`${codes.length} código(s) copiado(s)!`);
@@ -20716,6 +20737,71 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     window.loadWaitlistStats = loadWaitlistStats;
     window.checkAndShowAdminSection = checkAndShowAdminSection;
     window.isUserAdmin = isUserAdmin;
+    
+    // Funções para modal de visualização da lista de espera
+    async function openWaitlistViewModal() {
+        const modal = document.getElementById('waitlistViewModal');
+        const content = document.getElementById('waitlistViewContent');
+        
+        if (!modal || !content) return;
+        
+        modal.style.display = 'flex';
+        content.innerHTML = '<p style="color: #666; text-align: center;">Carregando...</p>';
+        
+        try {
+            const { data: waitlist, error } = await supabaseClient
+                .from('waitlist')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            if (!waitlist || waitlist.length === 0) {
+                content.innerHTML = '<p style="color: #666; text-align: center;">Nenhum email na lista de espera.</p>';
+                return;
+            }
+            
+            content.innerHTML = waitlist.map((item, index) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${index % 2 === 0 ? '#f9fafb' : 'white'}; border-radius: 8px; margin-bottom: 8px;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500; color: #333;">${item.email}</div>
+                        <div style="font-size: 12px; color: #999;">${new Date(item.created_at).toLocaleDateString('pt-BR')} ${new Date(item.created_at).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</div>
+                        ${item.google_name ? `<div style="font-size: 12px; color: #666;">👤 ${item.google_name}</div>` : ''}
+                    </div>
+                    <button onclick="copyWaitlistEmail('${item.email}')" style="background: #667eea; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                        Copiar
+                    </button>
+                </div>
+            `).join('');
+            
+        } catch (err) {
+            console.error('❌ Erro ao carregar lista de espera:', err);
+            content.innerHTML = '<p style="color: #ef4444; text-align: center;">Erro ao carregar lista de espera.</p>';
+        }
+    }
+    
+    function closeWaitlistViewModal() {
+        const modal = document.getElementById('waitlistViewModal');
+        if (modal) modal.style.display = 'none';
+    }
+    
+    function copyWaitlistEmail(email) {
+        navigator.clipboard.writeText(email).then(() => {
+            showToast('Email copiado!');
+        }).catch(() => {
+            const textarea = document.createElement('textarea');
+            textarea.value = email;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Email copiado!');
+        });
+    }
+    
+    window.openWaitlistViewModal = openWaitlistViewModal;
+    window.closeWaitlistViewModal = closeWaitlistViewModal;
+    window.copyWaitlistEmail = copyWaitlistEmail;
     
     console.log('✅ Sistema de Convites carregado');
     </script>
