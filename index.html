@@ -20425,6 +20425,20 @@ console.log('✅ Módulo Índice HoloSpot carregado');
                 console.error('Erro ao marcar convite como usado:', updateError);
             }
             
+            // Remover da lista de espera (se estiver)
+            if (currentUser.email) {
+                const { error: waitlistError } = await supabaseClient
+                    .from('waitlist')
+                    .delete()
+                    .eq('email', currentUser.email.toLowerCase());
+                
+                if (waitlistError) {
+                    console.log('Usuário não estava na lista de espera ou erro ao remover:', waitlistError);
+                } else {
+                    console.log('✅ Usuário removido da lista de espera');
+                }
+            }
+            
             // Fechar modal e continuar
             closeInviteCodeModal();
             
