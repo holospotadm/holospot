@@ -14372,9 +14372,17 @@
                     return;
                 }
                 
-                // Se o app já foi mostrado, ignorar
+                // Se o app já foi mostrado, ignorar (verificação robusta)
                 if (isAppAlreadyShown) {
                     console.log('✅ App já mostrado, ignorando SIGNED_IN duplicado');
+                    return;
+                }
+                
+                // Verificação adicional: se o appContainer está visível, o app já está carregado
+                const appContainer = document.getElementById('appContainer');
+                if (appContainer && appContainer.style.display !== 'none' && appContainer.offsetParent !== null) {
+                    console.log('✅ App visível, ignorando SIGNED_IN (troca de aba)');
+                    isAppAlreadyShown = true; // Garantir que a flag está correta
                     return;
                 }
                 
