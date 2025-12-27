@@ -703,6 +703,10 @@
             margin-top: 3rem;
         }
         
+        .landing-features-grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
         .landing-feature-card {
             background: #fafafa;
             padding: 2rem;
@@ -873,8 +877,15 @@
                 font-size: 1.75rem;
             }
             
-            .landing-features-grid {
+            .landing-features-grid,
+            .landing-features-grid-4 {
                 grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .landing-features-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -3109,22 +3120,22 @@
             <div class="landing-section-content">
                 <h2 class="landing-section-title">Por que somos diferentes</h2>
                 
-                <div class="landing-features-grid">
+                <div class="landing-features-grid landing-features-grid-4">
                     <div class="landing-feature-card">
                         <div class="landing-feature-icon">
                             <img src="./holofote.png" alt="Holofote" style="width: 48px; height: 48px;">
                         </div>
                         <h3 class="landing-feature-title">Holofotes</h3>
                         <p class="landing-feature-text">
-                            No HoloSpot, você não acumula seguidores, você distribui "holofotes". Ao destacar as qualidades e feitos de outras pessoas, você constrói uma reputação baseada na sua capacidade de enxergar o melhor nos outros.
+                            Aqui, o foco não é acumular seguidores. Você menciona pessoas e escolhe o tipo de holofote que quer dar, destacando-as da forma que achar mais apropriada. Quem recebe pode dar um feedback, elevando sua resposta acima dos demais comentários.
                         </p>
                     </div>
                     
                     <div class="landing-feature-card">
                         <div class="landing-feature-icon">⛓️</div>
-                        <h3 class="landing-feature-title">Correntes Colaborativas</h3>
+                        <h3 class="landing-feature-title">Correntes</h3>
                         <p class="landing-feature-text">
-                            Crie ou participe de "correntes" - projetos com objetivos claros. Seja para organizar uma ação social ou compartilhar conhecimento, as correntes transformam admiração em ação e impacto real.
+                            Participe de correntes temáticas que motivam você a destacar outras pessoas. Cada corrente gera uma onda de posts e holofotes sobre temas específicos, criando uma corrente de positividade na comunidade.
                         </p>
                     </div>
                     
@@ -3132,7 +3143,15 @@
                         <div class="landing-feature-icon">🌱</div>
                         <h3 class="landing-feature-title">Bem-Estar Social</h3>
                         <p class="landing-feature-text">
-                            Nossa plataforma é desenhada para promover interações positivas. Não há espaço para comparações tóxicas. O sucesso aqui é medido pelo impacto positivo que você gera na vida de outras pessoas.
+                            Uma plataforma pensada para o seu bem-estar e o de quem está ao seu redor. Cada interação é uma oportunidade de reconhecer, valorizar e fortalecer conexões genuinas com as pessoas que importam.
+                        </p>
+                    </div>
+                    
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon">🎮</div>
+                        <h3 class="landing-feature-title">Gamificação Divertida</h3>
+                        <p class="landing-feature-text">
+                            Conquiste badges, suba no Índice HoloSpot e desbloqueie conquistas enquanto espalha positividade. Uma forma leve e divertida de tornar o hábito de reconhecer os outros ainda mais envolvente.
                         </p>
                     </div>
                 </div>
@@ -3153,7 +3172,7 @@
                             </svg>
                         </button>
                         <div class="landing-faq-answer">
-                            <p>O HoloSpot é uma comunidade por convite. Acreditamos que um crescimento orgânico e baseado na confiança é essencial para manter a qualidade das interações. Se você se identifica com nossos valores, peça um convite a um membro ou entre na lista de espera.</p>
+                            <p>Sim! No momento, estamos em fase beta e o acesso é por convite para garantir uma experiência de qualidade aos primeiros usuários. Em breve, a plataforma estará aberta para todos. Se você se identifica com nossos valores, peça um convite a um membro ou entre na lista de espera.</p>
                         </div>
                     </div>
                     
@@ -3165,19 +3184,19 @@
                             </svg>
                         </button>
                         <div class="landing-faq-answer">
-                            <p>Cada usuário tem um número limitado de holofotes para distribuir. Isso garante que cada reconhecimento seja genuíno e significativo. Ao receber um holofote, a pessoa ganha visibilidade e reputação na rede.</p>
+                            <p>Funciona como uma menção especial: você menciona alguém e escolhe o tipo de holofote que quer dar, destacando a pessoa da maneira que achar mais apropriada. Quem recebe o holofote pode dar um feedback, e essa resposta ganha destaque acima dos demais comentários.</p>
                         </div>
                     </div>
                     
                     <div class="landing-faq-item">
                         <button class="landing-faq-question" onclick="toggleFaq(this)">
-                            <span>O que acontece nas "correntes"?</span>
+                            <span>O que são as "correntes"?</span>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </button>
                         <div class="landing-faq-answer">
-                            <p>As correntes são espaços de colaboração com início, meio e fim. Elas podem ser sobre qualquer tema, desde que tenham um objetivo construtivo. É a nossa forma de canalizar a energia da comunidade para criar algo maior.</p>
+                            <p>Correntes são desafios temáticos que motivam você a destacar outras pessoas. Cada corrente gera uma onda de posts e holofotes sobre um tema específico, criando uma corrente de positividade e engajamento na comunidade.</p>
                         </div>
                     </div>
                     
@@ -3189,7 +3208,7 @@
                             </svg>
                         </button>
                         <div class="landing-faq-answer">
-                            <p>Sim, o acesso à plataforma é gratuito. Nosso modelo de negócio futuro será baseado em ferramentas opcionais para criadores e comunidades, nunca em venda de dados ou publicidade invasiva.</p>
+                            <p>Sim, o HoloSpot é gratuito! No futuro, planejamos oferecer funcionalidades adicionais pagas para quem quiser uma experiência ainda mais completa.</p>
                         </div>
                     </div>
                 </div>
