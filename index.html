@@ -520,68 +520,341 @@
             transform: translateY(-1px);
         }
 
-        /* Login Screen */
-        .login-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Landing Page */
+        .landing-page {
+            display: none;
+            min-height: 100vh;
+            background: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Hero Section */
+        .landing-hero {
             min-height: 100vh;
             background: linear-gradient(135deg, #FFB700 0%, #E55A2B 100%);
-        }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .login-logo {
             display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .landing-nav {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            padding: 1.5rem 3rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        
+        .landing-nav-logo {
+            height: 50px;
+            width: auto;
+        }
+        
+        .landing-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .landing-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .landing-hero-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
         }
-
-        .login-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #FFB700;
-            margin-bottom: 0.5rem;
+        
+        .landing-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
         }
-
-        .login-subtitle {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
+        
+        .landing-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 600px;
         }
-
-        .google-login-btn {
+        
+        .landing-cta-btn {
             background: white;
-            border: 2px solid #ddd;
+            color: #E55A2B;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .landing-cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .landing-scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+            font-size: 0.9rem;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        /* Sections */
+        .landing-section {
+            padding: 5rem 2rem;
+        }
+        
+        .landing-section-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .landing-section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .landing-section-text {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        /* About Section */
+        .landing-about {
+            background: #fafafa;
+        }
+        
+        /* Features Section */
+        .landing-features {
+            background: white;
+        }
+        
+        .landing-features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .landing-feature-card {
+            background: #fafafa;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .landing-feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+        
+        .landing-feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .landing-feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+        
+        .landing-feature-text {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.7;
+        }
+        
+        /* FAQ Section */
+        .landing-faq {
+            background: #fafafa;
+        }
+        
+        .landing-faq-list {
+            margin-top: 2rem;
+        }
+        
+        .landing-faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+        
+        .landing-faq-question {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            background: none;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            text-align: left;
+        }
+        
+        .landing-faq-question svg {
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+        
+        .landing-faq-question.active svg {
+            transform: rotate(180deg);
+        }
+        
+        .landing-faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .landing-faq-answer.active {
+            max-height: 200px;
+        }
+        
+        .landing-faq-answer p {
+            padding: 0 1.5rem 1.25rem;
+            color: #666;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        /* CTA Section */
+        .landing-cta {
+            background: linear-gradient(135deg, #FFB700 0%, #E55A2B 100%);
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+        
+        .landing-cta-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .landing-cta-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+        
+        .google-login-btn-landing {
+            background: white;
+            border: none;
             padding: 1rem 2rem;
             border-radius: 12px;
             cursor: pointer;
             font-size: 1.1rem;
             font-weight: 600;
             color: #333;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
+            gap: 0.75rem;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
-
-        .google-login-btn:hover {
-            border-color: #4285f4;
-            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.2);
-            transform: translateY(-2px);
+        
+        .google-login-btn-landing:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Footer */
+        .landing-footer {
+            background: #333;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .landing-nav {
+                padding: 1rem 1.5rem;
+            }
+            
+            .landing-nav-logo {
+                height: 40px;
+            }
+            
+            .landing-title {
+                font-size: 2.25rem;
+            }
+            
+            .landing-subtitle {
+                font-size: 1rem;
+            }
+            
+            .landing-section {
+                padding: 3rem 1.5rem;
+            }
+            
+            .landing-section-title {
+                font-size: 1.75rem;
+            }
+            
+            .landing-features-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Main App */
@@ -2770,23 +3043,156 @@
     <link rel="stylesheet" href="holospot-index.css">
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-screen">
-        <div class="login-container">
-            <div class="login-logo">
-                <img src="./holospot_logo_cropped-Photoroom.png" style="width: 220px; height: auto;">
+    <!-- Landing Page -->
+    <div id="loginScreen" class="landing-page">
+        <!-- Hero Section -->
+        <section class="landing-hero">
+            <nav class="landing-nav">
+                <img src="./holospot_logo_cropped-Photoroom.png" alt="HoloSpot" class="landing-nav-logo">
+                <button onclick="scrollToLogin()" class="landing-nav-btn">Entrar</button>
+            </nav>
+            
+            <div class="landing-hero-content">
+                <h1 class="landing-title">A rede social que ilumina o outro.</h1>
+                <p class="landing-subtitle">Em um mundo de auto-promoção, redescubra a beleza de reconhecer e celebrar as pessoas ao seu redor.</p>
+                <button onclick="scrollToLogin()" class="landing-cta-btn">Conhecer o HoloSpot</button>
             </div>
-            <p class="login-subtitle">Colocando os holofotes nos outros</p>
-            <button id="loginBtn" class="google-login-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            
+            <div class="landing-scroll-indicator" onclick="scrollToAbout()">
+                <span>Saiba mais</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
-                Entrar com Google
-            </button>
-        </div>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section id="aboutSection" class="landing-section landing-about">
+            <div class="landing-section-content">
+                <h2 class="landing-section-title">O que é o HoloSpot?</h2>
+                <p class="landing-section-text">
+                    Cansado da busca incessante por likes e da pressão por uma vida perfeita? O HoloSpot nasce como um antídoto. Somos uma comunidade que acredita no poder do reconhecimento. Aqui, o foco não está em você, mas em quem você admira.
+                </p>
+                <p class="landing-section-text">
+                    Nossa missão é simples: criar um espaço onde a generosidade e a apreciação mútua florescem, gerando um ecossistema de bem-estar e conexões autênticas.
+                </p>
+            </div>
+        </section>
+        
+        <!-- Features Section -->
+        <section class="landing-section landing-features">
+            <div class="landing-section-content">
+                <h2 class="landing-section-title">Por que somos diferentes</h2>
+                
+                <div class="landing-features-grid">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon">
+                            <img src="./holofote.png" alt="Holofote" style="width: 48px; height: 48px;">
+                        </div>
+                        <h3 class="landing-feature-title">Holofotes</h3>
+                        <p class="landing-feature-text">
+                            No HoloSpot, você não acumula seguidores, você distribui "holofotes". Ao destacar as qualidades e feitos de outras pessoas, você constrói uma reputação baseada na sua capacidade de enxergar o melhor nos outros.
+                        </p>
+                    </div>
+                    
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon">⛓️</div>
+                        <h3 class="landing-feature-title">Correntes Colaborativas</h3>
+                        <p class="landing-feature-text">
+                            Crie ou participe de "correntes" - projetos com objetivos claros. Seja para organizar uma ação social ou compartilhar conhecimento, as correntes transformam admiração em ação e impacto real.
+                        </p>
+                    </div>
+                    
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon">🌱</div>
+                        <h3 class="landing-feature-title">Bem-Estar Social</h3>
+                        <p class="landing-feature-text">
+                            Nossa plataforma é desenhada para promover interações positivas. Não há espaço para comparações tóxicas. O sucesso aqui é medido pelo impacto positivo que você gera na vida de outras pessoas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- FAQ Section -->
+        <section class="landing-section landing-faq">
+            <div class="landing-section-content">
+                <h2 class="landing-section-title">Perguntas Frequentes</h2>
+                
+                <div class="landing-faq-list">
+                    <div class="landing-faq-item">
+                        <button class="landing-faq-question" onclick="toggleFaq(this)">
+                            <span>O HoloSpot é para todo mundo?</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="landing-faq-answer">
+                            <p>O HoloSpot é uma comunidade por convite. Acreditamos que um crescimento orgânico e baseado na confiança é essencial para manter a qualidade das interações. Se você se identifica com nossos valores, peça um convite a um membro ou entre na lista de espera.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="landing-faq-item">
+                        <button class="landing-faq-question" onclick="toggleFaq(this)">
+                            <span>Como funciona o sistema de "holofotes"?</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="landing-faq-answer">
+                            <p>Cada usuário tem um número limitado de holofotes para distribuir. Isso garante que cada reconhecimento seja genuíno e significativo. Ao receber um holofote, a pessoa ganha visibilidade e reputação na rede.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="landing-faq-item">
+                        <button class="landing-faq-question" onclick="toggleFaq(this)">
+                            <span>O que acontece nas "correntes"?</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="landing-faq-answer">
+                            <p>As correntes são espaços de colaboração com início, meio e fim. Elas podem ser sobre qualquer tema, desde que tenham um objetivo construtivo. É a nossa forma de canalizar a energia da comunidade para criar algo maior.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="landing-faq-item">
+                        <button class="landing-faq-question" onclick="toggleFaq(this)">
+                            <span>O HoloSpot é gratuito?</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="landing-faq-answer">
+                            <p>Sim, o acesso à plataforma é gratuito. Nosso modelo de negócio futuro será baseado em ferramentas opcionais para criadores e comunidades, nunca em venda de dados ou publicidade invasiva.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA Section -->
+        <section id="loginSection" class="landing-section landing-cta">
+            <div class="landing-section-content">
+                <h2 class="landing-cta-title">Pronto para fazer parte?</h2>
+                <p class="landing-cta-subtitle">Entre com sua conta Google e comece a iluminar o mundo ao seu redor.</p>
+                
+                <button id="loginBtn" class="google-login-btn-landing">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Entrar com Google
+                </button>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <p>© 2025 HoloSpot. Uma nova forma de se conectar.</p>
+        </footer>
     </div>
 
     <!-- Header -->
@@ -4741,14 +5147,40 @@
         }
 
         function showLogin() {
-            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('appContainer').classList.remove('active');
             
-            // Ocultar header e navegação quando mostrar login
+            // Ocultar header e navegação quando mostrar login/landing
             const header = document.querySelector('.header');
             const navTabs = document.querySelector('.nav-tabs');
             if (header) header.style.display = 'none';
             if (navTabs) navTabs.style.display = 'none';
+        }
+        
+        // Funções da Landing Page
+        function scrollToLogin() {
+            document.getElementById('loginSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function scrollToAbout() {
+            document.getElementById('aboutSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function toggleFaq(button) {
+            const answer = button.nextElementSibling;
+            const isActive = button.classList.contains('active');
+            
+            // Fechar todos os outros
+            document.querySelectorAll('.landing-faq-question').forEach(q => {
+                q.classList.remove('active');
+                q.nextElementSibling.classList.remove('active');
+            });
+            
+            // Toggle o clicado
+            if (!isActive) {
+                button.classList.add('active');
+                answer.classList.add('active');
+            }
         }
 
         // ===== SINCRONIZAÇÃO DE REAÇÕES LOCAIS =====
