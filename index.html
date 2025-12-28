@@ -43,7 +43,31 @@
     <style>
         /* Forçar tema claro independente do sistema */
         :root {
-            color-scheme: light only;
+            color-scheme: light only !important;
+            --forced-bg: #fff;
+            --forced-text: #333;
+        }
+        
+        /* Desabilitar modo escuro forçado por navegadores */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                color-scheme: light only !important;
+            }
+            
+            html, body {
+                background-color: #fff !important;
+                color: #333 !important;
+            }
+            
+            img, video {
+                filter: none !important;
+            }
+        }
+        
+        /* Forçar cores em todos os elementos */
+        html {
+            background-color: #fff !important;
+            color-scheme: light only !important;
         }
         
         * {
@@ -532,7 +556,8 @@
         .landing-page {
             display: none;
             min-height: 100vh;
-            background: #fff;
+            background: #fff !important;
+            background-color: #fff !important;
             overflow-x: hidden;
         }
         
@@ -550,7 +575,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem 3rem;
-            background: white;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
             position: sticky;
             top: 0;
@@ -676,7 +702,8 @@
         
         /* About Section */
         .landing-about {
-            background: #fafafa;
+            background: #fafafa !important;
+            background-color: #fafafa !important;
         }
         
         .landing-name-explanation {
@@ -701,7 +728,8 @@
         
         /* Features Section */
         .landing-features {
-            background: white;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
         }
         
         .landing-features-grid {
@@ -712,7 +740,8 @@
         }
         
         .landing-feature-card {
-            background: #fafafa;
+            background: #fafafa !important;
+            background-color: #fafafa !important;
             padding: 2rem;
             border-radius: 16px;
             text-align: center;
@@ -747,7 +776,8 @@
         
         /* FAQ Section */
         .landing-faq {
-            background: #fafafa;
+            background: #fafafa !important;
+            background-color: #fafafa !important;
         }
         
         .landing-faq-list {
