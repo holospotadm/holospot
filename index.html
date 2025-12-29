@@ -9555,16 +9555,16 @@
                 
                 // Contar reações por tipo
                 const reactionCounts = {
-                    touched: reactions?.filter(r => r.type === 'loved').length || 0,
-                    grateful: reactions?.filter(r => r.type === 'claps').length || 0,
-                    inspired: reactions?.filter(r => r.type === 'hug').length || 0
+                    loved: reactions?.filter(r => r.type === 'loved').length || 0,
+                    claps: reactions?.filter(r => r.type === 'claps').length || 0,
+                    hug: reactions?.filter(r => r.type === 'hug').length || 0
                 };
                 
                 // Verificar se o usuário atual já reagiu
                 const userReactions = reactions?.filter(r => r.user_id === currentUser.id) || [];
                 const userReactionTypes = userReactions.map(r => r.type);
                 
-                console.log(`📊 Contadores: touched=${reactionCounts.touched}, grateful=${reactionCounts.grateful}, inspired=${reactionCounts.inspired}`);
+                console.log(`📊 Contadores: loved=${reactionCounts.loved}, claps=${reactionCounts.claps}, hug=${reactionCounts.hug}`);
                 console.log(`👤 Usuário reagiu com: ${userReactionTypes.join(', ')}`);
                 
                 // Atualizar botões de reação no modal
@@ -9574,9 +9574,9 @@
                     const onclick = button.getAttribute('onclick');
                     let reactionType = '';
                     
-                    if (onclick.includes("'touched'")) reactionType = 'touched';
-                    else if (onclick.includes("'grateful'")) reactionType = 'grateful';
-                    else if (onclick.includes("'inspired'")) reactionType = 'inspired';
+                    if (onclick.includes("'loved'")) reactionType = 'loved';
+                    else if (onclick.includes("'claps'")) reactionType = 'claps';
+                    else if (onclick.includes("'hug'")) reactionType = 'hug';
                     
                     if (reactionType) {
                         const count = reactionCounts[reactionType];
@@ -11094,15 +11094,15 @@
             const authorAvatar = postData.user_data?.avatar_url || postData.author?.avatar_url || '';
             
             // Contar reações por tipo
-            const touchedCount = postData.reactions?.filter(r => r.type === 'loved').length || 0;
-            const gratefulCount = postData.reactions?.filter(r => r.type === 'claps').length || 0;
-            const inspiredCount = postData.reactions?.filter(r => r.type === 'hug').length || 0;
+            const lovedCount = postData.reactions?.filter(r => r.type === 'loved').length || 0;
+            const clapsCount = postData.reactions?.filter(r => r.type === 'claps').length || 0;
+            const hugCount = postData.reactions?.filter(r => r.type === 'hug').length || 0;
             
             // Verificar se usuário atual já reagiu
             const userReactions = postData.reactions?.filter(r => r.user_id === currentUser?.id) || [];
-            const userTouched = userReactions.some(r => r.type === 'loved');
-            const userGrateful = userReactions.some(r => r.type === 'claps');
-            const userInspired = userReactions.some(r => r.type === 'hug');
+            const userLoved = userReactions.some(r => r.type === 'loved');
+            const userClaps = userReactions.some(r => r.type === 'claps');
+            const userHug = userReactions.some(r => r.type === 'hug');
             
             container.innerHTML = `
                 <div class="post" style="margin: 0; border: none; box-shadow: none; position: relative;">
@@ -11227,26 +11227,26 @@
                                 // Autor do post: botões desabilitados com hover negado
                                 return `
                                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
-                                        ❤️ ${touchedCount}
+                                        ❤️ ${lovedCount}
                                     </button>
                                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
-                                        👏 ${gratefulCount}
+                                        👏 ${clapsCount}
                                     </button>
                                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
-                                        🫂 ${inspiredCount}
+                                        🫂 ${hugCount}
                                     </button>
                                 `;
                             } else {
                                 // Não é autor: botões funcionais normais
                                 return `
-                                    <button onclick="reactToPost('${postData.id}', 'loved')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userTouched ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userTouched ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userTouched ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                                        ❤️ ${touchedCount}
+                                    <button onclick="reactToPost('${postData.id}', 'loved')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userLoved ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userLoved ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userLoved ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        ❤️ ${lovedCount}
                                     </button>
-                                    <button onclick="reactToPost('${postData.id}', 'claps')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userGrateful ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userGrateful ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userGrateful ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                                        👏 ${gratefulCount}
+                                    <button onclick="reactToPost('${postData.id}', 'claps')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userClaps ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userClaps ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userClaps ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        👏 ${clapsCount}
                                     </button>
-                                    <button onclick="reactToPost('${postData.id}', 'hug')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userInspired ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userInspired ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userInspired ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                                        🫂 ${inspiredCount}
+                                    <button onclick="reactToPost('${postData.id}', 'hug')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userHug ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userHug ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userHug ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        🫂 ${hugCount}
                                     </button>
                                 `;
                             }
@@ -19629,9 +19629,9 @@ async function loadCommunityPosts(communityId, forceModal = false) {
         const authorAvatar = user?.avatar_url || '';
         
         // Contar reações por tipo
-        const touchedCount = post.reactions?.filter(r => r.type === 'loved').length || 0;
-        const gratefulCount = post.reactions?.filter(r => r.type === 'claps').length || 0;
-        const inspiredCount = post.reactions?.filter(r => r.type === 'hug').length || 0;
+        const lovedCount = post.reactions?.filter(r => r.type === 'loved').length || 0;
+        const clapsCount = post.reactions?.filter(r => r.type === 'claps').length || 0;
+        const hugCount = post.reactions?.filter(r => r.type === 'hug').length || 0;
         
         postDiv.innerHTML = `
             <div style="position: relative;">
@@ -19703,13 +19703,13 @@ async function loadCommunityPosts(communityId, forceModal = false) {
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        ❤️ ${touchedCount}
+                        ❤️ ${lovedCount}
                     </button>
                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        👏 ${gratefulCount}
+                        👏 ${clapsCount}
                     </button>
                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        🫂 ${inspiredCount}
+                        🫂 ${hugCount}
                     </button>
                 </div>
                 
