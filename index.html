@@ -15714,6 +15714,11 @@
                     // Usar cache para comentários (muito mais rápido!)
                     const commentsCount = getCommentsCountFromCache(post.id);
                     
+                    // Verificar se o usuário atual já reagiu a este post
+                    const userLoved = post.reactions.some(r => r.user_id === currentUser.id && r.type === 'loved');
+                    const userClaps = post.reactions.some(r => r.user_id === currentUser.id && r.type === 'claps');
+                    const userHug = post.reactions.some(r => r.user_id === currentUser.id && r.type === 'hug');
+                    
                     const feedbacksSection = await getFeedbacksForAuthorPost(post);
                     
                 const postHtml = `
@@ -15811,13 +15816,13 @@
                             </div>
                             
                             <div class="post-reactions">
-                                <button onclick="reactToPost('${post.id}', 'loved')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button onclick="reactToPost('${post.id}', 'loved')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userLoved ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userLoved ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userLoved ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                                     ❤️ ${post.reactions.filter(r => r.type === 'loved').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'claps')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button onclick="reactToPost('${post.id}', 'claps')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userClaps ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userClaps ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userClaps ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                                     👏 ${post.reactions.filter(r => r.type === 'claps').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'hug')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                <button onclick="reactToPost('${post.id}', 'hug')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userHug ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userHug ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userHug ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                                     🫂 ${post.reactions.filter(r => r.type === 'hug').length}
                                 </button>
                             </div>
