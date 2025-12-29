@@ -48,6 +48,128 @@ Diretório: `sql/schema/`
 
 ---
 
+## Relações entre Tabelas (Foreign Keys)
+
+### profiles (tabela central)
+
+```
+profiles
+├── posts.user_id → profiles.id
+├── comments.user_id → profiles.id
+├── reactions.user_id → profiles.id
+├── feedbacks.author_id → profiles.id
+├── feedbacks.mentioned_user_id → profiles.id
+├── follows.follower_id → profiles.id (implícito)
+├── follows.following_id → profiles.id (implícito)
+├── notifications.user_id → profiles.id (implícito)
+├── notifications.from_user_id → profiles.id (implícito)
+├── invites.created_by → profiles.id
+├── invites.used_by → profiles.id
+├── profiles.invited_by → profiles.id (auto-referência)
+├── communities.owner_id → profiles.id
+├── community_members.user_id → profiles.id
+├── chains.creator_id → profiles.id
+├── chain_posts.author_id → profiles.id
+├── chain_posts.parent_post_author_id → profiles.id
+├── user_badges.user_id → profiles.id (implícito)
+├── user_points.user_id → profiles.id (implícito)
+├── user_streaks.user_id → profiles.id (implícito)
+├── points_history.user_id → profiles.id (implícito)
+├── conversations.user1_id → profiles.id (implícito)
+├── conversations.user2_id → profiles.id (implícito)
+└── messages.sender_id → profiles.id (implícito)
+```
+
+### posts
+
+```
+posts
+├── posts.user_id → profiles.id
+├── posts.community_id → communities.id
+├── posts.chain_id → chains.id
+├── comments.post_id → posts.id
+├── reactions.post_id → posts.id
+├── feedbacks.post_id → posts.id
+├── notifications.post_id → posts.id
+└── chain_posts.post_id → posts.id
+```
+
+### communities
+
+```
+communities
+├── communities.owner_id → profiles.id
+├── community_members.community_id → communities.id
+└── posts.community_id → communities.id
+```
+
+### chains
+
+```
+chains
+├── chains.creator_id → profiles.id
+├── chains.first_post_id → posts.id
+├── chain_posts.chain_id → chains.id
+└── posts.chain_id → chains.id
+```
+
+### conversations / messages
+
+```
+conversations
+├── conversations.user1_id → profiles.id (implícito)
+├── conversations.user2_id → profiles.id (implícito)
+└── messages.conversation_id → conversations.id
+```
+
+### gamificação
+
+```
+levels
+└── user_points.level_id → levels.id
+
+badges
+└── user_badges.badge_id → badges.id
+```
+
+### Diagrama Visual
+
+```
+                              ┌─────────────┐
+                              │   profiles  │
+                              └──────┬──────┘
+           ┌──────────┬───────┬──────┼──────┬───────┬──────────┐
+           │          │       │      │      │       │          │
+           ▼          ▼       ▼      ▼      ▼       ▼          ▼
+      ┌────────┐ ┌────────┐ ┌────┐ ┌────┐ ┌────┐ ┌─────┐ ┌──────────┐
+      │ posts  │ │comments│ │reac│ │feed│ │foll│ │invit│ │communities│
+      └───┬────┘ └────────┘ └────┘ └────┘ └────┘ └─────┘ └─────┬────┘
+          │                                                     │
+          │         ┌─────────────────────────────────────────┐ │
+          │         │                                         │ │
+          ▼         ▼                                         ▼ ▼
+     ┌────────┐ ┌────────┐                              ┌───────────┐
+     │ chains │ │chain_  │                              │community_ │
+     └────────┘ │ posts  │                              │ members   │
+               └────────┘                              └───────────┘
+
+      ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
+      │ levels │ │ badges │ │ user_  │ │ user_  │
+      └───┬────┘ └───┬────┘ │ points │ │streaks │
+          │          │      └────────┘ └────────┘
+          ▼          ▼
+     ┌────────┐ ┌────────┐
+     │ user_  │ │ user_  │
+     │ points │ │ badges │
+     └────────┘ └────────┘
+
+      ┌──────────────┐     ┌──────────┐
+      │conversations │────▶│ messages │
+      └──────────────┘     └──────────┘
+```
+
+---
+
 ## Functions
 
 Diretório: `sql/functions/`
@@ -324,9 +446,7 @@ Migrações incrementais com formato `YYYYMMDD_descricao.sql`.
 
 ---
 
-## Convenções
-
-### Nomenclatura de Arquivos
+## Convenções de Nomenclatura
 
 | Tipo | Formato | Exemplo |
 |------|---------|---------|
@@ -338,12 +458,70 @@ Migrações incrementais com formato `YYYYMMDD_descricao.sql`.
 | Policy | `tabela_policies.sql` | `profiles_policies.sql` |
 | Migration | `YYYYMMDD_descricao.sql` | `20241229_update_reaction_types.sql` |
 
-### Fluxo de Alterações
+---
 
-1. Criar migração em `migrations/`
-2. Executar SQL no Supabase
-3. **Atualizar arquivo principal correspondente** (function/trigger/etc)
-4. Commit no GitHub
+## Fluxo de Trabalho para Alterações
+
+O banco de dados é gerenciado via **Supabase**. As execuções SQL são feitas manualmente no Supabase SQL Editor, e o GitHub é atualizado para manter a documentação sincronizada.
+
+### Alterar uma FUNÇÃO existente
+
+1. **Manus** edita o arquivo `sql/functions/nome_funcao.sql` com a nova versão
+2. **Manus** envia o SQL executável para o usuário
+3. **Usuário** executa o SQL no Supabase SQL Editor
+4. **Manus** faz commit no GitHub após confirmação
+
+### Alterar um TRIGGER existente
+
+1. **Manus** edita o arquivo `sql/triggers/tabela_triggers.sql`
+2. **Manus** envia o SQL executável (DROP TRIGGER + CREATE TRIGGER)
+3. **Usuário** executa o SQL no Supabase SQL Editor
+4. **Manus** faz commit no GitHub após confirmação
+
+### Alterar uma CONSTRAINT
+
+1. **Manus** edita o arquivo `sql/constraints/tabela_constraints.sql`
+2. **Manus** envia o SQL executável (ALTER TABLE DROP/ADD CONSTRAINT)
+3. **Usuário** executa o SQL no Supabase SQL Editor
+4. **Manus** faz commit no GitHub após confirmação
+
+### Alterar uma POLICY (RLS)
+
+1. **Manus** edita o arquivo `sql/policies/tabela_policies.sql`
+2. **Manus** envia o SQL executável (DROP POLICY + CREATE POLICY)
+3. **Usuário** executa o SQL no Supabase SQL Editor
+4. **Manus** faz commit no GitHub após confirmação
+
+### Alterar SCHEMA (estrutura de tabela)
+
+1. **Manus** edita o arquivo `sql/schema/NN_tabela.sql`
+2. **Manus** envia o SQL executável (ALTER TABLE ADD/DROP/MODIFY COLUMN)
+3. **Usuário** executa o SQL no Supabase SQL Editor
+4. **Manus** faz commit no GitHub após confirmação
+
+### Criar MIGRAÇÃO (alterações complexas)
+
+1. **Manus** cria arquivo `sql/migrations/YYYYMMDD_descricao.sql`
+2. **Manus** envia o SQL executável completo
+3. **Usuário** executa o SQL no Supabase SQL Editor
+4. **Manus** atualiza os arquivos principais afetados (functions, triggers, etc)
+5. **Manus** faz commit de tudo no GitHub após confirmação
+
+### Resumo do Fluxo
+
+```
+┌─────────┐     SQL executável     ┌─────────┐
+│  Manus  │ ────────────────────▶  │ Usuário │
+│         │                        │         │
+│ (edita  │                        │(executa │
+│ GitHub) │                        │Supabase)│
+└─────────┘                        └────┬────┘
+     ▲                                  │
+     │         confirmação              │
+     └──────────────────────────────────┘
+```
+
+**Importante:** O GitHub deve sempre refletir o estado atual do banco. Após qualquer alteração no Supabase, os arquivos correspondentes devem ser atualizados no GitHub.
 
 ---
 
