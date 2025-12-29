@@ -6666,13 +6666,13 @@
                             
                             <div class="post-reactions">
                                 <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease; opacity: 0.6;" disabled>
-                                    ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
+                                    ❤️ ${post.reactions.filter(r => r.type === 'loved').length}
                                 </button>
                                 <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease; opacity: 0.6;" disabled>
-                                    🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
+                                    👏 ${post.reactions.filter(r => r.type === 'claps').length}
                                 </button>
                                 <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease; opacity: 0.6;" disabled>
-                                    ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
+                                    🫂 ${post.reactions.filter(r => r.type === 'hug').length}
                                 </button>
                             </div>
                             
@@ -8776,12 +8776,12 @@
                     posts.forEach((post, index) => {
                         if (index === 0) {
                             post.reactions = [
-                                { id: 'r1', user_id: 'user-3', type: 'touched', created_at: new Date().toISOString() },
-                                { id: 'r2', user_id: 'user-4', type: 'grateful', created_at: new Date().toISOString() }
+                                { id: 'r1', user_id: 'user-3', type: 'loved', created_at: new Date().toISOString() },
+                                { id: 'r2', user_id: 'user-4', type: 'claps', created_at: new Date().toISOString() }
                             ];
                         } else if (index === 1) {
                             post.reactions = [
-                                { id: 'r3', user_id: 'user-5', type: 'inspired', created_at: new Date().toISOString() }
+                                { id: 'r3', user_id: 'user-5', type: 'hug', created_at: new Date().toISOString() }
                             ];
                         } else {
                             post.reactions = [];
@@ -9316,17 +9316,17 @@
                         ${feedbacksSection}
                         
                         <div class="post-reactions">
-                            <button class="reaction-btn ${userReactions.some(r => r.type === 'touched') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
-                                    ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'touched')"`}>
-                                ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
+                            <button class="reaction-btn ${userReactions.some(r => r.type === 'loved') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
+                                    ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'loved')"`}>
+                                ❤️ ${post.reactions.filter(r => r.type === 'loved').length}
                             </button>
-                            <button class="reaction-btn ${userReactions.some(r => r.type === 'grateful') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
-                                    ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'grateful')"`}>
-                                🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
+                            <button class="reaction-btn ${userReactions.some(r => r.type === 'claps') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
+                                    ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'claps')"`}>
+                                👏 ${post.reactions.filter(r => r.type === 'claps').length}
                             </button>
-                            <button class="reaction-btn ${userReactions.some(r => r.type === 'inspired') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
-                                    ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'inspired')"`}>
-                                ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
+                            <button class="reaction-btn ${userReactions.some(r => r.type === 'hug') ? 'active' : ''} ${post.user_id === currentUser.id ? 'disabled' : ''}" 
+                                    ${post.user_id === currentUser.id ? 'disabled style="cursor: not-allowed;"' : `onclick="toggleReaction('${post.id}', 'hug')"`}>
+                                🫂 ${post.reactions.filter(r => r.type === 'hug').length}
                             </button>
                         </div>
                         
@@ -9555,9 +9555,9 @@
                 
                 // Contar reações por tipo
                 const reactionCounts = {
-                    touched: reactions?.filter(r => r.type === 'touched').length || 0,
-                    grateful: reactions?.filter(r => r.type === 'grateful').length || 0,
-                    inspired: reactions?.filter(r => r.type === 'inspired').length || 0
+                    touched: reactions?.filter(r => r.type === 'loved').length || 0,
+                    grateful: reactions?.filter(r => r.type === 'claps').length || 0,
+                    inspired: reactions?.filter(r => r.type === 'hug').length || 0
                 };
                 
                 // Verificar se o usuário atual já reagiu
@@ -9583,7 +9583,7 @@
                         const userReacted = userReactionTypes.includes(reactionType);
                         
                         // Atualizar texto do botão
-                        const emoji = { touched: '❤️', grateful: '🙏', inspired: '✨' }[reactionType];
+                        const emoji = { loved: '❤️', claps: '👏', hug: '🫂' }[reactionType];
                         button.innerHTML = `${emoji} ${count}`;
                         
                         // Atualizar estilo baseado se o usuário reagiu
@@ -9603,7 +9603,7 @@
                             button.style.border = 'none';
                             
                             // Adicionar eventos de hover apenas quando não reagiu
-                            if (reactionType === 'touched') {
+                            if (reactionType === 'loved') {
                                 button.onmouseover = () => {
                                     button.style.background = '#e74c3c';
                                     button.style.color = 'white';
@@ -9612,7 +9612,7 @@
                                     button.style.background = '#f5f5f5';
                                     button.style.color = '#666';
                                 };
-                            } else if (reactionType === 'grateful') {
+                            } else if (reactionType === 'claps') {
                                 button.onmouseover = () => {
                                     button.style.background = '#f39c12';
                                     button.style.color = 'white';
@@ -9621,7 +9621,7 @@
                                     button.style.background = '#f5f5f5';
                                     button.style.color = '#666';
                                 };
-                            } else if (reactionType === 'inspired') {
+                            } else if (reactionType === 'hug') {
                                 button.onmouseover = () => {
                                     button.style.background = '#9b59b6';
                                     button.style.color = 'white';
@@ -11094,15 +11094,15 @@
             const authorAvatar = postData.user_data?.avatar_url || postData.author?.avatar_url || '';
             
             // Contar reações por tipo
-            const touchedCount = postData.reactions?.filter(r => r.type === 'touched').length || 0;
-            const gratefulCount = postData.reactions?.filter(r => r.type === 'grateful').length || 0;
-            const inspiredCount = postData.reactions?.filter(r => r.type === 'inspired').length || 0;
+            const touchedCount = postData.reactions?.filter(r => r.type === 'loved').length || 0;
+            const gratefulCount = postData.reactions?.filter(r => r.type === 'claps').length || 0;
+            const inspiredCount = postData.reactions?.filter(r => r.type === 'hug').length || 0;
             
             // Verificar se usuário atual já reagiu
             const userReactions = postData.reactions?.filter(r => r.user_id === currentUser?.id) || [];
-            const userTouched = userReactions.some(r => r.type === 'touched');
-            const userGrateful = userReactions.some(r => r.type === 'grateful');
-            const userInspired = userReactions.some(r => r.type === 'inspired');
+            const userTouched = userReactions.some(r => r.type === 'loved');
+            const userGrateful = userReactions.some(r => r.type === 'claps');
+            const userInspired = userReactions.some(r => r.type === 'hug');
             
             container.innerHTML = `
                 <div class="post" style="margin: 0; border: none; box-shadow: none; position: relative;">
@@ -11230,23 +11230,23 @@
                                         ❤️ ${touchedCount}
                                     </button>
                                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
-                                        🙏 ${gratefulCount}
+                                        👏 ${gratefulCount}
                                     </button>
                                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #ccc; font-size: 12px; cursor: not-allowed; transition: all 0.2s ease;" onmouseover="this.style.background='#ffebee'; this.style.color='#f44336';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#ccc';" title="Você não pode reagir ao seu próprio post">
-                                        ✨ ${inspiredCount}
+                                        🫂 ${inspiredCount}
                                     </button>
                                 `;
                             } else {
                                 // Não é autor: botões funcionais normais
                                 return `
-                                    <button onclick="reactToPost('${postData.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userTouched ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userTouched ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userTouched ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                    <button onclick="reactToPost('${postData.id}', 'loved')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userTouched ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userTouched ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userTouched ? `onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
                                         ❤️ ${touchedCount}
                                     </button>
-                                    <button onclick="reactToPost('${postData.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userGrateful ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userGrateful ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userGrateful ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                                        🙏 ${gratefulCount}
+                                    <button onclick="reactToPost('${postData.id}', 'claps')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userGrateful ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userGrateful ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userGrateful ? `onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        👏 ${gratefulCount}
                                     </button>
-                                    <button onclick="reactToPost('${postData.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userInspired ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userInspired ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userInspired ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
-                                        ✨ ${inspiredCount}
+                                    <button onclick="reactToPost('${postData.id}', 'hug')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: ${userInspired ? 'linear-gradient(135deg, #FFB700, #9C27B0)' : '#f5f5f5'}; border: none; border-radius: 20px; color: ${userInspired ? 'white' : '#666'}; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" ${!userInspired ? `onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';"` : ''}>
+                                        🫂 ${inspiredCount}
                                     </button>
                                 `;
                             }
@@ -15504,17 +15504,17 @@
                 const post = window.posts.find(p => p.id === postId);
                 if (post && post.reactions) {
                     post.reactions.forEach(reaction => {
-                        if (reaction.type === 'touched') reactionCounts.heart++;
-                        else if (reaction.type === 'grateful') reactionCounts.gratitude++;
-                        else if (reaction.type === 'inspired') reactionCounts.inspiration++;
+                        if (reaction.type === 'loved') reactionCounts.heart++;
+                        else if (reaction.type === 'claps') reactionCounts.gratitude++;
+                        else if (reaction.type === 'hug') reactionCounts.inspiration++;
                     });
                 } else {
                     // Fallback: consulta individual apenas se não tiver no cache
                     const reactionsResult = await supabaseClient.from('reactions').select('type').eq('post_id', postId);
                     reactionsResult.data?.forEach(reaction => {
-                        if (reaction.type === 'touched') reactionCounts.heart++;
-                        else if (reaction.type === 'grateful') reactionCounts.gratitude++;
-                        else if (reaction.type === 'inspired') reactionCounts.inspiration++;
+                        if (reaction.type === 'loved') reactionCounts.heart++;
+                        else if (reaction.type === 'claps') reactionCounts.gratitude++;
+                        else if (reaction.type === 'hug') reactionCounts.inspiration++;
                     });
                 }
                 
@@ -15752,14 +15752,14 @@
                             </div>
                             
                             <div class="post-reactions">
-                                <button onclick="reactToPost('${post.id}', 'touched')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
-                                    ❤️ ${post.reactions.filter(r => r.type === 'touched').length}
+                                <button onclick="reactToPost('${post.id}', 'loved')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                    ❤️ ${post.reactions.filter(r => r.type === 'loved').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'grateful')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
-                                    🙏 ${post.reactions.filter(r => r.type === 'grateful').length}
+                                <button onclick="reactToPost('${post.id}', 'claps')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f39c12'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                    👏 ${post.reactions.filter(r => r.type === 'claps').length}
                                 </button>
-                                <button onclick="reactToPost('${post.id}', 'inspired')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
-                                    ✨ ${post.reactions.filter(r => r.type === 'inspired').length}
+                                <button onclick="reactToPost('${post.id}', 'hug')" class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#9b59b6'; this.style.color='white';" onmouseout="this.style.background='#f5f5f5'; this.style.color='#666';">
+                                    🫂 ${post.reactions.filter(r => r.type === 'hug').length}
                                 </button>
                             </div>
                             
@@ -19629,9 +19629,9 @@ async function loadCommunityPosts(communityId, forceModal = false) {
         const authorAvatar = user?.avatar_url || '';
         
         // Contar reações por tipo
-        const touchedCount = post.reactions?.filter(r => r.type === 'touched').length || 0;
-        const gratefulCount = post.reactions?.filter(r => r.type === 'grateful').length || 0;
-        const inspiredCount = post.reactions?.filter(r => r.type === 'inspired').length || 0;
+        const touchedCount = post.reactions?.filter(r => r.type === 'loved').length || 0;
+        const gratefulCount = post.reactions?.filter(r => r.type === 'claps').length || 0;
+        const inspiredCount = post.reactions?.filter(r => r.type === 'hug').length || 0;
         
         postDiv.innerHTML = `
             <div style="position: relative;">
@@ -19706,10 +19706,10 @@ async function loadCommunityPosts(communityId, forceModal = false) {
                         ❤️ ${touchedCount}
                     </button>
                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        🙏 ${gratefulCount}
+                        👏 ${gratefulCount}
                     </button>
                     <button class="reaction-btn" style="display: flex; align-items: center; gap: 3px; padding: 6px 10px; background: #f5f5f5; border: none; border-radius: 20px; color: #666; font-size: 12px; cursor: not-allowed;">
-                        ✨ ${inspiredCount}
+                        🫂 ${inspiredCount}
                     </button>
                 </div>
                 
