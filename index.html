@@ -9810,17 +9810,20 @@
                 'hug': '🫂'
             };
             
+            // Garantir que reactions é um array
+            const reactionsArray = Array.isArray(reactions) ? reactions : [];
+            
             // Contar reações por tipo
             const reactionCounts = {
-                loved: reactions.filter(r => r.type === 'loved').length,
-                claps: reactions.filter(r => r.type === 'claps').length,
-                hug: reactions.filter(r => r.type === 'hug').length
+                loved: reactionsArray.filter(r => r.type === 'loved').length,
+                claps: reactionsArray.filter(r => r.type === 'claps').length,
+                hug: reactionsArray.filter(r => r.type === 'hug').length
             };
             
             // Verificar reações do usuário atual
-            const userLoved = reactions.some(r => r.user_id === currentUser.id && r.type === 'loved');
-            const userClaps = reactions.some(r => r.user_id === currentUser.id && r.type === 'claps');
-            const userHug = reactions.some(r => r.user_id === currentUser.id && r.type === 'hug');
+            const userLoved = reactionsArray.some(r => r.user_id === currentUser.id && r.type === 'loved');
+            const userClaps = reactionsArray.some(r => r.user_id === currentUser.id && r.type === 'claps');
+            const userHug = reactionsArray.some(r => r.user_id === currentUser.id && r.type === 'hug');
             
             // Encontrar todos os botões de reação deste post
             const postElements = document.querySelectorAll(`[onclick*="toggleReaction('${postId}'"]`);
@@ -9828,13 +9831,13 @@
             postElements.forEach(btn => {
                 const onclick = btn.getAttribute('onclick');
                 if (onclick.includes("'loved'")) {
-                    btn.innerHTML = `${reactionEmojis.loved} ${reactionCounts.loved || ''}`;
+                    btn.innerHTML = `${reactionEmojis.loved} ${reactionCounts.loved}`;
                     btn.classList.toggle('active', userLoved);
                 } else if (onclick.includes("'claps'")) {
-                    btn.innerHTML = `${reactionEmojis.claps} ${reactionCounts.claps || ''}`;
+                    btn.innerHTML = `${reactionEmojis.claps} ${reactionCounts.claps}`;
                     btn.classList.toggle('active', userClaps);
                 } else if (onclick.includes("'hug'")) {
-                    btn.innerHTML = `${reactionEmojis.hug} ${reactionCounts.hug || ''}`;
+                    btn.innerHTML = `${reactionEmojis.hug} ${reactionCounts.hug}`;
                     btn.classList.toggle('active', userHug);
                 }
             });
