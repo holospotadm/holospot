@@ -1,9 +1,0 @@
-10. VERIFICAÇÃO ESPECÍFICA: level_up_notification_trigger
-============================================================================
-TRIGGER level_up_notification_trigger: EXISTE
-TABELA: user_points
-DEFINIÇÃO: CREATE TRIGGER level_up_notification_trigger AFTER UPDATE ON public.user_points FOR EACH ROW EXECUTE FUNCTION handle_level_up_notification()
-
-============================================================================
-EXTRAÇÃO COMPLETA FINALIZADA - 2025-09-17 02:21:37.763208+00
-============================================================================
