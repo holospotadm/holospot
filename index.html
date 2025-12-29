@@ -9718,7 +9718,7 @@
                     updateReactionButtonsUI(postId, post.reactions);
                     
                     // Deletar do banco (sem retry excessivo)
-                    if (!existingReaction.id.toString().startsWith('local-')) {
+                    if (!existingReaction.id.toString().startsWith('local-') && !existingReaction.id.toString().startsWith('temp-')) {
                         const { error: deleteError } = await supabaseClient
                             .from('reactions')
                             .delete()
@@ -9728,6 +9728,8 @@
                             console.warn('⚠️ Erro ao remover reação do banco:', deleteError.message);
                         } else {
                             console.log('✅ Reação removida do banco');
+                            // Atualizar contador de reações dadas
+                            updateReactionCounters(-1);
                         }
                     }
                 } else {
@@ -9769,12 +9771,25 @@
                             post.reactions[tempIndex] = newReaction;
                         }
                         console.log('✅ Reação salva no banco:', newReaction);
+                        
+                        // Atualizar contador de reações dadas
+                        updateReactionCounters(1);
                     }
                 }
                 
             } catch (error) {
                 console.error('❌ Erro ao reagir:', error);
                 showToast('Erro ao processar reação.');
+            }
+        }
+        
+        // Função para atualizar contadores de reações na UI
+        function updateReactionCounters(delta) {
+            // Atualizar contador de reações dadas
+            const givenEl = document.getElementById('userReactionsGiven');
+            if (givenEl) {
+                const currentGiven = parseInt(givenEl.textContent) || 0;
+                givenEl.textContent = Math.max(0, currentGiven + delta);
             }
         }
         
