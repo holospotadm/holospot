@@ -8,9 +8,9 @@ Se você é uma nova IA assumindo este projeto, **este guia contém a metodologi
 
 ### 📊 **Status Atual do Projeto**
 
-**Versão:** v6.1-enhanced  
+**Versão:** v6.2-enhanced  
 **Status:** ✅ 100% Documentado e Organizado  
-**Última atualização:** 2025-09-17  
+**Última atualização:** 2025-12-29  
 **Metodologia:** ✅ Comprovada e Testada
 
 **IMPORTANTE:** Este projeto está **100% funcional** e **completamente documentado**. Não refaça nada do zero - tudo está organizado e pronto para uso.
@@ -30,7 +30,7 @@ Se você é uma nova IA assumindo este projeto, **este guia contém a metodologi
 4. 🔍 Analisar TODAS as ocorrências do problema
 5. 🔍 Corrigir sistematicamente (não apenas uma ocorrência)
 6. ✅ Commitar correção no GitHub PRIMEIRO
-7. ✅ Fornecer script SQL pronto para execução
+7. ✅ Fornecer script SQL pronto para execução pelo usuário
 ```
 
 #### **🎯 PREMISSA FUNDAMENTAL:**
@@ -72,10 +72,10 @@ WHERE table_name = 'tabela_suspeita';
 ```shell
 # PROCESSO REAL QUE FUNCIONOU:
 1. 🔍 Buscar TODAS as ocorrências no GitHub
-   grep -n "NEW\.user_id" sql/functions/ALL_FUNCTIONS.sql
+   grep -n "NEW\.user_id" sql/functions/*.sql
 
 2. 🔍 Analisar código e identificar campo correto
-   # Verificar schema no GitHub: sql/schema/04_feedbacks.sql
+   # Verificar schema no GitHub: sql/schema/08_feedbacks.sql
    # Campo correto: NEW.author_id (não NEW.user_id)
 
 3. 🔍 Mapear fluxo de execução através do código
@@ -88,7 +88,7 @@ WHERE table_name = 'tabela_suspeita';
 5. ✅ Corrigir TODAS as ocorrências sistematicamente
 6. ✅ Adicionar lógica condicional por tabela se necessário
 7. ✅ Commitar no GitHub PRIMEIRO
-8. ✅ Fornecer script SQL para execução
+8. ✅ Fornecer script SQL para execução pelo usuário
 ```
 
 #### **Processo Comprovado para Erros RLS:**
@@ -119,10 +119,26 @@ WHERE table_name = 'tabela_suspeita';
 3. 💾 git add .
 4. 💾 git commit -m "fix: Descrição específica do problema resolvido"
 5. 💾 git push origin main
-6. 📤 Fornecer script SQL pronto para usuário executar
+6. 📤 Fornecer script SQL pronto para usuário executar no Supabase
 7. ✅ Aguardar confirmação de execução
 8. 📋 Documentar se necessário
 ```
+
+#### **⚠️ IMPORTANTE: Fluxo de Execução SQL**
+
+```
+┌─────────┐     SQL executável     ┌─────────┐
+│  Manus  │ ────────────────────▶  │ Usuário │
+│         │                        │         │
+│ (edita  │                        │(executa │
+│ GitHub) │                        │Supabase)│
+└─────────┘                        └────┬────┘
+     ▲                                  │
+     │         confirmação              │
+     └──────────────────────────────────┘
+```
+
+**O usuário executa o SQL no Supabase. A IA apenas edita o GitHub e fornece o SQL.**
 
 #### **Exemplo de Commit Message Eficaz:**
 ```shell
@@ -161,7 +177,7 @@ RAISE NOTICE '⚠️ Condição não atendida: %', condition_check;
 ### **🛡️ 5. PREVENÇÃO DE ERROS COMUNS**
 
 #### **Checklist Antes de Qualquer Alteração:**
-- [ ] ✅ Extraí o estado atual do banco?
+- [ ] ✅ Verifiquei o estado atual no GitHub?
 - [ ] ✅ Verifiquei TODAS as funções relacionadas?
 - [ ] ✅ Testei a lógica em diferentes cenários?
 - [ ] ✅ Considerei impactos em outras funcionalidades?
@@ -174,6 +190,7 @@ RAISE NOTICE '⚠️ Condição não atendida: %', condition_check;
 - ❌ **Ignorar triggers** que podem estar causando efeitos colaterais
 - ❌ **Esquecer SECURITY DEFINER** em funções que fazem operações de sistema
 - ❌ **Não testar com dados reais** antes de commitar
+- ❌ **Criar migrations sem atualizar arquivos principais** (functions, triggers, etc)
 
 ## 🎯 **ONDE ENCONTRAR CADA COISA**
 
@@ -184,47 +201,54 @@ holospot/
 ├── index.html              # 📱 Frontend principal (HTML + CSS + JavaScript)
 ├── README.md               # 📖 Este arquivo (instruções completas)
 └── sql/                    # 🗄️ Estrutura completa do banco de dados
-    ├── functions/          # 🔧 Funções PostgreSQL (116 funções)
-    │   ├── ALL_FUNCTIONS.sql
-    │   └── README.md
-    ├── triggers/           # ⚡ Triggers PostgreSQL (29 triggers)
-    │   ├── ALL_TRIGGERS.sql
-    │   └── README.md
-    ├── schema/             # 📋 Definições das tabelas (14 tabelas)
-    │   ├── 01_badges.sql até 14_user_streaks.sql
-    │   └── README.md
-    ├── data/               # 🎮 Dados iniciais (badges, levels)
-    │   ├── 01_badges_initial_data.sql
-    │   ├── 02_levels_initial_data.sql
-    │   └── README.md
-    ├── policies/           # 🔒 Políticas RLS de segurança
-    │   ├── 01_public_read_policies.sql
-    │   ├── 02_user_ownership_policies.sql
-    │   ├── 03_system_operation_policies.sql
-    │   └── README.md
-    ├── relationships/      # 🔗 Mapeamento de foreign keys
-    │   ├── foreign_keys.sql
-    │   └── README.md
-    └── README.md           # 📚 Documentação da estrutura SQL
+    ├── schema/             # 📋 Definições das tabelas (21 tabelas)
+    │   └── NN_tabela.sql   # Formato: 01_badges.sql, 15_posts.sql, etc.
+    ├── functions/          # 🔧 Funções PostgreSQL (158 funções)
+    │   └── nome_funcao.sql # 1 arquivo por função
+    ├── triggers/           # ⚡ Triggers PostgreSQL (32 triggers)
+    │   └── tabela_triggers.sql # Agrupados por tabela
+    ├── constraints/        # 🔗 Constraints (138 constraints)
+    │   └── tabela_constraints.sql # Agrupados por tabela
+    ├── policies/           # 🔒 Políticas RLS (83 policies)
+    │   └── tabela_policies.sql # Agrupados por tabela
+    ├── migrations/         # 📦 Migrações incrementais
+    │   └── YYYYMMDD_descricao.sql
+    └── README.md           # 📚 Documentação técnica da estrutura SQL
 ```
 
-### 🗄️ **BANCO DE DADOS (14 TABELAS)**
+### 🗄️ **BANCO DE DADOS (21 TABELAS)**
 
 ```
 📊 TABELAS PRINCIPAIS:
 ├── profiles              # Perfis dos usuários
-├── posts                 # Posts do sistema  
+├── posts                 # Posts/holofotes do sistema  
 ├── comments              # Comentários nos posts
-├── reactions             # Reações (likes, etc.)
+├── reactions             # Reações (loved ❤️, claps 👏, hug 🫂)
 ├── feedbacks             # Sistema de feedbacks
 ├── follows               # Sistema de seguir usuários
+├── notifications         # Sistema de notificações
+│
+📊 GAMIFICAÇÃO:
 ├── user_points           # Pontuação dos usuários
 ├── user_badges           # Badges conquistados
 ├── user_streaks          # Streaks de engajamento
-├── notifications         # Sistema de notificações
 ├── points_history        # Histórico de pontos
 ├── badges                # Definição dos badges
-└── levels                # Níveis de gamificação
+├── levels                # Níveis de gamificação
+│
+📊 COMUNIDADES E CORRENTES:
+├── communities           # Comunidades
+├── community_members     # Membros das comunidades
+├── chains                # Correntes de reconhecimento
+├── chain_posts           # Posts das correntes
+│
+📊 COMUNICAÇÃO:
+├── conversations         # Conversas privadas
+├── messages              # Mensagens das conversas
+│
+📊 ACESSO:
+├── invites               # Códigos de convite
+└── waitlist              # Lista de espera
 ```
 
 ### 📱 **FRONTEND (Interface do Usuário)**
@@ -234,45 +258,47 @@ holospot/
 #### **Mapeamento de Funcionalidades no Frontend:**
 
 ```javascript
-// AUTENTICAÇÃO (linhas ~850-950)
+// AUTENTICAÇÃO
 - login/logout
 - verificação de sessão
 - redirecionamentos
 
-// POSTS/HOLOFOTES (linhas ~1000-1200)
+// POSTS/HOLOFOTES
 - criação de posts
 - renderização de posts
-- modal de posts específicos ← IMPLEMENTADO RECENTEMENTE
+- modal de posts específicos
 
-// COMENTÁRIOS (linhas ~1200-1400)
+// REAÇÕES (ATUALIZADO 2025-12-29)
+- tipos: loved (❤️), claps (👏), hug (🫂)
+- toggleReaction() otimizada (1-2 requests por reação)
+- atualização de UI em tempo real
+
+// COMENTÁRIOS
 - sistema de comentários
 - modal de comentários
-- processamento de @username ← IMPLEMENTADO RECENTEMENTE
+- processamento de @username
 
-// REAÇÕES (linhas ~1400-1500)
-- curtidas/reações
-- retry automático para erros de rede ← IMPLEMENTADO RECENTEMENTE
-- sincronização offline
-
-// GAMIFICAÇÃO (linhas ~1500-1700)
+// GAMIFICAÇÃO
 - pontos, badges, levels
 - sistema de streaks
 - notificações de level up
 
-// NOTIFICAÇÕES (linhas ~1700-1900)
+// NOTIFICAÇÕES
 - sistema de notificações em tempo real
-- "marcar todas como lidas" ← IMPLEMENTADO RECENTEMENTE
-- modal de posts via notificação ← IMPLEMENTADO RECENTEMENTE
+- "marcar todas como lidas"
+- modal de posts via notificação
 
-// PERFIL (linhas ~1900-2000+)
+// PERFIL
 - dados do usuário
-- modal de perfil via @username ← IMPLEMENTADO RECENTEMENTE
+- modal de perfil via @username
 - estatísticas de engajamento
 ```
 
 ### 🗄️ **BACKEND (Banco de Dados)**
 
 **Localização:** Pasta `sql/` (completamente organizada)
+
+**📚 Documentação completa:** Ver `sql/README.md`
 
 #### **Funções Críticas por Categoria:**
 
@@ -282,21 +308,25 @@ holospot/
 ├── recalculate_user_points_secure() # Recalcular pontos
 └── handle_*_secure()            # Funções com SECURITY DEFINER
 
--- SISTEMA DE STREAKS (CRÍTICO - RECÉM CORRIGIDO)
-├── update_user_streak()         # ✅ SECURITY DEFINER adicionado
-├── calculate_user_streak()      # ✅ SECURITY DEFINER adicionado
-├── apply_streak_bonus_retroactive() # ✅ SECURITY DEFINER adicionado
+-- SISTEMA DE STREAKS
+├── update_user_streak()         # ✅ SECURITY DEFINER
+├── calculate_user_streak()      # ✅ SECURITY DEFINER
+├── apply_streak_bonus_retroactive() # ✅ SECURITY DEFINER
 └── update_user_streak_trigger() # ✅ Lógica condicional por tabela
 
--- NOTIFICAÇÕES (RECÉM IMPLEMENTADO)
-├── mark_all_notifications_read() # ✅ Corrigido campo read_at
+-- NOTIFICAÇÕES
+├── mark_all_notifications_read() # Marcar todas como lidas
 ├── create_notification_no_duplicates() # Anti-spam
-└── handle_*_notification_correto() # Funções de notificação
+└── handle_*_notification_*()    # Funções de notificação
 
--- FEEDBACKS (RECÉM CORRIGIDO)
-├── handle_feedback_notification_definitive() # ✅ NEW.author_id
-├── handle_feedback_insert_secure() # Pontuação de feedbacks
-└── notify_feedback_smart()      # ✅ NEW.author_id corrigido
+-- REAÇÕES (ATUALIZADO 2025-12-29)
+├── handle_reaction_simple()     # Notificação de reação
+└── Tipos: loved, claps, hug     # Constraint reactions_type_check
+
+-- GAMIFICAÇÃO
+├── calculate_holospot_index()   # Índice de engajamento
+├── check_and_award_badges()     # Verificar e conceder badges
+└── add_points_to_user()         # Adicionar pontos
 ```
 
 ## 🔧 **CASOS DE USO REAIS RESOLVIDOS**
@@ -304,7 +334,7 @@ holospot/
 ### **📋 Caso 1: Erro "record 'new' has no field 'user_id'"**
 
 **Problema:** Função tentava acessar campo inexistente
-**Investigação:** `grep -n "NEW\.user_id" ALL_FUNCTIONS.sql`
+**Investigação:** `grep -n "NEW\.user_id" sql/functions/*.sql`
 **Causa Raiz:** Múltiplas funções usavam NEW.user_id em tabela feedbacks
 **Solução:** Lógica condicional por tabela + correção sistemática
 
@@ -341,44 +371,27 @@ CREATE OR REPLACE FUNCTION update_user_streak(p_user_id uuid)
  SET search_path TO 'public'
 ```
 
-### **📋 Caso 3: Notificações Duplicadas**
+### **📋 Caso 3: Reações não salvando (2025-12-29)**
 
-**Problema:** Múltiplos triggers para mesma ação
-**Investigação:** `grep -n "trigger.*comment" ALL_TRIGGERS.sql`
-**Causa Raiz:** Dois triggers ativos para comentários
-**Solução:** Remover trigger duplicado + documentar
+**Problema:** Erro `violates check constraint "reactions_type_check"`
+**Investigação:** Verificar constraint da tabela reactions
+**Causa Raiz:** Constraint só aceitava tipos antigos (touched, grateful, inspired)
+**Solução:** Atualizar constraint para novos tipos (loved, claps, hug)
 
 ```sql
--- PROBLEMA: Dois triggers ativos
-CREATE TRIGGER comment_notification_correto_trigger ...
-CREATE TRIGGER comment_notify_only_trigger ...
-
--- SOLUÇÃO: Apenas um trigger
-CREATE TRIGGER comment_notification_correto_trigger ...
--- CREATE TRIGGER comment_notify_only_trigger ... (REMOVIDO)
+-- CORREÇÃO:
+ALTER TABLE public.reactions DROP CONSTRAINT IF EXISTS reactions_type_check;
+ALTER TABLE public.reactions 
+ADD CONSTRAINT reactions_type_check 
+CHECK (type IN ('loved', 'claps', 'hug', 'touched', 'grateful', 'inspired'));
 ```
 
-## 🚀 **FUNCIONALIDADES IMPLEMENTADAS RECENTEMENTE**
+### **📋 Caso 4: 100+ requests por reação (2025-12-29)**
 
-### **✅ Modal de Post via Notificação**
-- **Localização:** `index.html` linhas ~6000+
-- **Funcionalidade:** Clicar em notificação abre modal do post
-- **Implementação:** `showPostFromNotification()` + `renderSinglePost()`
-
-### **✅ @username Clicável com Modal de Perfil**
-- **Localização:** `index.html` linhas ~6100+
-- **Funcionalidade:** @username vira link que abre perfil
-- **Implementação:** `processUsernameLinks()` + `showUserProfileModal()`
-
-### **✅ Retry Automático para Erros de Rede**
-- **Localização:** `index.html` linhas ~5200+
-- **Funcionalidade:** Retry com backoff exponencial
-- **Implementação:** `retryWithBackoff()` + sincronização offline
-
-### **✅ "Marcar Todas Como Lidas"**
-- **Localização:** SQL functions + frontend
-- **Funcionalidade:** Marcar todas notificações como lidas
-- **Implementação:** `mark_all_notifications_read()` corrigida
+**Problema:** Função toggleReaction fazia muitas chamadas ao banco
+**Investigação:** Análise do código frontend
+**Causa Raiz:** Chamadas desnecessárias a updateMetricsRealTime, reRenderPostsRealTime, etc.
+**Solução:** Otimizar para 1-2 requests + atualização local da UI
 
 ## 🔍 **SCRIPTS DE DIAGNÓSTICO ESSENCIAIS**
 
@@ -419,24 +432,11 @@ ORDER BY ordinal_position;
 SELECT policyname, cmd, qual, with_check
 FROM pg_policies 
 WHERE tablename = 'nome_da_tabela';
-```
 
-### **🔧 Verificação de Integridade**
-```sql
--- Verificar se todas as funções críticas existem
-SELECT 
-    CASE 
-        WHEN EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'update_user_streak') 
-        THEN '✅ update_user_streak EXISTS'
-        ELSE '❌ update_user_streak MISSING'
-    END as status
-UNION ALL
-SELECT 
-    CASE 
-        WHEN EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'mark_all_notifications_read') 
-        THEN '✅ mark_all_notifications_read EXISTS'
-        ELSE '❌ mark_all_notifications_read MISSING'
-    END;
+-- Verificar constraints
+SELECT constraint_name, constraint_type
+FROM information_schema.table_constraints
+WHERE table_name = 'nome_da_tabela';
 ```
 
 ## 🎯 **REGRAS DE OURO PARA SUCESSO**
@@ -448,6 +448,7 @@ SELECT
 4. ✅ **Documente mudanças** - Para futuras referências
 5. ✅ **Commit com mensagens descritivas** - Explique problema + solução
 6. ✅ **Adicione logs de debug** - Para facilitar troubleshooting futuro
+7. ✅ **Atualize arquivos principais após migrations** - Manter GitHub sincronizado
 
 ### **🚫 NUNCA FAÇA:**
 1. ❌ **Assumir que algo existe** sem verificar
@@ -456,6 +457,7 @@ SELECT
 4. ❌ **Ignorar erros de RLS** - Sempre verificar SECURITY DEFINER
 5. ❌ **Criar código duplicado** - Reutilizar funções existentes
 6. ❌ **Commitar sem testar** - Sempre validar antes
+7. ❌ **Criar migrations sem atualizar arquivos principais** - GitHub deve refletir o banco
 
 ## 🔑 **CREDENCIAIS DE ACESSO**
 
@@ -475,11 +477,6 @@ git remote set-url origin https://holospotadm:TOKEN@github.com/holospotadm/holos
 # Fazer push das alterações
 git push origin main
 ```
-
-### **Token Atual (Setembro 2025):**
-- **Status:** ✅ Ativo e válido
-- **Permissões:** Acesso completo ao repositório
-- **Localização:** Fornecido separadamente por questões de segurança
 
 **⚠️ IMPORTANTE:** Por segurança, o token não é armazenado diretamente no código. Solicite o token atual ao administrador do projeto ou consulte as variáveis de ambiente seguras.
 
