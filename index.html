@@ -9718,7 +9718,8 @@
                     updateReactionButtonsUI(postId, post.reactions);
                     
                     // Deletar do banco (sem retry excessivo)
-                    if (!existingReaction.id.toString().startsWith('local-') && !existingReaction.id.toString().startsWith('temp-')) {
+                    const reactionId = existingReaction.id ? String(existingReaction.id) : '';
+                    if (reactionId && !reactionId.startsWith('local-') && !reactionId.startsWith('temp-')) {
                         const { error: deleteError } = await supabaseClient
                             .from('reactions')
                             .delete()
