@@ -9686,9 +9686,17 @@
                 
                 if (!post) {
                     console.log('🔍 Post não encontrado no array local, buscando no banco...');
+                    // Buscar post COM reações
                     const { data: postData, error: postError } = await supabaseClient
                         .from('posts')
-                        .select('*')
+                        .select(`
+                            *,
+                            reactions (
+                                id,
+                                type,
+                                user_id
+                            )
+                        `)
                         .eq('id', postId)
                         .single();
                     
@@ -9697,6 +9705,17 @@
                         return;
                     }
                     post = postData;
+                    
+                    // Adicionar ao array window.posts para cache local
+                    if (!window.posts) window.posts = [];
+                    const existingIndex = window.posts.findIndex(p => p.id === postId);
+                    if (existingIndex === -1) {
+                        window.posts.push(post);
+                        console.log('💾 Post adicionado ao cache local');
+                    } else {
+                        window.posts[existingIndex] = post;
+                        console.log('💾 Post atualizado no cache local');
+                    }
                 }
                 
                 // Verificar se o usuário está tentando reagir ao próprio post
@@ -9825,7 +9844,7 @@
             const userClaps = reactionsArray.some(r => r.user_id === currentUser.id && r.type === 'claps');
             const userHug = reactionsArray.some(r => r.user_id === currentUser.id && r.type === 'hug');
             
-            // Encontrar todos os botões de reação deste post
+            // Encontrar todos os botões de reação deste post (toggleReaction - feed principal)
             const postElements = document.querySelectorAll(`[onclick*="toggleReaction('${postId}'"]`);
             
             postElements.forEach(btn => {
@@ -9839,6 +9858,43 @@
                 } else if (onclick.includes("'hug'")) {
                     btn.innerHTML = `${reactionEmojis.hug} ${reactionCounts.hug}`;
                     btn.classList.toggle('active', userHug);
+                }
+            });
+            
+            // Encontrar botões de reação nos modais (reactToPost - modais e página única)
+            const modalElements = document.querySelectorAll(`[onclick*="reactToPost('${postId}'"]`);
+            
+            modalElements.forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                let reactionType = '';
+                let count = 0;
+                let userReacted = false;
+                
+                if (onclick.includes("'loved'")) {
+                    reactionType = 'loved';
+                    count = reactionCounts.loved;
+                    userReacted = userLoved;
+                } else if (onclick.includes("'claps'")) {
+                    reactionType = 'claps';
+                    count = reactionCounts.claps;
+                    userReacted = userClaps;
+                } else if (onclick.includes("'hug'")) {
+                    reactionType = 'hug';
+                    count = reactionCounts.hug;
+                    userReacted = userHug;
+                }
+                
+                if (reactionType) {
+                    btn.innerHTML = `${reactionEmojis[reactionType]} ${count}`;
+                    
+                    // Atualizar estilo baseado se o usuário reagiu
+                    if (userReacted) {
+                        btn.style.background = 'linear-gradient(135deg, #FFB700, #9C27B0)';
+                        btn.style.color = 'white';
+                    } else {
+                        btn.style.background = '#f5f5f5';
+                        btn.style.color = '#666';
+                    }
                 }
             });
         }
@@ -10954,6 +11010,20 @@
 
         function showPostModal(postData, modalType) {
             console.log('📱 Abrindo modal de post:', { modalType, postId: postData.id });
+            
+            // Sincronizar com window.posts para que toggleReaction funcione
+            if (!window.posts) window.posts = [];
+            const existingIndex = window.posts.findIndex(p => p.id === postData.id);
+            if (existingIndex === -1) {
+                window.posts.push(postData);
+                console.log('💾 Post adicionado ao window.posts (modal)');
+            } else {
+                // Atualizar apenas se o post do modal tiver mais dados (ex: reações)
+                if (postData.reactions && postData.reactions.length > 0) {
+                    window.posts[existingIndex] = postData;
+                    console.log('💾 Post atualizado no window.posts (modal)');
+                }
+            }
             
             // Criar ou obter modal
             let modal = document.getElementById('singlePostModal');
@@ -17621,6 +17691,17 @@
                     
                     // Salvar no cache
                     this.currentPostData = postData;
+                    
+                    // Sincronizar com window.posts para que toggleReaction funcione
+                    if (!window.posts) window.posts = [];
+                    const existingIndex = window.posts.findIndex(p => p.id === postId);
+                    if (existingIndex === -1) {
+                        window.posts.push(postData);
+                        console.log('💾 Post adicionado ao window.posts');
+                    } else {
+                        window.posts[existingIndex] = postData;
+                        console.log('💾 Post atualizado no window.posts');
+                    }
                     
                     // Renderizar post
                     this.renderPostContent(postData);
