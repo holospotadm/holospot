@@ -9679,34 +9679,27 @@
             try {
                 console.log(`💖 Tentando ${type} no post:`, postId);
                 
-                // Buscar post diretamente do banco se não estiver no array global
+                // Buscar post no array local
                 let post = window.posts.find(p => p.id === postId);
                 
                 if (!post) {
                     console.log('🔍 Post não encontrado no array local, buscando no banco...');
+                    const { data: postData, error: postError } = await supabaseClient
+                        .from('posts')
+                        .select('*')
+                        .eq('id', postId)
+                        .single();
                     
-                    try {
-                        const { data: postData, error: postError } = await supabaseClient
-                            .from('posts')
-                            .select('*')
-                            .eq('id', postId)
-                            .single();
-                        
-                        if (postError || !postData) {
-                            console.error('❌ Post não encontrado no banco:', postError);
-                            return;
-                        }
-                        
-                        post = postData;
-                    } catch (fetchError) {
-                        console.error('❌ Erro ao buscar post:', fetchError);
+                    if (postError || !postData) {
+                        console.error('❌ Post não encontrado:', postError);
                         return;
                     }
+                    post = postData;
                 }
                 
                 // Verificar se o usuário está tentando reagir ao próprio post
                 if (post.user_id === currentUser.id) {
-                    return; // Silenciosamente não fazer nada
+                    return;
                 }
                 
                 // Garantir que reactions seja sempre um array
@@ -9717,141 +9710,111 @@
                 const existingReaction = post.reactions.find(r => r.user_id === currentUser.id && r.type === type);
                 
                 if (existingReaction) {
-                    // ===== REMOVER REAÇÃO COM RETRY =====
-                    try {
-                        // Só tentar deletar do banco se não for ID local
-                        if (!existingReaction.id.toString().startsWith('local-')) {
-                            await retryWithBackoff(async () => {
-                                const { error: deleteError } = await supabaseClient
-                                    .from('reactions')
-                                    .delete()
-                                    .eq('id', existingReaction.id);
-                                
-                                if (deleteError) {
-                                    // Ignorar erro 404 (reação já não existe)
-                                    if (deleteError.code === 'PGRST116' || deleteError.message.includes('404')) {
-                                        console.log('✅ Reação já não existia no banco');
-                                        return;
-                                    }
-                                    throw deleteError;
-                                }
-                                
-                                console.log('✅ Reação removida do banco');
-                            });
+                    // ===== REMOVER REAÇÃO =====
+                    // Remover localmente primeiro (UI instantânea)
+                    post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
+                    
+                    // Atualizar UI imediatamente
+                    updateReactionButtonsUI(postId, post.reactions);
+                    
+                    // Deletar do banco (sem retry excessivo)
+                    if (!existingReaction.id.toString().startsWith('local-')) {
+                        const { error: deleteError } = await supabaseClient
+                            .from('reactions')
+                            .delete()
+                            .eq('id', existingReaction.id);
+                        
+                        if (deleteError && deleteError.code !== 'PGRST116') {
+                            console.warn('⚠️ Erro ao remover reação do banco:', deleteError.message);
                         } else {
-                            console.log('✅ Reação local removida (não estava no banco)');
-                        }
-                        
-                        // Remover localmente
-                        post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
-                        console.log('✅ Reação removida localmente');
-                        
-                    } catch (error) {
-                        console.warn('⚠️ Erro ao remover reação do banco, removendo apenas localmente:', error.message);
-                        
-                        // Mesmo com erro, remover localmente
-                        post.reactions = post.reactions.filter(r => r.id !== existingReaction.id);
-                        
-                        // Mostrar feedback específico para erro de rede
-                        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NETWORK')) {
-                            showToast('Reação removida localmente. Verifique sua conexão.');
+                            console.log('✅ Reação removida do banco');
                         }
                     }
                 } else {
-                    // ===== ADICIONAR REAÇÃO COM RETRY =====
-                    let newReaction = null;
+                    // ===== ADICIONAR REAÇÃO =====
+                    // Criar reação local primeiro (UI instantânea)
+                    const tempReaction = {
+                        id: `temp-${Date.now()}`,
+                        post_id: postId,
+                        user_id: currentUser.id,
+                        type: type,
+                        created_at: new Date().toISOString()
+                    };
+                    post.reactions.push(tempReaction);
                     
-                    try {
-                        await retryWithBackoff(async () => {
-                            const { data, error } = await supabaseClient
-                                .from('reactions')
-                                .insert({
-                                    post_id: postId,
-                                    user_id: currentUser.id,
-                                    type: type
-                                })
-                                .select()
-                                .single();
-                            
-                            if (error) throw error;
-                            
-                            newReaction = data;
-                            console.log('✅ Reação adicionada no banco');
-                        });
-                        
-                    } catch (error) {
-                        console.warn('⚠️ Erro ao adicionar reação no banco após tentativas, adicionando apenas localmente:', error.message);
-                        
-                        // Fallback: criar reação local
-                        newReaction = {
-                            id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    // Atualizar UI imediatamente
+                    updateReactionButtonsUI(postId, post.reactions);
+                    
+                    // Inserir no banco
+                    const { data: newReaction, error: insertError } = await supabaseClient
+                        .from('reactions')
+                        .insert({
                             post_id: postId,
                             user_id: currentUser.id,
-                            type: type,
-                            created_at: new Date().toISOString()
-                        };
-                        
-                        // Mostrar feedback específico para erro de rede
-                        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NETWORK')) {
-                            showToast('Reação adicionada localmente. Verifique sua conexão.');
+                            type: type
+                        })
+                        .select()
+                        .single();
+                    
+                    if (insertError) {
+                        console.error('❌ Erro ao adicionar reação:', insertError);
+                        // Remover reação temporária se falhou
+                        post.reactions = post.reactions.filter(r => r.id !== tempReaction.id);
+                        updateReactionButtonsUI(postId, post.reactions);
+                        showToast('Erro ao salvar reação. Tente novamente.');
+                    } else {
+                        // Substituir reação temporária pela real
+                        const tempIndex = post.reactions.findIndex(r => r.id === tempReaction.id);
+                        if (tempIndex !== -1) {
+                            post.reactions[tempIndex] = newReaction;
                         }
-                    }
-                    
-                    if (newReaction) {
-                        post.reactions.push(newReaction);
-                        console.log('✅ Reação adicionada localmente');
-                        
-                        // Notificação será criada pelo trigger SQL quando a conexão for restaurada
-                        if (post.user_id !== currentUser.id) {
-                            console.log('✅ Notificação de reação será criada automaticamente pelo trigger SQL');
-                        }
+                        console.log('✅ Reação salva no banco:', newReaction);
                     }
                 }
-                
-                // ===== ATUALIZAR INTERFACE =====
-                try {
-                    await updateMetricsRealTime();
-                    await reRenderPostsRealTime();
-                    console.log('✅ Interface atualizada em tempo real após reação');
-                } catch (renderError) {
-                    console.error('❌ Erro ao atualizar interface em tempo real:', renderError);
-                }
-                
-                try {
-                    updateStats();
-                    console.log('✅ Estatísticas atualizadas');
-                    
-                    // Tentar atualizar notificações (com retry menor)
-                    try {
-                        await retryWithBackoff(async () => {
-                            await loadNotifications();
-                        }, 2, 500); // Menos tentativas para notificações
-                        console.log('✅ Notificações atualizadas após reação');
-                    } catch (notifError) {
-                        console.warn('⚠️ Erro ao atualizar notificações:', notifError.message);
-                    }
-                    
-                    // Atualizar métricas do perfil em tempo real
-                    if (typeof updateSimpleMetrics === 'function') {
-                        setTimeout(() => {
-                            updateSimpleMetrics();
-                            console.log('✅ Métricas do perfil atualizadas após reação');
-                        }, 500);
-                    }
-                } catch (statsError) {
-                    console.error('❌ Erro ao atualizar estatísticas:', statsError);
-                }
-                
-                console.log('✅ Interface atualizada após reação');
-                
-                // 🔥 VERIFICAR STREAK EM TEMPO REAL APÓS REAÇÃO
-                await checkStreakAfterActivity('reaction_added');
                 
             } catch (error) {
-                console.error('❌ Erro crítico ao reagir:', error);
-                console.error('❌ Stack trace:', error.stack);
-                showToast('Erro ao processar reação. Verifique sua conexão.');
+                console.error('❌ Erro ao reagir:', error);
+                showToast('Erro ao processar reação.');
             }
+        }
+        
+        // Função auxiliar para atualizar apenas os botões de reação na UI
+        function updateReactionButtonsUI(postId, reactions) {
+            // Mapeamento de emojis
+            const reactionEmojis = {
+                'loved': '❤️',
+                'claps': '👏',
+                'hug': '🫂'
+            };
+            
+            // Contar reações por tipo
+            const reactionCounts = {
+                loved: reactions.filter(r => r.type === 'loved').length,
+                claps: reactions.filter(r => r.type === 'claps').length,
+                hug: reactions.filter(r => r.type === 'hug').length
+            };
+            
+            // Verificar reações do usuário atual
+            const userLoved = reactions.some(r => r.user_id === currentUser.id && r.type === 'loved');
+            const userClaps = reactions.some(r => r.user_id === currentUser.id && r.type === 'claps');
+            const userHug = reactions.some(r => r.user_id === currentUser.id && r.type === 'hug');
+            
+            // Encontrar todos os botões de reação deste post
+            const postElements = document.querySelectorAll(`[onclick*="toggleReaction('${postId}'"]`);
+            
+            postElements.forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                if (onclick.includes("'loved'")) {
+                    btn.innerHTML = `${reactionEmojis.loved} ${reactionCounts.loved || ''}`;
+                    btn.classList.toggle('active', userLoved);
+                } else if (onclick.includes("'claps'")) {
+                    btn.innerHTML = `${reactionEmojis.claps} ${reactionCounts.claps || ''}`;
+                    btn.classList.toggle('active', userClaps);
+                } else if (onclick.includes("'hug'")) {
+                    btn.innerHTML = `${reactionEmojis.hug} ${reactionCounts.hug || ''}`;
+                    btn.classList.toggle('active', userHug);
+                }
+            });
         }
 
         async function openFeedbackModal(postId, readOnly = false) {
