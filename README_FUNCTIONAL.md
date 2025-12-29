@@ -1,8 +1,8 @@
 # HoloSpot - Documentação Funcional Completa
 
 **Autor:** Manus AI  
-**Data:** 30 de outubro de 2025  
-**Versão:** v6.1-enhanced (Commit 2b0dfb3)  
+**Data:** 29 de dezembro de 2025  
+**Versão:** v11.0-stable  
 **Propósito:** Documentação funcional completa para entender TODAS as funcionalidades da rede social HoloSpot
 
 ---
@@ -330,18 +330,27 @@ O feed é a tela principal da aplicação e é dividido em **abas dinâmicas**.
 
 ### 4.3. Interações com Posts
 
-#### **Reagir (❤️)**
+#### **Reagir (❤️ 👏 🫂)**
+
+O sistema possui 3 tipos de reação:
+
+| Tipo | Emoji | Descrição |
+|:---|:---:|:---|
+| **Amei** | ❤️ | Demonstrar amor pelo post |
+| **Palmas** | 👏 | Aplaudir o reconhecimento |
+| **Abraço** | 🫂 | Enviar um abraço virtual |
 
 **Comportamento:**
-- Usuário clica no botão ❤️
-- Coração fica vermelho (animação)
+- Usuário clica em um dos botões de reação (❤️, 👏 ou 🫂)
+- Botão fica destacado (animação)
 - Contador de reações aumenta
 - Autor do post recebe +1 ponto
-- Autor do post recebe notificação
+- Autor do post recebe notificação com o emoji da reação
 - Seu streak é atualizado
+- Contador de "Reações Dadas" no perfil é atualizado em tempo real
 
 **Restrições:**
-- Só pode reagir uma vez por post
+- Só pode dar uma reação de cada tipo por post
 - Pode remover reação clicando novamente
 - Ao remover, autor perde o ponto
 
@@ -1157,5 +1166,5 @@ O HoloSpot é mais do que uma rede social. É um movimento para transformar a fo
 ---
 
 **Autor:** Manus AI  
-**Última Atualização:** 30 de outubro de 2025  
-**Versão do Documento:** 2.0
+**Última Atualização:** 29 de dezembro de 2025  
+**Versão do Documento:** 3.0

@@ -1,8 +1,8 @@
 # HoloSpot - Documentação Técnica Completa
 
 **Autor:** Manus AI  
-**Data:** 30 de outubro de 2025  
-**Versão:** v6.1-enhanced (Commit 2b0dfb3)  
+**Data:** 29 de dezembro de 2025  
+**Versão:** v11.0-stable  
 **Propósito:** Documentação técnica completa para desenvolvedores que precisam entender, manter ou expandir a plataforma HoloSpot
 
 ---
@@ -13,8 +13,8 @@
 2. [Stack Tecnológico](#2-stack-tecnológico)
 3. [Arquitetura do Backend](#3-arquitetura-do-backend)
 4. [Banco de Dados Completo](#4-banco-de-dados-completo)
-5. [Funções SQL (126 funções)](#5-funções-sql-126-funções)
-6. [Triggers (31 triggers)](#6-triggers-31-triggers)
+5. [Funções SQL (158 funções)](#5-funções-sql-158-funções)
+6. [Triggers (32 triggers)](#6-triggers-32-triggers)
 7. [Arquitetura do Frontend](#7-arquitetura-do-frontend)
 8. [Segurança e RLS](#8-segurança-e-rls)
 9. [Fluxos de Dados Detalhados](#9-fluxos-de-dados-detalhados)
@@ -83,9 +83,9 @@ Diferentemente de arquiteturas tradicionais onde a lógica de negócio reside em
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │            PostgreSQL 14+                            │   │
 │  │  ┌────────────────────────────────────────────────┐  │   │
-│  │  │  18 Tabelas                                    │  │   │
-│  │  │  126 Funções (plpgsql)                         │  │   │
-│  │  │  31 Triggers                                   │  │   │
+│  │  │  21 Tabelas                                    │  │   │
+│  │  │  158 Funções (plpgsql)                         │  │   │
+│  │  │  32 Triggers                                   │  │   │
 │  │  │  RLS (Row Level Security) em todas as tabelas │  │   │
 │  │  └────────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────────┘   │
@@ -226,7 +226,7 @@ Armazena arquivos (imagens de perfil, fotos de posts).
 
 ## 4. Banco de Dados Completo
 
-O banco de dados é composto por **18 tabelas** organizadas em 4 grupos funcionais.
+O banco de dados é composto por **21 tabelas** organizadas em 5 grupos funcionais.
 
 ### 4.1. Grupo: Usuários e Perfis
 
@@ -326,18 +326,19 @@ Armazena comentários feitos nos posts.
 
 #### Tabela: `reactions`
 
-Registra reações (likes) dadas aos posts.
+Registra reações dadas aos posts.
 
 | Campo | Tipo | Nullable | Default | Descrição |
 |:---|:---|:---:|:---|:---|
 | `id` | UUID | ❌ | `uuid_generate_v4()` | ID único da reação |
 | `post_id` | UUID | ❌ | - | ID do post |
 | `user_id` | UUID | ❌ | - | ID do usuário que reagiu |
-| `type` | TEXT | ✅ | 'like' | Tipo de reação (atualmente apenas 'like') |
+| `type` | TEXT | ❌ | - | Tipo de reação: `loved` (❤️), `claps` (👏), `hug` (🫂) |
 | `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação |
 
 **Constraints:**
-- `UNIQUE(post_id, user_id)` - Um usuário só pode reagir uma vez por post
+- `UNIQUE(post_id, user_id, type)` - Um usuário só pode dar uma reação de cada tipo por post
+- `CHECK(type IN ('loved', 'claps', 'hug', 'touched', 'grateful', 'inspired'))` - Tipos válidos de reação
 
 **Índices:**
 - `idx_reactions_post` em `post_id`
@@ -679,9 +680,9 @@ Armazena mensagens dentro de conversas.
 
 ---
 
-## 5. Funções SQL (126 funções)
+## 5. Funções SQL (158 funções)
 
-O sistema possui 126 funções SQL que contêm toda a lógica de negócio. Abaixo estão as funções mais críticas organizadas por categoria.
+O sistema possui 158 funções SQL que contêm toda a lógica de negócio. A lista completa está em `sql/functions/` (1 arquivo por função). Abaixo estão as funções mais críticas organizadas por categoria.
 
 ### 5.1. Funções de Pontos
 
@@ -917,7 +918,7 @@ O sistema possui 126 funções SQL que contêm toda a lógica de negócio. Abaix
 
 ---
 
-## 6. Triggers (31 triggers)
+## 6. Triggers (32 triggers)
 
 Os triggers automatizam a execução da lógica de negócio em resposta a eventos no banco de dados.
 
@@ -1204,7 +1205,7 @@ A segurança é garantida principalmente no nível do banco de dados através de
 
 ### 8.1. Row Level Security (RLS)
 
-**Todas as 18 tabelas possuem RLS ativado.**
+**Todas as 21 tabelas possuem RLS ativado.** A lista completa de policies está em `sql/policies/` (83 policies no total).
 
 #### **Princípios das Políticas:**
 
@@ -2067,5 +2068,5 @@ Para dúvidas ou problemas não cobertos neste documento, consulte:
 ---
 
 **Autor:** Manus AI  
-**Última Atualização:** 30 de outubro de 2025  
-**Versão do Documento:** 2.0
+**Última Atualização:** 29 de dezembro de 2025  
+**Versão do Documento:** 3.0
