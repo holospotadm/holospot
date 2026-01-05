@@ -17132,7 +17132,7 @@
                 }
             }
             
-            static closeFullProfile() {
+            static async closeFullProfile() {
                 console.log('🔄 ProfileRouter.closeFullProfile chamado');
                 
                 try {
@@ -17141,7 +17141,32 @@
                     this.clearURL();
                     this.currentProfileData = null;
                     
-                    console.log('✅ Perfil completo fechado');
+                    // Recarregar posts e dados como um refresh
+                    console.log('🔄 Recarregando posts e dados...');
+                    
+                    // Recarregar dados do usuário
+                    if (typeof loadUserData === 'function') {
+                        await loadUserData();
+                    }
+                    
+                    // Recarregar posts baseado no feed atual
+                    if (window.currentCommunityId && typeof loadCommunityPosts === 'function') {
+                        await loadCommunityPosts(window.currentCommunityId);
+                    } else if (typeof loadPosts === 'function') {
+                        await loadPosts();
+                    }
+                    
+                    // Atualizar notificações
+                    if (typeof loadNotifications === 'function') {
+                        await loadNotifications();
+                    }
+                    
+                    // Atualizar stats
+                    if (typeof updateStats === 'function') {
+                        updateStats();
+                    }
+                    
+                    console.log('✅ Perfil completo fechado e dados recarregados');
                     
                 } catch (error) {
                     console.error('❌ Erro ao fechar perfil completo:', error);
@@ -17720,7 +17745,7 @@
                 }
             }
             
-            static closeSinglePostPage() {
+            static async closeSinglePostPage() {
                 console.log('🔄 PostRouter.closeSinglePostPage chamado');
                 
                 try {
@@ -17729,7 +17754,32 @@
                     this.clearURL();
                     this.currentPostData = null;
                     
-                    console.log('✅ Página única de post fechada');
+                    // Recarregar posts e dados como um refresh
+                    console.log('🔄 Recarregando posts e dados...');
+                    
+                    // Recarregar dados do usuário
+                    if (typeof loadUserData === 'function') {
+                        await loadUserData();
+                    }
+                    
+                    // Recarregar posts baseado no feed atual
+                    if (window.currentCommunityId && typeof loadCommunityPosts === 'function') {
+                        await loadCommunityPosts(window.currentCommunityId);
+                    } else if (typeof loadPosts === 'function') {
+                        await loadPosts();
+                    }
+                    
+                    // Atualizar notificações
+                    if (typeof loadNotifications === 'function') {
+                        await loadNotifications();
+                    }
+                    
+                    // Atualizar stats
+                    if (typeof updateStats === 'function') {
+                        updateStats();
+                    }
+                    
+                    console.log('✅ Página única de post fechada e dados recarregados');
                     
                 } catch (error) {
                     console.error('❌ Erro ao fechar página única de post:', error);
