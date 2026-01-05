@@ -3957,15 +3957,15 @@
                     <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">Clique na câmera para alterar</p>
                 </div>
                 
-                <!-- Nome Completo -->
+                <!-- Nome -->
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Nome Completo</label>
-                    <input type="text" id="settingsFullName" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="Seu nome completo">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Nome</label>
+                    <input type="text" id="settingsFullName" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="Seu nome">
                 </div>
                 
-                <!-- Username -->
+                <!-- Nome de Usuário -->
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">@username</label>
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Nome de Usuário</label>
                     <div style="position: relative;">
                         <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1rem; pointer-events: none; font-weight: 500;">@</span>
                         <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px 40px 12px 24px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; letter-spacing: 0.02em;" placeholder="seu.username" oninput="this.value = this.value.replace(/@/g, ''); checkUsernameAvailability();">
@@ -3977,8 +3977,7 @@
                 <!-- Data de Nascimento -->
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Data de Nascimento</label>
-                    <input type="date" id="settingsBirthDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;">
-                    <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;">Usada para calcular sua idade (opcional)</p>
+                    <input type="date" id="settingsBirthDate" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;">
                 </div>
                 
                 <!-- Feed Padrão -->
@@ -4736,9 +4735,32 @@
                         return; // Não continuar com o carregamento do app
                     }
                     
+                    // Verificar se usuário completou o onboarding (tem nome, username e birth_date)
+                    const { data: fullProfile } = await supabaseClient
+                        .from('profiles')
+                        .select('name, username, birth_date')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    const needsOnboarding = !fullProfile?.name || !fullProfile?.username || !fullProfile?.birth_date;
+                    
                     console.log('✅ Perfil encontrado, continuando...');
                     window.initializationInProgress = false; // Marcar fim da inicialização
                     showApp();
+                    
+                    // Se precisa completar onboarding, abrir modal de configurações
+                    if (needsOnboarding) {
+                        console.log('📝 Usuário precisa completar onboarding, abrindo configurações...');
+                        window.onboardingMode = true;
+                        setTimeout(() => {
+                            openSettingsModal();
+                            // Mostrar mensagem de boas-vindas
+                            const modalHeader = document.querySelector('#settingsModal .modal-header h3');
+                            if (modalHeader) {
+                                modalHeader.innerHTML = '👋 Bem-vindo ao HoloSpot!';
+                            }
+                        }, 500);
+                    }
                     
                     try {
                         console.log('📊 Carregando dados do usuário...');
@@ -7312,9 +7334,22 @@
         }
 
         function closeSettingsModal() {
+            // Se está em modo onboarding, não permitir fechar sem preencher os campos
+            if (window.onboardingMode) {
+                const fullName = document.getElementById('settingsFullName')?.value?.trim();
+                const username = document.getElementById('settingsUsername')?.value?.trim();
+                const birthDate = document.getElementById('settingsBirthDate')?.value;
+                
+                if (!fullName || !username || !birthDate) {
+                    alert('Por favor, preencha todos os campos obrigatórios (Nome, Nome de Usuário e Data de Nascimento) para continuar.');
+                    return;
+                }
+            }
+            
             const modal = document.getElementById('settingsModal');
             modal.style.display = 'none';
             currentAvatarFile = null;
+            window.onboardingMode = false; // Resetar modo onboarding
             
             // Limpar validação do username
             const usernameInput = document.getElementById('settingsUsername');
@@ -8585,6 +8620,28 @@
                 const defaultFeed = document.getElementById('settingsDefaultFeed').value;
                 const birthDate = document.getElementById('settingsBirthDate').value || null;
                 
+                // Validação de campos obrigatórios
+                if (!fullName) {
+                    alert('Por favor, preencha o campo Nome.');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
+                
+                if (!username) {
+                    alert('Por favor, preencha o campo Nome de Usuário.');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
+                
+                if (!birthDate) {
+                    alert('Por favor, preencha o campo Data de Nascimento.');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
+                
                 let avatarUrl = currentUser.user_metadata?.avatar_url;
                 
                 // Upload de avatar se houver
@@ -8632,6 +8689,12 @@
                 }
                 
                 console.log('✅ Perfil atualizado com sucesso!');
+                
+                // Resetar modo onboarding se estava ativo
+                if (window.onboardingMode) {
+                    window.onboardingMode = false;
+                    console.log('✅ Onboarding concluído!');
+                }
                 
                 // Atualizar localStorage do filtro
                 localStorage.setItem('feedFilter', defaultFeed);
