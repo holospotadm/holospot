@@ -5218,12 +5218,25 @@
                 // Marcar como carregando ANTES de renderizar
                 window.isLoadingPosts = true;
                 
+                // Verificar se está em feed de comunidade
+                const isInCommunityFeed = window.currentCommunityId && window.currentCommunityId !== null;
+                
                 // Recarregar todos os dados
-                await Promise.all([
-                    loadPosts(),
-                    loadUserData(),
-                    loadNotifications()
-                ]);
+                if (isInCommunityFeed) {
+                    console.log('🔄 Recarregando feed de comunidade:', window.currentCommunityId);
+                    await Promise.all([
+                        loadCommunityPosts(window.currentCommunityId),
+                        loadUserData(),
+                        loadNotifications()
+                    ]);
+                } else {
+                    console.log('🔄 Recarregando feed geral');
+                    await Promise.all([
+                        loadPosts(),
+                        loadUserData(),
+                        loadNotifications()
+                    ]);
+                }
                 
                 // Atualizar interface (isLoadingPosts já foi setado para false dentro de loadPosts)
                 await renderPosts();
