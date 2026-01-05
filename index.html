@@ -3974,6 +3974,13 @@
                     <p id="usernameMessage" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;"></p>
                 </div>
                 
+                <!-- Data de Nascimento -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Data de Nascimento</label>
+                    <input type="date" id="settingsBirthDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;">
+                    <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;">Usada para calcular sua idade (opcional)</p>
+                </div>
+                
                 <!-- Feed Padrão -->
                 <div style="margin-bottom: 2rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Feed Padrão</label>
@@ -7231,7 +7238,7 @@
             // Buscar dados do perfil do Supabase
             const { data: profile, error } = await supabaseClient
                 .from('profiles')
-                .select('name, username, avatar_url, default_feed')
+                .select('name, username, avatar_url, default_feed, birth_date')
                 .eq('id', currentUser.id)
                 .single();
             
@@ -7259,6 +7266,12 @@
                 
                 if (fullNameInput) fullNameInput.value = profile?.name || currentUser.user_metadata?.full_name || '';
                 if (usernameInput) usernameInput.value = currentUsername;
+                
+                // Preencher data de nascimento
+                const birthDateInput = document.getElementById('settingsBirthDate');
+                if (birthDateInput && profile?.birth_date) {
+                    birthDateInput.value = profile.birth_date;
+                }
                 
                 // Preencher dropdown de feed padrão com comunidades
                 if (defaultFeedInput) {
@@ -8570,6 +8583,7 @@
                 const fullName = document.getElementById('settingsFullName').value.trim();
                 const username = document.getElementById('settingsUsername').value.trim();
                 const defaultFeed = document.getElementById('settingsDefaultFeed').value;
+                const birthDate = document.getElementById('settingsBirthDate').value || null;
                 
                 let avatarUrl = currentUser.user_metadata?.avatar_url;
                 
@@ -8607,7 +8621,8 @@
                     p_name: fullName,
                     p_username: username,
                     p_avatar_url: avatarUrl,
-                    p_default_feed: defaultFeed
+                    p_default_feed: defaultFeed,
+                    p_birth_date: birthDate
                 });
                 
                 if (error) throw error;

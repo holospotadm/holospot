@@ -2,7 +2,7 @@
 -- FUNÇÃO: update_user_profile
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION public.update_user_profile(p_user_id uuid, p_name text DEFAULT NULL::text, p_username text DEFAULT NULL::text, p_avatar_url text DEFAULT NULL::text, p_default_feed text DEFAULT NULL::text)
+CREATE OR REPLACE FUNCTION public.update_user_profile(p_user_id uuid, p_name text DEFAULT NULL::text, p_username text DEFAULT NULL::text, p_avatar_url text DEFAULT NULL::text, p_default_feed text DEFAULT NULL::text, p_birth_date date DEFAULT NULL::date)
  RETURNS json
  LANGUAGE plpgsql
  SECURITY DEFINER
@@ -28,6 +28,7 @@ BEGIN
         username = COALESCE(p_username, username),
         avatar_url = COALESCE(p_avatar_url, avatar_url),
         default_feed = COALESCE(p_default_feed, default_feed),
+        birth_date = COALESCE(p_birth_date, birth_date),
         updated_at = NOW()
     WHERE id = p_user_id;
     
@@ -42,4 +43,3 @@ BEGIN
     RETURN v_result;
 END;
 $function$
-
