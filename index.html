@@ -3960,7 +3960,8 @@
                 <!-- Nome -->
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Nome</label>
-                    <input type="text" id="settingsFullName" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="Seu nome">
+                    <input type="text" id="settingsFullName" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" placeholder="Seu nome" oninput="clearFieldError('settingsFullName')">
+                    <p id="settingsFullNameError" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0; color: #dc2626; display: none;">Campo Obrigatório</p>
                 </div>
                 
                 <!-- Nome de Usuário -->
@@ -3968,16 +3969,18 @@
                     <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Nome de Usuário</label>
                     <div style="position: relative;">
                         <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1rem; pointer-events: none; font-weight: 500;">@</span>
-                        <input type="text" id="settingsUsername" required pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px 40px 12px 24px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; letter-spacing: 0.02em;" placeholder="seu.username" oninput="this.value = this.value.replace(/@/g, ''); checkUsernameAvailability();">
+                        <input type="text" id="settingsUsername" pattern="[a-zA-Z0-9._]+" style="width: 100%; padding: 12px 40px 12px 24px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; letter-spacing: 0.02em;" placeholder="seu.username" oninput="this.value = this.value.replace(/@/g, ''); checkUsernameAvailability(); clearFieldError('settingsUsername');">
                         <span id="usernameStatus" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.2rem;"></span>
                     </div>
                     <p id="usernameMessage" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;"></p>
+                    <p id="settingsUsernameError" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0; color: #dc2626; display: none;">Campo Obrigatório</p>
                 </div>
                 
                 <!-- Data de Nascimento -->
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Data de Nascimento</label>
-                    <input type="date" id="settingsBirthDate" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;">
+                    <input type="date" id="settingsBirthDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" oninput="clearFieldError('settingsBirthDate')">
+                    <p id="settingsBirthDateError" style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0; color: #dc2626; display: none;">Campo Obrigatório</p>
                 </div>
                 
                 <!-- Feed Padrão -->
@@ -7257,6 +7260,11 @@
                 return;
             }
             
+            // Limpar erros de validação anteriores
+            if (typeof clearAllFieldErrors === 'function') {
+                clearAllFieldErrors();
+            }
+            
             // Buscar dados do perfil do Supabase
             const { data: profile, error } = await supabaseClient
                 .from('profiles')
@@ -7361,6 +7369,42 @@
             if (message) message.textContent = '';
             
             console.log('❌ Modal de configurações fechado');
+        }
+
+        // ========================================
+        // VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+        // ========================================
+        
+        function showFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorMsg = document.getElementById(fieldId + 'Error');
+            
+            if (field) {
+                field.style.borderColor = '#dc2626';
+                field.style.backgroundColor = '#fef2f2';
+            }
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+            }
+        }
+        
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorMsg = document.getElementById(fieldId + 'Error');
+            
+            if (field) {
+                field.style.borderColor = '#e0e0e0';
+                field.style.backgroundColor = 'white';
+            }
+            if (errorMsg) {
+                errorMsg.style.display = 'none';
+            }
+        }
+        
+        function clearAllFieldErrors() {
+            ['settingsFullName', 'settingsUsername', 'settingsBirthDate'].forEach(fieldId => {
+                clearFieldError(fieldId);
+            });
         }
 
         // ========================================
@@ -8620,23 +8664,25 @@
                 const defaultFeed = document.getElementById('settingsDefaultFeed').value;
                 const birthDate = document.getElementById('settingsBirthDate').value || null;
                 
-                // Validação de campos obrigatórios
+                // Validação de campos obrigatórios com feedback visual
+                let hasError = false;
+                
                 if (!fullName) {
-                    alert('Por favor, preencha o campo Nome.');
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = originalText;
-                    return;
+                    showFieldError('settingsFullName');
+                    hasError = true;
                 }
                 
                 if (!username) {
-                    alert('Por favor, preencha o campo Nome de Usuário.');
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = originalText;
-                    return;
+                    showFieldError('settingsUsername');
+                    hasError = true;
                 }
                 
                 if (!birthDate) {
-                    alert('Por favor, preencha o campo Data de Nascimento.');
+                    showFieldError('settingsBirthDate');
+                    hasError = true;
+                }
+                
+                if (hasError) {
                     saveBtn.disabled = false;
                     saveBtn.textContent = originalText;
                     return;
