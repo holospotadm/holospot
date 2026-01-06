@@ -3377,17 +3377,17 @@
                     <small style="color: #666; display: block; margin-top: 5px;">Selecione onde você quer postar</small>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">Nome da pessoa</label>
+                <div class="form-group" id="personNameContainer">
+                    <label class="form-label" id="personNameLabel">Nome da pessoa</label>
                     <div class="textarea-container">
                         <input type="text" id="personName" class="form-input" placeholder="Digite o nome ou use @ para mencionar alguém...">
                         <div id="mentionsAutocomplete" class="mentions-autocomplete" style="display: none;"></div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Que tipo de destaque é esse?</label>
-                    <div class="highlight-types">
+                <div class="form-group" id="highlightTypesContainer">
+                    <label class="form-label" id="highlightTypesLabel">Que tipo de destaque é esse?</label>
+                    <div class="highlight-types" id="highlightTypesGrid">
                         <div class="highlight-type" data-type="gratidao">
                             <div class="highlight-type-emoji">🙏</div>
                             <div class="highlight-type-name">Gratidão</div>
@@ -9288,23 +9288,56 @@
                     }
                 }
                 
+                // Verificar se é um post do Memórias Vivas
+                const isMemoriasVivasPost = post.type && post.type.endsWith('_mv');
+                
+                // Calcular idade do usuário atual
+                const userAge = currentUser?.birth_date ? calculateAgeFromDate(currentUser.birth_date) : 0;
+                const userIs60Plus = userAge >= 60;
+                
+                // Verificar se o usuário já deu feedback neste post (para Memórias Vivas)
+                const userAlreadyGaveFeedback = allFeedbacks.some(f => f.mentioned_user_id === currentUser.id);
+                
                 // Se o usuário atual é a pessoa mencionada E ainda não deu feedback, retornar botão separadamente
+                // OU se é um post do Memórias Vivas e o usuário tem 60+ e ainda não deu feedback
                 let feedbackButtonHtml = '';
-                if (post.mentioned_user_id === currentUser.id && !userHasFeedback) {
-                    feedbackButtonHtml = `
-                        <button onclick="openFeedbackModal('${post.id}')" style="
-                            background: linear-gradient(135deg, #e55a2b, #ffb700);
-                            color: white;
-                            border: none;
-                            padding: 12px 24px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            transition: transform 0.2s ease;
-                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            🔄 Dar Feedback
-                        </button>
-                    `;
+                
+                if (isMemoriasVivasPost) {
+                    // Memórias Vivas: qualquer usuário 60+ pode dar feedback (se ainda não deu)
+                    if (userIs60Plus && !userAlreadyGaveFeedback && post.user_id !== currentUser.id) {
+                        feedbackButtonHtml = `
+                            <button onclick="openFeedbackModal('${post.id}')" style="
+                                background: linear-gradient(135deg, #e55a2b, #ffb700);
+                                color: white;
+                                border: none;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                transition: transform 0.2s ease;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                💬 Compartilhar Sabedoria
+                            </button>
+                        `;
+                    }
+                } else {
+                    // Posts comuns: apenas a pessoa mencionada pode dar feedback
+                    if (post.mentioned_user_id === currentUser.id && !userHasFeedback) {
+                        feedbackButtonHtml = `
+                            <button onclick="openFeedbackModal('${post.id}')" style="
+                                background: linear-gradient(135deg, #e55a2b, #ffb700);
+                                color: white;
+                                border: none;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                transition: transform 0.2s ease;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                🔄 Dar Feedback
+                            </button>
+                        `;
+                    }
                 }
                 
                 return { feedbacksHtml, feedbackButtonHtml };
@@ -9356,7 +9389,10 @@
                     'conquista': '🏆', 'achievement': '🏆',
                     'inspiracao': '✨', 'inspiration': '✨',
                     'apoio': '🤝', 'support': '🤝',
-                    'admiracao': '🌟', 'admiration': '🌟'
+                    'admiracao': '🌟', 'admiration': '🌟',
+                    // Tipos do Memórias Vivas
+                    'memoria_mv': '💭', 'conselho_mv': '💡', 'epoca_ouro_mv': '✨',
+                    'historia_mv': '📜', 'licao_vida_mv': '📚', 'tradicao_mv': '🎭'
                 };
 
                 const typeNames = {
@@ -9365,8 +9401,14 @@
                     'conquista': 'Conquista', 'achievement': 'Conquista',
                     'inspiracao': 'Inspiração', 'inspiration': 'Inspiração',
                     'apoio': 'Apoio', 'support': 'Apoio',
-                    'admiracao': 'Admiração', 'admiration': 'Admiração'
+                    'admiracao': 'Admiração', 'admiration': 'Admiração',
+                    // Tipos do Memórias Vivas
+                    'memoria_mv': 'Memória', 'conselho_mv': 'Conselho', 'epoca_ouro_mv': 'Época de Ouro',
+                    'historia_mv': 'História', 'licao_vida_mv': 'Lição de Vida', 'tradicao_mv': 'Tradição'
                 };
+                
+                // Verificar se é um post do Memórias Vivas (para exibir idade)
+                const isMemoriasVivasPost = post.type && post.type.endsWith('_mv');
                 
                 // Obter feedbacks e botão usando função
                 const feedbackData = await getFeedbackButtonForPost(post);
@@ -9379,7 +9421,7 @@
                             <img class="post-avatar" src="${post.user_data?.avatar_url || ''}" alt="Avatar">
                             <div class="post-author">
                                 <div class="post-author-name">
-                                    ${post.user_data?.name || 'Usuário'}
+                                    ${post.user_data?.name || 'Usuário'}${isMemoriasVivasPost && post.user_data?.birth_date ? ` <span style="color: #666; font-weight: normal; font-size: 0.85em;">• ${calculateAgeFromDate(post.user_data.birth_date)} anos</span>` : ''}
                                 </div>
                                 <div class="post-author-meta">
                                     ${post.user_id === currentUser.id ? 
@@ -9402,18 +9444,22 @@
                         
                         <div class="post-content">
                             <div class="post-person">
-                                Holofotes para: 
-                                ${post.mentioned_user_id ? `
-                                    ${post.mentioned_user_id === currentUser.id ? 
-                                        `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
-                                        `<span onclick="openUserProfileByIdKeepingModals('${post.mentioned_user_id}')" 
-                                              style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
-                                              onmouseover="this.style.color='#0056b3'"
-                                              onmouseout="this.style.color='#007bff'">
-                                            ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
-                                        </span>`
-                                    }
-                                ` : `${post.celebrated_person_name || post.person_name}`}
+                                ${isMemoriasVivasPost ? `
+                                    <span style="color: #e65100; font-weight: 600;">📖 ${post.celebrated_person_name || post.person_name || 'Memória'}</span>
+                                ` : `
+                                    Holofotes para: 
+                                    ${post.mentioned_user_id ? `
+                                        ${post.mentioned_user_id === currentUser.id ? 
+                                            `<span>${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}</span>` :
+                                            `<span onclick="openUserProfileByIdKeepingModals('${post.mentioned_user_id}')" 
+                                                  style="color: #007bff; cursor: pointer; transition: color 0.2s ease;"
+                                                  onmouseover="this.style.color='#0056b3'"
+                                                  onmouseout="this.style.color='#007bff'">
+                                                ${post.mentioned_user?.username ? '@' + post.mentioned_user.username : post.mentioned_user?.email ? '@' + post.mentioned_user.email.split('@')[0] : post.celebrated_person_name || post.person_name}
+                                            </span>`
+                                        }
+                                    ` : `${post.celebrated_person_name || post.person_name}`}
+                                `}
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 ${post.type || post.highlight_type ? `
@@ -18874,19 +18920,22 @@ function updateDropdownActiveState() {
 }
 
 // Popular dropdown do Feed (aba Início)
-function populateFeedDropdown() {
+async function populateFeedDropdown() {
     const dropdown = document.getElementById('feedFilterDropdown');
     if (!dropdown) return;
 
-    // Remover opções de comunidades antigas
-    const oldCommunityOptions = dropdown.querySelectorAll('[data-filter^="community-"]');
+    // Remover opções de comunidades antigas e Memórias Vivas
+    const oldCommunityOptions = dropdown.querySelectorAll('[data-filter^="community-"], [data-filter="memorias-vivas"]');
     oldCommunityOptions.forEach(opt => opt.remove());
+    
+    const currentFilter = window.currentFeedFilter;
 
-    // Adicionar comunidades
+    // Adicionar comunidades do usuário
     if (userCommunities.length > 0) {
-        const currentFilter = window.currentFeedFilter;
-        
         userCommunities.forEach(community => {
+            // Pular Memórias Vivas (será adicionada separadamente)
+            if (community.slug === 'memorias-vivas') return;
+            
             const option = document.createElement('div');
             option.className = 'filter-option';
             const filterValue = `community-${community.id}`;
@@ -18905,12 +18954,41 @@ function populateFeedDropdown() {
         console.log('✅ Dropdown do Feed atualizado com', userCommunities.length, 'comunidades');
     }
     
+    // Adicionar Memórias Vivas para TODOS os usuários (todos podem visualizar)
+    try {
+        const { data: memoriasVivas, error } = await supabaseClient
+            .from('communities')
+            .select('*')
+            .eq('slug', 'memorias-vivas')
+            .eq('is_active', true)
+            .single();
+        
+        if (!error && memoriasVivas) {
+            const option = document.createElement('div');
+            option.className = 'filter-option';
+            const filterValue = `community-${memoriasVivas.id}`;
+            option.setAttribute('data-filter', filterValue);
+            option.setAttribute('data-memorias-vivas', 'true');
+            option.innerHTML = `<span>${memoriasVivas.emoji || '📖'} ${memoriasVivas.name}</span>`;
+            
+            // Marcar como ativa se for o feed atual
+            if (currentFilter === filterValue) {
+                option.classList.add('active');
+            }
+            
+            dropdown.appendChild(option);
+            console.log('✅ Memórias Vivas adicionada ao dropdown do Feed');
+        }
+    } catch (e) {
+        console.log('⚠️ Memórias Vivas não encontrada para o dropdown');
+    }
+    
     // Atualizar opções padrões (recommended, following) também
     updateDropdownActiveState();
 }
 
 // Popular dropdown do Destacar
-function populateDestacarDropdown() {
+async function populateDestacarDropdown() {
     const container = document.getElementById('destacarCommunityDropdownContainer');
     const select = document.getElementById('destacarCommunitySelect');
 
@@ -18921,23 +18999,213 @@ function populateDestacarDropdown() {
         select.remove(1);
     }
 
-    if (userCommunities.length > 0) {
-        // Mostrar dropdown
+    // Calcular idade do usuário atual
+    const userAge = currentUser?.birth_date ? calculateAgeFromDate(currentUser.birth_date) : 0;
+    const canPostInMemoriasVivas = userAge >= 60;
+    
+    console.log(`📅 Idade do usuário: ${userAge} anos, pode postar no Memórias Vivas: ${canPostInMemoriasVivas}`);
+
+    // Buscar comunidade Memórias Vivas
+    let memoriasVivasCommunity = null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('communities')
+            .select('*')
+            .eq('slug', 'memorias-vivas')
+            .eq('is_active', true)
+            .single();
+        
+        if (!error && data) {
+            memoriasVivasCommunity = data;
+            console.log('📖 Comunidade Memórias Vivas encontrada:', data.id);
+        }
+    } catch (e) {
+        console.log('⚠️ Comunidade Memórias Vivas não encontrada');
+    }
+
+    // Mostrar dropdown se tem comunidades OU se pode postar no Memórias Vivas
+    if (userCommunities.length > 0 || (canPostInMemoriasVivas && memoriasVivasCommunity)) {
         container.style.display = 'block';
 
-        // Adicionar comunidades
+        // Adicionar comunidades do usuário
         userCommunities.forEach(community => {
+            // Pular Memórias Vivas se já estiver nas comunidades do usuário (será adicionada separadamente)
+            if (community.slug === 'memorias-vivas') return;
+            
             const option = document.createElement('option');
             option.value = community.id;
             option.textContent = `${community.emoji || '👨‍👩‍👧‍👦'} ${community.name}`;
+            option.dataset.community = JSON.stringify(community);
             select.appendChild(option);
         });
 
-        console.log('✅ Dropdown do Destacar atualizado com', userCommunities.length, 'comunidades');
+        // Adicionar Memórias Vivas se usuário tem 60+
+        if (canPostInMemoriasVivas && memoriasVivasCommunity) {
+            const option = document.createElement('option');
+            option.value = memoriasVivasCommunity.id;
+            option.textContent = `${memoriasVivasCommunity.emoji || '📖'} ${memoriasVivasCommunity.name}`;
+            option.dataset.community = JSON.stringify(memoriasVivasCommunity);
+            option.dataset.isMemoriasVivas = 'true';
+            select.appendChild(option);
+            console.log('✅ Opção Memórias Vivas adicionada ao dropdown');
+        }
+
+        console.log('✅ Dropdown do Destacar atualizado');
     } else {
-        // Esconder dropdown se não tem comunidades
         container.style.display = 'none';
     }
+    
+    // Configurar listener para mudança de comunidade
+    select.removeEventListener('change', handleDestacarCommunityChange);
+    select.addEventListener('change', handleDestacarCommunityChange);
+}
+
+// Função para calcular idade a partir da data de nascimento
+function calculateAgeFromDate(birthDate) {
+    if (!birthDate) return 0;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+// Handler para mudança de comunidade no dropdown do Destacar
+function handleDestacarCommunityChange(event) {
+    const select = event.target;
+    const selectedOption = select.options[select.selectedIndex];
+    const isMemoriasVivas = selectedOption?.dataset?.isMemoriasVivas === 'true';
+    
+    console.log('🔄 Comunidade selecionada, Memórias Vivas:', isMemoriasVivas);
+    
+    // Atualizar formulário baseado na seleção
+    updateFormForMemoriasVivas(isMemoriasVivas);
+}
+
+// Atualizar formulário para Memórias Vivas
+function updateFormForMemoriasVivas(isMemoriasVivas) {
+    const personNameContainer = document.getElementById('personNameContainer');
+    const personNameLabel = document.getElementById('personNameLabel');
+    const personNameInput = document.getElementById('personName');
+    const highlightTypesContainer = document.getElementById('highlightTypesContainer');
+    const highlightTypesLabel = document.getElementById('highlightTypesLabel');
+    const highlightTypesGrid = document.getElementById('highlightTypesGrid');
+    
+    if (isMemoriasVivas) {
+        // Mudar label de "Nome da pessoa" para "Título"
+        if (personNameLabel) personNameLabel.textContent = 'Título';
+        if (personNameInput) {
+            personNameInput.placeholder = 'Dê um título para sua história...';
+            // Limpar dados de menção
+            personNameInput.dataset.mentionLocked = 'false';
+            delete personNameInput.dataset.validMention;
+            delete personNameInput.dataset.validMentionId;
+            delete personNameInput.dataset.validMentionName;
+        }
+        
+        // Mudar label dos tipos
+        if (highlightTypesLabel) highlightTypesLabel.textContent = 'Tipo de história';
+        
+        // Substituir tipos de highlight pelos tipos do Memórias Vivas
+        if (highlightTypesGrid) {
+            highlightTypesGrid.innerHTML = `
+                <div class="highlight-type" data-type="memoria_mv" onclick="selectHighlightType('memoria_mv')">
+                    <div class="highlight-type-emoji">💭</div>
+                    <div class="highlight-type-name">Memória</div>
+                    <div class="highlight-type-desc">Uma lembrança do passado</div>
+                </div>
+                <div class="highlight-type" data-type="conselho_mv" onclick="selectHighlightType('conselho_mv')">
+                    <div class="highlight-type-emoji">💡</div>
+                    <div class="highlight-type-name">Conselho</div>
+                    <div class="highlight-type-desc">Sabedoria de vida</div>
+                </div>
+                <div class="highlight-type" data-type="epoca_ouro_mv" onclick="selectHighlightType('epoca_ouro_mv')">
+                    <div class="highlight-type-emoji">✨</div>
+                    <div class="highlight-type-name">Época de Ouro</div>
+                    <div class="highlight-type-desc">Como era antigamente</div>
+                </div>
+                <div class="highlight-type" data-type="historia_mv" onclick="selectHighlightType('historia_mv')">
+                    <div class="highlight-type-emoji">📜</div>
+                    <div class="highlight-type-name">História</div>
+                    <div class="highlight-type-desc">Qualquer história marcante</div>
+                </div>
+                <div class="highlight-type" data-type="licao_vida_mv" onclick="selectHighlightType('licao_vida_mv')">
+                    <div class="highlight-type-emoji">📚</div>
+                    <div class="highlight-type-name">Lição de Vida</div>
+                    <div class="highlight-type-desc">Aprendizado importante</div>
+                </div>
+                <div class="highlight-type" data-type="tradicao_mv" onclick="selectHighlightType('tradicao_mv')">
+                    <div class="highlight-type-emoji">🎭</div>
+                    <div class="highlight-type-name">Tradição</div>
+                    <div class="highlight-type-desc">Costumes e receitas</div>
+                </div>
+            `;
+        }
+        
+        // Marcar que estamos no modo Memórias Vivas
+        window.isMemoriasVivasMode = true;
+        console.log('📖 Formulário configurado para Memórias Vivas');
+        
+    } else {
+        // Restaurar formulário padrão
+        if (personNameLabel) personNameLabel.textContent = 'Nome da pessoa';
+        if (personNameInput) {
+            personNameInput.placeholder = 'Digite o nome ou use @ para mencionar alguém...';
+        }
+        
+        if (highlightTypesLabel) highlightTypesLabel.textContent = 'Que tipo de destaque é esse?';
+        
+        // Restaurar tipos de highlight padrão
+        if (highlightTypesGrid) {
+            highlightTypesGrid.innerHTML = `
+                <div class="highlight-type" data-type="gratidao">
+                    <div class="highlight-type-emoji">🙏</div>
+                    <div class="highlight-type-name">Gratidão</div>
+                    <div class="highlight-type-desc">Agradecer por algo</div>
+                </div>
+                <div class="highlight-type" data-type="memoria">
+                    <div class="highlight-type-emoji">💭</div>
+                    <div class="highlight-type-name">Memória</div>
+                    <div class="highlight-type-desc">Lembrar momentos especiais</div>
+                </div>
+                <div class="highlight-type" data-type="conquista">
+                    <div class="highlight-type-emoji">🏆</div>
+                    <div class="highlight-type-name">Conquista</div>
+                    <div class="highlight-type-desc">Celebrar vitórias</div>
+                </div>
+                <div class="highlight-type" data-type="inspiracao">
+                    <div class="highlight-type-emoji">✨</div>
+                    <div class="highlight-type-name">Inspiração</div>
+                    <div class="highlight-type-desc">Reconhecer exemplo</div>
+                </div>
+                <div class="highlight-type" data-type="apoio">
+                    <div class="highlight-type-emoji">🤝</div>
+                    <div class="highlight-type-name">Apoio</div>
+                    <div class="highlight-type-desc">Valorizar suporte</div>
+                </div>
+                <div class="highlight-type" data-type="admiracao">
+                    <div class="highlight-type-emoji">🌟</div>
+                    <div class="highlight-type-name">Admiração</div>
+                    <div class="highlight-type-desc">Expressar respeito</div>
+                </div>
+            `;
+            
+            // Reconfigurar listeners dos tipos de highlight
+            document.querySelectorAll('.highlight-type').forEach(type => {
+                type.addEventListener('click', () => selectHighlightType(type.dataset.type));
+            });
+        }
+        
+        window.isMemoriasVivasMode = false;
+        console.log('📖 Formulário restaurado para modo padrão');
+    }
+    
+    // Limpar seleção de tipo
+    selectedHighlightType = null;
+    document.querySelectorAll('.highlight-type').forEach(el => el.classList.remove('selected'));
 }
 
 // Carregar feed de comunidade específica
