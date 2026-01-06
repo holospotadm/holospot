@@ -4747,6 +4747,12 @@
                     
                     const needsOnboarding = !fullProfile?.name || !fullProfile?.username || !fullProfile?.birth_date;
                     
+                    // Adicionar birth_date ao currentUser para uso em verificações de idade
+                    if (fullProfile?.birth_date) {
+                        currentUser.birth_date = fullProfile.birth_date;
+                        console.log('📅 Birth date carregado:', fullProfile.birth_date);
+                    }
+                    
                     console.log('✅ Perfil encontrado, continuando...');
                     window.initializationInProgress = false; // Marcar fim da inicialização
                     showApp();
@@ -15135,7 +15141,7 @@
                 console.log('🔍 Verificando perfil para novo login...');
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
-                    .select('id')
+                    .select('id, birth_date')
                     .eq('id', session.user.id)
                     .single();
                 
@@ -15146,6 +15152,12 @@
                     pendingGoogleEmail = session.user.email;
                     showInviteCodeModal();
                     return;
+                }
+                
+                // Adicionar birth_date ao currentUser para uso em verificações de idade
+                if (profile?.birth_date) {
+                    currentUser.birth_date = profile.birth_date;
+                    console.log('📅 Birth date carregado:', profile.birth_date);
                 }
                 
                 console.log('✅ Perfil encontrado, mostrando app...');
