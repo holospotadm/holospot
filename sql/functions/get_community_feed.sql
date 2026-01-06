@@ -8,15 +8,22 @@ CREATE OR REPLACE FUNCTION public.get_community_feed(p_community_id uuid, p_user
  SECURITY DEFINER
  SET search_path TO 'public'
 AS $function$
+DECLARE
+    is_memorias_vivas BOOLEAN;
 BEGIN
-    -- Verificar se o usuário é membro
-    IF NOT EXISTS (
-        SELECT 1 FROM community_members cm
-        WHERE cm.community_id = get_community_feed.p_community_id 
-        AND cm.user_id = get_community_feed.p_user_id 
-        AND cm.is_active = true
-    ) THEN
-        RAISE EXCEPTION 'User is not a member of this community';
+    -- Verificar se é o Memórias Vivas (acesso universal)
+    SELECT (get_community_feed.p_community_id = get_memorias_vivas_community_id()) INTO is_memorias_vivas;
+    
+    -- Se NÃO é Memórias Vivas, verificar membership
+    IF NOT is_memorias_vivas THEN
+        IF NOT EXISTS (
+            SELECT 1 FROM community_members cm
+            WHERE cm.community_id = get_community_feed.p_community_id 
+            AND cm.user_id = get_community_feed.p_user_id 
+            AND cm.is_active = true
+        ) THEN
+            RAISE EXCEPTION 'User is not a member of this community';
+        END IF;
     END IF;
     
     -- Retornar posts da comunidade com dados do autor
@@ -30,7 +37,7 @@ BEGIN
         prof.username::TEXT AS author_username,
         prof.avatar_url AS author_avatar_url,
         prof.email AS author_email,
-        p.chain_id  -- ✅ ADICIONADO
+        p.chain_id
     FROM posts p
     LEFT JOIN profiles prof ON prof.id = p.user_id
     WHERE p.community_id = get_community_feed.p_community_id
@@ -39,4 +46,3 @@ BEGIN
     OFFSET p_offset;
 END;
 $function$
-
