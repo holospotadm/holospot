@@ -19218,8 +19218,18 @@ async function loadCommunityFeed(communityId) {
     try {
         console.log('📥 Carregando feed da comunidade:', communityId);
 
-        // Buscar informações da comunidade
-        const community = userCommunities.find(c => c.id === communityId);
+        // Buscar informações da comunidade (pode não estar em userCommunities, como Memórias Vivas)
+        let community = userCommunities.find(c => c.id === communityId);
+        
+        // Se não encontrou em userCommunities, buscar do banco (ex: Memórias Vivas)
+        if (!community) {
+            const { data: communityData } = await supabaseClient
+                .from('communities')
+                .select('id, name, emoji, slug')
+                .eq('id', communityId)
+                .single();
+            community = communityData;
+        }
         
         // Armazenar emoji e ID da comunidade globalmente
         window.currentCommunityEmoji = community?.emoji || '👨‍👩‍👧‍👦';
@@ -19228,7 +19238,8 @@ async function loadCommunityFeed(communityId) {
         // Atualizar emoji do botão Feed (sem remover a setinha)
         const feedEmoji = document.getElementById('feedEmoji');
         if (feedEmoji && community) {
-            feedEmoji.textContent = community.emoji || '👨‍👩‍👧‍👦';
+            feedEmoji.textContent = community.emoji || '📖';
+            console.log('✅ Emoji do feed atualizado para:', community.emoji);
         }
 
         const { data: posts, error } = await supabaseClient.rpc('get_community_feed', {
