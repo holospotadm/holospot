@@ -9,6 +9,7 @@
 -- - p_name: Nome da corrente (3-50 caracteres)
 -- - p_description: Descrição da corrente (10-200 caracteres)
 -- - p_highlight_type: Tipo de destaque fixo (Apoio, Inspiração, etc.)
+-- - p_is_memorias_vivas: (Opcional) Se true, a corrente é do Memórias Vivas (padrão: false)
 --
 -- RETORNA:
 -- - UUID da corrente recém-criada
@@ -17,13 +18,15 @@
 -- - Nome: 3-50 caracteres (validado por CHECK constraint)
 -- - Descrição: 10-200 caracteres (validado por CHECK constraint)
 -- - Criador deve existir (validado por FK)
+-- - Se is_memorias_vivas = true, verifica se o criador tem 60+ anos
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION public.create_chain(
     p_creator_id UUID,
     p_name TEXT,
     p_description TEXT,
-    p_highlight_type TEXT
+    p_highlight_type TEXT,
+    p_is_memorias_vivas BOOLEAN DEFAULT false
 )
 RETURNS UUID
 LANGUAGE plpgsql
@@ -36,6 +39,13 @@ BEGIN
     -- Validar que o criador existe
     IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = p_creator_id) THEN
         RAISE EXCEPTION 'Criador não encontrado: %', p_creator_id;
+    END IF;
+    
+    -- Se for uma corrente do Memórias Vivas, validar idade
+    IF p_is_memorias_vivas = true THEN
+        IF NOT can_post_in_memorias_vivas(p_creator_id) THEN
+            RAISE EXCEPTION 'Apenas usuários com 60+ anos podem criar correntes do Memórias Vivas';
+        END IF;
     END IF;
     
     -- Validar comprimento do nome
@@ -60,14 +70,16 @@ BEGIN
         description,
         highlight_type,
         status,
-        first_post_id
+        first_post_id,
+        is_memorias_vivas
     ) VALUES (
         p_creator_id,
         trim(p_name),
         trim(p_description),
         p_highlight_type,
         'pending',
-        NULL
+        NULL,
+        p_is_memorias_vivas
     )
     RETURNING id INTO v_chain_id;
     
@@ -83,15 +95,15 @@ $$;
 -- COMENTÁRIO
 -- ============================================================================
 
-COMMENT ON FUNCTION public.create_chain(UUID, TEXT, TEXT, TEXT) IS 
-'Cria uma nova corrente com status pending. Retorna o UUID da corrente criada.';
+COMMENT ON FUNCTION public.create_chain(UUID, TEXT, TEXT, TEXT, BOOLEAN) IS 
+'Cria uma nova corrente com status pending. Se is_memorias_vivas=true, valida idade 60+. Retorna o UUID da corrente criada.';
 
 -- ============================================================================
 -- PERMISSÕES
 -- ============================================================================
 
 -- Permitir que usuários autenticados executem a função
-GRANT EXECUTE ON FUNCTION public.create_chain(UUID, TEXT, TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_chain(UUID, TEXT, TEXT, TEXT, BOOLEAN) TO authenticated;
 
 -- ============================================================================
 -- FIM DA FUNÇÃO
