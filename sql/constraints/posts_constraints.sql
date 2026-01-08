@@ -14,7 +14,24 @@ ALTER TABLE public.posts ADD CONSTRAINT posts_community_id_fkey FOREIGN KEY (com
 
 ALTER TABLE public.posts ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
 
-ALTER TABLE public.posts ADD CONSTRAINT posts_type_check CHECK ((type = ANY (ARRAY['gratitude'::text, 'achievement'::text, 'memory'::text, 'inspiration'::text, 'support'::text, 'admiration'::text])));
+-- Constraint de tipo: aceita tipos originais + tipos do Memórias Vivas
+ALTER TABLE public.posts ADD CONSTRAINT posts_type_check CHECK (
+    type = ANY (ARRAY[
+        -- Tipos originais
+        'gratitude'::text, 
+        'achievement'::text, 
+        'memory'::text, 
+        'inspiration'::text, 
+        'support'::text, 
+        'admiration'::text,
+        -- Tipos do Memórias Vivas
+        'memoria_mv'::text,
+        'conselho_mv'::text,
+        'epoca_ouro_mv'::text,
+        'historia_mv'::text,
+        'licao_vida_mv'::text,
+        'tradicao_mv'::text
+    ])
+);
 
 ALTER TABLE public.posts ADD CONSTRAINT posts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id);
-
