@@ -16,6 +16,8 @@ ALTER TABLE public.chains ADD CONSTRAINT 2200_101360_6_not_null CHECK (highlight
 
 ALTER TABLE public.chains ADD CONSTRAINT 2200_101360_7_not_null CHECK (status IS NOT NULL);
 
+ALTER TABLE public.chains ADD CONSTRAINT 2200_101360_8_not_null CHECK (is_memorias_vivas IS NOT NULL);
+
 ALTER TABLE public.chains ADD CONSTRAINT chains_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.profiles(id);
 
 ALTER TABLE public.chains ADD CONSTRAINT chains_description_check CHECK (((char_length(description) >= 10) AND (char_length(description) <= 200)));
