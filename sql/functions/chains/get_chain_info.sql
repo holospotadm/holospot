@@ -67,7 +67,8 @@ BEGIN
         'end_date', c.end_date,
         'created_at', c.created_at,
         'total_posts', v_total_posts,
-        'total_participants', v_total_participants
+        'total_participants', v_total_participants,
+        'is_memorias_vivas', c.is_memorias_vivas
     )
     INTO v_chain_info
     FROM public.chains c

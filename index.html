@@ -20405,9 +20405,57 @@ function openCreateChainModal() {
             el.style.background = 'white';
         });
         
+        // Renderizar tipos de destaque (comuns + MV se 60+)
+        renderChainHighlightTypes();
+        
         // Adicionar à pilha de modais para controle de ESC e z-index
         addModalToStack('createChainModal', closeCreateChainModal);
     }
+}
+
+// Renderizar tipos de destaque no modal de criar corrente
+function renderChainHighlightTypes() {
+    const container = document.querySelector('#createChainModal .highlight-types');
+    if (!container) return;
+    
+    // Tipos comuns
+    const commonTypes = [
+        { type: 'gratidao', emoji: '🙏', name: 'Gratidão', isMV: false },
+        { type: 'memoria', emoji: '💭', name: 'Memória', isMV: false },
+        { type: 'conquista', emoji: '🏆', name: 'Conquista', isMV: false },
+        { type: 'inspiracao', emoji: '✨', name: 'Inspiração', isMV: false },
+        { type: 'apoio', emoji: '🤝', name: 'Apoio', isMV: false },
+        { type: 'admiracao', emoji: '🌟', name: 'Admiração', isMV: false }
+    ];
+    
+    // Tipos do Memórias Vivas
+    const mvTypes = [
+        { type: 'memoria_mv', emoji: '💭', name: 'Memória', isMV: true },
+        { type: 'conselho_mv', emoji: '💡', name: 'Conselho', isMV: true },
+        { type: 'epoca_ouro_mv', emoji: '✨', name: 'Época de Ouro', isMV: true },
+        { type: 'historia_mv', emoji: '📜', name: 'História', isMV: true },
+        { type: 'licao_vida_mv', emoji: '📚', name: 'Lição de Vida', isMV: true },
+        { type: 'tradicao_mv', emoji: '🎭', name: 'Tradição', isMV: true }
+    ];
+    
+    // Verificar se o usuário tem 60+
+    const userAge = currentUser && currentUser.birth_date ? calculateAge(currentUser.birth_date) : 0;
+    const canCreateMV = userAge >= 60;
+    
+    // Combinar tipos
+    let allTypes = [...commonTypes];
+    if (canCreateMV) {
+        allTypes = [...allTypes, ...mvTypes];
+    }
+    
+    // Renderizar
+    container.innerHTML = allTypes.map(t => `
+        <div class="highlight-type chain-highlight-type" data-type="${t.type}" onclick="selectChainHighlightType('${t.type}')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s; position: relative;">
+            <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">${t.emoji}</div>
+            <div class="highlight-type-name" style="font-size: 12px; font-weight: 600; color: #333;">${t.name}</div>
+            ${t.isMV ? '<div style="position: absolute; top: 4px; right: 4px; font-size: 10px; background: #f97316; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">📖 60+</div>' : ''}
+        </div>
+    `).join('');
 }
 
 // Fechar modal de criar corrente
@@ -20470,12 +20518,16 @@ async function createChain() {
         btn.disabled = true;
         btn.textContent = 'Criando...';
         
+        // Verificar se é uma corrente do Memórias Vivas
+        const isMemoriasVivas = selectedChainHighlightType.endsWith('_mv');
+        
         // Chamar função SQL
         const { data, error } = await supabaseClient.rpc('create_chain', {
             p_creator_id: user.id,
             p_name: name,
             p_description: description,
-            p_highlight_type: selectedChainHighlightType
+            p_highlight_type: selectedChainHighlightType,
+            p_is_memorias_vivas: isMemoriasVivas
         });
         
         if (error) throw error;
@@ -20485,7 +20537,8 @@ async function createChain() {
             id: data,
             name: name,
             description: description,
-            highlight_type: selectedChainHighlightType
+            highlight_type: selectedChainHighlightType,
+            is_memorias_vivas: isMemoriasVivas
         };
         
         // Fechar modal
@@ -20556,7 +20609,40 @@ function updateDestacarTab() {
         
         // Fixar tipo de destaque
         fixHighlightType(currentChain.highlight_type);
+        
+        // Se for corrente do Memórias Vivas, travar o feed
+        if (currentChain.is_memorias_vivas) {
+            lockFeedToMemoriasVivas();
+        }
     }
+}
+
+// Travar o dropdown de feed no Memórias Vivas
+function lockFeedToMemoriasVivas() {
+    const feedSelect = document.getElementById('destacarCommunitySelect');
+    if (!feedSelect) return;
+    
+    // Buscar o ID do Memórias Vivas
+    const mvOption = Array.from(feedSelect.options).find(opt => opt.textContent.includes('Memórias Vivas'));
+    if (mvOption) {
+        feedSelect.value = mvOption.value;
+        feedSelect.disabled = true;
+        feedSelect.style.opacity = '0.6';
+        feedSelect.style.cursor = 'not-allowed';
+        
+        // Disparar evento de mudança para atualizar o campo "Nome da pessoa" -> "Título"
+        feedSelect.dispatchEvent(new Event('change'));
+    }
+}
+
+// Destravar o dropdown de feed
+function unlockFeed() {
+    const feedSelect = document.getElementById('destacarCommunitySelect');
+    if (!feedSelect) return;
+    
+    feedSelect.disabled = false;
+    feedSelect.style.opacity = '1';
+    feedSelect.style.cursor = 'pointer';
 }
 
 // Fixar tipo de destaque (desabilitar outros)
@@ -20709,6 +20795,9 @@ function restoreDestacarTab() {
         el.style.opacity = '1';
         el.style.pointerEvents = 'auto';
     });
+    
+    // Destravar o feed
+    unlockFeed();
 }
 
 // Exportar funções globalmente
@@ -20749,7 +20838,8 @@ async function openChainModal(chainId, postAuthorId) {
             name: data.name,
             description: data.description,
             highlight_type: data.highlight_type,
-            parent_post_author_id: postAuthorId // Guardar de qual post veio
+            parent_post_author_id: postAuthorId, // Guardar de qual post veio
+            is_memorias_vivas: data.is_memorias_vivas || false
         };
         
         // Preencher modal
@@ -20782,6 +20872,19 @@ async function openChainModal(chainId, postAuthorId) {
         // Estatísticas
         document.getElementById('viewChainPosts').textContent = data.total_posts || 0;
         document.getElementById('viewChainParticipants').textContent = data.total_participants || 0;
+        
+        // Verificar se o usuário pode participar (se for corrente MV, precisa ter 60+)
+        const participateBtn = document.getElementById('participateChainBtn');
+        if (data.is_memorias_vivas) {
+            const userAge = currentUser && currentUser.birth_date ? calculateAge(currentUser.birth_date) : 0;
+            if (userAge < 60) {
+                participateBtn.style.display = 'none';
+            } else {
+                participateBtn.style.display = 'block';
+            }
+        } else {
+            participateBtn.style.display = 'block';
+        }
         
         // Mostrar modal
         document.getElementById('viewChainModal').style.display = 'flex';
@@ -20822,6 +20925,7 @@ async function participateInChain() {
             description: viewingChain.description,
             highlight_type: viewingChain.highlight_type,
             parent_post_author_id: viewingChain.parent_post_author_id,
+            is_memorias_vivas: viewingChain.is_memorias_vivas || false,
             isParticipating: true // Flag para indicar que é participação
         };
         
@@ -20922,6 +21026,11 @@ function updateDestacarTabForParticipation() {
         
         // Fixar tipo de destaque
         fixHighlightType(currentChain.highlight_type);
+        
+        // Se for corrente do Memórias Vivas, travar o feed
+        if (currentChain.is_memorias_vivas) {
+            lockFeedToMemoriasVivas();
+        }
     }
 }
 
