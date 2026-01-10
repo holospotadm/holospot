@@ -20607,13 +20607,13 @@ function updateDestacarTab() {
             </div>
         `;
         
-        // Fixar tipo de destaque
-        fixHighlightType(currentChain.highlight_type);
-        
-        // Se for corrente do Memórias Vivas, travar o feed
+        // Se for corrente do Memórias Vivas, travar o feed PRIMEIRO (para renderizar os tipos MV)
         if (currentChain.is_memorias_vivas) {
             lockFeedToMemoriasVivas();
         }
+        
+        // Fixar tipo de destaque (depois que os tipos MV foram renderizados)
+        fixHighlightType(currentChain.highlight_type);
     }
 }
 
@@ -21024,13 +21024,13 @@ function updateDestacarTabForParticipation() {
             </div>
         `;
         
-        // Fixar tipo de destaque
-        fixHighlightType(currentChain.highlight_type);
-        
-        // Se for corrente do Memórias Vivas, travar o feed
+        // Se for corrente do Memórias Vivas, travar o feed PRIMEIRO (para renderizar os tipos MV)
         if (currentChain.is_memorias_vivas) {
             lockFeedToMemoriasVivas();
         }
+        
+        // Fixar tipo de destaque (depois que os tipos MV foram renderizados)
+        fixHighlightType(currentChain.highlight_type);
     }
 }
 
