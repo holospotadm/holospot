@@ -20439,7 +20439,7 @@ function renderChainHighlightTypes() {
     ];
     
     // Verificar se o usuário tem 60+
-    const userAge = currentUser && currentUser.birth_date ? calculateAge(currentUser.birth_date) : 0;
+    const userAge = currentUser && currentUser.birth_date ? calculateAgeFromDate(currentUser.birth_date) : 0;
     const canCreateMV = userAge >= 60;
     
     // Combinar tipos
@@ -20876,7 +20876,7 @@ async function openChainModal(chainId, postAuthorId) {
         // Verificar se o usuário pode participar (se for corrente MV, precisa ter 60+)
         const participateBtn = document.getElementById('participateChainBtn');
         if (data.is_memorias_vivas) {
-            const userAge = currentUser && currentUser.birth_date ? calculateAge(currentUser.birth_date) : 0;
+            const userAge = currentUser && currentUser.birth_date ? calculateAgeFromDate(currentUser.birth_date) : 0;
             if (userAge < 60) {
                 participateBtn.style.display = 'none';
             } else {
