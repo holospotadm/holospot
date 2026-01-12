@@ -20415,11 +20415,16 @@ async function openCreateChainModal() {
 
 // Renderizar tipos de destaque no modal de criar corrente
 async function renderChainHighlightTypes() {
+    console.log('🎭 Renderizando tipos de destaque para corrente...');
     const container = document.getElementById('chainHighlightTypesContainer');
-    if (!container) return;
+    if (!container) {
+        console.error('❌ Container chainHighlightTypesContainer não encontrado');
+        return;
+    }
     
     // Buscar dados do usuário do Supabase para garantir que temos birth_date
     let userAge = 0;
+    console.log('🔍 Buscando idade do usuário...');
     try {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
@@ -20431,7 +20436,12 @@ async function renderChainHighlightTypes() {
             
             if (profile && profile.birth_date) {
                 userAge = calculateAgeFromDate(profile.birth_date);
+                console.log(`✅ Idade do usuário: ${userAge} anos`);
+            } else {
+                console.warn('⚠️ Perfil ou birth_date não encontrado');
             }
+        } else {
+            console.warn('⚠️ Usuário não autenticado');
         }
     } catch (error) {
         console.error('❌ Erro ao buscar idade do usuário:', error);
@@ -20459,14 +20469,19 @@ async function renderChainHighlightTypes() {
     
     // Verificar se o usuário tem 60+
     const canCreateMV = userAge >= 60;
+    console.log(`🎯 Pode criar corrente MV? ${canCreateMV} (idade: ${userAge})`);
     
     // Combinar tipos
     let allTypes = [...commonTypes];
     if (canCreateMV) {
         allTypes = [...allTypes, ...mvTypes];
+        console.log(`✅ Adicionando ${mvTypes.length} tipos MV`);
+    } else {
+        console.log('🚫 Tipos MV não serão adicionados (idade < 60)');
     }
     
     // Renderizar
+    console.log(`🎨 Renderizando ${allTypes.length} tipos de destaque`);
     container.innerHTML = allTypes.map(t => `
         <div class="highlight-type chain-highlight-type" data-type="${t.type}" onclick="selectChainHighlightType('${t.type}')" style="cursor: pointer; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.2s; position: relative;">
             <div class="highlight-type-emoji" style="font-size: 24px; margin-bottom: 4px;">${t.emoji}</div>
