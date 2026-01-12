@@ -20391,7 +20391,7 @@ let currentChain = null; // {id, name, description, highlight_type}
 let selectedChainHighlightType = null;
 
 // Abrir modal de criar corrente
-function openCreateChainModal() {
+async function openCreateChainModal() {
     const modal = document.getElementById('createChainModal');
     if (modal) {
         modal.style.display = 'flex';
@@ -20406,7 +20406,7 @@ function openCreateChainModal() {
         });
         
         // Renderizar tipos de destaque (comuns + MV se 60+)
-        renderChainHighlightTypes();
+        await renderChainHighlightTypes();
         
         // Adicionar à pilha de modais para controle de ESC e z-index
         addModalToStack('createChainModal', closeCreateChainModal);
@@ -20414,9 +20414,28 @@ function openCreateChainModal() {
 }
 
 // Renderizar tipos de destaque no modal de criar corrente
-function renderChainHighlightTypes() {
-    const container = document.querySelector('#createChainModal .highlight-types');
+async function renderChainHighlightTypes() {
+    const container = document.getElementById('chainHighlightTypesContainer');
     if (!container) return;
+    
+    // Buscar dados do usuário do Supabase para garantir que temos birth_date
+    let userAge = 0;
+    try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('birth_date')
+                .eq('id', user.id)
+                .single();
+            
+            if (profile && profile.birth_date) {
+                userAge = calculateAgeFromDate(profile.birth_date);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Erro ao buscar idade do usuário:', error);
+    }
     
     // Tipos comuns
     const commonTypes = [
@@ -20439,7 +20458,6 @@ function renderChainHighlightTypes() {
     ];
     
     // Verificar se o usuário tem 60+
-    const userAge = currentUser && currentUser.birth_date ? calculateAgeFromDate(currentUser.birth_date) : 0;
     const canCreateMV = userAge >= 60;
     
     // Combinar tipos
@@ -20876,7 +20894,25 @@ async function openChainModal(chainId, postAuthorId) {
         // Verificar se o usuário pode participar (se for corrente MV, precisa ter 60+)
         const participateBtn = document.getElementById('participateChainBtn');
         if (data.is_memorias_vivas) {
-            const userAge = currentUser && currentUser.birth_date ? calculateAgeFromDate(currentUser.birth_date) : 0;
+            // Buscar idade do usuário do Supabase
+            let userAge = 0;
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    const { data: profile } = await supabaseClient
+                        .from('profiles')
+                        .select('birth_date')
+                        .eq('id', user.id)
+                        .single();
+                    
+                    if (profile && profile.birth_date) {
+                        userAge = calculateAgeFromDate(profile.birth_date);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao buscar idade do usuário:', error);
+            }
+            
             if (userAge < 60) {
                 participateBtn.style.display = 'none';
             } else {
