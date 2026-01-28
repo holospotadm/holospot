@@ -3100,6 +3100,8 @@
         }
     </style>
     <link rel="stylesheet" href="holospot-index.css">
+    <!-- Shepherd.js - Tour de Onboarding -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
 </head>
 <body>
     <!-- Landing Page -->
@@ -3934,6 +3936,28 @@
         </div>
     </div>
 
+    <!-- Modal de Sugestão de Onboarding -->
+    <div id="onboardingSuggestionModal" class="modal-overlay" style="display: none; z-index: 100000;" onclick="declineOnboardingTour()">
+        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 32px;" onclick="event.stopPropagation()">
+            <div style="font-size: 64px; margin-bottom: 16px;">👋</div>
+            <h2 style="color: #333; margin-bottom: 12px; font-size: 24px;">Bem-vindo(a) ao HoloSpot!</h2>
+            <p style="color: #666; margin-bottom: 24px; font-size: 16px; line-height: 1.5;">
+                Você gostaria de fazer um <strong>tour rápido</strong> para conhecer as principais funcionalidades da plataforma?
+            </p>
+            <p style="color: #999; margin-bottom: 24px; font-size: 14px;">
+                Leva menos de 1 minuto! ⏱️
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="declineOnboardingTour()" style="padding: 12px 24px; background: #f3f4f6; color: #666; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+                    Agora não
+                </button>
+                <button onclick="acceptOnboardingTour()" style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(16, 185, 129, 0.3)'">
+                    Sim, vamos lá! 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Configurações -->
     <div id="settingsModal" class="modal-overlay" style="display: none;" onclick="closeSettingsModal()">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0;" onclick="event.stopPropagation()">
@@ -4051,8 +4075,16 @@
                 </div>
             </div>
             
-            <!-- Botão Deletar Conta -->
+            <!-- Botão Ver Tour Guiado -->
             <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+                <button type="button" onclick="startOnboardingTour()" style="width: 100%; padding: 12px 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    🎓 Ver Tour Guiado
+                </button>
+                <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0; text-align: center;">Reveja as funcionalidades da plataforma</p>
+            </div>
+            
+            <!-- Botão Deletar Conta -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
                 <button type="button" onclick="confirmDeleteAccount()" style="padding: 10px 20px; background: #fee2e2; color: #dc2626; border: 2px solid #dc2626; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#dc2626'; this.style.color='white';" onmouseout="this.style.background='#fee2e2'; this.style.color='#dc2626';">
                     🗑️ Deletar Minha Conta
                 </button>
@@ -4741,7 +4773,7 @@
                     // Verificar se usuário completou o onboarding (tem nome, username e birth_date)
                     const { data: fullProfile } = await supabaseClient
                         .from('profiles')
-                        .select('name, username, birth_date')
+                        .select('name, username, birth_date, has_completed_onboarding')
                         .eq('id', session.user.id)
                         .single();
                     
@@ -4752,6 +4784,10 @@
                         currentUser.birth_date = fullProfile.birth_date;
                         console.log('📅 Birth date carregado:', fullProfile.birth_date);
                     }
+                    
+                    // Adicionar has_completed_onboarding ao currentUser
+                    currentUser.has_completed_onboarding = fullProfile?.has_completed_onboarding ?? false;
+                    console.log('🎓 Onboarding completo:', currentUser.has_completed_onboarding);
                     
                     console.log('✅ Perfil encontrado, continuando...');
                     window.initializationInProgress = false; // Marcar fim da inicialização
@@ -15141,7 +15177,7 @@
                 console.log('🔍 Verificando perfil para novo login...');
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
-                    .select('id, birth_date')
+                    .select('id, birth_date, has_completed_onboarding')
                     .eq('id', session.user.id)
                     .single();
                 
@@ -15159,6 +15195,10 @@
                     currentUser.birth_date = profile.birth_date;
                     console.log('📅 Birth date carregado:', profile.birth_date);
                 }
+                
+                // Adicionar has_completed_onboarding ao currentUser
+                currentUser.has_completed_onboarding = profile?.has_completed_onboarding ?? false;
+                console.log('🎓 Onboarding completo:', currentUser.has_completed_onboarding);
                 
                 console.log('✅ Perfil encontrado, mostrando app...');
                 showApp();
@@ -15186,6 +15226,11 @@
                     
                     updateStats();
                     isInitialLoad = false;
+                    
+                    // Verificar se deve sugerir o tour de onboarding
+                    if (typeof checkAndSuggestOnboarding === 'function') {
+                        checkAndSuggestOnboarding();
+                    }
                 } else {
                     console.log('✅ Dados já carregados, pulando recarregamento desnecessário');
                 }
@@ -22057,6 +22102,315 @@ console.log('✅ Módulo Índice HoloSpot carregado');
     window.copyWaitlistEmail = copyWaitlistEmail;
     
     console.log('✅ Sistema de Convites carregado');
+    </script>
+
+    <!-- Shepherd.js - Tour de Onboarding -->
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
+    
+    <script>
+    // ============================================
+    // TOUR DE ONBOARDING
+    // ============================================
+    
+    let onboardingTour = null;
+    let isManualTourStart = false; // Flag para indicar se o tour foi iniciado manualmente
+    
+    // Função para verificar e sugerir o tour de onboarding
+    async function checkAndSuggestOnboarding() {
+        try {
+            // Verificar se o usuário já completou o onboarding
+            if (currentUser && currentUser.has_completed_onboarding === false) {
+                console.log('🎓 Usuário ainda não completou o onboarding, exibindo sugestão...');
+                // Aguardar um pouco para a interface carregar completamente
+                setTimeout(() => {
+                    showOnboardingSuggestionModal();
+                }, 1500);
+            } else {
+                console.log('✅ Usuário já completou o onboarding');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao verificar onboarding:', error);
+        }
+    }
+    
+    // Exibir modal de sugestão
+    function showOnboardingSuggestionModal() {
+        const modal = document.getElementById('onboardingSuggestionModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+    
+    // Fechar modal de sugestão
+    function hideOnboardingSuggestionModal() {
+        const modal = document.getElementById('onboardingSuggestionModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Usuário aceitou o tour
+    async function acceptOnboardingTour() {
+        hideOnboardingSuggestionModal();
+        isManualTourStart = false;
+        startOnboardingTour();
+    }
+    
+    // Usuário recusou o tour
+    async function declineOnboardingTour() {
+        hideOnboardingSuggestionModal();
+        await markOnboardingCompleted();
+    }
+    
+    // Marcar onboarding como concluído no banco
+    async function markOnboardingCompleted() {
+        try {
+            const { error } = await supabaseClient.rpc('set_onboarding_completed');
+            if (error) throw error;
+            
+            // Atualizar o estado local
+            if (currentUser) {
+                currentUser.has_completed_onboarding = true;
+            }
+            console.log('✅ Onboarding marcado como concluído');
+        } catch (error) {
+            console.error('❌ Erro ao marcar onboarding como concluído:', error);
+        }
+    }
+    
+    // Iniciar o tour de onboarding
+    function startOnboardingTour() {
+        console.log('🎓 Iniciando tour de onboarding...');
+        
+        // Fechar modal de configurações se estiver aberto
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal && settingsModal.style.display !== 'none') {
+            closeSettingsModal();
+            isManualTourStart = true;
+        }
+        
+        // Garantir que estamos na aba Feed
+        if (typeof switchTab === 'function') {
+            switchTab('feed');
+        }
+        
+        // Aguardar um pouco para a interface se ajustar
+        setTimeout(() => {
+            initializeAndStartTour();
+        }, 500);
+    }
+    
+    // Inicializar e iniciar o tour
+    function initializeAndStartTour() {
+        // Criar instância do Shepherd
+        onboardingTour = new Shepherd.Tour({
+            useModalOverlay: true,
+            defaultStepOptions: {
+                classes: 'shepherd-theme-custom',
+                scrollTo: { behavior: 'smooth', block: 'center' },
+                cancelIcon: {
+                    enabled: true
+                }
+            }
+        });
+        
+        // Passo 1: Feed Principal
+        onboardingTour.addStep({
+            id: 'feed',
+            title: '🏠 Seu Feed Principal',
+            text: 'Aqui você vê as publicações das pessoas e comunidades que segue. É a sua central de novidades!',
+            attachTo: {
+                element: '[data-tab="feed"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Pular Tour',
+                    action: function() {
+                        this.cancel();
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Próximo →',
+                    action: function() {
+                        this.next();
+                    }
+                }
+            ]
+        });
+        
+        // Passo 2: Aba Destacar
+        onboardingTour.addStep({
+            id: 'destacar',
+            title: '⭐ Destaque Alguém!',
+            text: 'Nesta aba, você cria posts especiais para destacar pessoas, expressar gratidão, compartilhar memórias e muito mais.',
+            attachTo: {
+                element: '[data-tab="destacar"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: '← Anterior',
+                    action: function() {
+                        this.back();
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Próximo →',
+                    action: function() {
+                        // Mudar para aba Destacar para mostrar os tipos
+                        if (typeof switchTab === 'function') {
+                            switchTab('destacar');
+                        }
+                        setTimeout(() => {
+                            this.next();
+                        }, 300);
+                    }
+                }
+            ]
+        });
+        
+        // Passo 3: Tipos de Destaque
+        onboardingTour.addStep({
+            id: 'tipos-destaque',
+            title: '🎯 Tipos de Destaque',
+            text: 'Escolha um tipo de destaque para dar um propósito ao seu post. Cada um tem um significado especial: Gratidão, Memória, Conquista, Inspiração, Apoio ou Admiração.',
+            attachTo: {
+                element: '.highlight-types',
+                on: 'top'
+            },
+            buttons: [
+                {
+                    text: '← Anterior',
+                    action: function() {
+                        this.back();
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Próximo →',
+                    action: function() {
+                        this.next();
+                    }
+                }
+            ]
+        });
+        
+        // Passo 4: Criar Corrente
+        onboardingTour.addStep({
+            id: 'correntes',
+            title: '🔗 Crie uma Corrente!',
+            text: 'Transforme seu post no início de uma corrente! Convide outros a continuarem a história com o mesmo tema.',
+            attachTo: {
+                element: '#createChainBtn',
+                on: 'top'
+            },
+            buttons: [
+                {
+                    text: '← Anterior',
+                    action: function() {
+                        this.back();
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Próximo →',
+                    action: function() {
+                        this.next();
+                    }
+                }
+            ]
+        });
+        
+        // Passo 5: Perfil
+        onboardingTour.addStep({
+            id: 'perfil',
+            title: '👤 Seu Perfil e Conquistas',
+            text: 'Acesse seu perfil, veja suas estatísticas, badges conquistados e gerencie suas configurações.',
+            attachTo: {
+                element: '[data-tab="profile"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: '← Anterior',
+                    action: function() {
+                        this.back();
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Próximo →',
+                    action: function() {
+                        this.next();
+                    }
+                }
+            ]
+        });
+        
+        // Passo 6: Notificações
+        onboardingTour.addStep({
+            id: 'notificacoes',
+            title: '🔔 Notificações',
+            text: 'Fique por dentro de tudo que acontece! Aqui você vê reações, novos seguidores e outras interações.',
+            attachTo: {
+                element: '#notificationsBtn',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: '← Anterior',
+                    action: function() {
+                        this.back();
+                    },
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Concluir ✓',
+                    action: function() {
+                        this.complete();
+                    }
+                }
+            ]
+        });
+        
+        // Eventos do tour
+        onboardingTour.on('complete', async () => {
+            console.log('✅ Tour de onboarding concluído!');
+            if (!isManualTourStart) {
+                await markOnboardingCompleted();
+            }
+            // Voltar para aba Feed
+            if (typeof switchTab === 'function') {
+                switchTab('feed');
+            }
+            showToast('🎉 Tour concluído! Agora é sua vez de explorar!', 'success');
+        });
+        
+        onboardingTour.on('cancel', async () => {
+            console.log('❌ Tour de onboarding cancelado');
+            if (!isManualTourStart) {
+                await markOnboardingCompleted();
+            }
+            // Voltar para aba Feed
+            if (typeof switchTab === 'function') {
+                switchTab('feed');
+            }
+        });
+        
+        // Iniciar o tour
+        onboardingTour.start();
+    }
+    
+    // Expor funções globalmente
+    window.checkAndSuggestOnboarding = checkAndSuggestOnboarding;
+    window.startOnboardingTour = startOnboardingTour;
+    window.acceptOnboardingTour = acceptOnboardingTour;
+    window.declineOnboardingTour = declineOnboardingTour;
+    
+    console.log('✅ Sistema de Onboarding carregado');
     </script>
 
 </body>
