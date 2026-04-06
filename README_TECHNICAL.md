@@ -1,8 +1,8 @@
 # HoloSpot - Documentação Técnica Completa
 
 **Autor:** Manus AI  
-**Data:** 29 de dezembro de 2025  
-**Versão:** v11.0-stable  
+**Data:** 06 de abril de 2026  
+**Versão:** v12.0-stable  
 **Propósito:** Documentação técnica completa para desenvolvedores que precisam entender, manter ou expandir a plataforma HoloSpot
 
 ---
@@ -13,13 +13,15 @@
 2. [Stack Tecnológico](#2-stack-tecnológico)
 3. [Arquitetura do Backend](#3-arquitetura-do-backend)
 4. [Banco de Dados Completo](#4-banco-de-dados-completo)
-5. [Funções SQL (158 funções)](#5-funções-sql-158-funções)
+5. [Funções SQL (166 funções)](#5-funções-sql-166-funções)
 6. [Triggers (32 triggers)](#6-triggers-32-triggers)
 7. [Arquitetura do Frontend](#7-arquitetura-do-frontend)
 8. [Segurança e RLS](#8-segurança-e-rls)
 9. [Fluxos de Dados Detalhados](#9-fluxos-de-dados-detalhados)
 10. [Deploy e CI/CD](#10-deploy-e-cicd)
 11. [Debugging e Troubleshooting](#11-debugging-e-troubleshooting)
+
+> **Nota:** As seções 4.7, 4.8 e 4.9 cobrem as funcionalidades mais recentes: Correntes (Chains), Feed Memórias Vivas e Tour de Onboarding.
 
 ---
 
@@ -63,7 +65,7 @@ Diferentemente de arquiteturas tradicionais onde a lógica de negócio reside em
 ┌─────────────────────────────────────────────────────────────┐
 │                   VERCEL (CDN Global)                        │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │              index.html (15.856 linhas)              │   │
+│  │              index.html (~21.000+ linhas)              │   │
 │  │  HTML + CSS + JavaScript (SPA)                       │   │
 │  └──────────────────────────────────────────────────────┘   │
 └────────────────────────┬────────────────────────────────────┘
@@ -84,7 +86,7 @@ Diferentemente de arquiteturas tradicionais onde a lógica de negócio reside em
 │  │            PostgreSQL 14+                            │   │
 │  │  ┌────────────────────────────────────────────────┐  │   │
 │  │  │  21 Tabelas                                    │  │   │
-│  │  │  158 Funções (plpgsql)                         │  │   │
+│  │  │  166 Funções (plpgsql)                         │  │   │
 │  │  │  32 Triggers                                   │  │   │
 │  │  │  RLS (Row Level Security) em todas as tabelas │  │   │
 │  │  └────────────────────────────────────────────────┘  │   │
@@ -105,6 +107,7 @@ Diferentemente de arquiteturas tradicionais onde a lógica de negócio reside em
 | **JavaScript** | ES6+ | Lógica do cliente (procedural + classes) |
 | **Supabase JS** | 2.x | Cliente oficial para interagir com Supabase |
 | **Chart.js** | 4.x | Visualização de dados (gráficos de métricas) |
+| **Shepherd.js** | 11.x | Tour de onboarding guiado para novos usuários |
 | **Google Analytics** | GA4 | Tracking de eventos |
 
 ### 2.2. Backend
@@ -244,6 +247,8 @@ Armazena dados públicos dos usuários.
 | `timezone` | TEXT | ✅ | 'America/Sao_Paulo' | Fuso horário para cálculo de streaks |
 | `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação do perfil |
 | `updated_at` | TIMESTAMPTZ | ✅ | NOW() | Data da última atualização |
+| `birth_date` | DATE | ✅ | - | Data de nascimento do usuário |
+| `has_completed_onboarding` | BOOLEAN | ❌ | false | Indica se o usuário já completou (ou pulou) o tour de onboarding inicial |
 
 **Constraints:**
 - `UNIQUE(email)`
@@ -680,9 +685,85 @@ Armazena mensagens dentro de conversas.
 
 ---
 
-## 5. Funções SQL (158 funções)
+### 4.7. Grupo: Correntes (Chains)
 
-O sistema possui 158 funções SQL que contêm toda a lógica de negócio. A lista completa está em `sql/functions/` (1 arquivo por função). Abaixo estão as funções mais críticas organizadas por categoria.
+#### Tabela: `chains`
+
+Armazena as correntes temáticas criadas pelos usuários.
+
+| Campo | Tipo | Nullable | Default | Descrição |
+|:---|:---|:---:|:---|:---|
+| `id` | UUID | ❌ | `uuid_generate_v4()` | ID único |
+| `creator_id` | UUID | ❌ | - | ID do criador (FK para `profiles.id`) |
+| `name` | TEXT | ❌ | - | Nome da corrente (3-50 caracteres) |
+| `description` | TEXT | ❌ | - | Descrição/propósito (10-200 caracteres) |
+| `highlight_type` | TEXT | ❌ | - | Tipo de destaque exigido para todos os posts da corrente |
+| `status` | TEXT | ✅ | 'pending' | Status: 'pending', 'active', 'completed' |
+| `first_post_id` | UUID | ✅ | - | ID do post que iniciou a corrente |
+| `start_date` | TIMESTAMPTZ | ✅ | NOW() | Data de início |
+| `end_date` | TIMESTAMPTZ | ✅ | - | Data de término (opcional) |
+| `is_memorias_vivas` | BOOLEAN | ❌ | false | Indica se a corrente pertence ao feed Memórias Vivas (participação restrita a 60+) |
+| `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação |
+
+**Funções Relacionadas:**
+- `create_chain()`: Cria uma nova corrente. Se `is_memorias_vivas = true`, valida que o criador tem 60+ anos via `can_post_in_memorias_vivas()`
+- `get_chain_info()`: Retorna informações da corrente incluindo total de posts, participantes e flag `is_memorias_vivas`
+
+#### Tabela: `chain_posts`
+
+Relaciona posts às correntes.
+
+| Campo | Tipo | Nullable | Default | Descrição |
+|:---|:---|:---:|:---|:---|
+| `id` | UUID | ❌ | `uuid_generate_v4()` | ID único |
+| `chain_id` | UUID | ❌ | - | ID da corrente (FK para `chains.id`) |
+| `post_id` | UUID | ❌ | - | ID do post (FK para `posts.id`) |
+| `author_id` | UUID | ❌ | - | ID do autor do post |
+| `position` | INTEGER | ❌ | - | Posição do post na corrente |
+| `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação |
+
+**RLS Policy Especial (Correntes MV):**
+- A policy de INSERT em `chain_posts` verifica se a corrente é do Memórias Vivas (`is_memorias_vivas = true`). Se for, valida que o usuário tem 60+ anos via `can_post_in_memorias_vivas(auth.uid())`
+
+---
+
+### 4.8. Feed Memórias Vivas
+
+O feed Memórias Vivas (📖) é um espaço dedicado a usuários com 60+ anos. Possui 6 tipos de post exclusivos:
+
+| Tipo (sufixo `_mv`) | Emoji | Descrição |
+|:---|:---|:---|
+| `memoria_mv` | 💭 | Memória |
+| `conselho_mv` | 💡 | Conselho |
+| `epoca_ouro_mv` | ✨ | Época de Ouro |
+| `historia_mv` | 📜 | História |
+| `licao_vida_mv` | 📚 | Lição de Vida |
+| `tradicao_mv` | 🎭 | Tradição |
+
+**Função de Validação:** `can_post_in_memorias_vivas(p_user_id UUID)` calcula a idade do usuário a partir de `birth_date` e retorna `true` se >= 60 anos.
+
+**Regras de Visibilidade:**
+- Todos os usuários podem **ver** posts e correntes do Memórias Vivas
+- Apenas usuários com 60+ anos podem **criar** posts e **participar** de correntes do Memórias Vivas
+- O botão "Participar da Corrente" fica oculto para usuários com menos de 60 anos
+
+---
+
+### 4.9. Tour de Onboarding
+
+O sistema de onboarding utiliza a biblioteca **Shepherd.js** para guiar novos usuários pela plataforma.
+
+**Gatilho:** Aparece automaticamente apenas na primeira vez que o usuário acessa o site após completar o cadastro (`has_completed_onboarding = false`).
+
+**Função RPC:** `set_onboarding_completed()` marca o tour como concluído para o usuário autenticado.
+
+**Acesso Manual:** Botão "🎓 Ver Tour Guiado" no modal de configurações permite rever o tour a qualquer momento.
+
+---
+
+## 5. Funções SQL (166 funções)
+
+O sistema possui 166 funções SQL que contêm toda a lógica de negócio. A lista completa está em `sql/functions/` (1 arquivo por função). Abaixo estão as funções mais críticas organizadas por categoria.
 
 ### 5.1. Funções de Pontos
 
@@ -984,12 +1065,12 @@ Os triggers automatizam a execução da lógica de negócio em resposta a evento
 
 ## 7. Arquitetura do Frontend
 
-O frontend é uma Single-Page Application (SPA) contida em um único arquivo `index.html` com **15.856 linhas**.
+O frontend é uma Single-Page Application (SPA) contida em um único arquivo `index.html` com **~21.000+ linhas**.
 
 ### 7.1. Estrutura do `index.html`
 
 ```
-index.html (15.856 linhas)
+index.html (~21.000+ linhas)
 ├── <head> (linhas 1-100)
 │   ├── Meta tags (charset, viewport, description)
 │   ├── Links para fontes (Google Fonts)

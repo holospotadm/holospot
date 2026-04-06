@@ -10,7 +10,7 @@ Se você é uma nova IA assumindo este projeto, **este guia contém a metodologi
 
 **Versão:** v6.2-enhanced  
 **Status:** ✅ 100% Documentado e Organizado  
-**Última atualização:** 2025-12-29  
+**Última atualização:** 2026-01-28  
 **Metodologia:** ✅ Comprovada e Testada
 
 **IMPORTANTE:** Este projeto está **100% funcional** e **completamente documentado**. Não refaça nada do zero - tudo está organizado e pronto para uso.
@@ -203,13 +203,13 @@ holospot/
 └── sql/                    # 🗄️ Estrutura completa do banco de dados
     ├── schema/             # 📋 Definições das tabelas (21 tabelas)
     │   └── NN_tabela.sql   # Formato: 01_badges.sql, 15_posts.sql, etc.
-    ├── functions/          # 🔧 Funções PostgreSQL (158 funções)
+    ├── functions/          # 🔧 Funções PostgreSQL (166 funções)
     │   └── nome_funcao.sql # 1 arquivo por função
-    ├── triggers/           # ⚡ Triggers PostgreSQL (32 triggers)
+    ├── triggers/           # ⚡ Triggers PostgreSQL (35 triggers)
     │   └── tabela_triggers.sql # Agrupados por tabela
     ├── constraints/        # 🔗 Constraints (138 constraints)
     │   └── tabela_constraints.sql # Agrupados por tabela
-    ├── policies/           # 🔒 Políticas RLS (83 policies)
+    ├── policies/           # 🔒 Políticas RLS (85 policies)
     │   └── tabela_policies.sql # Agrupados por tabela
     ├── migrations/         # 📦 Migrações incrementais
     │   └── YYYYMMDD_descricao.sql
@@ -268,7 +268,7 @@ holospot/
 - renderização de posts
 - modal de posts específicos
 
-// REAÇÕES (ATUALIZADO 2025-12-29)
+// REAÇÕES (ATUALIZADO 2026-01-28)
 - tipos: loved (❤️), claps (👏), hug (🫂)
 - toggleReaction() otimizada (1-2 requests por reação)
 - atualização de UI em tempo real
@@ -292,6 +292,16 @@ holospot/
 - dados do usuário
 - modal de perfil via @username
 - estatísticas de engajamento
+- índice holospot (bem-estar social)
+
+// MEMÓRIAS VIVAS (60+)
+- feed exclusivo
+- 6 tipos de posts próprios
+- correntes exclusivas
+
+// ONBOARDING
+- tour guiado com Shepherd.js
+- tooltips interativos
 ```
 
 ### 🗄️ **BACKEND (Banco de Dados)**

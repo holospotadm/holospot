@@ -1,8 +1,8 @@
 # HoloSpot - Documentação Funcional Completa
 
 **Autor:** Manus AI  
-**Data:** 29 de dezembro de 2025  
-**Versão:** v11.0-stable  
+**Data:** 28 de janeiro de 2026  
+**Versão:** v12.0-stable  
 **Propósito:** Documentação funcional completa para entender TODAS as funcionalidades da rede social HoloSpot
 
 ---
@@ -19,6 +19,9 @@
 8. [Métricas e Impacto](#8-métricas-e-impacto)
 9. [Chat e Mensagens Diretas](#9-chat-e-mensagens-diretas)
 10. [Compartilhamento e URLs](#10-compartilhamento-e-urls)
+11. [Memórias Vivas (60+)](#11-memórias-vivas-60)
+12. [Correntes Temáticas](#12-correntes-temáticas)
+13. [Busca Unificada](#13-busca-unificada)
 
 ---
 
@@ -139,13 +142,17 @@ O HoloSpot categoriza reconhecimentos em 6 tipos:
   - Username é gerado automaticamente do email
 - Clica em "Salvar"
 
-#### **Passo 5: Tutorial Interativo**
-- Modal de boas-vindas explica:
-  - Como criar posts de reconhecimento
-  - Como mencionar pessoas
-  - Como funciona a gamificação
-  - Como ganhar pontos e badges
-- Usuário clica em "Começar"
+#### **Passo 5: Tour de Onboarding (Shepherd.js)**
+- Modal de sugestão aparece automaticamente apenas no primeiro acesso
+- Pergunta: "Você gostaria de fazer um tour rápido para conhecer a plataforma?"
+- Se aceitar, inicia tour guiado com 6 passos:
+  1. Feed Principal
+  2. Destacar (Criar posts)
+  3. Tipos de Destaque
+  4. Correntes
+  5. Perfil e Configurações
+  6. Notificações
+- O tour pode ser revisto a qualquer momento via botão nas Configurações
 
 #### **Passo 6: Primeiro Post**
 - Interface principal é carregada
@@ -1165,6 +1172,57 @@ O HoloSpot é mais do que uma rede social. É um movimento para transformar a fo
 
 ---
 
+## 11. Memórias Vivas (60+)
+
+O **Memórias Vivas** é um espaço exclusivo dentro do HoloSpot dedicado a usuários com 60 anos ou mais, focado em resgatar histórias, compartilhar sabedoria e valorizar a experiência de vida.
+
+### 11.1. Regras de Acesso
+- **Visualização:** Todos os usuários podem ver o feed e os posts do Memórias Vivas.
+- **Participação:** Apenas usuários com 60+ anos (calculado pela data de nascimento no perfil) podem criar posts ou participar de correntes neste feed.
+
+### 11.2. Tipos de Posts Exclusivos
+O feed possui 6 tipos de posts próprios, identificados com a tag "📖 60+":
+1. 💭 **Memória:** Compartilhar uma lembrança marcante
+2. 💡 **Conselho:** Transmitir sabedoria de vida
+3. ✨ **Época de Ouro:** Relembrar os "bons tempos"
+4. 📜 **História:** Contar um fato histórico vivido
+5. 📚 **Lição de Vida:** Compartilhar um aprendizado importante
+6. 🎭 **Tradição:** Falar sobre costumes e tradições familiares
+
+---
+
+## 12. Correntes Temáticas
+
+As **Correntes** são sequências de posts colaborativos iniciadas por um usuário e continuadas por outros, criando uma narrativa coletiva sobre um tema específico.
+
+### 12.1. Como Funciona
+- Um usuário cria uma corrente (ex: "Histórias de Superação")
+- Define o tipo de post (ex: 🏆 Conquista)
+- Outros usuários clicam em "Continuar esta corrente"
+- O feed e o tipo de post ficam travados para manter a consistência
+- Todos os posts da corrente são agrupados e podem ser visualizados juntos
+
+### 12.2. Correntes do Memórias Vivas
+- Usuários 60+ podem criar correntes exclusivas do Memórias Vivas
+- Ao criar, o feed é travado em "📖 Memórias Vivas"
+- Apenas outros usuários 60+ verão o botão "Continuar esta corrente"
+- Usuários com menos de 60 anos podem ler, mas não podem participar
+
+---
+
+## 13. Busca Unificada
+
+O HoloSpot possui um sistema de busca global acessível pela aba "Busca" na navegação principal.
+
+### 13.1. Funcionalidades
+- **Busca em Tempo Real:** Resultados aparecem enquanto o usuário digita
+- **Resultados Agrupados:**
+  - **👥 Perfis:** Busca por nome, username ou biografia
+  - **📝 Posts:** Busca no conteúdo do post ou nome da pessoa destacada
+- **Navegação Direta:** Clicar em um perfil abre o modal do usuário; clicar em um post abre a visualização focada do post
+
+---
+
 **Autor:** Manus AI  
-**Última Atualização:** 29 de dezembro de 2025  
-**Versão do Documento:** 3.0
+**Última Atualização:** 28 de janeiro de 2026  
+**Versão do Documento:** 4.0
