@@ -467,57 +467,56 @@ O banco de dados é gerenciado via **Supabase**. As execuções SQL são feitas 
 ### Alterar uma FUNÇÃO existente
 
 1. **Manus** edita o arquivo `sql/functions/nome_funcao.sql` com a nova versão
-2. **Manus** envia o SQL executável para o usuário
-3. **Usuário** executa o SQL no Supabase SQL Editor
-4. **Manus** faz commit no GitHub após confirmação
+2. **Manus** executa o SQL diretamente no Supabase via `exec_sql`
+3. **Manus** valida o resultado
+4. **Manus** faz commit no GitHub
 
 ### Alterar um TRIGGER existente
 
 1. **Manus** edita o arquivo `sql/triggers/tabela_triggers.sql`
-2. **Manus** envia o SQL executável (DROP TRIGGER + CREATE TRIGGER)
-3. **Usuário** executa o SQL no Supabase SQL Editor
-4. **Manus** faz commit no GitHub após confirmação
+2. **Manus** executa o SQL (DROP TRIGGER + CREATE TRIGGER) via `exec_sql`
+3. **Manus** valida o resultado
+4. **Manus** faz commit no GitHub
 
 ### Alterar uma CONSTRAINT
 
 1. **Manus** edita o arquivo `sql/constraints/tabela_constraints.sql`
-2. **Manus** envia o SQL executável (ALTER TABLE DROP/ADD CONSTRAINT)
-3. **Usuário** executa o SQL no Supabase SQL Editor
-4. **Manus** faz commit no GitHub após confirmação
+2. **Manus** executa o SQL (ALTER TABLE DROP/ADD CONSTRAINT) via `exec_sql`
+3. **Manus** valida o resultado
+4. **Manus** faz commit no GitHub
 
 ### Alterar uma POLICY (RLS)
 
 1. **Manus** edita o arquivo `sql/policies/tabela_policies.sql`
-2. **Manus** envia o SQL executável (DROP POLICY + CREATE POLICY)
-3. **Usuário** executa o SQL no Supabase SQL Editor
-4. **Manus** faz commit no GitHub após confirmação
+2. **Manus** executa o SQL (DROP POLICY + CREATE POLICY) via `exec_sql`
+3. **Manus** valida o resultado
+4. **Manus** faz commit no GitHub
 
 ### Alterar SCHEMA (estrutura de tabela)
 
 1. **Manus** edita o arquivo `sql/schema/NN_tabela.sql`
-2. **Manus** envia o SQL executável (ALTER TABLE ADD/DROP/MODIFY COLUMN)
-3. **Usuário** executa o SQL no Supabase SQL Editor
-4. **Manus** faz commit no GitHub após confirmação
+2. **Manus** executa o SQL (ALTER TABLE ADD/DROP/MODIFY COLUMN) via `exec_sql`
+3. **Manus** valida o resultado
+4. **Manus** faz commit no GitHub
 
 ### Criar MIGRAÇÃO (alterações complexas)
 
 1. **Manus** cria arquivo `sql/migrations/YYYYMMDD_descricao.sql`
-2. **Manus** envia o SQL executável completo
-3. **Usuário** executa o SQL no Supabase SQL Editor
-4. **Manus** atualiza os arquivos principais afetados (functions, triggers, etc)
-5. **Manus** faz commit de tudo no GitHub após confirmação
+2. **Manus** executa o SQL completo via `exec_sql`
+3. **Manus** atualiza os arquivos principais afetados (functions, triggers, etc)
+4. **Manus** faz commit de tudo no GitHub
 
 ### Resumo do Fluxo
 
 ```
-┌─────────┐     SQL executável     ┌─────────┐
-│  Manus  │ ────────────────────▶  │ Usuário │
+┌─────────┐     SQL via API REST   ┌─────────┐
+│  Manus  │ ────────────────────▶  │Supabase │
 │         │                        │         │
 │ (edita  │                        │(executa │
-│ GitHub) │                        │Supabase)│
-└─────────┘                        └────┬────┘
-     ▲                                  │
-     │         confirmação              │
+│ GitHub) │                        │ banco)  │
+└─────────┘                        └─────────┘
+     │                                  ▲
+     │         monitora deploy          │
      └──────────────────────────────────┘
 ```
 
@@ -537,4 +536,4 @@ O banco de dados é gerenciado via **Supabase**. As execuções SQL são feitas 
 
 ---
 
-**Última extração:** 2025-12-29
+**Última extração:** 2026-04-06

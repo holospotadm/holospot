@@ -2,7 +2,7 @@
 
 **Autor:** Manus AI  
 **Data:** 06 de abril de 2026  
-**Versão:** v12.0-stable  
+**Versão:** v13.0-autonomous  
 **Propósito:** Documentação técnica completa para desenvolvedores que precisam entender, manter ou expandir a plataforma HoloSpot
 
 ---
@@ -1932,41 +1932,19 @@ git commit -m "fix: Corrigir validação de email no formulário de cadastro"
    git push origin main
    ```
 
-4. **Preparar script SQL para execução:**
-   - Extrair APENAS a função/trigger alterado
-   - Criar arquivo `.sql` limpo
-   - Incluir `CREATE OR REPLACE` (para funções)
-   - Incluir `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER` (para triggers)
+4. **Executar script SQL no banco:**
+   - Usar o utilitário Python `holospot_db.py` (exec_sql)
+   - Executar a função/trigger alterado via API REST
+   - Validar se a execução teve sucesso
 
-5. **Enviar script SQL pronto para o usuário:**
-   - Criar arquivo `.sql` limpo e pronto para execução
-   - Enviar via mensagem para o usuário
-   - Incluir comentários explicativos
-   
-   **Exemplo de mensagem:**
-   ```
-   Script SQL pronto para execução no Supabase SQL Editor:
-   
-   -- Alteração: Corrigir cálculo de pontos em posts com menção
-   -- Arquivo modificado: sql/functions/ALL_FUNCTIONS.sql
-   -- Commit: abc1234
-   
-   CREATE OR REPLACE FUNCTION public.handle_post_insert_secure()
-   RETURNS trigger
-   LANGUAGE plpgsql
-   AS $function$
-   BEGIN
-       -- Lógica corrigida aqui
-       ...
-   END;
-   $function$;
-   ```
+5. **Commitar no GitHub:**
+   - Após sucesso no banco, commitar os arquivos
+   - Push para origin main
+   - Monitorar deploy no Vercel
 
-6. **Aguardar confirmação de execução:**
-   - Usuário executa script no Supabase SQL Editor
-   - Usuário confirma sucesso ou reporta erro
-   - Se erro, investigar e corrigir
-   - Backend atualizado após confirmação
+6. **Informar o usuário:**
+   - Notificar que a alteração foi aplicada e está no ar
+   - Solicitar validação de negócio (se necessário)
 
 **Exemplo de Commit:**
 ```bash

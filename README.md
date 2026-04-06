@@ -8,9 +8,9 @@ Se você é uma nova IA assumindo este projeto, **este guia contém a metodologi
 
 ### 📊 **Status Atual do Projeto**
 
-**Versão:** v6.2-enhanced  
+**Versão:** v7.0-autonomous  
 **Status:** ✅ 100% Documentado e Organizado  
-**Última atualização:** 2026-01-28  
+**Última atualização:** 2026-04-06  
 **Metodologia:** ✅ Comprovada e Testada
 
 **IMPORTANTE:** Este projeto está **100% funcional** e **completamente documentado**. Não refaça nada do zero - tudo está organizado e pronto para uso.
@@ -29,15 +29,16 @@ Se você é uma nova IA assumindo este projeto, **este guia contém a metodologi
 3. 🔍 Identificar causa raiz através do código no GitHub
 4. 🔍 Analisar TODAS as ocorrências do problema
 5. 🔍 Corrigir sistematicamente (não apenas uma ocorrência)
-6. ✅ Commitar correção no GitHub PRIMEIRO
-7. ✅ Fornecer script SQL pronto para execução pelo usuário
+6. ✅ Executar SQL no banco via exec_sql e validar
+7. ✅ Commitar correção no GitHub
 ```
 
 #### **🎯 PREMISSA FUNDAMENTAL:**
 **GitHub = Estado atual do banco** (fonte da verdade)
 - ✅ Trabalhar com base nos arquivos commitados
 - ✅ Confiar no código do GitHub como verdade
-- ❌ NÃO extrair estado do banco (desnecessário se GitHub atualizado)
+- ✅ O agente pode (e deve) extrair o estado do banco via API para validar sincronia
+- ✅ Testar lógica com dados reais do banco antes de commitar
 
 #### **🔧 Scripts de Verificação (Último Recurso):**
 **Use APENAS se houver suspeita de dessincronia GitHub ↔ Banco**
@@ -114,31 +115,31 @@ WHERE table_name = 'tabela_suspeita';
 
 ```shell
 # NUNCA INVERTER ESTA ORDEM:
-1. 📝 Investigar problema completamente
-2. 📝 Modificar arquivos SQL/HTML no GitHub
-3. 💾 git add .
-4. 💾 git commit -m "fix: Descrição específica do problema resolvido"
-5. 💾 git push origin main
-6. 📤 Fornecer script SQL pronto para usuário executar no Supabase
-7. ✅ Aguardar confirmação de execução
+1. 📝 Investigar problema (consultando código ou banco via API)
+2. 📝 Modificar arquivos SQL/HTML localmente
+3. ⚡ Executar SQL diretamente no Supabase via exec_sql e validar
+4. 💾 git add .
+5. 💾 git commit -m "fix: Descrição específica do problema resolvido"
+6. 💾 git push origin main (dispara deploy Vercel)
+7. ✅ Informar usuário que a alteração está no ar
 8. 📋 Documentar se necessário
 ```
 
 #### **⚠️ IMPORTANTE: Fluxo de Execução SQL**
 
 ```
-┌─────────┐     SQL executável     ┌─────────┐
-│  Manus  │ ────────────────────▶  │ Usuário │
+┌─────────┐     SQL via API REST   ┌─────────┐
+│  Manus  │ ────────────────────▶  │Supabase │
 │         │                        │         │
 │ (edita  │                        │(executa │
-│ GitHub) │                        │Supabase)│
-└─────────┘                        └────┬────┘
-     ▲                                  │
-     │         confirmação              │
+│ GitHub) │                        │ banco)  │
+└─────────┘                        └─────────┘
+     │                                  ▲
+     │         monitora deploy          │
      └──────────────────────────────────┘
 ```
 
-**O usuário executa o SQL no Supabase. A IA apenas edita o GitHub e fornece o SQL.**
+**A IA executa o SQL diretamente no Supabase via API REST (exec_sql) e edita o GitHub. O usuário apenas toma decisões de produto.**
 
 #### **Exemplo de Commit Message Eficaz:**
 ```shell
@@ -459,11 +460,12 @@ WHERE table_name = 'nome_da_tabela';
 5. ✅ **Commit com mensagens descritivas** - Explique problema + solução
 6. ✅ **Adicione logs de debug** - Para facilitar troubleshooting futuro
 7. ✅ **Atualize arquivos principais após migrations** - Manter GitHub sincronizado
+8. ✅ **Use o script de setup (HOLOSPOT_setup.sh)** - Para carregar credenciais no início de cada task
 
 ### **🚫 NUNCA FAÇA:**
 1. ❌ **Assumir que algo existe** sem verificar
 2. ❌ **Corrigir apenas sintomas** sem encontrar causa raiz
-3. ❌ **Executar SQL sem commitar** no GitHub primeiro
+3. ❌ **Esquecer de commitar no GitHub** após executar SQL no banco
 4. ❌ **Ignorar erros de RLS** - Sempre verificar SECURITY DEFINER
 5. ❌ **Criar código duplicado** - Reutilizar funções existentes
 6. ❌ **Commitar sem testar** - Sempre validar antes
