@@ -25,6 +25,6 @@ FROM (
     UNION ALL
     SELECT 'feedbacks',                   COUNT(*),           12 FROM public.feedbacks WHERE mentioned_user_id IN (SELECT id FROM public.profiles WHERE email LIKE '%@seed.holospot.com')
     UNION ALL
-    SELECT 'notificacoes_seed',           COUNT(*),           0              FROM public.notifications WHERE actor_id IN (SELECT id FROM public.profiles WHERE email LIKE '%@seed.holospot.com')
+    SELECT 'notificacoes_seed',           COUNT(*),           0              FROM public.notifications WHERE from_user_id IN (SELECT id FROM public.profiles WHERE email LIKE '%@seed.holospot.com')
 ) t
 ORDER BY tabela;
