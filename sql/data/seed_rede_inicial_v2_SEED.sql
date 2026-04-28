@@ -1,5 +1,5 @@
 -- ============================================================================
--- HOLOSPOT SEED DATA v1.0
+-- HOLOSPOT SEED DATA v2.0
 -- Gerado em: 2026-04-28
 -- Timeline simulada: 2026-03-16 a 2026-04-05 (3 semanas)
 --
