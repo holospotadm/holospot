@@ -249,6 +249,7 @@ Armazena dados públicos dos usuários.
 | `updated_at` | TIMESTAMPTZ | ✅ | NOW() | Data da última atualização |
 | `birth_date` | DATE | ✅ | - | Data de nascimento do usuário |
 | `has_completed_onboarding` | BOOLEAN | ❌ | false | Indica se o usuário já completou (ou pulou) o tour de onboarding inicial |
+| `bio` | TEXT | ✅ | - | Texto de apresentação do usuário exibido no perfil |
 
 **Constraints:**
 - `UNIQUE(email)`
@@ -284,6 +285,7 @@ Armazena todos os posts de reconhecimento ("holofotes").
 | `type` | TEXT | ❌ | - | Tipo: 'gratitude', 'achievement', 'memory', 'inspiration', 'support', 'admiration' |
 | `photo_url` | TEXT | ✅ | - | URL da foto anexada (opcional) |
 | `community_id` | UUID | ✅ | - | ID da comunidade (NULL = post global) |
+| `mentioned_user_id` | UUID | ✅ | - | ID do usuário mencionado (necessário para "Holofotes Recebidos") |
 | `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação |
 | `updated_at` | TIMESTAMPTZ | ✅ | NOW() | Data da última atualização |
 
@@ -594,6 +596,9 @@ Armazena informações das comunidades privadas.
 | `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação |
 | `updated_at` | TIMESTAMPTZ | ✅ | NOW() | Data da última atualização |
 | `is_active` | BOOLEAN | ✅ | TRUE | Se a comunidade está ativa |
+| `is_age_restricted` | BOOLEAN | ✅ | FALSE | Se a comunidade tem restrição de idade |
+| `min_age_to_post` | INTEGER | ✅ | NULL | Idade mínima para postar (ex: 60) |
+| `allow_multiple_feedbacks` | BOOLEAN | ✅ | FALSE | Se permite múltiplos feedbacks do mesmo usuário |
 
 **Constraints:**
 - `UNIQUE(slug)`
@@ -719,7 +724,7 @@ Relaciona posts às correntes.
 | `chain_id` | UUID | ❌ | - | ID da corrente (FK para `chains.id`) |
 | `post_id` | UUID | ❌ | - | ID do post (FK para `posts.id`) |
 | `author_id` | UUID | ❌ | - | ID do autor do post |
-| `position` | INTEGER | ❌ | - | Posição do post na corrente |
+| `parent_post_author_id` | UUID | ✅ | - | ID do autor do post anterior na corrente |
 | `created_at` | TIMESTAMPTZ | ✅ | NOW() | Data de criação |
 
 **RLS Policy Especial (Correntes MV):**
