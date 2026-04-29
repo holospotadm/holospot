@@ -12153,10 +12153,20 @@
         function populateUserProfileModal(modal, userData, stats) {
             // Avatar
             const avatar = modal.querySelector('.profile-avatar');
+            // Remover qualquer div de inicial existente antes de repovoar (evita duplicação ao reabrir modal)
+            if (avatar.parentNode) {
+                avatar.parentNode.querySelectorAll('.avatar-initial-fallback').forEach(el => el.remove());
+            }
+            avatar.style.display = '';
             avatar.src = userData.avatar_url || '';
             avatar.onerror = function() {
                 this.style.display = 'none';
+                // Limpar qualquer fallback anterior (evita race condition)
+                if (this.parentNode) {
+                    this.parentNode.querySelectorAll('.avatar-initial-fallback').forEach(el => el.remove());
+                }
                 const initial = document.createElement('div');
+                initial.className = 'avatar-initial-fallback';
                 initial.style.cssText = `
                     width: 80px;
                     height: 80px;
@@ -12168,7 +12178,6 @@
                     color: white;
                     font-size: 32px;
                     font-weight: bold;
-
                 `;
                 initial.textContent = (userData.name || 'U').charAt(0).toUpperCase();
                 this.parentNode.insertBefore(initial, this);
