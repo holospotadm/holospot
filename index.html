@@ -19350,6 +19350,17 @@ async function loadCommunityFeed(communityId) {
             console.error('📦 window:', Object.keys(window).filter(k => k.includes('render')));
         }
 
+        // Carregar reactions, comments e feedbacks em batch — espelha o fluxo de loadFeed global.
+        // Sem isso, os contadores aparecem zerados no feed de comunidade.
+        // Débito técnico: harmonizar com get_community_feed para retornar contadores embutidos no RPC.
+        setTimeout(async () => {
+            if (typeof loadPostsReactions === 'function') await loadPostsReactions();
+            if (typeof loadAllFeedbacksInBatch === 'function') await loadAllFeedbacksInBatch();
+            if (typeof loadAllCommentsInBatch === 'function') await loadAllCommentsInBatch();
+            if (typeof window.renderPosts === 'function') await window.renderPosts();
+            console.log('✅ Contadores do feed de comunidade carregados');
+        }, 100);
+
     } catch (error) {
         console.error('❌ Erro ao carregar feed da comunidade:', error);
         const postsContainer = document.getElementById('postsContainer');
