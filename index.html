@@ -8912,14 +8912,17 @@
 
         async function loadPostsReactions() {
             try {
+                // Lê window.posts (não a variável local `posts`) para garantir consistência com
+                // loadAllFeedbacksInBatch e loadAllCommentsInBatch, e funcionar corretamente
+                // em qualquer feed (global, comunidade, futuros) que sete window.posts antes de chamar.
                 console.log('💖 Carregando reações dos posts...');
                 
-                if (posts.length === 0) {
+                if (window.posts.length === 0) {
                     console.log('⚠️ Nenhum post para carregar reações');
                     return;
                 }
                 
-                const postIds = posts.map(p => p.id);
+                const postIds = window.posts.map(p => p.id);
                 
                 try {
                     console.log('🔍 Tentando carregar reações reais do Supabase...');
@@ -8944,7 +8947,7 @@
                     console.log(`✅ ${reactionsData?.length || 0} reações reais carregadas do banco`);
                     
                     // Distribuir reações para os posts correspondentes
-                    posts.forEach(post => {
+                    window.posts.forEach(post => {
                         post.reactions = reactionsData?.filter(r => r.post_id === post.id) || [];
                     });
                     
@@ -8952,7 +8955,7 @@
                     console.warn('⚠️ Falha na query de reações, usando reações de exemplo:', reactionsError.message);
                     
                     // Fallback: Reações de exemplo
-                    posts.forEach((post, index) => {
+                    window.posts.forEach((post, index) => {
                         if (index === 0) {
                             post.reactions = [
                                 { id: 'r1', user_id: 'user-3', type: 'loved', created_at: new Date().toISOString() },
@@ -8973,7 +8976,7 @@
             } catch (error) {
                 console.error('❌ Erro crítico ao carregar reações:', error);
                 // Garantir que todos os posts tenham array de reações
-                posts.forEach(post => {
+                window.posts.forEach(post => {
                     if (!post.reactions) {
                         post.reactions = [];
                     }
